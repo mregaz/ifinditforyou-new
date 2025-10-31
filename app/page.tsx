@@ -1,133 +1,159 @@
 "use client";
-
 import { useState } from "react";
 
-export default function IFindTForYou() {
+export default function Home() {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<string[]>([]);
+  const [lang, setLang] = useState("it");
   const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState<string[]>([]);
 
-  const handleSearch = () => {
+  const onSearch = async () => {
     if (!query.trim()) return;
     setLoading(true);
-    setTimeout(() => {
-      setResults([
-        `Ho trovato 3 opzioni per "${query}":`,
-        "1️⃣ MacBook Air M3 - performance e leggerezza",
-        "2️⃣ Lenovo Yoga 7i - ottimo equilibrio qualità/prezzo",
-        "3️⃣ ASUS Zenbook 14 - design premium e autonomia top",
-      ]);
-      setLoading(false);
-    }, 1200);
+    setResults([]);
+
+    try {
+      const res = await fetch("/api/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, lang }),
+      });
+      const data = await res.json();
+      if (data.ok) setResults(data.results);
+      else setResults(["Errore nella risposta AI"]);
+    } catch (err) {
+      console.error(err);
+      setResults(["Errore di connessione."]);
+    }
+
+    setLoading(false);
   };
 
   return (
-    <div style={styles.page}>
-      <h1 style={styles.title}>
-        <span style={styles.sparkle}>✧</span> I Find It For You
-      </h1>
+    <main
+      style={{
+        minHeight: "100vh",
+        display: "grid",
+        placeItems: "center",
+        fontFamily: "system-ui",
+        backgroundColor: "#0a0a0a",
+        color: "white",
+        padding: "2rem",
+      }}
+    >
+      <div style={{ width: "min(720px, 92vw)" }}>
+        <h1 style={{ textAlign: "center", marginBottom: 12, fontSize: 28 }}>
+          I find it for you
+        </h1>
 
-      <p style={styles.subtitle}>
-        Il tuo assistente AI personale che trova ciò che cerchi — prodotti,
-        idee, offerte, viaggi e molto altro.
-      </p>
+        {/* Selettore lingua */}
+        <div style={{ textAlign: "center", marginBottom: 12 }}>
+          <label style={{ fontSize: 14, color: "#aaa", marginRight: 8 }}>
+            Lingua:
+          </label>
+          <select
+            value={lang}
+            onChange={(e) => setLang(e.target.value)}
+            style={{
+              background: "#1a1a1a",
+              color: "white",
+              borderRadius: 8,
+              padding: "6px 10px",
+              border: "1px solid #444",
+            }}
+          >
+            <option value="it">🇮🇹 Italiano</option>
+            <option value="en">🇬🇧 English</option>
+            <option value="fr">🇫🇷 Français</option>
+            <option value="de">🇩🇪 Deutsch</option>
+          </select>
+        </div>
 
-      <div style={styles.searchRow}>
-        <input
-          type="text"
-          placeholder="Scrivi cosa vuoi che trovi per te..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          style={styles.input}
-        />
-        <button onClick={handleSearch} style={styles.button} aria-label="Cerca">
-          {loading ? "..." : "🔎"}
-        </button>
+        {/* Barra di ricerca */}
+        <div style={{ display: "flex", gap: 8 }}>
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && onSearch()}
+            placeholder="Cosa vuoi che trovi per te?"
+            style={{
+              flex: 1,
+              padding: 12,
+              borderRadius: 999,
+              border: "1px solid #444",
+              backgroundColor: "#1a1a1a",
+              color: "white",
+              fontSize: 16,
+            }}
+          />
+          <button
+            onClick={onSearch}
+            style={{
+              padding: "12px 16px",
+              borderRadius: 999,
+              background:
+                "linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%)",
+              border: "none",
+              color: "white",
+              fontWeight: 500,
+              cursor: "pointer",
+              minWidth: 110,
+            }}
+          >
+            {loading ? "Sto cercando..." : "Trovalo per me"}
+          </button>
+        </div>
+
+        {/* Risultati */}
+        <div style={{ marginTop: 24, color: "#ccc" }}>
+          {loading && (
+            <div
+              style={{
+                padding: 16,
+                borderRadius: 12,
+                border: "1px solid #333",
+                backgroundColor: "#111",
+                fontSize: 14,
+                color: "#9b9bff",
+              }}
+            >
+              Sto cercando per te…
+            </div>
+          )}
+
+          {!loading && results.length > 0 && (
+            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+              {results.map((line, i) => (
+                <li
+                  key={i}
+                  style={{
+                    padding: 12,
+                    border: "1px solid #333",
+                    borderRadius: 12,
+                    backgroundColor: "#111",
+                    marginTop: 8,
+                    fontSize: 15,
+                    lineHeight: 1.4,
+                  }}
+                >
+                  {line}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <footer
+          style={{
+            textAlign: "center",
+            fontSize: 12,
+            color: "#555",
+            marginTop: 32,
+          }}
+        >
+          © 2025 ifinditforyou.com — powered by AI
+        </footer>
       </div>
-
-      <div style={styles.card}>
-        {loading ? (
-          <p style={styles.loading}>Sto cercando per te…</p>
-        ) : (
-          results.map((res, i) => (
-            <p key={i} style={styles.result}>
-              {res}
-            </p>
-          ))
-        )}
-      </div>
-
-      <footer style={styles.footer}>
-        © 2025 ifinditforyou.com — powered by AI
-      </footer>
-    </div>
+    </main>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  page: {
-    minHeight: "100vh",
-    background: "linear-gradient(to bottom, rgb(3,7,18), rgb(17,24,39))",
-    color: "#e5e7eb",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 24,
-    textAlign: "center",
-    fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
-  },
-  title: {
-    fontSize: 36,
-    fontWeight: 800,
-    margin: "0 0 8px",
-    display: "flex",
-    gap: 8,
-    alignItems: "center",
-    color: "#e5e7eb",
-  },
-  sparkle: { color: "#818cf8" },
-  subtitle: {
-    color: "#9ca3af",
-    maxWidth: 640,
-    margin: "0 auto 24px",
-    lineHeight: 1.5,
-  },
-  searchRow: {
-    display: "flex",
-    gap: 8,
-    width: "min(640px, 92vw)",
-    marginBottom: 16,
-  },
-  input: {
-    flex: 1,
-    backgroundColor: "#1f2937",
-    border: "1px solid #374151",
-    color: "#e5e7eb",
-    padding: "12px 14px",
-    borderRadius: 999,
-    outline: "none",
-  },
-  button: {
-    backgroundColor: "#6366f1",
-    color: "white",
-    border: "none",
-    borderRadius: 999,
-    padding: "12px 16px",
-    cursor: "pointer",
-  },
-  card: {
-    width: "min(640px, 92vw)",
-    backgroundColor: "#111827",
-    border: "1px solid #1f2937",
-    borderRadius: 16,
-    padding: 16,
-    boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
-    minHeight: 150,
-    textAlign: "left",
-  },
-  loading: { color: "#818cf8" },
-  result: { color: "#d1d5db", margin: "8px 0" },
-  footer: { marginTop: 32, color: "#6b7280", fontSize: 12 },
-};
