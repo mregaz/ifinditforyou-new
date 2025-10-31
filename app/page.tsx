@@ -1,45 +1,100 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 export default function Home() {
   const [query, setQuery] = useState("");
-  const [lang, setLang] = useState("it"); // lingua scelta (per ora non la mandiamo all'API, la integriamo dopo)
+  const [lang, setLang] = useState("it");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<string[]>([]);
 
- const onSearch = async () => {
-  if (!query.trim()) return;
-  setLoading(true);
-  setResults([]);
+  // 👇 dizionario UI
+  const t = useMemo(() => {
+    const translations: Record<string, any> = {
+      it: {
+        title: "I find it for you",
+        subtitle: "Il tuo assistente personale AI. Dimmi cosa cerchi e ti propongo subito 2-3 opzioni migliori.",
+        placeholder: "Cosa vuoi che trovi per te?",
+        button: loading ? "Sto cercando..." : "Trovalo per me",
+        loading: "Sto cercando per te…",
+        examplesTitle: "Esempi:",
+        examples: [
+          "Idee regalo per 50enne appassionato di bici",
+          "Weekend romantico vicino Milano",
+          "Miglior notebook leggero per viaggiare",
+        ],
+        footer: "© 2025 ifinditforyou.com — powered by AI",
+      },
+      en: {
+        title: "I find it for you",
+        subtitle: "Your personal AI assistant. Tell me what you’re looking for and I’ll suggest the best 2–3 options right away.",
+        placeholder: "What do you want me to find for you?",
+        button: loading ? "Searching..." : "Find it for me",
+        loading: "Searching for you...",
+        examplesTitle: "Examples:",
+        examples: [
+          "Gift ideas for a 50-year-old cycling enthusiast",
+          "Romantic weekend near Milan",
+          "Best lightweight laptop for travel",
+        ],
+        footer: "© 2025 ifinditforyou.com — powered by AI",
+      },
+      fr: {
+        title: "Je le trouve pour toi",
+        subtitle: "Ton assistant IA personnel. Dis-moi ce que tu cherches et je te propose 2–3 options idéales.",
+        placeholder: "Que veux-tu que je trouve pour toi ?",
+        button: loading ? "Je cherche..." : "Trouve-le pour moi",
+        loading: "Je cherche pour toi…",
+        examplesTitle: "Exemples :",
+        examples: [
+          "Idées cadeau pour une femme de 60 ans qui aime cuisiner",
+          "Week-end romantique près de Milan",
+          "Meilleur ordinateur portable léger pour voyager",
+        ],
+        footer: "© 2025 ifinditforyou.com — propulsé par l’IA",
+      },
+      de: {
+        title: "Ich finde es für dich",
+        subtitle: "Dein persönlicher KI-Assistent. Sag mir, was du suchst, und ich schlage dir 2–3 Top-Optionen vor.",
+        placeholder: "Was soll ich für dich finden?",
+        button: loading ? "Suche läuft..." : "Finde es für mich",
+        loading: "Ich suche für dich…",
+        examplesTitle: "Beispiele:",
+        examples: [
+          "Geschenkideen für einen 50-jährigen Fahrradfan",
+          "Romantisches Wochenende in der Nähe von Mailand",
+          "Bestes leichtes Notebook für Reisen",
+        ],
+        footer: "© 2025 ifinditforyou.com — unterstützt von KI",
+      },
+    };
+    return translations[lang];
+  }, [lang, loading]);
 
-  try {
-    // Passiamo sia la query dell'utente che la lingua scelta
-    const url = `/api/search?q=${encodeURIComponent(query)}&lang=${encodeURIComponent(lang)}`;
+  const onSearch = async () => {
+    if (!query.trim()) return;
+    setLoading(true);
+    setResults([]);
 
-    const res = await fetch(url, {
-      method: "GET",
-    });
+    try {
+      const url = `/api/search?q=${encodeURIComponent(query)}&lang=${encodeURIComponent(lang)}`;
+      const res = await fetch(url, { method: "GET" });
+      const data = await res.json();
 
-    const data = await res.json();
-
-    if (Array.isArray(data.results)) {
-      setResults(data.results);
-    } else {
-      setResults(["Risposta non valida dal server."]);
+      if (Array.isArray(data.results)) {
+        setResults(data.results);
+      } else {
+        setResults(["Invalid response from server."]);
+      }
+    } catch (err) {
+      console.error(err);
+      setResults(["Connection error."]);
     }
-  } catch (err) {
-    console.error(err);
-    setResults(["Errore di connessione."]);
-  }
 
-  setLoading(false);
-};
-
+    setLoading(false);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-        onSearch();
-    }
+    if (e.key === "Enter") onSearch();
   };
 
   return (
@@ -67,7 +122,7 @@ export default function Home() {
             color: "transparent",
           }}
         >
-          I find it for you
+          {t.title}
         </h1>
 
         {/* sottotitolo */}
@@ -81,8 +136,7 @@ export default function Home() {
             margin: "0 auto 20px auto",
           }}
         >
-          Il tuo assistente personale AI. Dimmi cosa cerchi e ti propongo 2-3
-          opzioni migliori, subito.
+          {t.subtitle}
         </p>
 
         {/* blocco lingua */}
@@ -98,7 +152,7 @@ export default function Home() {
             fontSize: 14,
           }}
         >
-          <label style={{ color: "#aaa" }}>Lingua risposta:</label>
+          <label style={{ color: "#aaa" }}>🌐 Language:</label>
           <select
             value={lang}
             onChange={(e) => setLang(e.target.value)}
@@ -125,7 +179,7 @@ export default function Home() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Cosa vuoi che trovi per te?"
+            placeholder={t.placeholder}
             style={{
               flex: 1,
               padding: 12,
@@ -142,8 +196,7 @@ export default function Home() {
             style={{
               padding: "12px 16px",
               borderRadius: 999,
-              background:
-                "linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%)",
+              background: "linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%)",
               border: "none",
               color: "white",
               fontWeight: 500,
@@ -152,7 +205,7 @@ export default function Home() {
               fontSize: 14,
             }}
           >
-            {loading ? "Sto cercando..." : "Trovalo per me"}
+            {t.button}
           </button>
         </div>
 
@@ -169,7 +222,7 @@ export default function Home() {
                 color: "#9b9bff",
               }}
             >
-              Sto cercando per te…
+              {t.loading}
             </div>
           )}
 
@@ -211,19 +264,13 @@ export default function Home() {
                 textAlign: "center",
               }}
             >
-              Esempi:
+              {t.examplesTitle}
               <br />
-              <span style={{ color: "#888" }}>
-                • Idee regalo per 50enne appassionato bici
-              </span>
-              <br />
-              <span style={{ color: "#888" }}>
-                • Weekend romantico vicino Milano
-              </span>
-              <br />
-              <span style={{ color: "#888" }}>
-                • Miglior notebook leggero per viaggiare
-              </span>
+              {t.examples.map((ex: string, i: number) => (
+                <div key={i} style={{ color: "#888" }}>
+                  • {ex}
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -237,7 +284,7 @@ export default function Home() {
             marginTop: 40,
           }}
         >
-          © 2025 ifinditforyou.com — powered by AI
+          {t.footer}
         </footer>
       </div>
     </main>
