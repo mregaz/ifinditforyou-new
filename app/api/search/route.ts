@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q") || "";
+  const lang = searchParams.get("lang") || "it"; // se non arriva niente, default italiano
 
   if (!q.trim()) {
     return NextResponse.json(
@@ -21,6 +22,18 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // Costruiamo il prompt per l'AI, nella lingua scelta
+    // Chiediamo 2-3 suggerimenti chiari e pratici
+    const userContent = `
+L'utente chiede: "${q}"
+
+Rispondi in questa lingua: ${lang}.
+Importante:
+- Rispondi SOLO in ${lang}.
+- Dai 2 o 3 suggerimenti pratici, numerati 1), 2), 3).
+- Breve, concreto, utile.
+`;
+
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -33,19 +46,20 @@ export async function GET(req: NextRequest) {
           {
             role: "system",
             content:
-              "Sei un assistente AI per ricerche online. Rispondi in modo sintetico e utile.",
+              "Sei un assistente AI personale che trova idee, prodotti, soluzioni e proposte utili. Tono amichevole, pratico, diretto.",
           },
           {
             role: "user",
-            content: `Trova risultati per: ${q}`,
+            content: userContent,
           },
         ],
+        temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
       const text = await response.text();
-      console.error("❌ Errore API OpenAI:", text);
+      console.error("❌ Errore API OpenAI:", response.status, text);
       return NextResponse.json(
         { results: ["Errore durante la chiamata all'API OpenAI."] },
         { status: 500 }
@@ -56,7 +70,7 @@ export async function GET(req: NextRequest) {
     const content =
       data?.choices?.[0]?.message?.content || "Nessuna risposta trovata.";
 
-    // Dividi in righe pulite per il frontend
+    // Spezziamo in righe per mostrarle in lista
     const results = content
       .split("\n")
       .map((r: string) => r.trim())
