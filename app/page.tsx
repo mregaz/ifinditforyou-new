@@ -7,32 +7,34 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<string[]>([]);
 
-  const onSearch = async () => {
-    if (!query.trim()) return;
-    setLoading(true);
-    setResults([]);
+ const onSearch = async () => {
+  if (!query.trim()) return;
+  setLoading(true);
+  setResults([]);
 
-    try {
-      // chiamiamo la nostra API route con metodo GET
-      const url = `/api/search?q=${encodeURIComponent(query)}`;
-      const res = await fetch(url, {
-        method: "GET",
-      });
+  try {
+    // Passiamo sia la query dell'utente che la lingua scelta
+    const url = `/api/search?q=${encodeURIComponent(query)}&lang=${encodeURIComponent(lang)}`;
 
-      const data = await res.json();
+    const res = await fetch(url, {
+      method: "GET",
+    });
 
-      if (Array.isArray(data.results)) {
-        setResults(data.results);
-      } else {
-        setResults(["Risposta non valida dal server."]);
-      }
-    } catch (err) {
-      console.error(err);
-      setResults(["Errore di connessione."]);
+    const data = await res.json();
+
+    if (Array.isArray(data.results)) {
+      setResults(data.results);
+    } else {
+      setResults(["Risposta non valida dal server."]);
     }
+  } catch (err) {
+    console.error(err);
+    setResults(["Errore di connessione."]);
+  }
 
-    setLoading(false);
-  };
+  setLoading(false);
+};
+
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
