@@ -512,18 +512,24 @@ export default function Home() {
         )}
 
         {/* footer */}
-        <footer
-          style={{
-            textAlign: "center",
-            fontSize: 12,
-            color: "#555",
-            marginTop: 40,
-          }}
-        >
-          {t.footer}
-        </footer>
-      </div>
-    </main>
-  );
-}
-
+       <footer
+  style={{
+    textAlign: "center",
+    fontSize: 12,
+    color: "#555",
+    marginTop: 40,
+    lineHeight: 1.6,
+  }}
+>
+  <div>{t.footer}</div>
+  <a
+    href="/privacy"
+    style={{
+      color: "#8b5cf6",
+      textDecoration: "none",
+      fontSize: 12,
+    }}
+  >
+    Privacy & Termini
+  </a>
+</footer>
