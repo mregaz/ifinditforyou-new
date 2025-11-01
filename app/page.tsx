@@ -23,7 +23,7 @@ export default function Home() {
   const t = useMemo(() => {
     const translations: Record<string, any> = {
       it: {
-        title: "I find it for you",
+        title: "Lo trovo io per te",
         subtitle:
           "Il tuo assistente personale AI. Dimmi cosa cerchi e ti propongo subito 2-3 opzioni migliori.",
         placeholder: "Cosa vuoi che trovi per te?",
