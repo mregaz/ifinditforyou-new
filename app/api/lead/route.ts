@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Per ora salviamo semplicemente lato server nel log.
-// Dopo possiamo collegare email, Telegram, Google Sheets, ecc.
+// 👇 Versione base funzionante del form "Contattami"
+// Per ora logga sul server (vedi Function Logs su Vercel)
+// e risponde con { ok: true }
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,7 +16,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Logga su server (lo vedi nei Function Logs su Vercel)
     console.log("🔥 NUOVO LEAD:", {
       email,
       details,
@@ -23,19 +23,15 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
     });
 
-    // TODO futuro:
-    // - salvare in un DB
-    // - mandarti una mail
-    // - mandarti un msg Telegram
-    // - creare ticket cliente
-
+    // 🔜 In futuro: collegare email, Telegram, o database
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("💥 Errore /api/lead:", err);
+    console.error("❌ Errore in /api/lead:", err);
     return NextResponse.json(
-        { ok: false, error: "server_error" },
-        { status: 500 }
+      { ok: false, error: "server_error" },
+      { status: 500 }
     );
   }
 }
+
 
