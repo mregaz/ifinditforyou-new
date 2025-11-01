@@ -1,19 +1,25 @@
 "use client";
+
 import { useState, useMemo } from "react";
 
 export default function Home() {
+  // ─────────────────────────────
+  // STATE
+  // ─────────────────────────────
   const [query, setQuery] = useState("");
   const [lang, setLang] = useState("it");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<string[]>([]);
 
-  // lead capture state
+  // lead capture
   const [email, setEmail] = useState("");
   const [details, setDetails] = useState("");
   const [sendingLead, setSendingLead] = useState(false);
   const [leadSent, setLeadSent] = useState<null | "ok" | "err">(null);
 
-  // testo UI multilingua
+  // ─────────────────────────────
+  // COPY / TRADUZIONI UI
+  // ─────────────────────────────
   const t = useMemo(() => {
     const translations: Record<string, any> = {
       it: {
@@ -44,6 +50,7 @@ export default function Home() {
         leadError: "Errore nell'invio. Riprova.",
         leadLabelHow: "Come vuoi che ti risponda?",
       },
+
       en: {
         title: "I find it for you",
         subtitle:
@@ -71,6 +78,7 @@ export default function Home() {
         leadError: "Send failed. Please try again.",
         leadLabelHow: "How should I contact you?",
       },
+
       fr: {
         title: "Je le trouve pour toi",
         subtitle:
@@ -98,6 +106,7 @@ export default function Home() {
         leadError: "Échec de l’envoi. Réessaie.",
         leadLabelHow: "Comment tu veux que je te réponde ?",
       },
+
       de: {
         title: "Ich finde es für dich",
         subtitle:
@@ -126,10 +135,13 @@ export default function Home() {
         leadLabelHow: "Wie soll ich dich kontaktieren?",
       },
     };
+
     return translations[lang];
   }, [lang, loading]);
 
-  // ---- SEARCH HANDLER ----
+  // ─────────────────────────────
+  // SEARCH HANDLER
+  // ─────────────────────────────
   const onSearch = async () => {
     if (!query.trim()) return;
     setLoading(true);
@@ -161,7 +173,9 @@ export default function Home() {
     if (e.key === "Enter") onSearch();
   };
 
-  // ---- LEAD SENDER ----
+  // ─────────────────────────────
+  // LEAD SUBMIT
+  // ─────────────────────────────
   const sendLead = async () => {
     if (!email.trim()) {
       setLeadSent("err");
@@ -196,7 +210,9 @@ export default function Home() {
     setSendingLead(false);
   };
 
-  // ---- RENDER ----
+  // ─────────────────────────────
+  // RENDER
+  // ─────────────────────────────
   return (
     <main
       style={{
@@ -240,7 +256,7 @@ export default function Home() {
           {t.subtitle}
         </p>
 
-        {/* blocco lingua */}
+        {/* selettore lingua */}
         <div
           style={{
             textAlign: "center",
@@ -274,7 +290,7 @@ export default function Home() {
           </select>
         </div>
 
-        {/* barra di ricerca + bottone */}
+        {/* barra ricerca */}
         <div style={{ display: "flex", gap: 8 }}>
           <input
             value={query}
@@ -377,7 +393,7 @@ export default function Home() {
           )}
         </div>
 
-        {/* LEAD CAPTURE */}
+        {/* BLOCCO LEAD SOLO SE CI SONO RISULTATI */}
         {results.length > 0 && (
           <div
             style={{
@@ -515,7 +531,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* footer */}
+        {/* FOOTER */}
         <footer
           style={{
             textAlign: "center",
@@ -534,7 +550,7 @@ export default function Home() {
               fontSize: 12,
             }}
           >
-            Privacy &amp; Termini
+            Privacy & Termini
           </a>
         </footer>
       </div>
