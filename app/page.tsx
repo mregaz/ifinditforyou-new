@@ -36,13 +36,13 @@ export default function Home() {
         leadDesc:
           "Ti mando direttamente il link migliore / l’opzione giusta. Gratis nella fase beta.",
         leadEmailPlaceholder: "La tua email (o WhatsApp)",
-        leadDetailsPlaceholder: "Dettagli extra (taglia, budget, stile, ecc.) - opzionale",
+        leadDetailsPlaceholder:
+          "Dettagli extra (taglia, budget, stile, ecc.) - opzionale",
         leadButtonIdle: "Contattami per la soluzione perfetta",
         leadButtonSending: "Invio...",
         leadThanks: "Perfetto! Ti conosco già 😎 Ti rispondo presto.",
         leadError: "Errore nell'invio. Riprova.",
-        leadLabelHow:
-          "Come vuoi che ti risponda?",
+        leadLabelHow: "Come vuoi che ti risponda?",
       },
       en: {
         title: "I find it for you",
@@ -63,13 +63,13 @@ export default function Home() {
         leadDesc:
           "I'll send you the single best match / link. Free while in beta.",
         leadEmailPlaceholder: "Your email (or WhatsApp)",
-        leadDetailsPlaceholder: "Extra details (budget, style, size...) - optional",
+        leadDetailsPlaceholder:
+          "Extra details (budget, style, size...) - optional",
         leadButtonIdle: "Send it to me",
         leadButtonSending: "Sending...",
         leadThanks: "Got it! I’ll get back to you 🤝",
         leadError: "Send failed. Please try again.",
-        leadLabelHow:
-          "How should I contact you?",
+        leadLabelHow: "How should I contact you?",
       },
       fr: {
         title: "Je le trouve pour toi",
@@ -90,7 +90,8 @@ export default function Home() {
         leadDesc:
           "Je t’envoie directement la meilleure option / le meilleur lien. Gratuit pendant la bêta.",
         leadEmailPlaceholder: "Ton email (ou WhatsApp)",
-        leadDetailsPlaceholder: "Détails en plus (budget, style...) - optionnel",
+        leadDetailsPlaceholder:
+          "Détails en plus (budget, style...) - optionnel",
         leadButtonIdle: "Contacte-moi",
         leadButtonSending: "Envoi...",
         leadThanks: "Parfait 😌 Je reviens vers toi.",
@@ -128,6 +129,7 @@ export default function Home() {
     return translations[lang];
   }, [lang, loading]);
 
+  // ---- SEARCH HANDLER ----
   const onSearch = async () => {
     if (!query.trim()) return;
     setLoading(true);
@@ -138,6 +140,7 @@ export default function Home() {
       const url = `/api/search?q=${encodeURIComponent(
         query
       )}&lang=${encodeURIComponent(lang)}`;
+
       const res = await fetch(url, { method: "GET" });
       const data = await res.json();
 
@@ -158,7 +161,7 @@ export default function Home() {
     if (e.key === "Enter") onSearch();
   };
 
-  // invio lead
+  // ---- LEAD SENDER ----
   const sendLead = async () => {
     if (!email.trim()) {
       setLeadSent("err");
@@ -193,6 +196,7 @@ export default function Home() {
     setSendingLead(false);
   };
 
+  // ---- RENDER ----
   return (
     <main
       style={{
@@ -512,24 +516,28 @@ export default function Home() {
         )}
 
         {/* footer */}
-       <footer
-  style={{
-    textAlign: "center",
-    fontSize: 12,
-    color: "#555",
-    marginTop: 40,
-    lineHeight: 1.6,
-  }}
->
-  <div>{t.footer}</div>
-  <a
-    href="/privacy"
-    style={{
-      color: "#8b5cf6",
-      textDecoration: "none",
-      fontSize: 12,
-    }}
-  >
-    Privacy & Termini
-  </a>
-</footer>
+        <footer
+          style={{
+            textAlign: "center",
+            fontSize: 12,
+            color: "#555",
+            marginTop: 40,
+            lineHeight: 1.6,
+          }}
+        >
+          <div>{t.footer}</div>
+          <a
+            href="/privacy"
+            style={{
+              color: "#8b5cf6",
+              textDecoration: "none",
+              fontSize: 12,
+            }}
+          >
+            Privacy &amp; Termini
+          </a>
+        </footer>
+      </div>
+    </main>
+  );
+}
