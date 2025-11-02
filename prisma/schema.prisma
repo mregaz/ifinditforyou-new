@@ -1,2 +1,21 @@
-npx prisma init
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String?  // opzionale
+  email     String
+  message   String
+  lang      String   @default("it")
+  createdAt DateTime @default(now())
+}
+
 
