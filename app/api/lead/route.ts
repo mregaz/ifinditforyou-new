@@ -4,12 +4,10 @@ import { Resend } from "resend";
 // Inizializza Resend con la tua API key da Vercel
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// ✅ Email del destinatario
+// Email che deve ricevere le richieste dal form
 const DESTINATION_EMAIL = "info@ifinditforyou.com";
 
-// ✅ Mittente (funziona dopo la verifica del dominio su Resend)
-//   Se non ancora verificato, puoi temporaneamente usare:
-//   "onboarding@resend.dev"
+// Mittente (deve essere su un dominio verificato in Resend)
 const FROM_EMAIL = "noreply@ifinditforyou.com";
 
 export async function POST(req: NextRequest) {
@@ -17,7 +15,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { email, details, lastQuery } = body || {};
 
-    // Validazione base
+    // Controllo minimo: serve almeno un contatto
     if (!email || !email.trim()) {
       return NextResponse.json(
         { ok: false, error: "missing_email" },
@@ -25,20 +23,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Costruisci il contenuto dell’email
+    // Corpo dell'email che ricevi tu
     const text = [
       `🔥 NUOVO LEAD dal sito ifinditforyou.com`,
       ``,
-      `Contatto: ${email}`,
-      details ? `Dettagli utente: ${details}` : `Dettagli utente: (nessuno)`,
+      `Contatto lasciato dall'utente: ${email}`,
+      details
+        ? `Dettagli utente: ${details}`
+        : `Dettagli utente: (nessuno fornito)`,
       lastQuery
-        ? `Ultima ricerca dell'utente: ${lastQuery}`
-        : `Ultima ricerca dell'utente: (non presente)`,
+        ? `Ultima ricerca fatta sul sito: ${lastQuery}`
+        : `Ultima ricerca fatta sul sito: (non presente)`,
       ``,
       `Data: ${new Date().toLocaleString("it-CH")}`,
     ].join("\n");
 
-    // Invia l'email con Resend
+    // Invio email a te
     const result = await resend.emails.send({
       from: `ifinditforyou <${FROM_EMAIL}>`,
       to: [DESTINATION_EMAIL],
@@ -57,6 +57,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
 
 
