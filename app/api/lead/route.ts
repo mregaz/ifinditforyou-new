@@ -1,10 +1,10 @@
 // app/api/lead/route.ts
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { prisma } from '@/lib/prisma';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// dove ricevi le notifiche
 const INTERNAL_NOTIFY_EMAIL = 'info@ifinditforyou.com';
 
 const autoReplyContent: Record<
@@ -50,15 +50,40 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
+    // prendo tutto quello che POTREBBE arrivare dal form
     const {
       name,
       email,
       message,
+      msg,
+      text,
+      question,
+      descrizione,
       lang,
-    }: { name?: string; email?: string; message?: string; lang?: string } =
-      body || {};
+    }: {
+      name?: string;
+      email?: string;
+      message?: string;
+      msg?: string;
+      text?: string;
+      question?: string;
+      descrizione?: string;
+      lang?: string;
+    } = body || {};
 
-    if (!email || !message) {
+    // normalizzo: scelgo il primo campo "testo utente" che trovo
+    const userMessage =
+      message ??
+      msg ??
+      text ??
+      question ??
+      descrizione ??
+      '';
+
+    if (!email || !userMessage) {
+      // log interno utile per debug su Vercel Functions logs
+      console.error('Missing data. Body received:', body);
+
       return NextResponse.json(
         { error: 'Missing required fields: email or message' },
         { status: 400 }
@@ -70,21 +95,34 @@ export async function POST(req: Request) {
         ? lang.toLowerCase()
         : 'it';
 
-    // 1️⃣ mail interna a te
+    // 0️⃣ Salva nel DB
+    const savedLead = await prisma.lead.create({
+      data: {
+        name: name ?? null,
+        email,
+        message: userMessage,
+        lang: safeLang,
+      },
+    });
+
+    // 1️⃣ Email interna a te
     await resend.emails.send({
       from: 'iFindItForYou <noreply@ifinditforyou.com>',
       to: INTERNAL_NOTIFY_EMAIL,
       subject: 'Nuovo lead dal sito iFindItForYou',
       html: `
+        <p><strong>Lead ID:</strong> ${savedLead.id}</p>
         <p><strong>Nome:</strong> ${name ?? '(non fornito)'}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Lingua:</strong> ${safeLang}</p>
         <p><strong>Messaggio:</strong></p>
-        <p style="white-space:pre-line">${message}</p>
+        <p style="white-space:pre-line">${userMessage}</p>
+        <hr/>
+        <p><small>Arrivato il ${savedLead.createdAt.toISOString()}</small></p>
       `,
     });
 
-    // 2️⃣ auto-risposta all’utente
+    // 2️⃣ Auto-risposta all’utente
     const replyCfg = autoReplyContent[safeLang];
 
     await resend.emails.send({
@@ -99,11 +137,12 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error('POST /api/lead error:', err);
     return NextResponse.json(
-      { error: 'Errore durante l’invio delle email' },
+      { error: 'Errore durante l’invio o il salvataggio del lead' },
       { status: 500 }
     );
   }
 }
+
 
 
 
