@@ -1,61 +1,110 @@
-import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
+// app/api/lead/route.ts
+import { NextResponse } from 'next/server';
+import { Resend } from 'resend';
 
-// Inizializza Resend con la tua API key da Vercel
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Email che deve ricevere le richieste dal form
-const DESTINATION_EMAIL = "info@ifinditforyou.com";
+// 📩 dove ricevi le notifiche interne
+const INTERNAL_NOTIFY_EMAIL = 'info@ifinditforyou.com';
 
-// Mittente (deve essere su un dominio verificato in Resend)
-const FROM_EMAIL = "noreply@ifinditforyou.com";
+// Contenuti email automatica
+const autoReplyContent: Record<
+  string,
+  { subject: string; html: (name?: string) => string }
+> = {
+  it: {
+    subject: 'Grazie per averci contattato!',
+    html: (name?: string) => `
+      <p>Ciao ${name ?? ''},</p>
+      <p>grazie per averci contattato su <strong>iFindItForYou</strong>! 🎯</p>
+      <p>Abbiamo ricevuto il tuo messaggio e ti risponderemo al più presto.</p>
+      <br/>
+      <p>Il team di <strong>iFindItForYou</strong></p>
+      <p style="font-size:12px;color:#777;">Se non sei stato tu a inviare questa richiesta, puoi ignorare questa email.</p>
+    `,
+  },
+  en: {
+    subject: 'Thank you for contacting us!',
+    html: (name?: string) => `
+      <p>Hi ${name ?? ''},</p>
+      <p>thank you for reaching out to <strong>iFindItForYou</strong>! 🎯</p>
+      <p>We've received your message and will get back to you as soon as possible.</p>
+      <br/>
+      <p>The <strong>iFindItForYou</strong> team</p>
+      <p style="font-size:12px;color:#777;">If you didn’t submit this request, you can ignore this email.</p>
+    `,
+  },
+  fr: {
+    subject: 'Merci de nous avoir contactés !',
+    html: (name?: string) => `
+      <p>Bonjour ${name ?? ''},</p>
+      <p>merci d'avoir contacté <strong>iFindItForYou</strong> ! 🎯</p>
+      <p>Nous avons bien reçu votre message et nous vous répondrons dès que possible.</p>
+      <br/>
+      <p>L’équipe <strong>iFindItForYou</strong></p>
+      <p style="font-size:12px;color:#777;">Si vous n’êtes pas à l’origine de cette demande, vous pouvez ignorer cet e-mail.</p>
+    `,
+  },
+};
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, details, lastQuery } = body || {};
 
-    // Controllo minimo: serve almeno un contatto
-    if (!email || !email.trim()) {
+    const {
+      name,
+      email,
+      message,
+      lang,
+    }: { name?: string; email?: string; message?: string; lang?: string } =
+      body || {};
+
+    if (!email || !message) {
       return NextResponse.json(
-        { ok: false, error: "missing_email" },
+        { error: 'Missing required fields: email or message' },
         { status: 400 }
       );
     }
 
-    // Corpo dell'email che ricevi tu
-    const text = [
-      `🔥 NUOVO LEAD dal sito ifinditforyou.com`,
-      ``,
-      `Contatto lasciato dall'utente: ${email}`,
-      details
-        ? `Dettagli utente: ${details}`
-        : `Dettagli utente: (nessuno fornito)`,
-      lastQuery
-        ? `Ultima ricerca fatta sul sito: ${lastQuery}`
-        : `Ultima ricerca fatta sul sito: (non presente)`,
-      ``,
-      `Data: ${new Date().toLocaleString("it-CH")}`,
-    ].join("\n");
+    const safeLang =
+      lang && ['it', 'en', 'fr'].includes(lang.toLowerCase())
+        ? lang.toLowerCase()
+        : 'it';
 
-    // Invio email a te
-    const result = await resend.emails.send({
-      from: `ifinditforyou <${FROM_EMAIL}>`,
-      to: [DESTINATION_EMAIL],
-      subject: "Nuovo lead dal sito ifinditforyou.com",
-      text,
+    // 1️⃣ Email interna di notifica
+    await resend.emails.send({
+      from: 'iFindItForYou <noreply@ifinditforyou.com>',
+      to: INTERNAL_NOTIFY_EMAIL,
+      subject: 'Nuovo lead dal sito iFindItForYou',
+      html: `
+        <p><strong>Nome:</strong> ${name ?? '(non fornito)'}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Lingua:</strong> ${safeLang}</p>
+        <p><strong>Messaggio:</strong></p>
+        <p style="white-space:pre-line">${message}</p>
+      `,
     });
 
-    console.log("✅ Email inviata con successo:", result?.data?.id || result);
+    // 2️⃣ Auto-risposta all’utente
+    const replyCfg = autoReplyContent[safeLang];
 
-    return NextResponse.json({ ok: true });
+    await resend.emails.send({
+      from: 'iFindItForYou <noreply@ifinditforyou.com>',
+      to: email,
+      subject: replyCfg.subject,
+      html: replyCfg.html(name),
+      reply_to: 'info@ifinditforyou.com',
+    });
+
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
-    console.error("❌ Errore in /api/lead:", err);
+    console.error('POST /api/lead error:', err);
     return NextResponse.json(
-      { ok: false, error: "server_error" },
+      { error: 'Errore durante l’invio delle email' },
       { status: 500 }
     );
   }
 }
+
 
 
