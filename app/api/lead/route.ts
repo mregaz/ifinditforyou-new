@@ -4,10 +4,9 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// 📩 dove ricevi le notifiche interne
+// dove ricevi le notifiche
 const INTERNAL_NOTIFY_EMAIL = 'info@ifinditforyou.com';
 
-// Contenuti email automatica
 const autoReplyContent: Record<
   string,
   { subject: string; html: (name?: string) => string }
@@ -71,7 +70,7 @@ export async function POST(req: Request) {
         ? lang.toLowerCase()
         : 'it';
 
-    // 1️⃣ Email interna di notifica
+    // 1️⃣ mail interna a te
     await resend.emails.send({
       from: 'iFindItForYou <noreply@ifinditforyou.com>',
       to: INTERNAL_NOTIFY_EMAIL,
@@ -85,7 +84,7 @@ export async function POST(req: Request) {
       `,
     });
 
-    // 2️⃣ Auto-risposta all’utente
+    // 2️⃣ auto-risposta all’utente
     const replyCfg = autoReplyContent[safeLang];
 
     await resend.emails.send({
@@ -93,7 +92,7 @@ export async function POST(req: Request) {
       to: email,
       subject: replyCfg.subject,
       html: replyCfg.html(name),
-      reply_to: 'info@ifinditforyou.com',
+      replyTo: 'info@ifinditforyou.com',
     });
 
     return NextResponse.json({ success: true }, { status: 200 });
