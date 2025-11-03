@@ -4,6 +4,7 @@ import { Resend } from 'resend';
 import { prisma } from '../../../lib/prisma';
 
 
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Email interna dove ricevi le notifiche
