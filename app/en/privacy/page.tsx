@@ -20,41 +20,53 @@ export default function PrivacyEn() {
         services.
       </p>
 
-      <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">1. Data We Collect</h2>
+      <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">1. Data we collect</h2>
       <p>
-        We may collect the following data: contact details (such as your email),
-        messages you send via the contact form, and technical data needed to operate
-        the website.
+        We may collect: your contact details (such as email), the content of messages
+        you send us via forms, and technical data strictly necessary to operate the
+        website.
       </p>
 
       <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
-        2. Purpose of Processing
-      </h2>
-      <p>We use your data to reply to your requests, improve the service and ensure security.</p>
-
-      <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
-        3. Data Sharing
+        2. Why we process your data
       </h2>
       <p>
-        We do not sell your data. We may share it only with service providers strictly necessary
-        to operate the platform (e.g. email provider).
+        We process your personal data to reply to your requests, improve the service,
+        and ensure the security of the platform.
       </p>
 
       <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
-        4. Your Rights
+        3. Sharing of data
       </h2>
       <p>
-        You can request access, correction or deletion of your personal data by writing to{" "}
+        We do not sell your personal data. We may share it only with trusted service
+        providers (for example email or hosting providers) and only for the purposes
+        listed above.
+      </p>
+
+      <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">4. Your rights</h2>
+      <p>
+        You can ask to access, correct or delete your personal data by contacting us
+        at{" "}
         <a
-            href="mailto:info@ifinditforyou.com"
-            className="text-blue-400 underline hover:text-blue-300"
-          >
-            info@ifinditforyou.com
-          </a>.
+          href="mailto:info@ifinditforyou.com"
+          className="text-blue-400 underline hover:text-blue-300"
+        >
+          info@ifinditforyou.com
+        </a>
+        .
+      </p>
+
+      <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
+        5. Changes to this policy
+      </h2>
+      <p>
+        We may update this Privacy Policy from time to time. If we do, we will update
+        the date at the top of this page.
       </p>
 
       <div className="mt-12 text-sm text-gray-400 border-t border-gray-700 pt-6">
-        <p>© 2025 iFindItForYou.</p>
+        <p>© 2025 iFindItForYou. All rights reserved.</p>
       </div>
     </main>
   );
