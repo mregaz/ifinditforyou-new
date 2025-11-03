@@ -2,16 +2,10 @@
 
 import { useState } from 'react';
 
-const LANGS = [
-  { value: 'it', label: 'Italiano' },
-  { value: 'en', label: 'English' },
-  { value: 'fr', label: 'Français' },
-];
-
 export default function HomePage() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
-  const [lang, setLang] = useState<'it' | 'en' | 'fr'>('it');
+  const [lang, setLang] = useState('it');
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
 
@@ -28,20 +22,11 @@ export default function HomePage() {
     try {
       const res = await fetch('/api/lead', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          message,
-          lang,
-          name: null, // opzionale nel tuo schema
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, message, lang, name: null }),
       });
 
-      if (!res.ok) {
-        throw new Error('Errore dal server');
-      }
+      if (!res.ok) throw new Error();
 
       setFeedback({ type: 'ok', text: 'Ricevuto! Ti scrivo appena ho il link giusto 👍' });
       setMessage('');
@@ -52,112 +37,161 @@ export default function HomePage() {
     }
   }
 
+  // stile super basico qui
+  const pageStyle: React.CSSProperties = {
+    minHeight: '100vh',
+    background: '#0f172a',
+    color: 'white',
+    fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    display: 'flex',
+    flexDirection: 'column',
+  };
+
+  const container: React.CSSProperties = {
+    width: '100%',
+    maxWidth: '900px',
+    margin: '0 auto',
+    padding: '1.5rem 1rem 3rem',
+    flex: 1,
+  };
+
+  const card: React.CSSProperties = {
+    background: 'rgba(15, 23, 42, 0.4)',
+    border: '1px solid rgba(148, 163, 184, 0.25)',
+    borderRadius: '1rem',
+    padding: '1.5rem',
+    marginTop: '1.5rem',
+  };
+
+  const label: React.CSSProperties = {
+    fontSize: '0.9rem',
+    fontWeight: 500,
+    marginBottom: '0.35rem',
+    display: 'block',
+  };
+
+  const input: React.CSSProperties = {
+    width: '100%',
+    padding: '0.5rem 0.6rem',
+    borderRadius: '0.5rem',
+    border: '1px solid #475569',
+    background: '#020617',
+    color: 'white',
+    fontSize: '0.95rem',
+  };
+
+  const footer: React.CSSProperties = {
+    borderTop: '1px solid rgba(148,163,184,0.15)',
+    padding: '1rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: '1rem',
+    flexWrap: 'wrap',
+  };
+
+  const link: React.CSSProperties = {
+    color: 'white',
+    textDecoration: 'none',
+  };
+
   return (
-    <div className="min-h-screen bg-slate-900 text-white flex flex-col">
-      {/* header */}
-      <header className="w-full border-b border-slate-800 bg-slate-900/70 backdrop-blur">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <p className="text-sm text-slate-400">Beta gratuita</p>
-          <h1 className="text-4xl font-bold mt-1 tracking-tight">iFindItForYou</h1>
+    <div style={pageStyle}>
+      <header style={{ padding: '1.2rem 1rem 0' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+          <p style={{ fontSize: '0.8rem', color: '#cbd5f5' }}>Beta gratuita</p>
+          <h1 style={{ fontSize: '2.7rem', fontWeight: 700, marginTop: '0.2rem' }}>iFindItForYou</h1>
         </div>
       </header>
 
-      {/* main */}
-      <main className="flex-1">
-        <div className="max-w-4xl mx-auto px-4 py-10 space-y-8">
-          <p className="text-lg text-slate-200">
-            Ti mando direttamente il link migliore / l&apos;opzione giusta. Tu scrivi cosa cerchi, io ti rispondo per
-            email.
-          </p>
+      <main style={container}>
+        <p style={{ fontSize: '1.05rem', lineHeight: 1.5, marginTop: '1rem' }}>
+          Ti mando direttamente il link migliore / l&apos;opzione giusta. Tu scrivi cosa cerchi, io ti rispondo per
+          email.
+        </p>
 
-          <form onSubmit={handleSubmit} className="space-y-6 bg-slate-900/40 border border-slate-800 rounded-xl p-6">
-            {/* email */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-100">La tua email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-md bg-slate-950 border border-slate-700 px-3 py-2 text-slate-50 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                placeholder="tu@email.com"
-                required
-              />
-            </div>
+        <form onSubmit={handleSubmit} style={card}>
+          {/* email */}
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={label}>La tua email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={input}
+              placeholder="tu@email.com"
+              required
+            />
+          </div>
 
-            {/* cosa devo trovare */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-100">Cosa ti devo trovare?</label>
-              <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                rows={4}
-                className="w-full rounded-md bg-slate-950 border border-slate-700 px-3 py-2 text-slate-50 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                placeholder="Es. Miglior tool per... / Voli per… / Alternative a… / Come faccio a…"
-                required
-              />
-            </div>
+          {/* message */}
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={label}>Cosa ti devo trovare?</label>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              rows={4}
+              style={{ ...input, minHeight: '120px', resize: 'vertical' }}
+              placeholder="Es. Miglior tool per… / Voli per… / Alternative a… / Come faccio a…"
+              required
+            />
+          </div>
 
-            {/* lingua */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-100">Come vuoi che ti risponda?</label>
-              <select
-                value={lang}
-                onChange={(e) => setLang(e.target.value as 'it' | 'en' | 'fr')}
-                className="w-full md:w-60 rounded-md bg-slate-950 border border-slate-700 px-3 py-2 text-slate-50 focus:outline-none focus:ring-2 focus:ring-violet-500"
-              >
-                {LANGS.map((l) => (
-                  <option key={l.value} value={l.value}>
-                    {l.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+          {/* lang */}
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={label}>Come vuoi che ti risponda?</label>
+            <select value={lang} onChange={(e) => setLang(e.target.value)} style={{ ...input, width: '200px' }}>
+              <option value="it">Italiano</option>
+              <option value="en">English</option>
+              <option value="fr">Français</option>
+            </select>
+          </div>
 
-            {/* bottone */}
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="inline-flex items-center gap-2 bg-violet-500 hover:bg-violet-400 disabled:opacity-70 disabled:cursor-not-allowed text-slate-950 font-semibold px-5 py-2 rounded-md transition"
-              >
-                {loading ? 'Invio…' : 'Contattami per la soluzione perfetta'}
-              </button>
-            </div>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              background: '#a855f7',
+              border: 'none',
+              padding: '0.55rem 1.2rem',
+              borderRadius: '0.5rem',
+              fontWeight: 600,
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.7 : 1,
+            }}
+          >
+            {loading ? 'Invio…' : 'Contattami per la soluzione perfetta'}
+          </button>
 
-            {/* feedback */}
-            {feedback && (
-              <p
-                className={
-                  feedback.type === 'ok'
-                    ? 'text-sm text-emerald-400'
-                    : 'text-sm text-rose-400'
-                }
-              >
-                {feedback.text}
-              </p>
-            )}
-          </form>
-        </div>
+          {feedback && (
+            <p
+              style={{
+                marginTop: '0.9rem',
+                color: feedback.type === 'ok' ? '#34d399' : '#f43f5e',
+                fontSize: '0.9rem',
+              }}
+            >
+              {feedback.text}
+            </p>
+          )}
+        </form>
       </main>
 
-      {/* footer */}
-      <footer className="w-full border-t border-slate-800 mt-8">
-        <div className="max-w-4xl mx-auto px-4 py-6 flex flex-wrap gap-4 items-center justify-between text-sm text-slate-400">
-          <p>© 2025 iFindItForYou</p>
-          <div className="flex gap-4">
-            <a href="/privacy" className="hover:text-white">
-              Privacy
-            </a>
-            <a href="/terms" className="hover:text-white">
-              Termini
-            </a>
-            <a href="/en/privacy" className="hover:text-white">
-              EN Privacy
-            </a>
-            <a href="/en/terms" className="hover:text-white">
-              EN Terms
-            </a>
-          </div>
+      <footer style={footer}>
+        <p style={{ color: '#cbd5f5', fontSize: '0.8rem' }}>© 2025 iFindItForYou</p>
+        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem' }}>
+          <a href="/privacy" style={link}>
+            Privacy
+          </a>
+          <a href="/terms" style={link}>
+            Termini
+          </a>
+          <a href="/en/privacy" style={link}>
+            EN Privacy
+          </a>
+          <a href="/en/terms" style={link}>
+            EN Terms
+          </a>
         </div>
       </footer>
     </div>
