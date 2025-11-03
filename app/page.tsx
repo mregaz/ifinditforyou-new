@@ -1,21 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
-  // stato per la “ricerca finta” (come il tuo codice vecchio)
+  // --- stati del pezzo "ricerca finta"
   const [q, setQ] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [results, setResults] = useState<string[]>([]);
 
-  // stato per il form vero che manda a /api/lead
+  // --- stati del form vero
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [lang, setLang] = useState<'it' | 'en' | 'fr'>('it');
   const [sending, setSending] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
 
-  // stessa funzione che avevi tu
+  // ✅ AUTODETECT lingua browser
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const browserLang = navigator.language || navigator.languages?.[0] || 'it';
+    const short = browserLang.slice(0, 2).toLowerCase();
+
+    if (short === 'it') setLang('it');
+    else if (short === 'fr') setLang('fr');
+    else setLang('en'); // default se non è it/fr
+  }, []);
+
   const onSearch = () => {
     if (!q.trim()) return;
     setSearchLoading(true);
@@ -29,7 +39,6 @@ export default function Home() {
     }, 500);
   };
 
-  // nuovo: invio al backend vero
   const onSubmitLead = async (e: React.FormEvent) => {
     e.preventDefault();
     setFeedback(null);
@@ -47,7 +56,7 @@ export default function Home() {
         body: JSON.stringify({
           email,
           message,
-          lang,
+          lang, // 👈 passa la lingua che abbiamo auto-detectato o scelto dal select
           name: null,
         }),
       });
@@ -77,7 +86,7 @@ export default function Home() {
       }}
     >
       <div style={{ width: 'min(1100px, 100%)' }}>
-        {/* HERO + search veloce (il tuo vecchio pezzo) */}
+        {/* HERO + search veloce */}
         <div style={{ textAlign: 'center', marginBottom: '2.2rem' }}>
           <p style={{ fontSize: '0.85rem', color: '#cbd5f5' }}>Beta gratuita</p>
           <h1 style={{ fontSize: '3rem', fontWeight: 700, marginTop: '0.3rem' }}>
@@ -157,7 +166,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* BLOCCO SOTTO: form vero */}
+        {/* FORM VERO */}
         <div
           style={{
             background: 'rgba(15,23,42,0.35)',
@@ -267,7 +276,7 @@ export default function Home() {
           </form>
         </div>
 
-        {/* footer semplice */}
+        {/* footer */}
         <footer
           style={{
             marginTop: '2.2rem',
@@ -300,4 +309,5 @@ export default function Home() {
     </main>
   );
 }
+
 
