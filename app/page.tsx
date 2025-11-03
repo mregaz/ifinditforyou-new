@@ -2,199 +2,302 @@
 
 import { useState } from 'react';
 
-export default function HomePage() {
+export default function Home() {
+  // stato per la “ricerca finta” (come il tuo codice vecchio)
+  const [q, setQ] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [results, setResults] = useState<string[]>([]);
+
+  // stato per il form vero che manda a /api/lead
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
-  const [lang, setLang] = useState('it');
-  const [loading, setLoading] = useState(false);
+  const [lang, setLang] = useState<'it' | 'en' | 'fr'>('it');
+  const [sending, setSending] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
+  // stessa funzione che avevi tu
+  const onSearch = () => {
+    if (!q.trim()) return;
+    setSearchLoading(true);
+    setTimeout(() => {
+      setResults([
+        `Top 1 per: ${q}`,
+        `Alternativa valida per: ${q}`,
+        'Scelta premium',
+      ]);
+      setSearchLoading(false);
+    }, 500);
+  };
+
+  // nuovo: invio al backend vero
+  const onSubmitLead = async (e: React.FormEvent) => {
     e.preventDefault();
     setFeedback(null);
 
-    if (!email || !message) {
-      setFeedback({ type: 'err', text: 'Compila email e cosa devo trovare.' });
+    if (!email.trim() || !message.trim()) {
+      setFeedback({ type: 'err', text: 'Compila email e cosa ti devo trovare.' });
       return;
     }
 
-    setLoading(true);
+    setSending(true);
     try {
       const res = await fetch('/api/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, message, lang, name: null }),
+        body: JSON.stringify({
+          email,
+          message,
+          lang,
+          name: null,
+        }),
       });
 
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error('send failed');
 
-      setFeedback({ type: 'ok', text: 'Ricevuto! Ti scrivo appena ho il link giusto 👍' });
+      setFeedback({ type: 'ok', text: 'Ricevuto! Ti mando la soluzione via email. 👌' });
       setMessage('');
     } catch (err) {
       setFeedback({ type: 'err', text: "C'è stato un errore nell'invio. Riprova." });
     } finally {
-      setLoading(false);
+      setSending(false);
     }
-  }
-
-  // stile super basico qui
-  const pageStyle: React.CSSProperties = {
-    minHeight: '100vh',
-    background: '#0f172a',
-    color: 'white',
-    fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    display: 'flex',
-    flexDirection: 'column',
-  };
-
-  const container: React.CSSProperties = {
-    width: '100%',
-    maxWidth: '900px',
-    margin: '0 auto',
-    padding: '1.5rem 1rem 3rem',
-    flex: 1,
-  };
-
-  const card: React.CSSProperties = {
-    background: 'rgba(15, 23, 42, 0.4)',
-    border: '1px solid rgba(148, 163, 184, 0.25)',
-    borderRadius: '1rem',
-    padding: '1.5rem',
-    marginTop: '1.5rem',
-  };
-
-  const label: React.CSSProperties = {
-    fontSize: '0.9rem',
-    fontWeight: 500,
-    marginBottom: '0.35rem',
-    display: 'block',
-  };
-
-  const input: React.CSSProperties = {
-    width: '100%',
-    padding: '0.5rem 0.6rem',
-    borderRadius: '0.5rem',
-    border: '1px solid #475569',
-    background: '#020617',
-    color: 'white',
-    fontSize: '0.95rem',
-  };
-
-  const footer: React.CSSProperties = {
-    borderTop: '1px solid rgba(148,163,184,0.15)',
-    padding: '1rem',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: '1rem',
-    flexWrap: 'wrap',
-  };
-
-  const link: React.CSSProperties = {
-    color: 'white',
-    textDecoration: 'none',
   };
 
   return (
-    <div style={pageStyle}>
-      <header style={{ padding: '1.2rem 1rem 0' }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-          <p style={{ fontSize: '0.8rem', color: '#cbd5f5' }}>Beta gratuita</p>
-          <h1 style={{ fontSize: '2.7rem', fontWeight: 700, marginTop: '0.2rem' }}>iFindItForYou</h1>
-        </div>
-      </header>
+    <main
+      style={{
+        minHeight: '100vh',
+        background: '#0f172a',
+        color: 'white',
+        display: 'flex',
+        justifyContent: 'center',
+        padding: '2.5rem 1rem 3.5rem',
+        fontFamily:
+          'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      }}
+    >
+      <div style={{ width: 'min(1100px, 100%)' }}>
+        {/* HERO + search veloce (il tuo vecchio pezzo) */}
+        <div style={{ textAlign: 'center', marginBottom: '2.2rem' }}>
+          <p style={{ fontSize: '0.85rem', color: '#cbd5f5' }}>Beta gratuita</p>
+          <h1 style={{ fontSize: '3rem', fontWeight: 700, marginTop: '0.3rem' }}>
+            iFindItForYou
+          </h1>
+          <p style={{ marginTop: '0.7rem', color: '#e2e8f0' }}>
+            Tu scrivi cosa cerchi, io ti mando il link/opzione giusta per email.
+          </p>
 
-      <main style={container}>
-        <p style={{ fontSize: '1.05rem', lineHeight: 1.5, marginTop: '1rem' }}>
-          Ti mando direttamente il link migliore / l&apos;opzione giusta. Tu scrivi cosa cerchi, io ti rispondo per
-          email.
-        </p>
-
-        <form onSubmit={handleSubmit} style={card}>
-          {/* email */}
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={label}>La tua email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={input}
-              placeholder="tu@email.com"
-              required
-            />
-          </div>
-
-          {/* message */}
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={label}>Cosa ti devo trovare?</label>
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              rows={4}
-              style={{ ...input, minHeight: '120px', resize: 'vertical' }}
-              placeholder="Es. Miglior tool per… / Voli per… / Alternative a… / Come faccio a…"
-              required
-            />
-          </div>
-
-          {/* lang */}
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={label}>Come vuoi che ti risponda?</label>
-            <select value={lang} onChange={(e) => setLang(e.target.value)} style={{ ...input, width: '200px' }}>
-              <option value="it">Italiano</option>
-              <option value="en">English</option>
-              <option value="fr">Français</option>
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
+          <div
             style={{
-              background: '#a855f7',
-              border: 'none',
-              padding: '0.55rem 1.2rem',
-              borderRadius: '0.5rem',
-              fontWeight: 600,
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.7 : 1,
+              marginTop: '1.4rem',
+              display: 'flex',
+              gap: '0.5rem',
+              justifyContent: 'center',
             }}
           >
-            {loading ? 'Invio…' : 'Contattami per la soluzione perfetta'}
-          </button>
-
-          {feedback && (
-            <p
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && onSearch()}
+              placeholder="Cosa vuoi che trovi per te?"
               style={{
-                marginTop: '0.9rem',
-                color: feedback.type === 'ok' ? '#34d399' : '#f43f5e',
-                fontSize: '0.9rem',
+                width: 'min(520px, 85vw)',
+                padding: '0.8rem 1rem',
+                borderRadius: '9999px',
+                border: '1px solid rgba(148,163,184,0.4)',
+                background: 'rgba(15,23,42,0.35)',
+                color: 'white',
+              }}
+            />
+            <button
+              onClick={onSearch}
+              style={{
+                padding: '0.75rem 1.35rem',
+                borderRadius: '9999px',
+                border: 'none',
+                background: '#a855f7',
+                color: 'white',
+                fontWeight: 600,
+                cursor: 'pointer',
               }}
             >
-              {feedback.text}
-            </p>
-          )}
-        </form>
-      </main>
+              Trovalo per me
+            </button>
+          </div>
 
-      <footer style={footer}>
-        <p style={{ color: '#cbd5f5', fontSize: '0.8rem' }}>© 2025 iFindItForYou</p>
-        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem' }}>
-          <a href="/privacy" style={link}>
-            Privacy
-          </a>
-          <a href="/terms" style={link}>
-            Termini
-          </a>
-          <a href="/en/privacy" style={link}>
-            EN Privacy
-          </a>
-          <a href="/en/terms" style={link}>
-            EN Terms
-          </a>
+          <div style={{ marginTop: '1rem', minHeight: '3.2rem' }}>
+            {searchLoading ? (
+              <p style={{ color: '#94a3b8' }}>Sto cercando per te…</p>
+            ) : results.length > 0 ? (
+              <ul
+                style={{
+                  listStyle: 'none',
+                  padding: 0,
+                  maxWidth: '520px',
+                  margin: '0.5rem auto 0',
+                  textAlign: 'left',
+                }}
+              >
+                {results.map((r, i) => (
+                  <li
+                    key={i}
+                    style={{
+                      background: 'rgba(15,23,42,0.35)',
+                      border: '1px solid rgba(148,163,184,0.15)',
+                      borderRadius: '0.75rem',
+                      padding: '0.6rem 0.9rem',
+                      marginTop: i === 0 ? 0 : '0.4rem',
+                    }}
+                  >
+                    {r}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
         </div>
-      </footer>
-    </div>
+
+        {/* BLOCCO SOTTO: form vero */}
+        <div
+          style={{
+            background: 'rgba(15,23,42,0.35)',
+            border: '1px solid rgba(148,163,184,0.15)',
+            borderRadius: '1rem',
+            padding: '1.3rem 1.1rem 1.5rem',
+            maxWidth: '700px',
+            margin: '0 auto',
+          }}
+        >
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem' }}>
+            Mandami la richiesta per email
+          </h2>
+          <form onSubmit={onSubmitLead} style={{ display: 'grid', gap: '0.9rem' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.25rem' }}>
+                La tua email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="tu@email.com"
+                style={{
+                  width: '100%',
+                  padding: '0.6rem 0.75rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid rgba(148,163,184,0.4)',
+                  background: '#020617',
+                  color: 'white',
+                }}
+                required
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.25rem' }}>
+                Cosa ti devo trovare?
+              </label>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={4}
+                placeholder="Es. Miglior tool per… / Alternative a… / Voli per…"
+                style={{
+                  width: '100%',
+                  padding: '0.6rem 0.75rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid rgba(148,163,184,0.4)',
+                  background: '#020617',
+                  color: 'white',
+                  resize: 'vertical',
+                }}
+                required
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.25rem' }}>
+                Come vuoi che ti risponda?
+              </label>
+              <select
+                value={lang}
+                onChange={(e) => setLang(e.target.value as any)}
+                style={{
+                  padding: '0.55rem 0.75rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid rgba(148,163,184,0.4)',
+                  background: '#020617',
+                  color: 'white',
+                  width: '180px',
+                }}
+              >
+                <option value="it">Italiano</option>
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              disabled={sending}
+              style={{
+                background: '#a855f7',
+                border: 'none',
+                padding: '0.55rem 0.85rem',
+                borderRadius: '0.5rem',
+                fontWeight: 600,
+                width: 'fit-content',
+                cursor: sending ? 'not-allowed' : 'pointer',
+                opacity: sending ? 0.7 : 1,
+              }}
+            >
+              {sending ? 'Invio…' : 'Contattami per la soluzione perfetta'}
+            </button>
+
+            {feedback && (
+              <p
+                style={{
+                  color: feedback.type === 'ok' ? '#4ade80' : '#f43f5e',
+                  fontSize: '0.9rem',
+                }}
+              >
+                {feedback.text}
+              </p>
+            )}
+          </form>
+        </div>
+
+        {/* footer semplice */}
+        <footer
+          style={{
+            marginTop: '2.2rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '1rem',
+            flexWrap: 'wrap',
+            fontSize: '0.82rem',
+            color: '#cbd5f5',
+          }}
+        >
+          <p>© 2025 iFindItForYou</p>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <a href="/privacy" style={{ color: 'white' }}>
+              Privacy
+            </a>
+            <a href="/terms" style={{ color: 'white' }}>
+              Termini
+            </a>
+            <a href="/en/privacy" style={{ color: 'white' }}>
+              EN Privacy
+            </a>
+            <a href="/en/terms" style={{ color: 'white' }}>
+              EN Terms
+            </a>
+          </div>
+        </footer>
+      </div>
+    </main>
   );
 }
 
