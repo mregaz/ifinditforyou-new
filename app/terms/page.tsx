@@ -1,59 +1,112 @@
+// app/terms/page.tsx
+
+export const metadata = {
+  title: "Termini e Condizioni | iFindItForYou",
+  description:
+    "Leggi i termini e condizioni d'uso del servizio iFindItForYou. Scopri come utilizziamo i dati e quali sono i tuoi diritti come utente.",
+};
+
 export default function TermsPage() {
   return (
-    <main className="max-w-3xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold mb-4">Termini e Condizioni</h1>
-      <p className="text-sm text-gray-500 mb-6">Ultimo aggiornamento: 3 novembre 2025</p>
+    <main className="max-w-4xl mx-auto px-6 py-16 text-gray-100">
+      <h1 className="text-3xl font-bold mb-8 text-white">Termini e Condizioni</h1>
 
-      <p>
-        Benvenuto su <strong>iFindItForYou</strong>! Utilizzando il nostro sito web e i servizi associati,
-        accetti i presenti termini e condizioni. Ti invitiamo a leggerli attentamente.
+      <p className="mb-6 text-gray-300">
+        Ultimo aggiornamento: <strong>3 novembre 2025</strong>
       </p>
 
-      <h2 className="text-xl font-semibold mt-6 mb-2">1. Scopo del Servizio</h2>
-      <p>
-        iFindItForYou offre un servizio di ricerca e ottimizzazione di contenuti informativi
-        per fornire risultati accurati e pertinenti in base alle preferenze dell’utente.
-      </p>
+      <section className="space-y-6">
+        <p>
+          Benvenuto su <strong>iFindItForYou</strong>! Utilizzando il nostro sito web
+          e i servizi associati, accetti i termini e le condizioni qui descritti.
+          Ti invitiamo a leggerli attentamente prima di utilizzare la piattaforma.
+        </p>
 
-      <h2 className="text-xl font-semibold mt-6 mb-2">2. Utilizzo del Servizio</h2>
-      <p>
-        L’utente si impegna a utilizzare il sito in modo lecito e conforme alle normative vigenti.
-        È vietato l’uso per attività illegali, diffamatorie o dannose.
-      </p>
+        <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
+          1. Scopo del Servizio
+        </h2>
+        <p>
+          iFindItForYou offre un servizio di ricerca e ottimizzazione di contenuti
+          informativi. L'obiettivo è fornire risultati accurati e pertinenti in base
+          alle preferenze dell’utente.
+        </p>
 
-      <h2 className="text-xl font-semibold mt-6 mb-2">3. Account e Sicurezza</h2>
-      <p>
-        Se richiesto un account, l’utente è responsabile della riservatezza delle credenziali
-        e delle attività svolte tramite esso.
-      </p>
+        <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
+          2. Utilizzo del Servizio
+        </h2>
+        <p>
+          L’utente si impegna a utilizzare il sito in modo lecito e conforme alle
+          normative vigenti. È vietato utilizzare il servizio per attività illegali,
+          diffamatorie o dannose per terzi.
+        </p>
 
-      <h2 className="text-xl font-semibold mt-6 mb-2">4. Proprietà Intellettuale</h2>
-      <p>
-        Tutti i contenuti presenti su questo sito, inclusi testi, immagini e loghi,
-        sono di proprietà di iFindItForYou o dei rispettivi titolari.
-        È vietata la riproduzione non autorizzata.
-      </p>
+        <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
+          3. Account e Sicurezza
+        </h2>
+        <p>
+          Se il servizio richiede la creazione di un account, l’utente è responsabile
+          della riservatezza delle proprie credenziali e di tutte le attività
+          svolte tramite l’account stesso.
+        </p>
 
-      <h2 className="text-xl font-semibold mt-6 mb-2">5. Limitazione di Responsabilità</h2>
-      <p>
-        iFindItForYou non garantisce che il servizio sia sempre disponibile o privo di errori.
-        Non saremo responsabili per danni derivanti dall’utilizzo del sito.
-      </p>
+        <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
+          4. Proprietà Intellettuale
+        </h2>
+        <p>
+          Tutti i contenuti presenti su questo sito, inclusi testi, immagini, loghi e
+          marchi, sono di proprietà di iFindItForYou o dei rispettivi titolari dei
+          diritti. È vietata la riproduzione non autorizzata.
+        </p>
 
-      <h2 className="text-xl font-semibold mt-6 mb-2">6. Privacy e Protezione dei Dati</h2>
-      <p>
-        Consulta la nostra <a href="/privacy" className="text-blue-500 underline">Informativa sulla Privacy</a> per sapere come trattiamo i tuoi dati.
-      </p>
+        <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
+          5. Limitazione di Responsabilità
+        </h2>
+        <p>
+          iFindItForYou non garantisce che il servizio sia sempre disponibile o
+          privo di errori. In nessun caso potrà essere ritenuto responsabile per
+          danni derivanti dall’utilizzo o dall’impossibilità di utilizzo del sito.
+        </p>
 
-      <h2 className="text-xl font-semibold mt-6 mb-2">7. Modifiche ai Termini</h2>
-      <p>
-        iFindItForYou si riserva il diritto di modificare i presenti termini in qualsiasi momento.
-        Eventuali aggiornamenti saranno pubblicati su questa pagina.
-      </p>
+        <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
+          6. Privacy e Protezione dei Dati
+        </h2>
+        <p>
+          Per informazioni su come vengono trattati i tuoi dati personali, consulta
+          la nostra{" "}
+          <a href="/privacy" className="text-blue-400 underline hover:text-blue-300">
+            Informativa sulla Privacy
+          </a>
+          .
+        </p>
 
-      <p className="mt-8 text-sm text-gray-500">
-        Grazie per aver scelto <strong>iFindItForYou</strong>.
-      </p>
+        <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
+          7. Modifiche ai Termini
+        </h2>
+        <p>
+          iFindItForYou si riserva il diritto di modificare i presenti termini in
+          qualsiasi momento. Eventuali modifiche saranno pubblicate su questa pagina
+          con la data di aggiornamento.
+        </p>
+
+        <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
+          8. Contatti
+        </h2>
+        <p>
+          Per qualsiasi domanda riguardante i presenti Termini e Condizioni,
+          contattaci all’indirizzo email:{" "}
+          <a
+            href="mailto:info@ifinditforyou.com"
+            className="text-blue-400 underline hover:text-blue-300"
+          >
+            info@ifinditforyou.com
+          </a>
+          .
+        </p>
+      </section>
+
+      <div className="mt-12 text-sm text-gray-400 border-t border-gray-700 pt-6">
+        <p>© 2025 iFindItForYou. Tutti i diritti riservati.</p>
+      </div>
     </main>
   );
 }
