@@ -44,23 +44,21 @@ export async function POST(req: Request) {
     );
   }
 
-  // rispondiamo SUBITO ok alla UI, così non vedi più l'errore
-  // (poi sotto proviamo a fare le cose "fighe")
+  // rispondiamo comunque ok alla UI
   const baseResponse = NextResponse.json({ ok: true }, { status: 200 });
 
-  // 1) prova a mandare email SOLO se c'è la chiave
+  // 1. invio email solo se c'è la chiave
   if (process.env.RESEND_API_KEY) {
     try {
       const resend = new Resend(process.env.RESEND_API_KEY);
-
-      // mail all’utente
       const replyCfg = autoReplyContent[lang] ?? autoReplyContent.it;
+
+      // mail all'utente
       await resend.emails.send({
         from: "iFindItForYou <no-reply@ifinditforyou.com>",
         to: email,
         subject: replyCfg.subject,
         html: replyCfg.html(name),
-        reply_to: INTERNAL_NOTIFY_EMAIL,
       });
 
       // mail interna
@@ -82,7 +80,7 @@ export async function POST(req: Request) {
     console.warn("⚠️ RESEND_API_KEY non presente: salto invio email.");
   }
 
-  // 2) prova a salvare SOLO se c’è il DB
+  // 2. salvataggio solo se hai il DB
   if (process.env.DATABASE_URL) {
     try {
       await prisma.lead.create({
@@ -102,4 +100,5 @@ export async function POST(req: Request) {
 
   return baseResponse;
 }
+
 
