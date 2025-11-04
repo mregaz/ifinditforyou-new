@@ -3,18 +3,17 @@ import { NextResponse } from "next/server";
 
 const DEMO_USER = "demo-user";
 
-// finto "database" di crediti (in futuro: collegalo a Prisma)
+// finto “database” di crediti
 const userCredits: Record<string, number> = {
   [DEMO_USER]: 5,
 };
 
-// prompt per GPT-4 in varie lingue
 const PROMPTS: Record<string, (query: string) => string> = {
   it: (query) => `
-Sei "AI Finder" per un sito che aiuta a trovare prodotti difficili da reperire.
+Sei "AI Finder" per un sito che aiuta a trovare prodotti/servizi difficili.
 L'utente ha chiesto: "${query}".
-Cerca in marketplace come Amazon, eBay, AliExpress e siti europei.
-Restituisci SOLO il seguente JSON:
+
+Restituisci SOLO questo JSON:
 
 {
   "items": [
@@ -29,13 +28,13 @@ Restituisci SOLO il seguente JSON:
   "summary": "..."
 }
 
-Se non trovi esattamente il prodotto, proponi alternative simili.
-Usa prezzi in EUR o CHF.
+Se non trovi l’esatto prodotto, proponi alternative simili.
+Prezzi in EUR o CHF.
 `,
   en: (query) => `
-You are "AI Finder" for a website that helps users find hard-to-get products.
+You are "AI Finder" for a site that finds hard-to-get products.
 The user asked: "${query}".
-Search across multiple marketplaces (Amazon, eBay, AliExpress, EU stores).
+
 Return ONLY this JSON:
 
 {
@@ -51,13 +50,13 @@ Return ONLY this JSON:
   "summary": "..."
 }
 
-If the exact product is not found, suggest similar alternatives.
-Use EUR or CHF currency.
+If exact item is missing, propose similar alternatives.
+Use EUR or CHF.
 `,
   fr: (query) => `
-Tu es "AI Finder" pour un site qui aide à trouver des produits difficiles à obtenir.
-L'utilisateur demande: "${query}".
-Cherche sur Amazon, eBay, AliExpress, et d'autres sites européens.
+Tu es "AI Finder" pour un site qui trouve des produits difficiles.
+L'utilisateur a demandé: "${query}".
+
 Retourne UNIQUEMENT ce JSON:
 
 {
@@ -73,13 +72,12 @@ Retourne UNIQUEMENT ce JSON:
   "summary": "..."
 }
 
-Si le produit exact n'existe pas, propose des alternatives similaires.
-Utilise des prix en EUR ou CHF.
+Si tu ne trouves pas exactement, propose des alternatives similaires.
 `,
   de: (query) => `
-Du bist "AI Finder", eine KI, die schwer auffindbare Produkte recherchiert.
+Du bist "AI Finder" und findest schwer auffindbare Produkte.
 Der Benutzer fragt: "${query}".
-Durchsuche Marktplätze wie Amazon, eBay, AliExpress und EU-Shops.
+
 Gib NUR dieses JSON zurück:
 
 {
@@ -95,8 +93,7 @@ Gib NUR dieses JSON zurück:
   "summary": "..."
 }
 
-Wenn kein exaktes Produkt gefunden wird, schlage ähnliche Alternativen vor.
-Verwende Preise in EUR oder CHF.
+Wenn nicht vorhanden, ähnliche Alternativen vorschlagen.
 `,
 };
 
@@ -111,33 +108,30 @@ export async function POST(req: Request) {
 
     if (!query) {
       return NextResponse.json(
-        { success: false, error: "Manca la descrizione del prodotto." },
+        { success: false, error: "Manca la descrizione." },
         { status: 400 }
       );
     }
 
-    // controlla i crediti
+    // crediti finti
     if (!userCredits[userId] || userCredits[userId] <= 0) {
       return NextResponse.json(
         {
           success: false,
           error: "Crediti esauriti",
           action: "purchase",
-          message:
-            "Ricarica per avere ricerche avanzate o accedi con un piano Pro.",
+          message: "Ricarica per avere ricerche AI avanzate.",
         },
         { status: 402 }
       );
     }
 
-    // genera prompt dinamico nella lingua richiesta
     const prompt = PROMPTS[lang]?.(query) ?? PROMPTS.it(query);
 
-    // chiama GPT-4-Turbo
     const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -150,18 +144,21 @@ export async function POST(req: Request) {
     const data = await openaiRes.json();
     const content = data?.choices?.[0]?.message?.content ?? "{}";
 
-    // decrementa i crediti demo
+    // scala 1 credito
     userCredits[userId] = (userCredits[userId] || 1) - 1;
 
-    return NextResponse.json({
-      success: true,
-      creditsLeft: userCredits[userId],
-      data: content,
-    });
-  } catch (err) {
-    console.error("❌ Errore in /api/finder:", err);
     return NextResponse.json(
-      { success: false, error: "Errore interno del server." },
+      {
+        success: true,
+        creditsLeft: userCredits[userId],
+        data: content,
+      },
+      { status: 200 }
+    );
+  } catch (err) {
+    console.error("❌ /api/finder error:", err);
+    return NextResponse.json(
+      { success: false, error: "Errore interno" },
       { status: 500 }
     );
   }
