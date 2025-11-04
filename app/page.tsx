@@ -13,6 +13,8 @@ const TEXTS: Record<
     langLabel: string;
     footerPrivacy: string;
     footerTerms: string;
+    resultsTitle: string;
+    empty: string;
   }
 > = {
   it: {
@@ -25,6 +27,8 @@ const TEXTS: Record<
     langLabel: "Lingua dell’interfaccia",
     footerPrivacy: "Privacy",
     footerTerms: "Termini",
+    resultsTitle: "Ecco alcune opzioni:",
+    empty: "Scrivi cosa cerchi sopra 👆",
   },
   en: {
     beta: "Free beta",
@@ -36,6 +40,8 @@ const TEXTS: Record<
     langLabel: "Interface language",
     footerPrivacy: "Privacy",
     footerTerms: "Terms",
+    resultsTitle: "Here are some options:",
+    empty: "Tell me what you’re looking for 👆",
   },
   fr: {
     beta: "Bêta gratuite",
@@ -47,6 +53,8 @@ const TEXTS: Record<
     langLabel: "Langue de l’interface",
     footerPrivacy: "Confidentialité",
     footerTerms: "Conditions",
+    resultsTitle: "Quelques options :",
+    empty: "Écris ce que tu cherches 👆",
   },
   de: {
     beta: "Kostenlose Beta",
@@ -55,157 +63,30 @@ const TEXTS: Record<
       "Du schreibst, was du suchst, ich schicke dir den richtigen Link per E-Mail.",
     placeholder: "Was soll ich für dich finden?",
     button: "Finde es für mich",
-    langLabel: "Sprache der Oberfläche",
+    langLabel: "Sprache",
     footerPrivacy: "Datenschutz",
     footerTerms: "AGB",
+    resultsTitle: "Einige Vorschläge:",
+    empty: "Schreib oben, was du suchst 👆",
   },
 };
 
 export default function HomePage() {
   const [lang, setLang] = useState<"it" | "en" | "fr" | "de">("it");
+  const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState<string[]>([]);
+  const [error, setError] = useState("");
   const t = TEXTS[lang];
 
-  return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background: "#0f172a",
-        color: "white",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        padding: "40px 16px 24px",
-        gap: 32,
-      }}
-    >
-      {/* top */}
-      <div style={{ width: "min(1100px, 100%)" }}>
-        <p
-          style={{
-            fontSize: 14,
-            opacity: 0.7,
-            marginBottom: 24,
-          }}
-        >
-          {t.beta}
-        </p>
-
-        <h1
-          style={{
-            fontSize: "clamp(42px, 5vw, 62px)",
-            fontWeight: 700,
-            marginBottom: 14,
-          }}
-        >
-          {t.title}
-        </h1>
-
-        <p
-          style={{
-            fontSize: 20,
-            maxWidth: 900,
-            lineHeight: 1.4,
-            opacity: 0.9,
-            marginBottom: 32,
-          }}
-        >
-          {t.subtitle}
-        </p>
-
-        {/* barra + bottone */}
-        <div
-          style={{
-            display: "flex",
-            gap: 16,
-            alignItems: "center",
-            flexWrap: "wrap",
-          }}
-        >
-          <input
-            placeholder={t.placeholder}
-            style={{
-              flex: 1,
-              minWidth: 260,
-              background: "rgba(15,23,42,0.5)",
-              border: "2px solid rgba(148,163,184,0.3)",
-              borderRadius: 999,
-              padding: "15px 20px",
-              fontSize: 16,
-              color: "white",
-              outline: "none",
-            }}
-          />
-          <button
-            style={{
-              background: "#a855f7",
-              border: "none",
-              borderRadius: 999,
-              padding: "15px 32px",
-              fontSize: 16,
-              fontWeight: 600,
-              cursor: "pointer",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {t.button}
-          </button>
-        </div>
-
-        {/* selettore lingua */}
-        <div style={{ marginTop: 24 }}>
-          <label style={{ fontSize: 14, opacity: 0.7, marginRight: 12 }}>
-            {t.langLabel}
-          </label>
-          <select
-            value={lang}
-            onChange={(e) => setLang(e.target.value as any)}
-            style={{
-              background: "#0f172a",
-              border: "1px solid rgba(148,163,184,0.3)",
-              color: "white",
-              padding: "6px 12px",
-              borderRadius: 8,
-            }}
-          >
-            <option value="it">Italiano</option>
-            <option value="en">English</option>
-            <option value="fr">Français</option>
-            <option value="de">Deutsch</option>
-          </select>
-        </div>
-      </div>
-
-      {/* footer */}
-      <footer
-        style={{
-          marginTop: "auto",
-          width: "min(1100px, 100%)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 12,
-          flexWrap: "wrap",
-          fontSize: 14,
-          opacity: 0.75,
-        }}
-      >
-        <p>© 2025 iFindItForYou</p>
-        <div style={{ display: "flex", gap: 16 }}>
-          <a href="/privacy" style={{ color: "white" }}>
-            {t.footerPrivacy}
-          </a>
-          <a href="/terms" style={{ color: "white" }}>
-            {t.footerTerms}
-          </a>
-          <a href="/en/privacy" style={{ color: "white" }}>
-            EN Privacy
-          </a>
-          <a href="/en/terms" style={{ color: "white" }}>
-            EN Terms
-          </a>
-        </div>
-      </footer>
-    </main>
-  );
-}
+  const handleSearch = async () => {
+    const q = query.trim();
+    if (!q) return;
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch(
+        `/api/search?q=${encodeURIComponent(q)}&lang=${lang}`
+      );
+      if (!res.ok) throw new Err
 
