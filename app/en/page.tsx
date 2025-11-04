@@ -1,9 +1,9 @@
 
 "use client";
-export default function Page() { ... }
 
 import { useState } from "react";
 
+export default function Page() { ... }
 // testi per le 4 lingue
 const UI_TEXTS = {
   it: {
