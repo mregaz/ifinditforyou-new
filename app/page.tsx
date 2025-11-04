@@ -178,26 +178,56 @@ export default function HomePage() {
           textAlign: "center",
         }}
       >
-        <p style={{ opacity: 0.7, marginBottom: 8 }}>{t.beta}</p>
-        <h1
-          style={{
-            fontSize: "clamp(48px, 6vw, 72px)",
-            fontWeight: 700,
-            marginBottom: 12,
-          }}
-        >
-          {t.title}
-        </h1>
-        <p
-          style={{
-            fontSize: 20,
-            opacity: 0.9,
-            maxWidth: 700,
-            margin: "0 auto 32px",
-          }}
-        >
-          {t.subtitle}
-        </p>
+<p style={{ opacity: 0.7, marginBottom: 8 }}>{t.beta}</p>
+
+{/* STELLA ROTANTE DECORATIVA */}
+<div style={{ textAlign: "center", marginBottom: 8 }}>
+  <span
+    style={{
+      fontSize: "48px",
+      color: "#a855f7",
+      display: "inline-block",
+      animation: "spin 6s linear infinite",
+      filter: "drop-shadow(0 0 6px rgba(168,85,247,0.6))",
+    }}
+  >
+    ✨
+  </span>
+  <style jsx>{`
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  `}</style>
+</div>
+
+{/* TITOLO PRINCIPALE */}
+<h1
+  style={{
+    fontSize: "clamp(48px, 6vw, 72px)",
+    fontWeight: 700,
+    marginBottom: 12,
+    letterSpacing: "-0.02em",
+  }}
+>
+  {t.title}
+</h1>
+
+{/* SOTTOTITOLO */}
+<p
+  style={{
+    fontSize: 20,
+    opacity: 0.9,
+    maxWidth: 700,
+    margin: "0 auto 32px",
+  }}
+>
+  {t.subtitle}
+</p>
 
         {/* input + button */}
         <div
