@@ -433,6 +433,51 @@ export default function HomePage() {
           )}
         </form>
       </div>
+{/* ABOUT / FEEDBACK */}
+<div
+  style={{
+    maxWidth: 850,
+    width: "100%",
+    margin: "0 auto 40px",
+    textAlign: "center",
+    background: "rgba(255,255,255,0.02)",
+    border: "1px solid rgba(148,163,184,0.15)",
+    borderRadius: 20,
+    padding: "24px 20px",
+  }}
+>
+  <h2 style={{ fontSize: 18, marginBottom: 10 }}>💡 About iFindItForYou</h2>
+  <p
+    style={{
+      fontSize: 15,
+      opacity: 0.8,
+      maxWidth: 650,
+      margin: "0 auto 18px",
+      lineHeight: 1.6,
+    }}
+  >
+    iFindItForYou è un piccolo assistente online che trova per te le soluzioni
+    migliori. Scrivi cosa ti serve, e ricevi per email le opzioni più adatte —
+    in italiano, inglese, francese o tedesco.
+  </p>
+
+  <p
+    style={{
+      fontSize: 14,
+      opacity: 0.6,
+    }}
+  >
+    Hai idee, feedback o vuoi collaborare?
+    <br />
+    Scrivici a{" "}
+    <a
+      href="mailto:info@ifinditforyou.com"
+      style={{ color: "#a855f7", textDecoration: "none" }}
+    >
+      info@ifinditforyou.com
+    </a>
+  </p>
+</div>
 
       {/* FOOTER */}
       <footer
