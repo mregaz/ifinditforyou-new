@@ -330,47 +330,75 @@ export default function HomePage() {
         </p>
 
         {/* input + button */}
-        <div
-          style={{
-            display: "flex",
-            gap: 16,
-            justifyContent: "center",
-            flexWrap: "wrap",
-            marginBottom: 20,
-          }}
-        >
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            placeholder={t.placeholder}
-            style={{
-              minWidth: 280,
-              width: "50%",
-              background: "rgba(255,255,255,0.03)",
-              border: "2px solid rgba(148,163,184,0.2)",
-              borderRadius: 999,
-              padding: "14px 20px",
-              color: "white",
-              fontSize: 16,
-            }}
-          />
-          <button
-            onClick={handleSearch}
-            disabled={searchLoading}
-            style={{
-              background: searchLoading ? "#7c3aed" : "#a855f7",
-              border: "none",
-              borderRadius: 999,
-              padding: "14px 32px",
-              fontSize: 16,
-              fontWeight: 600,
-              cursor: searchLoading ? "not-allowed" : "pointer",
-            }}
-          >
-            {searchLoading ? "Sto cercando…" : t.button}
-          </button>
-        </div>
+  <div
+  style={{
+    display: "flex",
+    gap: 16,
+    justifyContent: "center",
+    flexWrap: "wrap",
+    marginBottom: 20,
+  }}
+>
+  <input
+    value={query}
+    onChange={(e) => setQuery(e.target.value)}
+    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+    placeholder={t.placeholder}
+    style={{
+      minWidth: 280,
+      width: "50%",
+      background: "rgba(255,255,255,0.03)",
+      border: "2px solid rgba(148,163,184,0.2)",
+      borderRadius: 999,
+      padding: "14px 20px",
+      color: "white",
+      fontSize: 16,
+    }}
+  />
+  <button
+    onClick={handleSearch}
+    disabled={searchLoading}
+    style={{
+      background: searchLoading ? "#7c3aed" : "#a855f7",
+      border: "none",
+      borderRadius: 999,
+      padding: "14px 32px",
+      fontSize: 16,
+      fontWeight: 600,
+      cursor: searchLoading ? "not-allowed" : "pointer",
+    }}
+  >
+    {searchLoading ? "Sto cercando…" : t.button}
+  </button>
+
+  {/* nuovo bottone AI */}
+  <button
+    onClick={handleAiFinder}
+    disabled={aiLoading}
+    style={{
+      background: "rgba(148,163,184,0.08)",
+      border: "1px solid rgba(148,163,184,0.3)",
+      borderRadius: 999,
+      padding: "14px 20px",
+      color: "white",
+      cursor: aiLoading ? "not-allowed" : "pointer",
+    }}
+  >
+    {aiLoading
+      ? (lang === "it" ? "AI in corso…" :
+        lang === "fr" ? "IA en cours…" :
+        lang === "de" ? "KI läuft…" :
+        "AI searching…")
+      : (lang === "it"
+        ? "Fammelo trovare con l’AI"
+        : lang === "fr"
+        ? "Trouve-le avec l’IA"
+        : lang === "de"
+        ? "Mit KI finden"
+        : "Find it with AI")}
+  </button>
+</div>
+
 
         {/* select lingua interfaccia */}
         <div style={{ marginBottom: 28 }}>
