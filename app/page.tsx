@@ -23,6 +23,11 @@ const UI_TEXTS = {
     submit: "Contattami per la soluzione perfetta",
     ok: "Ricevuto! Ti scrivo appena ho la soluzione 👍",
     ko: "C'è stato un errore nell’invio. Riprova.",
+    // about
+    aboutTitle: "💡 About iFindItForYou",
+    aboutText:
+      "iFindItForYou è un piccolo assistente online che trova per te le soluzioni migliori. Scrivi cosa ti serve e ricevi per email le opzioni più adatte.",
+    feedbackText: "Hai idee o vuoi collaborare?",
   },
   en: {
     beta: "Free beta",
@@ -41,6 +46,10 @@ const UI_TEXTS = {
     submit: "Send me the perfect option",
     ok: "Got it! I’ll email you soon 👍",
     ko: "Error sending. Try again.",
+    aboutTitle: "💡 About iFindItForYou",
+    aboutText:
+      "iFindItForYou is a tiny online assistant that finds the best options for you. Tell me what you need and you’ll get the result by email.",
+    feedbackText: "Got ideas or want to collaborate?",
   },
   fr: {
     beta: "Bêta gratuite",
@@ -60,6 +69,10 @@ const UI_TEXTS = {
     submit: "Envoie-moi la bonne solution",
     ok: "Bien reçu ! Je te réponds vite 👍",
     ko: "Erreur d’envoi. Réessaie.",
+    aboutTitle: "💡 À propos d’iFindItForYou",
+    aboutText:
+      "iFindItForYou est un petit assistant en ligne qui trouve pour toi les meilleures options. Tu expliques ton besoin, tu reçois la réponse par email.",
+    feedbackText: "Tu as des idées ou tu veux aider ?",
   },
   de: {
     beta: "Kostenlose Beta",
@@ -75,10 +88,14 @@ const UI_TEXTS = {
     formSubtitle: "Schreib mir die Details, ich antworte dir.",
     emailLabel: "Deine E-Mail",
     msgLabel: "Was soll ich finden?",
-    replyLabel: "Antwort auf Deutsch / …",
+    replyLabel: "Antwort auf:",
     submit: "Schick mir die passende Lösung",
     ok: "Danke! Ich melde mich bald 👍",
     ko: "Fehler beim Senden. Bitte erneut versuchen.",
+    aboutTitle: "💡 Über iFindItForYou",
+    aboutText:
+      "iFindItForYou ist ein kleiner Online-Assistent, der passende Lösungen für dich findet. Du schreibst dein Problem, die Antwort kommt per E-Mail.",
+    feedbackText: "Hast du Ideen oder willst du mitmachen?",
   },
 } as const;
 
