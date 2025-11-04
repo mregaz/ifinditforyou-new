@@ -129,6 +129,79 @@ export default function HomePage() {
 
   // chiamata alla nostra /api/search (finta o tua)
   const handleSearch = async () => {
+  const handleAiFinder = async () => {
+  const q = query.trim();
+  if (!q) return;
+  setAiLoading(true);
+  setAiError("");
+  try {
+    const res = await fetch("/api/finder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: q, lang }),
+    });
+
+    const data = await res.json();
+
+    // niente crediti
+    if (res.status === 402 || data?.action === "purchase") {
+      setAiError(
+        lang === "it"
+          ? "Crediti esauriti. Scrivimi dal form 👇"
+          : lang === "fr"
+          ? "Crédits épuisés. Utilise le formulaire 👇"
+          : lang === "de"
+          ? "Keine Credits mehr. Nutze das Formular 👇"
+          : "Credits finished. Use the form below 👇"
+      );
+      setShowExamples(true);
+      return;
+    }
+
+    // AI ha risposto
+    setAiCreditsLeft(data.creditsLeft ?? null);
+
+    // il modello ci restituisce una stringa JSON → la parse
+    let parsed: any = null;
+    try {
+      parsed = JSON.parse(data.data);
+    } catch {
+      // se non è JSON valido, lo metto lo stesso
+      parsed = { summary: data.data };
+    }
+
+    // trasformo in array di stringhe per il tuo blocco risultati
+    const aiResults: string[] = [];
+
+    if (Array.isArray(parsed?.items)) {
+      parsed.items.forEach((item: any) => {
+        aiResults.push(
+          `${item.title ?? "Senza titolo"} — ${item.price ?? "prezzo n/d"} — ${item.source ?? "sorgente n/d"}`
+        );
+      });
+    }
+
+    if (parsed?.summary) {
+      aiResults.push(parsed.summary);
+    }
+
+    setResults(aiResults.length > 0 ? aiResults : ["AI trovata ma senza risultati leggibili."]);
+    setShowExamples(true);
+  } catch (err) {
+    setAiError(
+      lang === "it"
+        ? "Non riesco a parlare con l’AI adesso."
+        : lang === "fr"
+        ? "Impossible de contacter l’IA pour le moment."
+        : lang === "de"
+        ? "KI momentan nicht erreichbar."
+        : "Cannot reach AI right now."
+    );
+  } finally {
+    setAiLoading(false);
+  }
+};
+
     const q = query.trim();
     if (!q) return;
     setSearchLoading(true);
