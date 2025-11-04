@@ -115,6 +115,9 @@ export default function HomePage() {
   const [results, setResults] = useState<string[]>([]);
   const [searchError, setSearchError] = useState("");
   const [showExamples, setShowExamples] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const [aiCreditsLeft, setAiCreditsLeft] = useState<number | null>(null);
 
   // blocco form lead
   const [email, setEmail] = useState("");
