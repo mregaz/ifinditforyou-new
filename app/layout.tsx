@@ -1,5 +1,4 @@
 // app/layout.tsx
-import { Analytics } from "@vercel/analytics/react";
 import type { ReactNode } from "react";
 
 export const metadata = {
@@ -21,10 +20,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           a { color: #93c5fd; text-decoration: underline; }
         `}</style>
       </head>
-      <body>
-        {children}
-        <Analytics />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
