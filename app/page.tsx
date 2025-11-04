@@ -495,6 +495,51 @@ export default function HomePage() {
     </a>
   </p>
 </div>
+</form>
+</div>
+
+{/* ABOUT / FEEDBACK DINAMICO */}
+<div
+  style={{
+    maxWidth: 850,
+    width: "100%",
+    margin: "0 auto 40px",
+    textAlign: "center",
+    background: "rgba(255,255,255,0.02)",
+    border: "1px solid rgba(148,163,184,0.15)",
+    borderRadius: 20,
+    padding: "24px 20px",
+  }}
+>
+  <h2 style={{ fontSize: 18, marginBottom: 10 }}>{t.aboutTitle}</h2>
+  <p
+    style={{
+      fontSize: 15,
+      opacity: 0.8,
+      maxWidth: 650,
+      margin: "0 auto 18px",
+      lineHeight: 1.6,
+    }}
+  >
+    {t.aboutText}
+  </p>
+
+  <p style={{ fontSize: 14, opacity: 0.6, marginBottom: 6 }}>
+    {t.feedbackText}
+  </p>
+  <a
+    href="mailto:info@ifinditforyou.com"
+    style={{ color: "#a855f7", textDecoration: "none", fontWeight: 500 }}
+  >
+    info@ifinditforyou.com
+  </a>
+</div>
+
+{/* FOOTER */}
+<footer
+  style={{
+    maxWidth: 1000,
+    margin: "0 auto",
 
       {/* FOOTER */}
       <footer
