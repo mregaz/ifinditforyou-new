@@ -14,7 +14,6 @@ const UI_TEXTS = {
     langLabel: "Lingua dell’interfaccia",
     resultsTitle: "Ecco alcune opzioni:",
     empty: "Scrivi cosa cerchi sopra 👆",
-    // form
     formTitle: "Vuoi che te lo mandi via email?",
     formSubtitle: "Lasciami i dettagli, ti rispondo il prima possibile.",
     emailLabel: "La tua email",
@@ -23,11 +22,10 @@ const UI_TEXTS = {
     submit: "Contattami per la soluzione perfetta",
     ok: "Ricevuto! Ti scrivo appena ho la soluzione 👍",
     ko: "C'è stato un errore nell’invio. Riprova.",
-    // about
-    aboutTitle: "💡 About iFindItForYou",
+    aboutTitle: "Chi c’è dietro iFindItForYou?",
     aboutText:
-      "iFindItForYou è un piccolo assistente online che trova per te le soluzioni migliori. Scrivi cosa ti serve e ricevi per email le opzioni più adatte.",
-    feedbackText: "Hai idee o vuoi collaborare?",
+      "È un micro-progetto per farti risparmiare tempo: invece di girare 10 siti ti mando direttamente l’opzione giusta. Se hai idee o vuoi integrarlo con il tuo tool, scrivimi.",
+    feedbackText: "Idee o collaborazioni:",
   },
   en: {
     beta: "Free beta",
@@ -46,10 +44,10 @@ const UI_TEXTS = {
     submit: "Send me the perfect option",
     ok: "Got it! I’ll email you soon 👍",
     ko: "Error sending. Try again.",
-    aboutTitle: "💡 About iFindItForYou",
+    aboutTitle: "Who is behind iFindItForYou?",
     aboutText:
-      "iFindItForYou is a tiny online assistant that finds the best options for you. Tell me what you need and you’ll get the result by email.",
-    feedbackText: "Got ideas or want to collaborate?",
+      "Tiny helper project to save you time. You tell me what you need, I search it for you and mail it back. If you want to integrate it or have ideas, just write.",
+    feedbackText: "Ideas or partnerships:",
   },
   fr: {
     beta: "Bêta gratuite",
@@ -69,10 +67,10 @@ const UI_TEXTS = {
     submit: "Envoie-moi la bonne solution",
     ok: "Bien reçu ! Je te réponds vite 👍",
     ko: "Erreur d’envoi. Réessaie.",
-    aboutTitle: "💡 À propos d’iFindItForYou",
+    aboutTitle: "Qui est derrière iFindItForYou ?",
     aboutText:
-      "iFindItForYou est un petit assistant en ligne qui trouve pour toi les meilleures options. Tu expliques ton besoin, tu reçois la réponse par email.",
-    feedbackText: "Tu as des idées ou tu veux aider ?",
+      "Petit projet pour te faire gagner du temps. Tu écris, je trouve et je t’envoie. Si tu veux l’intégrer ou proposer une idée, écris-moi.",
+    feedbackText: "Idées ou collaborations :",
   },
   de: {
     beta: "Kostenlose Beta",
@@ -88,14 +86,14 @@ const UI_TEXTS = {
     formSubtitle: "Schreib mir die Details, ich antworte dir.",
     emailLabel: "Deine E-Mail",
     msgLabel: "Was soll ich finden?",
-    replyLabel: "Antwort auf:",
+    replyLabel: "Antwort in",
     submit: "Schick mir die passende Lösung",
     ok: "Danke! Ich melde mich bald 👍",
     ko: "Fehler beim Senden. Bitte erneut versuchen.",
-    aboutTitle: "💡 Über iFindItForYou",
+    aboutTitle: "Wer steckt hinter iFindItForYou?",
     aboutText:
-      "iFindItForYou ist ein kleiner Online-Assistent, der passende Lösungen für dich findet. Du schreibst dein Problem, die Antwort kommt per E-Mail.",
-    feedbackText: "Hast du Ideen oder willst du mitmachen?",
+      "Kleines Projekt, damit du weniger suchen musst. Du sagst, was du brauchst, ich schicke es dir. Bei Ideen oder Integration – schreib mir.",
+    feedbackText: "Ideen oder Kooperation:",
   },
 } as const;
 
@@ -104,13 +102,13 @@ export default function HomePage() {
   const [lang, setLang] = useState<"it" | "en" | "fr" | "de">("it");
   const t = UI_TEXTS[lang];
 
-  // blocco ricerca
+  // ricerca
   const [query, setQuery] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
   const [results, setResults] = useState<string[]>([]);
   const [searchError, setSearchError] = useState("");
 
-  // blocco form lead
+  // form lead
   const [email, setEmail] = useState("");
   const [leadMsg, setLeadMsg] = useState("");
   const [leadLang, setLeadLang] = useState<"it" | "en" | "fr" | "de">("it");
@@ -133,7 +131,9 @@ export default function HomePage() {
       setResults(
         Array.isArray(data.results) && data.results.length > 0
           ? data.results
-          : [`Non ho trovato molto su “${q}” ma puoi spiegarmelo nel form sotto 👇`]
+          : [
+              `Non ho trovato molto su “${q}”, ma puoi spiegarmelo nel form sotto 👇`,
+            ]
       );
     } catch (err) {
       setSearchError("Non riesco a chiamare l’AI adesso, ti lascio 3 idee io.");
@@ -159,7 +159,7 @@ export default function HomePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
-          message: leadMsg || query, // se non scrive nulla uso quello che ha cercato
+          message: leadMsg || query,
           lang: leadLang,
         }),
       });
@@ -195,56 +195,60 @@ export default function HomePage() {
           textAlign: "center",
         }}
       >
-<p style={{ opacity: 0.7, marginBottom: 8 }}>{t.beta}</p>
+        <p style={{ opacity: 0.7, marginBottom: 8 }}>{t.beta}</p>
 
-{/* STELLA ROTANTE DECORATIVA */}
-<div style={{ textAlign: "center", marginBottom: 8 }}>
-  <span
-    style={{
-      fontSize: "48px",
-      color: "#a855f7",
-      display: "inline-block",
-      animation: "spin 6s linear infinite",
-      filter: "drop-shadow(0 0 6px rgba(168,85,247,0.6))",
-    }}
-  >
-    ✨
-  </span>
-  <style jsx>{`
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-  `}</style>
-</div>
+        {/* titolo con stellina */}
+        <div
+          style={{
+            display: "flex",
+            gap: 10,
+            justifyContent: "center",
+            alignItems: "center",
+            marginBottom: 12,
+          }}
+        >
+          <h1
+            style={{
+              fontSize: "clamp(48px, 6vw, 72px)",
+              fontWeight: 700,
+            }}
+          >
+            {t.title}
+          </h1>
+          <span
+            style={{
+              width: 30,
+              height: 30,
+              display: "inline-flex",
+              justifyContent: "center",
+              alignItems: "center",
+              background: "radial-gradient(circle, #f97316 0%, #a855f7 70%)",
+              borderRadius: "9999px",
+              animation: "spin 4s linear infinite",
+            }}
+          >
+            ⭐
+          </span>
+        </div>
 
-{/* TITOLO PRINCIPALE */}
-<h1
-  style={{
-    fontSize: "clamp(48px, 6vw, 72px)",
-    fontWeight: 700,
-    marginBottom: 12,
-    letterSpacing: "-0.02em",
-  }}
->
-  {t.title}
-</h1>
+        {/* piccola animazione css */}
+        <style>{`
+          @keyframes spin {
+            from { transform: rotate(0deg) }
+            to { transform: rotate(360deg) }
+          }
+        `}</style>
 
-{/* SOTTOTITOLO */}
-<p
-  style={{
-    fontSize: 20,
-    opacity: 0.9,
-    maxWidth: 700,
-    margin: "0 auto 32px",
-  }}
->
-  {t.subtitle}
-</p>
+        <p
+          style={{
+            fontSize: 20,
+            opacity: 0.9,
+            maxWidth: 700,
+            margin: "0 auto 32px",
+          }}
+        >
+          {t.subtitle}
+        </p>
 
         {/* input + button */}
         <div
@@ -442,104 +446,47 @@ export default function HomePage() {
             {leadLoading ? "Invio in corso…" : t.submit}
           </button>
 
-          {leadOk && (
-            <p style={{ color: "#22c55e" }}>{t.ok}</p>
-          )}
-          {leadErr && (
-            <p style={{ color: "#f97316" }}>{t.ko}</p>
-          )}
+          {leadOk && <p style={{ color: "#22c55e" }}>{t.ok}</p>}
+          {leadErr && <p style={{ color: "#f97316" }}>{t.ko}</p>}
         </form>
       </div>
-{/* ABOUT / FEEDBACK */}
-<div
-  style={{
-    maxWidth: 850,
-    width: "100%",
-    margin: "0 auto 40px",
-    textAlign: "center",
-    background: "rgba(255,255,255,0.02)",
-    border: "1px solid rgba(148,163,184,0.15)",
-    borderRadius: 20,
-    padding: "24px 20px",
-  }}
->
-  <h2 style={{ fontSize: 18, marginBottom: 10 }}>💡 About iFindItForYou</h2>
-  <p
-    style={{
-      fontSize: 15,
-      opacity: 0.8,
-      maxWidth: 650,
-      margin: "0 auto 18px",
-      lineHeight: 1.6,
-    }}
-  >
-    iFindItForYou è un piccolo assistente online che trova per te le soluzioni
-    migliori. Scrivi cosa ti serve, e ricevi per email le opzioni più adatte —
-    in italiano, inglese, francese o tedesco.
-  </p>
 
-  <p
-    style={{
-      fontSize: 14,
-      opacity: 0.6,
-    }}
-  >
-    Hai idee, feedback o vuoi collaborare?
-    <br />
-    Scrivici a{" "}
-    <a
-      href="mailto:info@ifinditforyou.com"
-      style={{ color: "#a855f7", textDecoration: "none" }}
-    >
-      info@ifinditforyou.com
-    </a>
-  </p>
-</div>
-</form>
-</div>
+      {/* ABOUT / FEEDBACK DINAMICO */}
+      <div
+        style={{
+          maxWidth: 850,
+          width: "100%",
+          margin: "0 auto 40px",
+          textAlign: "center",
+          background: "rgba(255,255,255,0.02)",
+          border: "1px solid rgba(148,163,184,0.15)",
+          borderRadius: 20,
+          padding: "24px 20px",
+        }}
+      >
+        <h2 style={{ fontSize: 18, marginBottom: 10 }}>{t.aboutTitle}</h2>
+        <p
+          style={{
+            fontSize: 15,
+            opacity: 0.8,
+            maxWidth: 650,
+            margin: "0 auto 18px",
+            lineHeight: 1.6,
+          }}
+        >
+          {t.aboutText}
+        </p>
 
-{/* ABOUT / FEEDBACK DINAMICO */}
-<div
-  style={{
-    maxWidth: 850,
-    width: "100%",
-    margin: "0 auto 40px",
-    textAlign: "center",
-    background: "rgba(255,255,255,0.02)",
-    border: "1px solid rgba(148,163,184,0.15)",
-    borderRadius: 20,
-    padding: "24px 20px",
-  }}
->
-  <h2 style={{ fontSize: 18, marginBottom: 10 }}>{t.aboutTitle}</h2>
-  <p
-    style={{
-      fontSize: 15,
-      opacity: 0.8,
-      maxWidth: 650,
-      margin: "0 auto 18px",
-      lineHeight: 1.6,
-    }}
-  >
-    {t.aboutText}
-  </p>
-
-  <p style={{ fontSize: 14, opacity: 0.6, marginBottom: 6 }}>
-    {t.feedbackText}
-  </p>
-  <a
-    href="mailto:info@ifinditforyou.com"
-    style={{ color: "#a855f7", textDecoration: "none", fontWeight: 500 }}
-  >
-    info@ifinditforyou.com
-  </a>
-</div>
-
-{/* FOOTER */}
-<footer
-  style={{
-    maxWidth: 1000,
-    margin: "0 auto",
+        <p style={{ fontSize: 14, opacity: 0.6, marginBottom: 6 }}>
+          {t.feedbackText}
+        </p>
+        <a
+          href="mailto:info@ifinditforyou.com"
+          style={{ color: "#a855f7", textDecoration: "none", fontWeight: 500 }}
+        >
+          info@ifinditforyou.com
+        </a>
+      </div>
 
       {/* FOOTER */}
       <footer
