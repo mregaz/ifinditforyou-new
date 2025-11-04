@@ -14,6 +14,7 @@ const UI_TEXTS = {
     langLabel: "Lingua dell’interfaccia",
     resultsTitle: "Ecco alcune opzioni:",
     empty: "Scrivi cosa cerchi sopra 👆",
+    // form
     formTitle: "Vuoi che te lo mandi via email?",
     formSubtitle: "Lasciami i dettagli, ti rispondo il prima possibile.",
     emailLabel: "La tua email",
@@ -22,10 +23,13 @@ const UI_TEXTS = {
     submit: "Contattami per la soluzione perfetta",
     ok: "Ricevuto! Ti scrivo appena ho la soluzione 👍",
     ko: "C'è stato un errore nell’invio. Riprova.",
-    aboutTitle: "Chi c’è dietro iFindItForYou?",
+    // about
+    aboutTitle: "💡 About iFindItForYou",
     aboutText:
-      "È un micro-progetto per farti risparmiare tempo: invece di girare 10 siti ti mando direttamente l’opzione giusta. Se hai idee o vuoi integrarlo con il tuo tool, scrivimi.",
-    feedbackText: "Idee o collaborazioni:",
+      "iFindItForYou è un piccolo assistente online che trova per te le soluzioni migliori. Scrivi cosa ti serve e ricevi per email le opzioni più adatte.",
+    feedbackText: "Hai idee o vuoi collaborare?",
+    // bottone mostra risultati
+    showExamplesBtn: "Mostrami un esempio 👀",
   },
   en: {
     beta: "Free beta",
@@ -44,10 +48,11 @@ const UI_TEXTS = {
     submit: "Send me the perfect option",
     ok: "Got it! I’ll email you soon 👍",
     ko: "Error sending. Try again.",
-    aboutTitle: "Who is behind iFindItForYou?",
+    aboutTitle: "💡 About iFindItForYou",
     aboutText:
-      "Tiny helper project to save you time. You tell me what you need, I search it for you and mail it back. If you want to integrate it or have ideas, just write.",
-    feedbackText: "Ideas or partnerships:",
+      "iFindItForYou is a tiny online assistant that finds the best options for you. Tell me what you need and you’ll get the result by email.",
+    feedbackText: "Got ideas or want to collaborate?",
+    showExamplesBtn: "Show me an example 👀",
   },
   fr: {
     beta: "Bêta gratuite",
@@ -67,10 +72,11 @@ const UI_TEXTS = {
     submit: "Envoie-moi la bonne solution",
     ok: "Bien reçu ! Je te réponds vite 👍",
     ko: "Erreur d’envoi. Réessaie.",
-    aboutTitle: "Qui est derrière iFindItForYou ?",
+    aboutTitle: "💡 À propos d’iFindItForYou",
     aboutText:
-      "Petit projet pour te faire gagner du temps. Tu écris, je trouve et je t’envoie. Si tu veux l’intégrer ou proposer une idée, écris-moi.",
-    feedbackText: "Idées ou collaborations :",
+      "iFindItForYou est un petit assistant en ligne qui trouve pour toi les meilleures options. Tu expliques ton besoin, tu reçois la réponse par email.",
+    feedbackText: "Tu as des idées ou tu veux aider ?",
+    showExamplesBtn: "Montre-moi un exemple 👀",
   },
   de: {
     beta: "Kostenlose Beta",
@@ -90,10 +96,11 @@ const UI_TEXTS = {
     submit: "Schick mir die passende Lösung",
     ok: "Danke! Ich melde mich bald 👍",
     ko: "Fehler beim Senden. Bitte erneut versuchen.",
-    aboutTitle: "Wer steckt hinter iFindItForYou?",
+    aboutTitle: "💡 Über iFindItForYou",
     aboutText:
-      "Kleines Projekt, damit du weniger suchen musst. Du sagst, was du brauchst, ich schicke es dir. Bei Ideen oder Integration – schreib mir.",
-    feedbackText: "Ideen oder Kooperation:",
+      "iFindItForYou ist ein kleiner Online-Assistent, der passende Lösungen für dich findet. Du schreibst dein Problem, die Antwort kommt per E-Mail.",
+    feedbackText: "Hast du Ideen oder willst du mitmachen?",
+    showExamplesBtn: "Zeig mir ein Beispiel 👀",
   },
 } as const;
 
@@ -102,13 +109,14 @@ export default function HomePage() {
   const [lang, setLang] = useState<"it" | "en" | "fr" | "de">("it");
   const t = UI_TEXTS[lang];
 
-  // ricerca
+  // blocco ricerca
   const [query, setQuery] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
   const [results, setResults] = useState<string[]>([]);
   const [searchError, setSearchError] = useState("");
+  const [showExamples, setShowExamples] = useState(false);
 
-  // form lead
+  // blocco form lead
   const [email, setEmail] = useState("");
   const [leadMsg, setLeadMsg] = useState("");
   const [leadLang, setLeadLang] = useState<"it" | "en" | "fr" | "de">("it");
@@ -116,7 +124,7 @@ export default function HomePage() {
   const [leadOk, setLeadOk] = useState(false);
   const [leadErr, setLeadErr] = useState(false);
 
-  // chiamata alla nostra /api/search
+  // chiamata alla nostra /api/search (finta o tua)
   const handleSearch = async () => {
     const q = query.trim();
     if (!q) return;
@@ -132,9 +140,10 @@ export default function HomePage() {
         Array.isArray(data.results) && data.results.length > 0
           ? data.results
           : [
-              `Non ho trovato molto su “${q}”, ma puoi spiegarmelo nel form sotto 👇`,
+              `Non ho trovato molto su “${q}” ma puoi spiegarmelo nel form sotto 👇`,
             ]
       );
+      setShowExamples(true); // così il blocco appare dopo la ricerca
     } catch (err) {
       setSearchError("Non riesco a chiamare l’AI adesso, ti lascio 3 idee io.");
       setResults([
@@ -142,6 +151,7 @@ export default function HomePage() {
         `2) Controlla comparatori / marketplace per “${q}”`,
         `3) Se vuoi che lo faccia io per te, compila il form sotto.`,
       ]);
+      setShowExamples(true);
     } finally {
       setSearchLoading(false);
     }
@@ -197,48 +207,41 @@ export default function HomePage() {
       >
         <p style={{ opacity: 0.7, marginBottom: 8 }}>{t.beta}</p>
 
-        {/* titolo con stellina */}
-        <div
-          style={{
-            display: "flex",
-            gap: 10,
-            justifyContent: "center",
-            alignItems: "center",
-            marginBottom: 12,
-          }}
-        >
-          <h1
-            style={{
-              fontSize: "clamp(48px, 6vw, 72px)",
-              fontWeight: 700,
-            }}
-          >
-            {t.title}
-          </h1>
+        {/* STELLA ROTANTE */}
+        <div style={{ textAlign: "center", marginBottom: 8 }}>
           <span
             style={{
-              width: 30,
-              height: 30,
-              display: "inline-flex",
-              justifyContent: "center",
-              alignItems: "center",
-              background: "radial-gradient(circle, #f97316 0%, #a855f7 70%)",
-              borderRadius: "9999px",
-              animation: "spin 4s linear infinite",
+              fontSize: "48px",
+              color: "#a855f7",
+              display: "inline-block",
+              animation: "spin 6s linear infinite",
+              filter: "drop-shadow(0 0 6px rgba(168,85,247,0.6))",
             }}
           >
-            ⭐
+            ✨
           </span>
+          <style jsx>{`
+            @keyframes spin {
+              0% {
+                transform: rotate(0deg);
+              }
+              100% {
+                transform: rotate(360deg);
+              }
+            }
+          `}</style>
         </div>
 
-        {/* piccola animazione css */}
-        <style>{`
-          @keyframes spin {
-            from { transform: rotate(0deg) }
-            to { transform: rotate(360deg) }
-          }
-        `}</style>
-
+        <h1
+          style={{
+            fontSize: "clamp(48px, 6vw, 72px)",
+            fontWeight: 700,
+            marginBottom: 12,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          {t.title}
+        </h1>
         <p
           style={{
             fontSize: 20,
@@ -316,33 +319,55 @@ export default function HomePage() {
           </select>
         </div>
 
-        {/* risultati */}
+        {/* risultati / suggerimenti (ora nascosti finché non li chiedi) */}
         <div style={{ maxWidth: 850, margin: "0 auto" }}>
-          <h3 style={{ fontSize: 18, marginBottom: 12 }}>
-            {t.resultsTitle}
-          </h3>
-          {searchError && (
-            <p style={{ color: "#f97316", marginBottom: 10 }}>{searchError}</p>
-          )}
-          {results.length === 0 ? (
-            <p style={{ opacity: 0.5 }}>{t.empty}</p>
-          ) : (
-            <div style={{ display: "grid", gap: 12 }}>
-              {results.map((r, i) => (
-                <div
-                  key={i}
-                  style={{
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(148,163,184,0.2)",
-                    borderRadius: 16,
-                    padding: "12px 18px",
-                    textAlign: "left",
-                  }}
-                >
-                  {r}
+          {results.length > 0 || searchError || showExamples ? (
+            <>
+              <h3 style={{ fontSize: 18, marginBottom: 12 }}>
+                {t.resultsTitle}
+              </h3>
+
+              {searchError && (
+                <p style={{ color: "#f97316", marginBottom: 10 }}>
+                  {searchError}
+                </p>
+              )}
+
+              {results.length === 0 ? (
+                <p style={{ opacity: 0.5 }}>{t.empty}</p>
+              ) : (
+                <div style={{ display: "grid", gap: 12 }}>
+                  {results.map((r, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        background: "rgba(255,255,255,0.03)",
+                        border: "1px solid rgba(148,163,184,0.2)",
+                        borderRadius: 16,
+                        padding: "12px 18px",
+                        textAlign: "left",
+                      }}
+                    >
+                      {r}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              )}
+            </>
+          ) : (
+            <button
+              onClick={() => setShowExamples(true)}
+              style={{
+                background: "rgba(168,85,247,0.12)",
+                border: "1px solid rgba(168,85,247,0.4)",
+                borderRadius: 999,
+                padding: "8px 16px",
+                color: "white",
+                cursor: "pointer",
+              }}
+            >
+              {t.showExamplesBtn}
+            </button>
           )}
         </div>
       </div>
@@ -521,6 +546,3 @@ export default function HomePage() {
     </main>
   );
 }
-
-
-
