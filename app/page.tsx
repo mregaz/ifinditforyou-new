@@ -467,6 +467,219 @@ export default function HomePage() {
           </a>
         </div>
       </footer>
+      {/* POPUP “Invia per email” MULTILINGUA */}
+{(aiError || (results.length > 0 && results.length < 2)) && (
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,0.6)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 50,
+      backdropFilter: "blur(4px)",
+      animation: "fadeIn 0.4s ease-out",
+    }}
+  >
+    <style jsx>{`
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes scaleUp {
+        from {
+          transform: scale(0.9);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+    `}</style>
+
+    <div
+      style={{
+        background: "#1e293b",
+        borderRadius: 20,
+        padding: "28px 26px",
+        maxWidth: 420,
+        width: "90%",
+        textAlign: "center",
+        animation: "scaleUp 0.3s ease-out",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+      }}
+    >
+      <h3 style={{ fontSize: 20, marginBottom: 8, color: "#fff" }}>
+        {lang === "it"
+          ? "Vuoi che te lo mandi via email?"
+          : lang === "fr"
+          ? "Tu veux que je te l’envoie par e-mail ?"
+          : lang === "de"
+          ? "Willst du es per E-Mail erhalten?"
+          : "Want me to send it by email?"}
+      </h3>
+
+      <p style={{ fontSize: 14, opacity: 0.8, marginBottom: 20 }}>
+        {lang === "it"
+          ? "L’AI non ha trovato un risultato preciso. Posso cercarlo manualmente e inviartelo."
+          : lang === "fr"
+          ? "L’IA n’a pas trouvé de résultat précis. Je peux chercher manuellement et te l’envoyer."
+          : lang === "de"
+          ? "Die KI hat kein genaues Ergebnis gefunden. Ich kann manuell suchen und es dir schicken."
+          : "AI didn’t find a precise result. I can look manually and email it to you."}
+      </p>
+
+      <form
+        onSubmit={async (e) => {
+          await handleLead(e);
+          if (!leadErr) {
+            setTimeout(() => {
+              setAiError("");
+              setLeadOk(false);
+            }, 2000); // chiusura automatica dopo 2s
+          }
+        }}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+          alignItems: "center",
+        }}
+      >
+        <input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder={
+            lang === "it"
+              ? "tu@email.com"
+              : lang === "fr"
+              ? "ton@email.com"
+              : lang === "de"
+              ? "deine@email.com"
+              : "your@email.com"
+          }
+          style={{
+            width: "100%",
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.2)",
+            borderRadius: 10,
+            padding: "10px 14px",
+            color: "white",
+          }}
+        />
+        <textarea
+          rows={3}
+          value={leadMsg}
+          onChange={(e) => setLeadMsg(e.target.value)}
+          placeholder={
+            lang === "it"
+              ? "Descrivi brevemente cosa cerchi..."
+              : lang === "fr"
+              ? "Décris brièvement ce que tu cherches..."
+              : lang === "de"
+              ? "Beschreibe kurz, was du suchst..."
+              : "Describe briefly what you’re looking for..."
+          }
+          style={{
+            width: "100%",
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.2)",
+            borderRadius: 10,
+            padding: "10px 14px",
+            color: "white",
+            resize: "none",
+          }}
+        />
+        <button
+          type="submit"
+          disabled={leadLoading}
+          style={{
+            background: leadLoading ? "#7c3aed" : "#a855f7",
+            border: "none",
+            borderRadius: 8,
+            padding: "10px 18px",
+            fontWeight: 600,
+            cursor: leadLoading ? "not-allowed" : "pointer",
+            color: "white",
+          }}
+        >
+          {leadLoading
+            ? lang === "it"
+              ? "Invio in corso…"
+              : lang === "fr"
+              ? "Envoi en cours…"
+              : lang === "de"
+              ? "Wird gesendet…"
+              : "Sending…"
+            : lang === "it"
+            ? "Inviami la richiesta"
+            : lang === "fr"
+            ? "Envoie la demande"
+            : lang === "de"
+            ? "Anfrage senden"
+            : "Send request"}
+        </button>
+
+        {leadOk && (
+          <p style={{ color: "#22c55e", marginTop: 6 }}>
+            {lang === "it"
+              ? "✅ Ricevuto! Ti scrivo presto."
+              : lang === "fr"
+              ? "✅ Bien reçu ! Je te réponds vite."
+              : lang === "de"
+              ? "✅ Erhalten! Ich melde mich bald."
+              : "✅ Received! I’ll get back to you soon."}
+          </p>
+        )}
+        {leadErr && (
+          <p style={{ color: "#f97316", marginTop: 6 }}>
+            {lang === "it"
+              ? "⚠️ Errore nell’invio."
+              : lang === "fr"
+              ? "⚠️ Erreur d’envoi."
+              : lang === "de"
+              ? "⚠️ Fehler beim Senden."
+              : "⚠️ Error sending."}
+          </p>
+        )}
+      </form>
+
+      <button
+        onClick={() => {
+          setAiError("");
+          setLeadErr(false);
+          setLeadOk(false);
+        }}
+        style={{
+          marginTop: 20,
+          color: "#94a3b8",
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+          textDecoration: "underline",
+          fontSize: 13,
+        }}
+      >
+        {lang === "it"
+          ? "Chiudi"
+          : lang === "fr"
+          ? "Fermer"
+          : lang === "de"
+          ? "Schließen"
+          : "Close"}
+      </button>
+    </div>
+  </div>
+)}
+
     </main>
   );
   {/* POPUP “Invia per email” */}
