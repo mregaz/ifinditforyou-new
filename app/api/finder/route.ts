@@ -92,6 +92,19 @@ Utente: "${query}"
         premium: true,
       }),
       wasPremium: false,
+      import { NextResponse } from "next/server";
+
+export async function POST(req: Request) {
+  const body = await req.json();
+  const query = body?.query || "nessuna query";
+
+  return NextResponse.json({
+    success: true,
+    message: "Risposta di test dal server Next.js (solo per build Vercel).",
+    query,
+  });
+}
+
     });
   }
 });
