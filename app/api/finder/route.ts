@@ -1,14 +1,8 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
-
-// 🔹 Finto database crediti utente
-// In futuro sarà Prisma o DB vero, ma per ora basta questo
+// finto DB crediti
 const userCredits: Record<string, number> = {
-  "demo@user.com": 3, // utente di esempio con 3 crediti
+  "demo@user.com": 3,
 };
 
 export async function POST(req: Request) {
@@ -22,7 +16,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🔹 Controllo crediti
+    // 1) controllo crediti
     if (!userCredits[userId] || userCredits[userId] <= 0) {
       return NextResponse.json(
         {
@@ -34,30 +28,55 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🔹 Chiamata a OpenAI
-    const completion = await openai.responses.create({
-      model: "gpt-4.1-mini",
-      input: `Trova alcune opzioni per: "${query}" (lingua: ${lang})`,
+    // 2) chiamiamo OpenAI via fetch (nessuna libreria da installare)
+    const openaiRes = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-4.1-mini",
+        input: `Sei un assistente che trova prodotti/opzioni online.
+Utente: "${query}"
+Lingua: ${lang}
+Rispondi in modo sintetico con 2-3 opzioni.`,
+      }),
     });
 
-    const text = completion.output[0]?.content[0]?.text ?? "Nessun risultato.";
+    if (!openaiRes.ok) {
+      console.error("OpenAI error", await openaiRes.text());
+      return NextResponse.json(
+        { error: "Errore nella chiamata a OpenAI" },
+        { status: 500 }
+      );
+    }
 
-    // 🔹 Scala credito
+    const aiData = await openaiRes.json();
+
+    // la risposta testuale sta qui
+    const text =
+      aiData?.output?.[0]?.content?.[0]?.text ??
+      "Non ho trovato molto, prova a descrivermi meglio cosa cerchi.";
+
+    // 3) scala 1 credito
     userCredits[userId] = userCredits[userId] - 1;
 
+    // 4) rispondi al frontend
     return NextResponse.json({
       success: true,
       data: text,
       creditsLeft: userCredits[userId],
     });
-  } catch (err: any) {
-    console.error("AI Finder error:", err);
+  } catch (err) {
+    console.error("AI Finder route error:", err);
     return NextResponse.json(
-      { error: "Errore nel server AI Finder" },
+      { error: "Errore interno nell’AI Finder" },
       { status: 500 }
     );
   }
 }
+
 
 
 
