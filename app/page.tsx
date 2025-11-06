@@ -164,10 +164,39 @@ export default function HomePage() {
       const data = await res.json();
 
       if (res.status === 402 || data?.action === "purchase") {
-        setAiError("Crediti esauriti. Usa il form sotto 👇");
-        setShowExamples(true);
-        return;
-      }
+  setAiError(
+    lang === "it"
+      ? "Crediti esauriti. Puoi acquistare 10 crediti o scrivermi dal form 👇"
+      : lang === "fr"
+      ? "Crédits épuisés. Tu peux acheter 10 crédits ou m’écrire 👇"
+      : lang === "de"
+      ? "Keine Credits mehr. Kaufe 10 Credits oder nutze das Formular 👇"
+      : "Credits finished. You can buy 10 credits or contact me 👇"
+  );
+
+  // Mostra il bottone Stripe
+  const payBtn = document.createElement("button");
+  payBtn.textContent =
+    lang === "it"
+      ? "💳 Acquista 10 crediti (5€)"
+      : lang === "fr"
+      ? "💳 Acheter 10 crédits (5€)"
+      : lang === "de"
+      ? "💳 10 Credits kaufen (5€)"
+      : "💳 Buy 10 credits (€5)";
+  payBtn.style.cssText =
+    "margin-top:12px;background:#a855f7;color:white;border:none;border-radius:10px;padding:10px 18px;cursor:pointer;font-weight:600;";
+  payBtn.onclick = () => (window.location.href = "/api/pay");
+
+  // Aggiungi il bottone al body (popup già esiste)
+  setTimeout(() => {
+    document.body.appendChild(payBtn);
+  }, 200);
+
+  setShowExamples(true);
+  return;
+}
+
 
       setAiCreditsLeft(data.creditsLeft ?? null);
 
