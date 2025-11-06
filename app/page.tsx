@@ -545,7 +545,8 @@ const handleAiFinder = async () => {
       </div>
 
       {/* FORM LEAD */}
-      <div
+            {/* FORM LEAD (ora a tendina) */}
+      <details
         style={{
           maxWidth: 850,
           width: "100%",
@@ -553,11 +554,117 @@ const handleAiFinder = async () => {
           background: "rgba(15,23,42,0.4)",
           border: "1px solid rgba(148,163,184,0.15)",
           borderRadius: 20,
-          padding: "24px 22px 20px",
+          padding: "16px 18px 14px",
         }}
       >
-        <h2 style={{ fontSize: 20, marginBottom: 6 }}>{t.formTitle}</h2>
-        <p style={{ opacity: 0.6, marginBottom: 18 }}>{t.formSubtitle}</p>
+        <summary
+          style={{
+            cursor: "pointer",
+            fontWeight: 600,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <span>📩 {t.formTitle}</span>
+          <span style={{ fontSize: 12, opacity: 0.6 }}>
+            (clicca per aprire)
+          </span>
+        </summary>
+
+        <div style={{ marginTop: 14 }}>
+          <p style={{ opacity: 0.6, marginBottom: 18 }}>{t.formSubtitle}</p>
+
+          <form
+            onSubmit={handleLead}
+            style={{ display: "flex", flexDirection: "column", gap: 14 }}
+          >
+            <div style={{ textAlign: "left" }}>
+              <label style={{ display: "block", marginBottom: 4 }}>
+                {t.emailLabel}
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="tu@email.com"
+                style={{
+                  width: "100%",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(148,163,184,0.2)",
+                  borderRadius: 10,
+                  padding: "10px 14px",
+                  color: "white",
+                }}
+              />
+            </div>
+
+            <div style={{ textAlign: "left" }}>
+              <label style={{ display: "block", marginBottom: 4 }}>
+                {t.msgLabel}
+              </label>
+              <textarea
+                rows={4}
+                value={leadMsg}
+                onChange={(e) => setLeadMsg(e.target.value)}
+                placeholder="Es. Miglior tool per… / Voli per… / Alternative a…"
+                style={{
+                  width: "100%",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(148,163,184,0.2)",
+                  borderRadius: 10,
+                  padding: "10px 14px",
+                  color: "white",
+                  resize: "vertical",
+                }}
+              />
+            </div>
+
+            <div style={{ textAlign: "left" }}>
+              <label style={{ display: "block", marginBottom: 4 }}>
+                {t.replyLabel}
+              </label>
+              <select
+                value={leadLang}
+                onChange={(e) => setLeadLang(e.target.value as any)}
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(148,163,184,0.2)",
+                  borderRadius: 10,
+                  padding: "8px 10px",
+                  color: "white",
+                }}
+              >
+                <option value="it">Italiano</option>
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="de">Deutsch</option>
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              disabled={leadLoading}
+              style={{
+                background: leadLoading ? "#7c3aed" : "#a855f7",
+                border: "none",
+                borderRadius: 10,
+                padding: "12px 16px",
+                fontSize: 15,
+                fontWeight: 600,
+                cursor: leadLoading ? "not-allowed" : "pointer",
+              }}
+            >
+              {leadLoading ? "Invio in corso…" : t.submit}
+            </button>
+
+            {leadOk && <p style={{ color: "#22c55e" }}>{t.ok}</p>}
+            {leadErr && <p style={{ color: "#f97316" }}>{t.ko}</p>}
+          </form>
+        </div>
+      </details>
 
         <form
           onSubmit={handleLead}
