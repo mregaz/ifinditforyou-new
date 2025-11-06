@@ -14,7 +14,6 @@ const UI_TEXTS = {
     langLabel: "Lingua dell’interfaccia",
     resultsTitle: "Ecco alcune opzioni:",
     empty: "Scrivi cosa cerchi sopra 👆",
-    // form
     formTitle: "Vuoi che te lo mandi via email?",
     formSubtitle: "Lasciami i dettagli, ti rispondo il prima possibile.",
     emailLabel: "La tua email",
@@ -23,12 +22,10 @@ const UI_TEXTS = {
     submit: "Contattami per la soluzione perfetta",
     ok: "Ricevuto! Ti scrivo appena ho la soluzione 👍",
     ko: "C'è stato un errore nell’invio. Riprova.",
-    // about
     aboutTitle: "💡 About iFindItForYou",
     aboutText:
       "iFindItForYou è un piccolo assistente online che trova per te le soluzioni migliori. Scrivi cosa ti serve e ricevi per email le opzioni più adatte.",
     feedbackText: "Hai idee o vuoi collaborare?",
-    // bottone mostra risultati
     showExamplesBtn: "Mostrami un esempio 👀",
   },
   en: {
@@ -105,74 +102,6 @@ const UI_TEXTS = {
 } as const;
 
 export default function HomePage() {
- // funzione per la ricerca AI Finder
-const handleAiFinder = async () => {
-  const q = query.trim();
-  if (!q) return;
-  setAiLoading(true);
-  setAiError("");
-  try {
-    const res = await fetch("/api/finder", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: q, lang }),
-    });
-
-    const data = await res.json();
-
-    // niente crediti
-    if (res.status === 402 || data?.action === "purchase") {
-      setAiError(
-        lang === "it"
-          ? "Crediti esauriti. Scrivimi dal form 👇"
-          : lang === "fr"
-          ? "Crédits épuisés. Utilise le formulaire 👇"
-          : lang === "de"
-          ? "Keine Credits mehr. Nutze das Formular 👇"
-          : "Credits finished. Use the form below 👇"
-      );
-      setShowExamples(true);
-      return;
-    }
-
-    setAiCreditsLeft(data.creditsLeft ?? null);
-
-    // prova a leggere il JSON
-    let parsed: any = null;
-    try {
-      parsed = JSON.parse(data.data);
-    } catch {
-      parsed = { summary: data.data };
-    }
-
-    const aiResults: string[] = [];
-    if (Array.isArray(parsed?.items)) {
-      parsed.items.forEach((item: any) => {
-        aiResults.push(
-          `${item.title ?? "Senza titolo"} — ${item.price ?? "n/d"} — ${item.source ?? "sorgente n/d"}`
-        );
-      });
-    }
-
-    if (parsed?.summary) aiResults.push(parsed.summary);
-
-    setResults(aiResults.length > 0 ? aiResults : ["AI trovata ma nessun risultato leggibile."]);
-    setShowExamples(true);
-  } catch (err) {
-    setAiError(
-      lang === "it"
-        ? "Non riesco a parlare con l’AI adesso."
-        : lang === "fr"
-        ? "Impossible de contacter l’IA pour le moment."
-        : lang === "de"
-        ? "KI momentan nicht erreichbar."
-        : "Cannot reach AI right now."
-    );
-  } finally {
-    setAiLoading(false);
-  }
-};
-
   // lingua interfaccia
   const [lang, setLang] = useState<"it" | "en" | "fr" | "de">("it");
   const t = UI_TEXTS[lang];
@@ -195,81 +124,8 @@ const handleAiFinder = async () => {
   const [leadOk, setLeadOk] = useState(false);
   const [leadErr, setLeadErr] = useState(false);
 
-  // chiamata alla nostra /api/search (finta o tua)
+  // ricerca "normale"
   const handleSearch = async () => {
-  const handleAiFinder = async () => {
-  const q = query.trim();
-  if (!q) return;
-  setAiLoading(true);
-  setAiError("");
-  try {
-    const res = await fetch("/api/finder", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: q, lang }),
-    });
-
-    const data = await res.json();
-
-    // niente crediti
-    if (res.status === 402 || data?.action === "purchase") {
-      setAiError(
-        lang === "it"
-          ? "Crediti esauriti. Scrivimi dal form 👇"
-          : lang === "fr"
-          ? "Crédits épuisés. Utilise le formulaire 👇"
-          : lang === "de"
-          ? "Keine Credits mehr. Nutze das Formular 👇"
-          : "Credits finished. Use the form below 👇"
-      );
-      setShowExamples(true);
-      return;
-    }
-
-    // AI ha risposto
-    setAiCreditsLeft(data.creditsLeft ?? null);
-
-    // il modello ci restituisce una stringa JSON → la parse
-    let parsed: any = null;
-    try {
-      parsed = JSON.parse(data.data);
-    } catch {
-      // se non è JSON valido, lo metto lo stesso
-      parsed = { summary: data.data };
-    }
-
-    // trasformo in array di stringhe per il tuo blocco risultati
-    const aiResults: string[] = [];
-
-    if (Array.isArray(parsed?.items)) {
-      parsed.items.forEach((item: any) => {
-        aiResults.push(
-          `${item.title ?? "Senza titolo"} — ${item.price ?? "prezzo n/d"} — ${item.source ?? "sorgente n/d"}`
-        );
-      });
-    }
-
-    if (parsed?.summary) {
-      aiResults.push(parsed.summary);
-    }
-
-    setResults(aiResults.length > 0 ? aiResults : ["AI trovata ma senza risultati leggibili."]);
-    setShowExamples(true);
-  } catch (err) {
-    setAiError(
-      lang === "it"
-        ? "Non riesco a parlare con l’AI adesso."
-        : lang === "fr"
-        ? "Impossible de contacter l’IA pour le moment."
-        : lang === "de"
-        ? "KI momentan nicht erreichbar."
-        : "Cannot reach AI right now."
-    );
-  } finally {
-    setAiLoading(false);
-  }
-};
-
     const q = query.trim();
     if (!q) return;
     setSearchLoading(true);
@@ -287,12 +143,12 @@ const handleAiFinder = async () => {
               `Non ho trovato molto su “${q}” ma puoi spiegarmelo nel form sotto 👇`,
             ]
       );
-      setShowExamples(true); // così il blocco appare dopo la ricerca
+      setShowExamples(true);
     } catch (err) {
       setSearchError("Non riesco a chiamare l’AI adesso, ti lascio 3 idee io.");
       setResults([
-        `1) Cerca guide pratiche su “${q}”`,
-        `2) Controlla comparatori / marketplace per “${q}”`,
+        `1) Cerca guide pratiche su “${query}”`,
+        `2) Controlla comparatori / marketplace`,
         `3) Se vuoi che lo faccia io per te, compila il form sotto.`,
       ]);
       setShowExamples(true);
@@ -301,7 +157,78 @@ const handleAiFinder = async () => {
     }
   };
 
-  // invio lead a /api/lead
+  // ricerca AI (quella nuova)
+  const handleAiFinder = async () => {
+    const q = query.trim();
+    if (!q) return;
+    setAiLoading(true);
+    setAiError("");
+    try {
+      const res = await fetch("/api/finder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: q, lang }),
+      });
+
+      const data = await res.json();
+
+      if (res.status === 402 || data?.action === "purchase") {
+        setAiError(
+          lang === "it"
+            ? "Crediti esauriti. Scrivimi dal form 👇"
+            : lang === "fr"
+            ? "Crédits épuisés. Utilise le formulaire 👇"
+            : lang === "de"
+            ? "Keine Credits mehr. Nutze das Formular 👇"
+            : "Credits finished. Use the form below 👇"
+        );
+        setShowExamples(true);
+        return;
+      }
+
+      setAiCreditsLeft(data.creditsLeft ?? null);
+
+      let parsed: any = null;
+      try {
+        parsed = JSON.parse(data.data);
+      } catch {
+        parsed = { summary: data.data };
+      }
+
+      const aiResults: string[] = [];
+      if (Array.isArray(parsed?.items)) {
+        parsed.items.forEach((item: any) => {
+          aiResults.push(
+            `${item.title ?? "Senza titolo"} — ${item.price ?? "n/d"} — ${
+              item.source ?? "sorgente n/d"
+            }`
+          );
+        });
+      }
+      if (parsed?.summary) aiResults.push(parsed.summary);
+
+      setResults(
+        aiResults.length > 0
+          ? aiResults
+          : ["AI trovata ma nessun risultato leggibile."]
+      );
+      setShowExamples(true);
+    } catch (err) {
+      setAiError(
+        lang === "it"
+          ? "Non riesco a parlare con l’AI adesso."
+          : lang === "fr"
+          ? "Impossible de contacter l’IA pour le moment."
+          : lang === "de"
+          ? "KI momentan nicht erreichbar."
+          : "Cannot reach AI right now."
+      );
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  // invio lead
   const handleLead = async (e: React.FormEvent) => {
     e.preventDefault();
     setLeadLoading(true);
@@ -351,7 +278,7 @@ const handleAiFinder = async () => {
       >
         <p style={{ opacity: 0.7, marginBottom: 8 }}>{t.beta}</p>
 
-        {/* STELLA ROTANTE */}
+        {/* stellina */}
         <div style={{ textAlign: "center", marginBottom: 8 }}>
           <span
             style={{
@@ -397,78 +324,79 @@ const handleAiFinder = async () => {
           {t.subtitle}
         </p>
 
-        {/* input + button */}
-  <div
-  style={{
-    display: "flex",
-    gap: 16,
-    justifyContent: "center",
-    flexWrap: "wrap",
-    marginBottom: 20,
-  }}
->
-  <input
-    value={query}
-    onChange={(e) => setQuery(e.target.value)}
-    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-    placeholder={t.placeholder}
-    style={{
-      minWidth: 280,
-      width: "50%",
-      background: "rgba(255,255,255,0.03)",
-      border: "2px solid rgba(148,163,184,0.2)",
-      borderRadius: 999,
-      padding: "14px 20px",
-      color: "white",
-      fontSize: 16,
-    }}
-  />
-  <button
-    onClick={handleSearch}
-    disabled={searchLoading}
-    style={{
-      background: searchLoading ? "#7c3aed" : "#a855f7",
-      border: "none",
-      borderRadius: 999,
-      padding: "14px 32px",
-      fontSize: 16,
-      fontWeight: 600,
-      cursor: searchLoading ? "not-allowed" : "pointer",
-    }}
-  >
-    {searchLoading ? "Sto cercando…" : t.button}
-  </button>
+        {/* input + bottoni */}
+        <div
+          style={{
+            display: "flex",
+            gap: 16,
+            justifyContent: "center",
+            flexWrap: "wrap",
+            marginBottom: 20,
+          }}
+        >
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            placeholder={t.placeholder}
+            style={{
+              minWidth: 280,
+              width: "50%",
+              background: "rgba(255,255,255,0.03)",
+              border: "2px solid rgba(148,163,184,0.2)",
+              borderRadius: 999,
+              padding: "14px 20px",
+              color: "white",
+              fontSize: 16,
+            }}
+          />
+          <button
+            onClick={handleSearch}
+            disabled={searchLoading}
+            style={{
+              background: searchLoading ? "#7c3aed" : "#a855f7",
+              border: "none",
+              borderRadius: 999,
+              padding: "14px 32px",
+              fontSize: 16,
+              fontWeight: 600,
+              cursor: searchLoading ? "not-allowed" : "pointer",
+            }}
+          >
+            {searchLoading ? "Sto cercando…" : t.button}
+          </button>
 
-  {/* nuovo bottone AI */}
-  <button
-    onClick={handleAiFinder}
-    disabled={aiLoading}
-    style={{
-      background: "rgba(148,163,184,0.08)",
-      border: "1px solid rgba(148,163,184,0.3)",
-      borderRadius: 999,
-      padding: "14px 20px",
-      color: "white",
-      cursor: aiLoading ? "not-allowed" : "pointer",
-    }}
-  >
-    {aiLoading
-      ? (lang === "it" ? "AI in corso…" :
-        lang === "fr" ? "IA en cours…" :
-        lang === "de" ? "KI läuft…" :
-        "AI searching…")
-      : (lang === "it"
-        ? "Fammelo trovare con l’AI"
-        : lang === "fr"
-        ? "Trouve-le avec l’IA"
-        : lang === "de"
-        ? "Mit KI finden"
-        : "Find it with AI")}
-  </button>
-</div>
+          <button
+            onClick={handleAiFinder}
+            disabled={aiLoading}
+            style={{
+              background: "rgba(148,163,184,0.08)",
+              border: "1px solid rgba(148,163,184,0.3)",
+              borderRadius: 999,
+              padding: "14px 20px",
+              color: "white",
+              cursor: aiLoading ? "not-allowed" : "pointer",
+            }}
+          >
+            {aiLoading
+              ? lang === "it"
+                ? "AI in corso…"
+                : lang === "fr"
+                ? "IA en cours…"
+                : lang === "de"
+                ? "KI läuft…"
+                : "AI searching…"
+              : lang === "it"
+              ? "Fammelo trovare con l’AI"
+              : lang === "fr"
+              ? "Trouve-le avec l’IA"
+              : lang === "de"
+              ? "Mit KI finden"
+              : "Find it with AI"}
+          </button>
+        </div>
 
-
-        {/* select lingua interfaccia */}
+        {/* select lingua */}
         <div style={{ marginBottom: 28 }}>
           <label style={{ opacity: 0.6, marginRight: 12 }}>
             {t.langLabel}
@@ -491,13 +419,17 @@ const handleAiFinder = async () => {
           </select>
         </div>
 
-        {/* risultati / suggerimenti (ora nascosti finché non li chiedi) */}
+        {/* risultati */}
         <div style={{ maxWidth: 850, margin: "0 auto" }}>
           {results.length > 0 || searchError || showExamples ? (
             <>
               <h3 style={{ fontSize: 18, marginBottom: 12 }}>
                 {t.resultsTitle}
               </h3>
+
+              {aiError && (
+                <p style={{ color: "#f97316", marginBottom: 10 }}>{aiError}</p>
+              )}
 
               {searchError && (
                 <p style={{ color: "#f97316", marginBottom: 10 }}>
@@ -544,8 +476,7 @@ const handleAiFinder = async () => {
         </div>
       </div>
 
-      {/* FORM LEAD */}
-            {/* FORM LEAD (ora a tendina) */}
+      {/* FORM LEAD — ora a tendina */}
       <details
         style={{
           maxWidth: 850,
@@ -568,9 +499,7 @@ const handleAiFinder = async () => {
           }}
         >
           <span>📩 {t.formTitle}</span>
-          <span style={{ fontSize: 12, opacity: 0.6 }}>
-            (clicca per aprire)
-          </span>
+          <span style={{ fontSize: 12, opacity: 0.6 }}>(clicca per aprire)</span>
         </summary>
 
         <div style={{ marginTop: 14 }}>
@@ -666,96 +595,7 @@ const handleAiFinder = async () => {
         </div>
       </details>
 
-        <form
-          onSubmit={handleLead}
-          style={{ display: "flex", flexDirection: "column", gap: 14 }}
-        >
-          <div style={{ textAlign: "left" }}>
-            <label style={{ display: "block", marginBottom: 4 }}>
-              {t.emailLabel}
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@email.com"
-              style={{
-                width: "100%",
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(148,163,184,0.2)",
-                borderRadius: 10,
-                padding: "10px 14px",
-                color: "white",
-              }}
-            />
-          </div>
-
-          <div style={{ textAlign: "left" }}>
-            <label style={{ display: "block", marginBottom: 4 }}>
-              {t.msgLabel}
-            </label>
-            <textarea
-              rows={4}
-              value={leadMsg}
-              onChange={(e) => setLeadMsg(e.target.value)}
-              placeholder="Es. Miglior tool per… / Voli per… / Alternative a…"
-              style={{
-                width: "100%",
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(148,163,184,0.2)",
-                borderRadius: 10,
-                padding: "10px 14px",
-                color: "white",
-                resize: "vertical",
-              }}
-            />
-          </div>
-
-          <div style={{ textAlign: "left" }}>
-            <label style={{ display: "block", marginBottom: 4 }}>
-              {t.replyLabel}
-            </label>
-            <select
-              value={leadLang}
-              onChange={(e) => setLeadLang(e.target.value as any)}
-              style={{
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(148,163,184,0.2)",
-                borderRadius: 10,
-                padding: "8px 10px",
-                color: "white",
-              }}
-            >
-              <option value="it">Italiano</option>
-              <option value="en">English</option>
-              <option value="fr">Français</option>
-              <option value="de">Deutsch</option>
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            disabled={leadLoading}
-            style={{
-              background: leadLoading ? "#7c3aed" : "#a855f7",
-              border: "none",
-              borderRadius: 10,
-              padding: "12px 16px",
-              fontSize: 15,
-              fontWeight: 600,
-              cursor: leadLoading ? "not-allowed" : "pointer",
-            }}
-          >
-            {leadLoading ? "Invio in corso…" : t.submit}
-          </button>
-
-          {leadOk && <p style={{ color: "#22c55e" }}>{t.ok}</p>}
-          {leadErr && <p style={{ color: "#f97316" }}>{t.ko}</p>}
-        </form>
-      </div>
-
-      {/* ABOUT / FEEDBACK DINAMICO */}
+      {/* ABOUT */}
       <div
         style={{
           maxWidth: 850,
@@ -780,7 +620,6 @@ const handleAiFinder = async () => {
         >
           {t.aboutText}
         </p>
-
         <p style={{ fontSize: 14, opacity: 0.6, marginBottom: 6 }}>
           {t.feedbackText}
         </p>
