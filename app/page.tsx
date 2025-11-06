@@ -469,4 +469,148 @@ export default function HomePage() {
       </footer>
     </main>
   );
+  {/* POPUP “Invia per email” */}
+{(aiError || (results.length > 0 && results.length < 2)) && (
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,0.6)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 50,
+      backdropFilter: "blur(4px)",
+      animation: "fadeIn 0.4s ease-out",
+    }}
+  >
+    <style jsx>{`
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes scaleUp {
+        from {
+          transform: scale(0.9);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+    `}</style>
+
+    <div
+      style={{
+        background: "#1e293b",
+        borderRadius: 20,
+        padding: "28px 26px",
+        maxWidth: 420,
+        width: "90%",
+        textAlign: "center",
+        animation: "scaleUp 0.3s ease-out",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+      }}
+    >
+      <h3 style={{ fontSize: 20, marginBottom: 8, color: "#fff" }}>
+        Vuoi che te lo mandi via email?
+      </h3>
+      <p style={{ fontSize: 14, opacity: 0.8, marginBottom: 20 }}>
+        L’AI non ha trovato un risultato preciso. Posso cercarlo manualmente e
+        inviartelo.
+      </p>
+      <form
+        onSubmit={handleLead}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+          alignItems: "center",
+        }}
+      >
+        <input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="tu@email.com"
+          style={{
+            width: "100%",
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.2)",
+            borderRadius: 10,
+            padding: "10px 14px",
+            color: "white",
+          }}
+        />
+        <textarea
+          rows={3}
+          value={leadMsg}
+          onChange={(e) => setLeadMsg(e.target.value)}
+          placeholder="Descrivi brevemente cosa cerchi..."
+          style={{
+            width: "100%",
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.2)",
+            borderRadius: 10,
+            padding: "10px 14px",
+            color: "white",
+            resize: "none",
+          }}
+        />
+        <button
+          type="submit"
+          disabled={leadLoading}
+          style={{
+            background: leadLoading ? "#7c3aed" : "#a855f7",
+            border: "none",
+            borderRadius: 8,
+            padding: "10px 18px",
+            fontWeight: 600,
+            cursor: leadLoading ? "not-allowed" : "pointer",
+            color: "white",
+          }}
+        >
+          {leadLoading ? "Invio in corso…" : "Inviami la richiesta"}
+        </button>
+
+        {leadOk && (
+          <p style={{ color: "#22c55e", marginTop: 6 }}>
+            ✅ Ricevuto! Ti scrivo presto.
+          </p>
+        )}
+        {leadErr && (
+          <p style={{ color: "#f97316", marginTop: 6 }}>
+            ⚠️ Errore nell’invio, riprova.
+          </p>
+        )}
+      </form>
+
+      <button
+        onClick={() => {
+          setAiError("");
+          setLeadErr(false);
+          setLeadOk(false);
+        }}
+        style={{
+          marginTop: 20,
+          color: "#94a3b8",
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+          textDecoration: "underline",
+          fontSize: 13,
+        }}
+      >
+        Chiudi
+      </button>
+    </div>
+  </div>
+)}
+
 }
