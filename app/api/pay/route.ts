@@ -1,29 +1,18 @@
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-06-20",
-});
-
-export async function GET() {
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    line_items: [
-      {
-        price_data: {
-          currency: "eur",
-          product_data: {
-            name: "Pacchetto 10 crediti iFindItForYou",
-          },
-          unit_amount: 500, // 5.00 €
-        },
-        quantity: 1,
-      },
-    ],
-    success_url: "https://ifinditforyou.com?pay=ok",
-    cancel_url: "https://ifinditforyou.com?pay=ko",
+// endpoint finto per "compra crediti"
+export async function POST(req: Request) {
+  // qui in futuro leggeremo cosa ha comprato l’utente
+  return NextResponse.json({
+    success: true,
+    message: "Pagamento finto ok (endpoint di test).",
   });
-
-  return NextResponse.redirect(session.url!, 303);
 }
 
+// opzionale: così se lo apri dal browser non crasha
+export async function GET() {
+  return NextResponse.json({
+    ok: true,
+    info: "Endpoint /api/pay pronto.",
+  });
+}
