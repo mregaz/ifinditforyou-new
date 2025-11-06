@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-// finto "database" crediti, come avevamo fatto in locale
+// finto db crediti (solo runtime, a ogni deploy si resetta)
 const userCredits: Record<string, number> = {
   "demo-user": 3,
 };
@@ -8,8 +8,9 @@ const userCredits: Record<string, number> = {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const query = body?.query as string | undefined;
+    const query = (body?.query as string | undefined)?.trim();
     const userId = (body?.userId as string) || "demo-user";
+    const lang = (body?.lang as string) || "it";
 
     if (!query) {
       return NextResponse.json(
@@ -18,52 +19,37 @@ export async function POST(req: Request) {
       );
     }
 
-    // vedi se l’utente ha crediti
-    const hasCredits = (userCredits[userId] ?? 0) > 0;
+    const hasKey = !!process.env.OPENAI_API_KEY;
 
-    // prompt premium vs free
-    const promptPremium = `
-Sei AI Finder per un sito che trova prodotti difficili da reperire.
-Utente: "${query}"
-
-Restituisci SOLO questo JSON:
-{
-  "items": [
-    { "title": "...", "price": "...", "source": "...", "shipping": "...", "notes": "..." }
-  ],
-  "summary": "...",
-  "premium": true
-}
-`;
-    const promptFree = `
-Sei AI Finder in modalità gratuita.
-Utente: "${query}"
-
-Restituisci SOLO questo JSON molto breve (1 oggetto) e scrivi che per dettagli serve la versione avanzata.
-{
-  "items": [
-    { "title": "Suggerimento generico per: ${query}", "price": "N/D", "source": "es. Amazon o eBay", "shipping": "da verificare", "notes": "Per risultati più precisi usa la ricerca avanzata." }
-  ],
-  "summary": "Per risultati più precisi (prezzo, disponibilità, spedizione) attiva la ricerca avanzata.",
-  "premium": false
-}
-`;
-
-    const prompt = hasCredits ? promptPremium : promptFree;
-
-    // se NON hai la chiave su Vercel, rispondiamo col free e basta
-    if (!process.env.OPENAI_API_KEY) {
-      return NextResponse.json({
-        success: true,
-        data: JSON.parse(
-          promptFree
-            .slice(promptFree.indexOf("{"), promptFree.lastIndexOf("}") + 1)
-        ),
-        wasPremium: false,
-      });
+    // se non c'è la chiave su Vercel → risposta base
+    if (!hasKey) {
+      return NextResponse.json(makeFallback(query, userCredits[userId] ?? 0, false));
     }
 
-    // chiamata a OpenAI
+    // prompt per GPT
+    const prompt = `
+Sei "iFindItForYou AI Finder".
+L'utente chiede: "${query}" (lingua: ${lang}).
+
+Devi proporre 2-3 risultati in questo formato JSON, senza testo fuori dal JSON:
+
+{
+  "items": [
+    {
+      "title": "nome prodotto o soluzione",
+      "price": "prezzo indicativo o 'N/D'",
+      "source": "dove trovarlo (sito, marketplace, brand)",
+      "shipping": "se noto",
+      "notes": "note utili o alternative"
+    }
+  ],
+  "summary": "breve riassunto in ${lang}",
+  "premium": false
+}
+Se non trovi esatto, proponi alternative compatibili.
+`;
+
+    // chiamata a OpenAI (modello chat)
     const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -78,20 +64,25 @@ Restituisci SOLO questo JSON molto breve (1 oggetto) e scrivi che per dettagli s
     });
 
     const data = await openaiRes.json();
-    const aiText =
-      data?.choices?.[0]?.message?.content ??
-      '{"items":[],"summary":"Nessun risultato"}';
 
-    // scala 1 credito se era premium
-    if (hasCredits) {
+    // se OpenAI non ha risposto bene → fallback
+    const aiText =
+      data?.choices?.[0]?.message?.content ?? null;
+
+    if (!aiText) {
+      return NextResponse.json(makeFallback(query, userCredits[userId] ?? 0, true));
+    }
+
+    // scala 1 credito se l'utente ne aveva
+    if (userCredits[userId] && userCredits[userId] > 0) {
       userCredits[userId] = userCredits[userId] - 1;
     }
 
     return NextResponse.json({
       success: true,
       creditsLeft: userCredits[userId] ?? 0,
-      data: aiText,
-      wasPremium: hasCredits,
+      data: aiText, // è una stringa JSON, il tuo frontend la fa JSON.parse()
+      wasPremium: true,
     });
   } catch (err) {
     console.error("Errore in /api/finder:", err);
@@ -101,6 +92,30 @@ Restituisci SOLO questo JSON molto breve (1 oggetto) e scrivi che per dettagli s
     );
   }
 }
+
+// funzione di fallback (se non c'è la chiave o GPT fallisce)
+function makeFallback(query: string, creditsLeft: number, premiumFlag: boolean) {
+  return {
+    success: true,
+    creditsLeft,
+    data: JSON.stringify({
+      items: [
+        {
+          title: "Suggerimento generico per: " + query,
+          price: "N/D",
+          source: "es. Amazon, eBay, AliExpress",
+          shipping: "da verificare",
+          notes: "Per risultati più precisi attiva la ricerca avanzata.",
+        },
+      ],
+      summary:
+        "Versione base attiva. Aggiungi una chiave OpenAI su Vercel per avere la ricerca avanzata.",
+      premium: premiumFlag,
+    }),
+    wasPremium: false,
+  };
+}
+
 
 
 
