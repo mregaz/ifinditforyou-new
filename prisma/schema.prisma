@@ -1,21 +1,41 @@
 // prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql" // o "mysql" / "sqlite" se stai solo testando
   url      = env("DATABASE_URL")
 }
 
-model Lead {
+model User {
   id        String   @id @default(cuid())
-  name      String?  // opzionale
-  email     String
-  message   String
-  lang      String   @default("it")
+  email     String   @unique
+  credits   Int      @default(0)
+  searches  Search[]
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+
+model Search {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  query     String
+  result    Json
+  createdAt DateTime @default(now())
+  paid      Boolean  @default(false)
+}
+
+model Payment {
+  id               String   @id @default(cuid())
+  user             User     @relation(fields: [userId], references: [id])
+  userId           String
+  stripeSessionId  String   @unique
+  amount           Int
+  creditsGranted   Int
+  createdAt        DateTime @default(now())
+}
+
 
 
