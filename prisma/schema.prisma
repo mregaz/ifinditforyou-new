@@ -4,17 +4,18 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" // o "mysql" / "sqlite" se stai solo testando
+  provider = "postgresql" // cambia se usi altro
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  credits   Int      @default(0)
+  id        String    @id @default(cuid())
+  email     String    @unique
+  credits   Int       @default(0)
   searches  Search[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  payments  Payment[]   // <— questo mancava
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Search {
@@ -23,19 +24,20 @@ model Search {
   userId    String
   query     String
   result    Json
-  createdAt DateTime @default(now())
   paid      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 model Payment {
-  id               String   @id @default(cuid())
-  user             User     @relation(fields: [userId], references: [id])
-  userId           String
-  stripeSessionId  String   @unique
-  amount           Int
-  creditsGranted   Int
-  createdAt        DateTime @default(now())
+  id              String   @id @default(cuid())
+  user            User     @relation(fields: [userId], references: [id])
+  userId          String
+  stripeSessionId String   @unique
+  amount          Int
+  creditsGranted  Int
+  createdAt       DateTime @default(now())
 }
+
 
 
 
