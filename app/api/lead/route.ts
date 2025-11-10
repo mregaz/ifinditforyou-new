@@ -1,30 +1,23 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { prisma } from "@/lib/prisma"; // <-- controlla il path del tuo prisma
+import { prisma } from "@/lib/prisma";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// helper: cerca di chiamare l'AI interna
+// chiamata interna alla tua /api/finder
 async function askFinder(query: string, lang: string) {
   try {
-    // se hai già la route /api/finder in questo stesso progetto,
-    // la possiamo chiamare così.
-    // In produzione è meglio avere un URL assoluto (es. process.env.APP_URL)
-    const res = await fetch(`${process.env.APP_URL ?? "http://localhost:3000"}/api/finder`, {
+    const baseUrl = process.env.APP_URL ?? "http://localhost:3000";
+    const res = await fetch(`${baseUrl}/api/finder`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      // il tuo /api/finder accettava { query, lang }
       body: JSON.stringify({ query, lang }),
     });
 
-    if (!res.ok) {
-      return { ok: false, data: null };
-    }
+    if (!res.ok) return { ok: false, data: null };
 
     const data = await res.json();
 
-    // il tuo /api/finder nel codice di prima restituiva una stringa JSON in data.data
-    // proviamo a leggerla
     let parsed: any = null;
     try {
       parsed = JSON.parse(data.data);
@@ -51,26 +44,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "email mancante" }, { status: 400 });
     }
 
-    // 1) salviamo SUBITO sul db
-    // ATTENZIONE: cambia "lead" con il nome del tuo modello Prisma (Lead, Request, ecc.)
+    // 1) salva nel DB solo i campi che ESISTONO
+    // (email + message)
     const leadRecord = await prisma.lead.create({
       data: {
         email,
         message: message ?? "",
-        lang,
-        status: "RECEIVED", // se nel modello hai uno status
       },
     });
 
-    // 2) cerco di far rispondere l’AI con quello che ha chiesto l’utente
-    const finderResult = message
-      ? await askFinder(message, lang)
-      : { ok: false, data: null };
+    // 2) prova a far cercare all’AI
+    const finderResult =
+      message && message.length > 0
+        ? await askFinder(message, lang)
+        : { ok: false, data: null };
 
-    // 3) preparo il testo dell’email da mandare al mittente
+    // 3) prepara testo email
     let subject = "";
     let intro = "";
     let bodyText = "";
+
     if (lang === "it") {
       subject = "Ho ricevuto la tua richiesta 👍";
       intro = "Ciao! Ho ricevuto la tua richiesta su iFindItForYou.";
@@ -89,10 +82,8 @@ export async function POST(req: Request) {
       bodyText = message ? `You wrote: ${message}` : "";
     }
 
-    // se l’AI ha trovato qualcosa, lo aggiungo in fondo
     let aiPart = "";
     if (finderResult.ok && finderResult.data) {
-      // la tua /api/finder aveva spesso { items: [...], summary: "..." }
       const items = Array.isArray(finderResult.data.items)
         ? finderResult.data.items
         : [];
@@ -106,7 +97,6 @@ export async function POST(req: Request) {
           : lang === "de"
           ? "Ich habe schon etwas für dich gesucht:"
           : "I already tried to find something for you:";
-
       aiPart += "\n";
 
       items.forEach((item: any, idx: number) => {
@@ -119,7 +109,6 @@ export async function POST(req: Request) {
         aiPart += "\n\n" + finderResult.data.summary;
       }
     } else {
-      // se l’AI non ha risposto
       aiPart += "\n\n";
       aiPart +=
         lang === "it"
@@ -131,8 +120,7 @@ export async function POST(req: Request) {
           : "I couldn't finish the automatic search right now, but I will reply manually.";
     }
 
-    // 4) mando la mail con Resend
-    // Cambia "noreply@ifinditforyou.com" con il tuo sender verificato su Resend
+    // 4) invia email all’utente
     await resend.emails.send({
       from: "iFindItForYou <noreply@ifinditforyou.com>",
       to: email,
@@ -140,17 +128,11 @@ export async function POST(req: Request) {
       text: `${intro}\n\n${bodyText}${aiPart}\n\n— iFindItForYou`,
     });
 
-    // 5) aggiorno lo stato sul db (opzionale)
-    await prisma.lead.update({
-      where: { id: leadRecord.id },
-      data: {
-        status: "SENT", // o "DONE"
-      },
-    });
-
-    return NextResponse.json({ ok: true });
+    // 5) rispondi al frontend
+    return NextResponse.json({ ok: true, id: leadRecord.id });
   } catch (err) {
     console.error("lead error", err);
     return NextResponse.json({ error: "server error" }, { status: 500 });
   }
 }
+
