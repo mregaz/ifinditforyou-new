@@ -12,11 +12,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // qui salviamo solo i campi che ESISTONO nello schema Prisma
     await prisma.lead.create({
       data: {
         email,
         message: message || "",
-        name: name || "",
+        // name lo lasciamo fuori perché nello schema su Vercel non c'è
       },
     });
 
