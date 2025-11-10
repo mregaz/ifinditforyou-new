@@ -101,6 +101,7 @@ const UI_TEXTS = {
 } as const;
 
 export default function HomePage() {
+  const [showLead, setShowLead] = useState(false);
   // stato base
   const [lang, setLang] = useState<"it" | "en" | "fr" | "de">("it");
   const t = UI_TEXTS[lang];
