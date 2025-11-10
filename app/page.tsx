@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 // testi per le 4 lingue
+// testi per le 4 lingue
 const UI_TEXTS = {
   it: {
     beta: "Beta gratuita",
@@ -10,6 +11,7 @@ const UI_TEXTS = {
     subtitle: "Scrivi cosa ti serve, l’AI ti propone i link migliori.",
     placeholder: "Es. iPhone 13 mini blu sotto 350 CHF in Svizzera",
     button: "Cerca",
+    aiButton: "Trovalo con l’AI",
     langLabel: "Lingua",
     resultsTitle: "Ecco cosa ho trovato:",
     empty: "Fai una ricerca per vedere i risultati 👆",
@@ -34,6 +36,7 @@ const UI_TEXTS = {
     subtitle: "Tell me what you need, I’ll find the best options.",
     placeholder: "e.g. vintage Nikon camera under 200 CHF",
     button: "Search",
+    aiButton: "Find it with AI",
     langLabel: "Language",
     resultsTitle: "Here are some options:",
     empty: "Search above to see results 👆",
@@ -58,6 +61,7 @@ const UI_TEXTS = {
     subtitle: "Tu écris ton besoin, l’IA te propose les meilleurs liens.",
     placeholder: "ex. iPhone 13 mini bleu sous 350 CHF en Suisse",
     button: "Chercher",
+    aiButton: "Trouve-le avec l’IA",
     langLabel: "Langue",
     resultsTitle: "Voici quelques options :",
     empty: "Fais une recherche pour voir les résultats 👆",
@@ -71,7 +75,7 @@ const UI_TEXTS = {
     ko: "Erreur d’envoi.",
     aboutTitle: "💡 À propos",
     aboutText:
-      "Un petit assistant en ligne pour trouver des produits/solutions.",
+      "Un petit assistant en ligne pour trouver des produits ou solutions.",
     feedbackText: "Envie d’aider ?",
     showExamplesBtn: "Montre-moi un exemple 👀",
     openLeadBtn: "Pas trouvé ? Envoie-moi un mail",
@@ -82,6 +86,7 @@ const UI_TEXTS = {
     subtitle: "Schreib, was du brauchst – die KI findet es.",
     placeholder: "z.B. Nikon Kamera unter 200 CHF",
     button: "Suchen",
+    aiButton: "Mit KI finden",
     langLabel: "Sprache",
     resultsTitle: "Hier ein paar Vorschläge:",
     empty: "Suche oben, um Ergebnisse zu sehen 👆",
@@ -100,6 +105,7 @@ const UI_TEXTS = {
     openLeadBtn: "Nicht gefunden? Per E-Mail",
   },
 } as const;
+
 
 export default function HomePage() {
   // 📌 stato che comanda IL POPUP
