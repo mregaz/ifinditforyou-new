@@ -1,81 +1,126 @@
-import { NextResponse } from "next/server";
+// app/api/finder/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { Resend } from "resend";
 
-// finto DB crediti
-const userCredits: Record<string, number> = {
-  "demo@user.com": 3,
-};
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function POST(req: Request) {
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+export async function POST(req: NextRequest) {
   try {
-    const { query, lang = "it", userId = "demo@user.com" } = await req.json();
+    const { email, query } = await req.json();
 
-    if (!query || query.trim().length < 2) {
+    if (!email || !query) {
       return NextResponse.json(
-        { error: "Richiesta non valida" },
+        { error: "BAD_REQUEST", message: "email e query sono obbligatorie" },
         { status: 400 }
       );
     }
 
-    // 1) controllo crediti
-    if (!userCredits[userId] || userCredits[userId] <= 0) {
+    // 1. prendo o creo l’utente
+    const user = await prisma.user.upsert({
+      where: { email },
+      update: {},
+      create: {
+        email,
+        credits: 0, // se è nuovo parte da 0
+      },
+    });
+
+    // 2. controllo crediti
+    if (user.credits <= 0) {
       return NextResponse.json(
         {
-          success: false,
-          action: "purchase",
-          message: "Crediti esauriti. Acquista o compila il form.",
+          error: "NO_CREDITS",
+          message: "Nessun credito disponibile. Acquista un pacchetto.",
         },
         { status: 402 }
       );
     }
 
-    // 2) chiamiamo OpenAI via fetch (nessuna libreria da installare)
-    const openaiRes = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-4.1-mini",
-        input: `Sei un assistente che trova prodotti/opzioni online.
-Utente: "${query}"
-Lingua: ${lang}
-Rispondi in modo sintetico con 2-3 opzioni.`,
-      }),
-    });
-
-    if (!openaiRes.ok) {
-      console.error("OpenAI error", await openaiRes.text());
-      return NextResponse.json(
-        { error: "Errore nella chiamata a OpenAI" },
-        { status: 500 }
+    // 3. chiamo OpenAI
+    let aiAnswer = "Je vais chercher et te répondre bientôt.";
+    if (OPENAI_API_KEY) {
+      const openaiRes = await fetch(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${OPENAI_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-mini",
+            messages: [
+              {
+                role: "system",
+                content:
+                  "Tu es un assistant qui trouve des produits ou des infos et réponds clairement en français.",
+              },
+              {
+                role: "user",
+                content: `Requête de l'utilisateur: ${query}`,
+              },
+            ],
+          }),
+        }
       );
+
+      const json = await openaiRes.json();
+      aiAnswer =
+        json.choices?.[0]?.message?.content ||
+        "Je n’ai pas pu générer la réponse complète.";
     }
 
-    const aiData = await openaiRes.json();
+    // 4. salvo la ricerca
+    await prisma.search.create({
+      data: {
+        userId: user.id,
+        query,
+        result: aiAnswer,
+        paid: true,
+      },
+    });
 
-    // la risposta testuale sta qui
-    const text =
-      aiData?.output?.[0]?.content?.[0]?.text ??
-      "Non ho trovato molto, prova a descrivermi meglio cosa cerchi.";
+    // 5. scalare 1 credito
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        credits: {
+          decrement: 1,
+        },
+      },
+    });
 
-    // 3) scala 1 credito
-    userCredits[userId] = userCredits[userId] - 1;
+    // 6. invio email con Resend (se la chiave c’è)
+    if (process.env.RESEND_API_KEY) {
+      try {
+        await resend.emails.send({
+          from: "iFindItForYou <noreply@ifinditforyou.com>",
+          to: email,
+          subject: "Ton résultat iFindItForYou",
+          text: aiAnswer,
+        });
+      } catch (emailErr) {
+        console.warn("Resend email failed:", emailErr);
+      }
+    }
 
-    // 4) rispondi al frontend
     return NextResponse.json({
-      success: true,
-      data: text,
-      creditsLeft: userCredits[userId],
+      ok: true,
+      source: "finder-api",
+      result: aiAnswer,
     });
   } catch (err) {
-    console.error("AI Finder route error:", err);
+    console.error("finder api error", err);
     return NextResponse.json(
-      { error: "Errore interno nell’AI Finder" },
+      { error: "SERVER_ERROR", message: "Erreur interne" },
       { status: 500 }
     );
   }
 }
+
 
 
 
