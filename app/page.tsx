@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import FinderForm from "../components/FinderForm";
+
 
 // testi per le 4 lingue
 const UI_TEXTS = {
