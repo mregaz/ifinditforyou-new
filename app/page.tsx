@@ -333,19 +333,28 @@ export default function HomePage() {
             {searchLoading ? "Cerco..." : t.button}
           </button>
           <button
-            onClick={handleAiFinder}
-            disabled={aiLoading}
-            style={{
-              background: "rgba(148,163,184,0.08)",
-              border: "1px solid rgba(148,163,184,0.3)",
-              borderRadius: 999,
-              padding: "14px 20px",
-              color: "white",
-              cursor: aiLoading ? "not-allowed" : "pointer",
-            }}
-          >
-            {aiLoading ? "AI in corso..." : "Trovalo con l’AI"}
-          </button>
+  onClick={handleAiFinder}
+  disabled={aiLoading}
+  style={{
+    background: "rgba(148,163,184,0.08)",
+    border: "1px solid rgba(148,163,184,0.3)",
+    borderRadius: 999,
+    padding: "14px 20px",
+    color: "white",
+    cursor: aiLoading ? "not-allowed" : "pointer",
+  }}
+>
+  {aiLoading
+    ? lang === "it"
+      ? "AI in corso..."
+      : lang === "fr"
+      ? "IA en cours..."
+      : lang === "de"
+      ? "KI läuft..."
+      : "AI running..."
+    : t.aiButton}
+</button>
+
         </div>
 
         {/* select lingua */}
