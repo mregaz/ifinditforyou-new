@@ -39,11 +39,14 @@ model Payment {
 }
 
 model Lead {
-  id        String   @id @default(cuid())
+  id        Int      @id @default(autoincrement())
   email     String
   message   String?
+  lang      String?  @default("it")   // 👈 aggiungi questa riga
+  status    String?  @default("RECEIVED")
   createdAt DateTime @default(now())
 }
+
 
 
 
