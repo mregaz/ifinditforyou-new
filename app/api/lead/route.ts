@@ -1,4 +1,3 @@
-// app/api/lead/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -18,7 +17,6 @@ export async function POST(req: NextRequest) {
         email,
         message: message || "",
         name: name || "",
-        // niente "lang" perché sul db di Vercel non c'è
       },
     });
 
@@ -31,8 +29,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
-
-}
-
-
