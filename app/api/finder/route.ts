@@ -1,9 +1,9 @@
 // app/api/finder/route.ts
 import { NextResponse } from "next/server";
 
-// qui metti la tua logica vera di ricerca AI
+// QUI ci metterai la tua logica AI vera
 async function runFinder(query: string, lang: string) {
-  // metto un esempio così il file è valido
+  // dummy response per non far fallire il file
   return {
     items: [
       {
@@ -24,8 +24,8 @@ export async function POST(req: Request) {
   const query = (body.query as string) ?? "";
   const lang = (body.lang as string) ?? "it";
 
-  // qui NON leggiamo più cookie
-  // il limite lo gestiamo sul frontend
+  // NIENTE cookies qui
+  // il limite delle 3 ricerche lo facciamo sul frontend
 
   const aiData = await runFinder(query, lang);
 
@@ -33,6 +33,7 @@ export async function POST(req: Request) {
     data: JSON.stringify(aiData),
   });
 }
+
 
 
 
