@@ -1,10 +1,9 @@
+// app/api/lead/route.ts
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { prisma } from "@/lib/prisma";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// chiamata interna alla tua /api/finder
 async function askFinder(query: string, lang: string) {
   try {
     const baseUrl = process.env.APP_URL ?? "http://localhost:3000";
@@ -18,11 +17,12 @@ async function askFinder(query: string, lang: string) {
 
     const data = await res.json();
 
+    // proviamo a decodificare in modo elastico
     let parsed: any = null;
     try {
-      parsed = JSON.parse(data.data);
+      parsed = typeof data.data === "string" ? JSON.parse(data.data) : data.data;
     } catch {
-      parsed = { summary: data.data };
+      parsed = data.data ?? data;
     }
 
     return { ok: true, data: parsed };
@@ -35,7 +35,6 @@ async function askFinder(query: string, lang: string) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
     const email = (body.email as string | undefined)?.trim();
     const message = (body.message as string | undefined)?.trim();
     const lang = (body.lang as string | undefined) ?? "it";
@@ -44,22 +43,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "email mancante" }, { status: 400 });
     }
 
-    // 1) salva nel DB solo i campi che ESISTONO
-    // (email + message)
-    const leadRecord = await prisma.lead.create({
-      data: {
-        email,
-        message: message ?? "",
-      },
-    });
-
-    // 2) prova a far cercare all’AI
+    // provo a chiedere alla mia AI
     const finderResult =
       message && message.length > 0
         ? await askFinder(message, lang)
         : { ok: false, data: null };
 
-    // 3) prepara testo email
+    // testo base per la mail
     let subject = "";
     let intro = "";
     let bodyText = "";
@@ -82,12 +72,11 @@ export async function POST(req: Request) {
       bodyText = message ? `You wrote: ${message}` : "";
     }
 
+    // parte dei risultati AI (se c’è)
     let aiPart = "";
     if (finderResult.ok && finderResult.data) {
-      const items = Array.isArray(finderResult.data.items)
-        ? finderResult.data.items
-        : [];
-
+      const d = finderResult.data;
+      const items = Array.isArray(d.items) ? d.items : [];
       aiPart += "\n\n";
       aiPart +=
         lang === "it"
@@ -97,30 +86,25 @@ export async function POST(req: Request) {
           : lang === "de"
           ? "Ich habe schon etwas für dich gesucht:"
           : "I already tried to find something for you:";
-      aiPart += "\n";
-
       items.forEach((item: any, idx: number) => {
         aiPart += `\n${idx + 1}) ${item.title ?? "Senza titolo"}${
           item.price ? " — " + item.price : ""
         }${item.source ? " — " + item.source : ""}`;
       });
-
-      if (finderResult.data.summary) {
-        aiPart += "\n\n" + finderResult.data.summary;
+      if (d.summary) {
+        aiPart += "\n\n" + d.summary;
       }
     } else {
-      aiPart += "\n\n";
       aiPart +=
         lang === "it"
-          ? "In questo momento non sono riuscito a completare la ricerca automatica, ma ti risponderò manualmente."
+          ? "\n\nNon sono riuscito a fare la ricerca automatica ora, ti risponderò manualmente."
           : lang === "fr"
-          ? "Je n’ai pas pu terminer la recherche automatique pour le moment, mais je te répondrai manuellement."
+          ? "\n\nJe n’ai pas pu faire la recherche automatique, je te répondrai manuellement."
           : lang === "de"
-          ? "Die automatische Suche hat diesmal nicht geklappt, aber ich antworte dir manuell."
-          : "I couldn't finish the automatic search right now, but I will reply manually.";
+          ? "\n\nDie automatische Suche hat nicht geklappt, ich antworte dir manuell."
+          : "\n\nI couldn’t finish the automatic search, I will reply manually.";
     }
 
-    // 4) invia email all’utente
     await resend.emails.send({
       from: "iFindItForYou <noreply@ifinditforyou.com>",
       to: email,
@@ -128,8 +112,7 @@ export async function POST(req: Request) {
       text: `${intro}\n\n${bodyText}${aiPart}\n\n— iFindItForYou`,
     });
 
-    // 5) rispondi al frontend
-    return NextResponse.json({ ok: true, id: leadRecord.id });
+    return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("lead error", err);
     return NextResponse.json({ error: "server error" }, { status: 500 });
