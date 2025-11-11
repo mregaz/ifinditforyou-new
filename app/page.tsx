@@ -178,20 +178,40 @@ export default function HomePage() {
 
       // caso crediti finiti
       if (res.status === 402 || data?.action === "purchase") {
-        setAiError(
-          lang === "it"
-            ? "Crediti esauriti. Puoi acquistare 10 crediti o scrivermi dal form 👇"
-            : lang === "fr"
-            ? "Crédits épuisés. Tu peux acheter 10 crédits ou m’écrire 👇"
-            : lang === "de"
-            ? "Keine Credits mehr. Kaufe 10 Credits oder nutze das Formular 👇"
-            : "Credits finished. You can buy 10 credits or contact me 👇"
-        );
-        // apro il popup SOLO ora
-        setShowLead(true);
-        setShowExamples(true);
-        return;
-      }
+  // messaggio chiaro
+  setAiError(
+    lang === "it"
+      ? "Hai usato le 3 ricerche gratuite. Puoi acquistare altri crediti."
+      : lang === "fr"
+      ? "Tu as utilisé les 3 recherches gratuites. Tu peux acheter d’autres crédits."
+      : lang === "de"
+      ? "Du hast die 3 Gratis-Suchen verwendet. Du kannst weitere Credits kaufen."
+      : "You used the 3 free searches. You can buy more credits."
+  );
+
+  // apri direttamente il popup lead se vuoi
+  // setShowLead(true);
+
+  // mostra il bottone Stripe integrato nella UI
+  // per ora ti faccio un semplice redirect
+  setResults([
+    lang === "it"
+      ? "Per continuare: acquista 10 crediti."
+      : lang === "fr"
+      ? "Pour continuer : achète 10 crédits."
+      : lang === "de"
+      ? "Um fortzufahren: 10 Credits kaufen."
+      : "To continue: buy 10 credits.",
+  ]);
+
+  // piccolo timeout per non bloccare
+  setTimeout(() => {
+    window.location.href = "/api/pay";
+  }, 1200);
+
+  return;
+}
+
 
       setAiCreditsLeft(data.creditsLeft ?? null);
 
