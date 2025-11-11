@@ -1,18 +1,39 @@
+// app/api/pay/route.ts
 import { NextResponse } from "next/server";
+import Stripe from "stripe";
 
-// endpoint finto per "compra crediti"
-export async function POST(req: Request) {
-  // qui in futuro leggeremo cosa ha comprato l’utente
-  return NextResponse.json({
-    success: true,
-    message: "Pagamento finto ok (endpoint di test).",
-  });
-}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2024-06-20",
+});
 
-// opzionale: così se lo apri dal browser non crasha
 export async function GET() {
-  return NextResponse.json({
-    ok: true,
-    info: "Endpoint /api/pay pronto.",
-  });
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "eur",
+            product_data: {
+              name: "10 crediti AI",
+            },
+            unit_amount: 500, // 5,00 €
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: `${process.env.APP_URL ?? "http://localhost:3000"}/pay/success`,
+      cancel_url: `${process.env.APP_URL ?? "http://localhost:3000"}/pay/cancel`,
+    });
+
+    return NextResponse.redirect(session.url!, 303);
+  } catch (error) {
+    console.error("Errore Stripe:", error);
+    return NextResponse.json(
+      { error: "Errore nella creazione della sessione di pagamento" },
+      { status: 500 }
+    );
+  }
 }
+
