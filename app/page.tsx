@@ -163,87 +163,132 @@ export default function HomePage() {
   };
 
   // ricerca AI
-  const handleAiFinder = async () => {
-    const q = query.trim();
-    if (!q) return;
-    setAiLoading(true);
-    setAiError("");
-    try {
-      const res = await fetch("/api/finder", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: q, lang }),
-      });
-      const data = await res.json();
+const handleAiFinder = async () => {
+  const q = query.trim();
+  if (!q) return;
 
-      // caso crediti finiti
-      if (res.status === 402 || data?.action === "purchase") {
-  // messaggio chiaro
-  setAiError(
-    lang === "it"
-      ? "Hai usato le 3 ricerche gratuite. Puoi acquistare altri crediti."
-      : lang === "fr"
-      ? "Tu as utilisé les 3 recherches gratuites. Tu peux acheter d’autres crédits."
-      : lang === "de"
-      ? "Du hast die 3 Gratis-Suchen verwendet. Du kannst weitere Credits kaufen."
-      : "You used the 3 free searches. You can buy more credits."
-  );
+  // 1) leggo quante volte ha già usato l'AI dal browser
+  const currentUses = typeof window !== "undefined"
+    ? Number(localStorage.getItem("ai_uses") || "0")
+    : 0;
 
-  // apri direttamente il popup lead se vuoi
-  // setShowLead(true);
+  // 2) se ha già fatto 3 ricerche → niente chiamata API, vai a pagamento
+  if (currentUses >= 3) {
+    setAiError(
+      lang === "it"
+        ? "Hai usato le 3 ricerche gratuite. Puoi acquistare altri crediti."
+        : lang === "fr"
+        ? "Tu as utilisé les 3 recherches gratuites. Tu peux acheter d’autres crédits."
+        : lang === "de"
+        ? "Du hast die 3 Gratis-Suchen verwendet. Du kannst weitere Credits kaufen."
+        : "You used the 3 free searches. You can buy more credits."
+    );
 
-  // mostra il bottone Stripe integrato nella UI
-  // per ora ti faccio un semplice redirect
-  setResults([
-    lang === "it"
-      ? "Per continuare: acquista 10 crediti."
-      : lang === "fr"
-      ? "Pour continuer : achète 10 crédits."
-      : lang === "de"
-      ? "Um fortzufahren: 10 Credits kaufen."
-      : "To continue: buy 10 credits.",
-  ]);
+    // mostri un messaggio nella lista risultati
+    setResults([
+      lang === "it"
+        ? "Per continuare: acquista 10 crediti."
+        : lang === "fr"
+        ? "Pour continuer : achète 10 crédits."
+        : lang === "de"
+        ? "Um fortzufahren: 10 Credits kaufen."
+        : "To continue: buy 10 credits.",
+    ]);
 
-  // piccolo timeout per non bloccare
-  setTimeout(() => {
-    window.location.href = "/api/pay";
-  }, 1200);
+    // lo porti alla tua route di pagamento
+    setTimeout(() => {
+      window.location.href = "/api/pay";
+    }, 1200);
 
-  return;
-}
+    return;
+  }
 
+  // 3) se NON ha superato il limite → fai la chiamata normale
+  setAiLoading(true);
+  setAiError("");
 
-      setAiCreditsLeft(data.creditsLeft ?? null);
+  try {
+    const res = await fetch("/api/finder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: q, lang }),
+    });
+    const data = await res.json();
 
-      let parsed: any = null;
-      try {
-        parsed = JSON.parse(data.data);
-      } catch {
-        parsed = { summary: data.data };
-      }
-
-      const aiResults: string[] = [];
-      if (Array.isArray(parsed?.items)) {
-        parsed.items.forEach((item: any) => {
-          aiResults.push(
-            `${item.title ?? "Senza titolo"} — ${item.price ?? "N/D"} — ${item.source ?? "sorgente n/d"}`
-          );
-        });
-      }
-      if (parsed?.summary) aiResults.push(parsed.summary);
-
-      setResults(
-        aiResults.length > 0 ? aiResults : ["AI ha risposto ma non leggo i risultati."]
+    // se il server comunque risponde purchase (tipo da backend)
+    if (res.status === 402 || data?.action === "purchase") {
+      setAiError(
+        lang === "it"
+          ? "Hai usato le ricerche gratuite. Puoi acquistare altri crediti."
+          : lang === "fr"
+          ? "Tu as utilisé les recherches gratuites. Tu peux acheter d’autres crédits."
+          : lang === "de"
+          ? "Du hast die Gratis-Suchen verwendet. Du kannst weitere Credits kaufen."
+          : "You used the free searches. You can buy more credits."
       );
-      setShowExamples(true);
-    } catch (err) {
-      setAiError("Non riesco a parlare con l’AI adesso.");
-      // se AI fallisce → posso mostrare il form
-      setShowLead(true);
-    } finally {
-      setAiLoading(false);
+      setTimeout(() => {
+        window.location.href = "/api/pay";
+      }, 1200);
+      return;
     }
-  };
+
+    // 4) parsiamo la risposta AI in modo elastico
+    let parsed: any = null;
+    try {
+      parsed = JSON.parse(data.data);
+    } catch {
+      parsed = data.data ?? data;
+    }
+
+    const aiResults: string[] = [];
+
+    if (Array.isArray(parsed?.items)) {
+      parsed.items.forEach((item: any) => {
+        aiResults.push(
+          `${item.title ?? "Senza titolo"} — ${item.price ?? "N/D"} — ${
+            item.source ?? "sorgente n/d"
+          }`
+        );
+      });
+    }
+
+    if (parsed?.summary) {
+      aiResults.push(parsed.summary);
+    } else if (typeof parsed === "string") {
+      aiResults.push(parsed);
+    }
+
+    if (aiResults.length > 0) {
+      setResults(aiResults);
+    } else {
+      setResults([
+        lang === "it"
+          ? "La ricerca automatica non ha trovato un risultato da mostrarti qui."
+          : lang === "fr"
+          ? "La recherche automatique n’a pas trouvé de résultat à afficher ici."
+          : lang === "de"
+          ? "Die automatische Suche hat kein Ergebnis zum Anzeigen gefunden."
+          : "The automatic search didn’t find a result to show here.",
+      ]);
+      // puoi anche aprire direttamente il form
+      setShowLead(true);
+    }
+
+    // 5) qui aggiorniamo il conteggio sul browser
+    if (typeof window !== "undefined") {
+      localStorage.setItem("ai_uses", String(currentUses + 1));
+    }
+
+    setShowExamples(true);
+  } catch (err) {
+    setAiError("Non riesco a parlare con l’AI adesso.");
+    setShowLead(true);
+  } finally {
+    setAiLoading(false);
+  }
+};
+
+
 
   // invio form LEAD del popup
   const handleLead = async (e: React.FormEvent) => {
