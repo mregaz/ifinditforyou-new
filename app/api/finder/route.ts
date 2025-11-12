@@ -47,7 +47,7 @@ async function searchPro(query: string): Promise<FinderItem[]> {
         "Content-Type": "application/json",
         "X-API-KEY": SERPER_KEY,
       },
-      body: JSON.stringify({ q: query, num: 5 }),
+      body: JSON.stringify({ plan: aiCreditsLeft ? "pro" : "free",}),
       // Serper risponde velocemente; evitiamo timeout lunghi
       cache: "no-store",
     });
