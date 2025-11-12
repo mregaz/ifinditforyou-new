@@ -91,40 +91,26 @@ useEffect(() => {
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-3xl font-bold text-center mb-6">
-        🔍 IFindItForYou AI
-      </h1>
+   <div className="flex justify-center items-center gap-3 mb-6">
+  <h1 className="text-3xl font-bold">🔍 IFindItForYou AI</h1>
 
-      <form onSubmit={handleSearch} className="flex gap-2 mb-4">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Cerca un prodotto o un'informazione..."
-          className="flex-1 border rounded-xl px-4 py-2"
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-black text-white px-4 py-2 rounded-xl"
-        >
-          {loading ? "Ricerca..." : "Cerca"}
-        </button>
-      </form>
+  {isPro && (
+    <span
+      style={{
+        background: "#a855f7",
+        padding: "4px 12px",
+        borderRadius: 999,
+        fontSize: 12,
+        fontWeight: 700,
+        color: "white",
+        letterSpacing: 0.5,
+      }}
+    >
+      PRO
+    </span>
+  )}
+</div>
 
-      <div className="text-sm text-gray-600 mb-4 flex items-center justify-between">
-        <div>
-          Crediti rimanenti:{" "}
-          <strong>
-            {credits > 0 ? `${credits} gratuiti` : "Nessuno (attiva PRO)"}
-          </strong>
-          <button
-            onClick={resetCredits}
-            className="ml-2 underline text-blue-600 text-xs"
-          >
-            (reset)
-          </button>
-        </div>
 
         {credits <= 0 && (
           <button
