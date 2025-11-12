@@ -6,9 +6,9 @@ import Link from "next/link";
 
 export default function PaySuccessPage() {
   useEffect(() => {
-    // appena arrivo qui, resetto il contatore delle ricerche AI
     if (typeof window !== "undefined") {
-      localStorage.setItem("ai_uses", "0");
+      localStorage.setItem("ai_plan", "pro"); // ← utente PRO
+      localStorage.setItem("ai_uses", "0");   // ← reset conteggio free
     }
   }, []);
 
@@ -29,7 +29,7 @@ export default function PaySuccessPage() {
           background: "rgba(15,23,42,0.6)",
           border: "1px solid rgba(148,163,184,0.3)",
           borderRadius: 20,
-          maxWidth: 420,
+          maxWidth: 480,
           width: "100%",
           textAlign: "center",
           padding: "30px 24px",
@@ -37,13 +37,9 @@ export default function PaySuccessPage() {
         }}
       >
         <h1 style={{ fontSize: 26, marginBottom: 10 }}>Pagamento riuscito 🎉</h1>
-        <p style={{ opacity: 0.8, marginBottom: 20 }}>
-          Hai di nuovo crediti per usare la ricerca AI.
+        <p style={{ opacity: 0.85, marginBottom: 18 }}>
+          Hai attivato <strong>Ricerca Pro</strong>. Puoi usare l’AI senza limiti del piano.
         </p>
-        <p style={{ opacity: 0.6, marginBottom: 28, fontSize: 14 }}>
-          Puoi tornare alla home e rifare la tua ricerca adesso.
-        </p>
-
         <Link
           href="/"
           style={{
@@ -62,4 +58,5 @@ export default function PaySuccessPage() {
     </main>
   );
 }
+
 
