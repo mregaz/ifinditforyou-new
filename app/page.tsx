@@ -530,6 +530,71 @@ const handleAiFinder = async () => {
           </div>
         );
       })()}
+      {/* CONTATORE RICERCHE GRATUITE */}
+      {(() => {
+        if (typeof window === "undefined") return null;
+        const isPro =
+          localStorage.getItem("ai_plan") === "pro" ||
+          localStorage.getItem("ai_plan") === "lifetime";
+
+        if (isPro) return null;
+
+        // recupera o inizializza il numero di ricerche rimanenti
+        const [freeCount, setFreeCount] = useState<number | null>(null);
+
+        useEffect(() => {
+          const stored = localStorage.getItem("free_searches_left");
+          if (stored) {
+            setFreeCount(Number(stored));
+          } else {
+            localStorage.setItem("free_searches_left", "3");
+            setFreeCount(3);
+          }
+        }, []);
+
+        // ogni volta che viene fatta una ricerca, il conteggio scende (gestito nel handleAiFinder)
+        useEffect(() => {
+          const handleStorage = () => {
+            const updated = localStorage.getItem("free_searches_left");
+            if (updated) setFreeCount(Number(updated));
+          };
+          window.addEventListener("storage", handleStorage);
+          return () => window.removeEventListener("storage", handleStorage);
+        }, []);
+
+        if (freeCount === null) return null;
+
+        return (
+          <div
+            style={{
+              textAlign: "center",
+              marginTop: 12,
+              fontSize: 14,
+              opacity: 0.7,
+            }}
+          >
+            {freeCount > 0 ? (
+              <>
+                🔹 Ti restano <b>{freeCount}</b> ricerche gratuite
+              </>
+            ) : (
+              <>
+                ⚡ Ricerche gratuite terminate —{" "}
+                <span
+                  style={{
+                    color: "#a855f7",
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                  }}
+                  onClick={() => (window.location.href = "/api/pay")}
+                >
+                  passa alla versione Pro
+                </span>
+              </>
+            )}
+          </div>
+        );
+      })()}
 
 {/* BOX PRO – mettilo sotto i campi di ricerca */}
 {(() => {
