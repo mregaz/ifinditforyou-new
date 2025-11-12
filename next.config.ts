@@ -1,22 +1,7 @@
-// next.config.ts
-const nextConfig = {
-  async redirects() {
-    // in sviluppo NON fare redirect
-    if (process.env.NODE_ENV === "development") {
-      return [];
-    }
+import type { NextConfig } from "next";
 
-    // in produzione puoi forzare il dominio
-    return [
-      {
-        source: "/:path*",
-        destination: "https://ifinditforyou.com/:path*",
-        permanent: false,
-      },
-    ];
-  },
+const nextConfig: NextConfig = {
+  reactStrictMode: true,
 };
 
 export default nextConfig;
-
-
