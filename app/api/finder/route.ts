@@ -1,115 +1,176 @@
 // app/api/finder/route.ts
 import { NextResponse } from "next/server";
 
-const SERPER_KEY = process.env.SERPER_API_KEY; // facoltativo: ricerca IA Pro
-const OPENAI_KEY = process.env.OPENAI_API_KEY;
+const SERPER_KEY = process.env.SERPER_API_KEY;   // opzionale
+const OPENAI_KEY = process.env.OPENAI_API_KEY;   // opzionale
 
-// --- 1️⃣ FUNZIONE RICERCA PUBBLICA (es. eBay / Vinted demo) ---
-async function searchPublic(query: string) {
-  // Simuliamo API reali — in futuro integri eBay, Vinted, Discogs
+type FinderItem = {
+  title: string;
+  url?: string;
+  price?: string;
+  source?: string;
+};
+
+// -------- 1) Ricerca "pubblica" (MVP: stub) --------
+// Qui poi colleghiamo eBay/Vinted/Discogs con le loro API ufficiali
+async function searchPublic(query: string): Promise<FinderItem[]> {
   return [
     {
-      title: `Risultato base per “${query}” su eBay`,
-      price: "45 CHF",
+      title: `Possibile match su eBay per “${query}”`,
       url: "https://www.ebay.com/",
+      price: "—",
       source: "eBay",
     },
     {
       title: `Risultato simile su Vinted`,
-      price: "38 CHF",
       url: "https://www.vinted.com/",
+      price: "—",
       source: "Vinted",
+    },
+    {
+      title: `Controlla anche Discogs (musica, vintage)`,
+      url: "https://www.discogs.com/",
+      price: "—",
+      source: "Discogs",
     },
   ];
 }
 
-// --- 2️⃣ FUNZIONE RICERCA PRO (motori a pagamento tipo Serper) ---
-async function searchPro(query: string) {
+// -------- 2) Ricerca "Pro" (Serper / Google API) --------
+async function searchPro(query: string): Promise<FinderItem[]> {
   if (!SERPER_KEY) return [];
 
-  const res = await fetch("https://google.serper.dev/search", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-API-KEY": SERPER_KEY,
-    },
-    body: JSON.stringify({ q: query }),
-  });
+  try {
+    const res = await fetch("https://google.serper.dev/search", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-KEY": SERPER_KEY,
+      },
+      body: JSON.stringify({ q: query, num: 5 }),
+      // Serper risponde velocemente; evitiamo timeout lunghi
+      cache: "no-store",
+    });
 
-  const data = await res.json();
-  if (!data?.organic) return [];
+    if (!res.ok) return [];
+    const data = await res.json();
 
-  return data.organic.slice(0, 5).map((r: any) => ({
-    title: r.title,
-    url: r.link,
-    price: "—",
-    source: "Motore Pro",
-  }));
+    const organic = Array.isArray(data?.organic) ? data.organic : [];
+    return organic.slice(0, 5).map((r: any) => ({
+      title: r.title ?? "Sorgente Pro",
+      url: r.link,
+      price: "—",
+      source: "Pro",
+    }));
+  } catch {
+    return [];
+  }
 }
 
-// --- 3️⃣ FALLBACK GPT: genera testo o link suggeriti ---
-async function aiFallback(query: string) {
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content:
-            "Sei un assistente che trova prodotti rari o fuori produzione. Dai suggerimenti pratici o siti specifici.",
-        },
-        { role: "user", content: `Trova questo: ${query}` },
-      ],
-    }),
-  });
-
-  const json = await res.json();
-  return json.choices?.[0]?.message?.content ?? "Nessun risultato preciso trovato.";
-}
-
-// --- 4️⃣ ENTRYPOINT PRINCIPALE ---
-export async function POST(req: Request) {
-  const body = await req.json();
-  const { query, plan } = body; // plan: "free" | "pro"
-
-  if (!query) {
-    return NextResponse.json({ error: "Nessuna query ricevuta." }, { status: 400 });
+// -------- 3) Fallback AI (OpenAI) --------
+async function aiFallback(query: string, lang: string): Promise<string> {
+  if (!OPENAI_KEY) {
+    return lang === "it"
+      ? "Suggerimento: prova a cercare varianti del nome, anni o modelli vicini. Controlla eBay, Vinted, Etsy e forum di collezionisti."
+      : lang === "fr"
+      ? "Astuce : essaie des variantes du nom, des années ou des modèles proches. Regarde eBay, Vinted, Etsy et les forums de collectionneurs."
+      : lang === "de"
+      ? "Tipp: Versuche Varianten des Namens, Baujahre oder nahe Modelle. Prüfe eBay, Vinted, Etsy und Sammlerforen."
+      : "Tip: try name variants, years or close models. Check eBay, Vinted, Etsy and collector forums.";
   }
 
   try {
-    // 1. ricerca base
-    const publicResults = await searchPublic(query);
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content:
+              "Sei un assistente che trova prodotti rari o fuori produzione. Rispondi in modo breve e pratico con siti/strategie concrete.",
+          },
+          { role: "user", content: `Trova questo: ${query}\nLingua: ${lang}` },
+        ],
+        temperature: 0.2,
+      }),
+    });
 
-    // 2. se Pro, aggiungi IA
-    const proResults = plan === "pro" ? await searchPro(query) : [];
+    if (!res.ok) throw new Error("openai error");
+    const json = await res.json();
+    return json?.choices?.[0]?.message?.content?.trim() ?? "";
+  } catch {
+    return lang === "it"
+      ? "Non ho trovato risultati chiari al momento. Ti consiglio di impostare alert su eBay, cercare nei forum e verificare le aste concluse."
+      : lang === "fr"
+      ? "Pas de résultats clairs pour l’instant. Configure des alertes eBay, vérifie les forums et les ventes terminées."
+      : lang === "de"
+      ? "Derzeit keine klaren Treffer. Richte eBay-Alerts ein, prüfe Foren und beendete Auktionen."
+      : "No clear hits right now. Set eBay alerts, check forums and completed auctions.";
+  }
+}
 
-    // 3. se entrambi vuoti → fallback AI
-    const results = [...publicResults, ...proResults];
-    if (results.length === 0) {
-      const aiSuggestion = await aiFallback(query);
+// -------- 4) Entrypoint API --------
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const query = (body?.query as string | undefined)?.trim();
+    const lang = (body?.lang as string | undefined) ?? "it";
+    const plan = (body?.plan as "free" | "pro" | undefined) ?? "free";
+
+    if (!query) {
+      return NextResponse.json({ error: "Query mancante." }, { status: 400 });
+    }
+
+    // 1) fonti pubbliche (sempre)
+    const base = await searchPublic(query);
+
+    // 2) fonti Pro se richieste e disponibili
+    const pro = plan === "pro" ? await searchPro(query) : [];
+
+    const items: FinderItem[] = [...base, ...pro];
+
+    if (items.length === 0) {
+      const summary = await aiFallback(query, lang);
+      // formato compatibile col tuo frontend
       return NextResponse.json({
-        items: [],
-        summary: aiSuggestion,
+        data: JSON.stringify({ items: [], summary }),
       });
     }
 
+    const summary =
+      plan === "pro"
+        ? lang === "it"
+          ? "🔍 Ricerca Pro: includo anche fonti IA avanzate."
+          : lang === "fr"
+          ? "🔍 Recherche Pro : j’inclus des sources IA avancées."
+          : lang === "de"
+          ? "🔍 Pro-Suche: auch erweiterte KI-Quellen."
+          : "🔍 Pro Search: includes advanced AI sources."
+        : lang === "it"
+        ? "🔎 Risultati base dalle fonti pubbliche."
+        : lang === "fr"
+        ? "🔎 Résultats de base à partir de sources publiques."
+        : lang === "de"
+        ? "🔎 Basisresultate aus öffentlichen Quellen."
+        : "🔎 Base results from public sources.";
+
     return NextResponse.json({
-      items: results,
-      summary:
-        plan === "pro"
-          ? "🔍 Ricerca Pro completata con fonti IA avanzate."
-          : "🔎 Risultati base dalle fonti pubbliche.",
+      data: JSON.stringify({ items, summary }),
     });
   } catch (err) {
-    console.error("Finder error:", err);
-    return NextResponse.json({ error: "Errore interno del finder" }, { status: 500 });
+    console.error("finder error:", err);
+    return NextResponse.json(
+      { error: "Errore interno del finder" },
+      { status: 500 }
+    );
   }
 }
+
 
 
 
