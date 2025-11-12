@@ -105,21 +105,23 @@ export default function FinderPage() {
         color: "white",
         display: "flex",
         justifyContent: "center",
-        padding: "32px 16px",
+        padding: "32px 16px 60px",
       }}
     >
-      <div style={{ width: "100%", maxWidth: 720 }}>
-        {/* Titolo + badge PRO */}
+      <div style={{ width: "100%", maxWidth: 820 }}>
+        {/* HERO: titolo + badge PRO */}
         <div
           style={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             gap: 8,
-            marginBottom: 24,
+            marginBottom: 12,
           }}
         >
-          <h1 style={{ fontSize: 32, fontWeight: 700 }}>🔍 iFindItForYou AI</h1>
+          <h1 style={{ fontSize: 32, fontWeight: 700 }}>
+            Trovo per te quello che il resto del web non vede.
+          </h1>
           {isPro && (
             <span
               style={{
@@ -128,6 +130,7 @@ export default function FinderPage() {
                 borderRadius: 999,
                 fontSize: 12,
                 fontWeight: 700,
+                letterSpacing: 0.5,
               }}
             >
               PRO
@@ -135,21 +138,39 @@ export default function FinderPage() {
           )}
         </div>
 
+        <p
+          style={{
+            textAlign: "center",
+            opacity: 0.8,
+            marginBottom: 24,
+            fontSize: 15,
+          }}
+        >
+          Prodotti rari, occasioni nascoste, alternative intelligenti. <br />
+          Scrivi cosa cerchi, io e l’AI facciamo il lavoro sporco per te.
+        </p>
+
         {/* Form ricerca */}
         <form
           onSubmit={handleSearch}
-          style={{ display: "flex", gap: 8, marginBottom: 12 }}
+          style={{
+            display: "flex",
+            gap: 8,
+            marginBottom: 8,
+            justifyContent: "center",
+          }}
         >
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Cerca un prodotto o un'informazione..."
+            placeholder="Es. Nikon analogica anni 80 sotto 200 CHF in Europa"
             style={{
               flex: 1,
+              minWidth: 0,
               borderRadius: 999,
-              padding: "10px 16px",
+              padding: "12px 18px",
               border: "1px solid rgba(148,163,184,0.4)",
-              background: "rgba(15,23,42,0.8)",
+              background: "rgba(15,23,42,0.9)",
               color: "white",
             }}
           />
@@ -158,17 +179,30 @@ export default function FinderPage() {
             disabled={loading}
             style={{
               borderRadius: 999,
-              padding: "10px 18px",
+              padding: "12px 20px",
               border: "none",
               background: loading ? "#4b5563" : "#a855f7",
               color: "white",
               fontWeight: 600,
               cursor: loading ? "default" : "pointer",
+              whiteSpace: "nowrap",
             }}
           >
             {loading ? "Cerco..." : "Cerca"}
           </button>
         </form>
+
+        <p
+          style={{
+            fontSize: 12,
+            opacity: 0.7,
+            textAlign: "center",
+            marginBottom: 12,
+          }}
+        >
+          ✨ Hai <strong>{isPro ? "Ricerca PRO attiva" : "3 ricerche gratuite"}</strong>. <br />
+          Quando hai una ricerca importante puoi attivare il piano PRO.
+        </p>
 
         {/* Crediti + bottone PRO */}
         <div
@@ -179,13 +213,12 @@ export default function FinderPage() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            gap: 12,
           }}
         >
           <div>
             Crediti rimanenti:{" "}
-            <strong>
-              {isPro ? "PRO attivo" : `${credits} gratuiti`}
-            </strong>
+            <strong>{isPro ? "PRO attivo (10 crediti)" : `${credits} gratuiti`}</strong>
             <button
               onClick={resetCredits}
               style={{
@@ -210,14 +243,15 @@ export default function FinderPage() {
                 background: "#22c55e",
                 color: "black",
                 borderRadius: 999,
-                padding: "6px 12px",
+                padding: "6px 14px",
                 border: "none",
                 fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
+                whiteSpace: "nowrap",
               }}
             >
-              {purchasing ? "..." : "💳 Attiva PRO"}
+              {purchasing ? "..." : "💳 Attiva piano PRO"}
             </button>
           )}
         </div>
@@ -226,7 +260,7 @@ export default function FinderPage() {
         {summary && (
           <div
             style={{
-              background: "rgba(15,23,42,0.9)",
+              background: "rgba(15,23,42,0.95)",
               borderRadius: 12,
               padding: "12px 16px",
               border: "1px solid rgba(148,163,184,0.4)",
@@ -240,12 +274,12 @@ export default function FinderPage() {
 
         {/* Risultati */}
         {results.length > 0 && (
-          <div style={{ display: "grid", gap: 10 }}>
+          <div style={{ display: "grid", gap: 10, marginBottom: 28 }}>
             {results.map((r, i) => (
               <div
                 key={i}
                 style={{
-                  background: "rgba(15,23,42,0.9)",
+                  background: "rgba(15,23,42,0.95)",
                   borderRadius: 12,
                   padding: "10px 14px",
                   border: "1px solid rgba(148,163,184,0.3)",
@@ -271,6 +305,166 @@ export default function FinderPage() {
             ))}
           </div>
         )}
+
+        {/* --- SEZIONI MARKETING SOTTO --- */}
+
+        {/* Non è l'ennesimo motore IA */}
+        <section
+          style={{
+            marginTop: 16,
+            marginBottom: 24,
+            padding: "18px 18px",
+            borderRadius: 16,
+            background: "rgba(15,23,42,0.9)",
+            border: "1px solid rgba(148,163,184,0.35)",
+          }}
+        >
+          <h2 style={{ fontSize: 18, marginBottom: 8 }}>
+            🔎 Non è l’ennesimo motore di ricerca IA
+          </h2>
+          <p style={{ opacity: 0.85, fontSize: 14, marginBottom: 10 }}>
+            Google, Gemini, ChatGPT… trovano un po’ di tutto.
+            <br />
+            <strong>iFindItForYou</strong> invece è pensato per:
+          </p>
+          <ul style={{ fontSize: 14, opacity: 0.9, paddingLeft: 18 }}>
+            <li>• cose davvero difficili da trovare</li>
+            <li>• offerte nascoste in altri paesi o marketplace minori</li>
+            <li>• alternative furbe quando il prodotto che vuoi non esiste più</li>
+          </ul>
+        </section>
+
+        {/* Come funziona */}
+        <section
+          style={{
+            marginBottom: 24,
+            padding: "18px 18px",
+            borderRadius: 16,
+            background: "rgba(15,23,42,0.9)",
+            border: "1px solid rgba(148,163,184,0.35)",
+          }}
+        >
+          <h2 style={{ fontSize: 18, marginBottom: 10 }}>⚙️ Come funziona</h2>
+          <ol style={{ fontSize: 14, opacity: 0.9, paddingLeft: 18, lineHeight: 1.6 }}>
+            <li>
+              <strong>1. Scrivi cosa ti serve</strong> — più dettagli dai
+              (budget, colore, paese…), meglio posso aiutarti.
+            </li>
+            <li>
+              <strong>2. L’AI fa una prima ricerca intelligente</strong> — filtra
+              marketplace, siti di nicchia, comparatori.
+            </li>
+            <li>
+              <strong>3. Se non basta, entro in gioco io</strong> — con il piano
+              PRO cerco manualmente e ti mando i migliori risultati.
+            </li>
+          </ol>
+        </section>
+
+        {/* Free vs PRO */}
+        <section
+          style={{
+            marginBottom: 24,
+            padding: "18px 18px",
+            borderRadius: 16,
+            background: "rgba(15,23,42,0.9)",
+            border: "1px solid rgba(148,163,184,0.35)",
+          }}
+        >
+          <h2 style={{ fontSize: 18, marginBottom: 10 }}>
+            💳 Free o PRO? Decidi tu quanto tempo vuoi risparmiare.
+          </h2>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: 12,
+              fontSize: 14,
+            }}
+          >
+            <div
+              style={{
+                borderRadius: 14,
+                padding: "12px 14px",
+                background: "rgba(15,23,42,0.8)",
+                border: "1px solid rgba(148,163,184,0.4)",
+              }}
+            >
+              <h3 style={{ fontWeight: 600, marginBottom: 6 }}>Free (3 ricerche)</h3>
+              <ul style={{ opacity: 0.9, paddingLeft: 18 }}>
+                <li>• 3 ricerche AI base</li>
+                <li>• Suggerimenti di prodotti / link utili</li>
+                <li>• Nessuna ricerca manuale dedicata</li>
+                <li>• Nessun supporto via email</li>
+              </ul>
+            </div>
+
+            <div
+              style={{
+                borderRadius: 14,
+                padding: "12px 14px",
+                background: "rgba(30,64,175,0.4)",
+                border: "1px solid rgba(129,140,248,0.7)",
+              }}
+            >
+              <h3 style={{ fontWeight: 600, marginBottom: 6 }}>PRO (10 crediti)</h3>
+              <ul style={{ opacity: 0.95, paddingLeft: 18 }}>
+                <li>• Ricerca IA potenziata</li>
+                <li>• Ricerca manuale personalizzata sui casi complessi</li>
+                <li>• Risposta curata via email</li>
+                <li>• Priorità sulle richieste</li>
+              </ul>
+              <p style={{ marginTop: 6, fontSize: 13, opacity: 0.9 }}>
+                Ideale per prodotti rari, grossi acquisti o quando non hai tempo
+                di cercare da solo.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Cosa ricevi */}
+        <section
+          style={{
+            marginBottom: 24,
+            padding: "18px 18px",
+            borderRadius: 16,
+            background: "rgba(15,23,42,0.9)",
+            border: "1px solid rgba(148,163,184,0.35)",
+          }}
+        >
+          <h2 style={{ fontSize: 18, marginBottom: 10 }}>
+            📦 Cosa ricevi quando fai una richiesta?
+          </h2>
+          <ul style={{ fontSize: 14, opacity: 0.9, paddingLeft: 18, lineHeight: 1.6 }}>
+            <li>• Una lista di link con prodotti che rispettano i tuoi criteri</li>
+            <li>• Note su pro e contro delle varie opzioni</li>
+            <li>• Alternative creative se il prodotto non esiste o è introvabile</li>
+            <li>• Con il piano PRO, una email riassuntiva con la mia raccomandazione</li>
+          </ul>
+        </section>
+
+        {/* Chi c'è dietro */}
+        <section
+          style={{
+            padding: "18px 18px",
+            borderRadius: 16,
+            background: "rgba(15,23,42,0.9)",
+            border: "1px solid rgba(148,163,184,0.35)",
+          }}
+        >
+          <h2 style={{ fontSize: 18, marginBottom: 10 }}>👋 Chi c’è dietro iFindItForYou</h2>
+          <p style={{ fontSize: 14, opacity: 0.9, marginBottom: 8, lineHeight: 1.6 }}>
+            Sono Mauro, vivo in Svizzera e per lavoro e passione passo ore a cercare
+            prodotti, occasioni e soluzioni furbe online.
+          </p>
+          <p style={{ fontSize: 14, opacity: 0.9, lineHeight: 1.6 }}>
+            Ho creato <strong>iFindItForYou</strong> per mettere questa “ossessione da
+            ricerca” al servizio di chi non ha tempo o voglia di sbattersi.
+            <br />
+            Obiettivo: farti risparmiare <strong>tempo</strong> e <strong>soldi</strong>,
+            non solo mostrarti la prima pagina di Google.
+          </p>
+        </section>
       </div>
     </main>
   );
