@@ -6,40 +6,45 @@ export default function FinderPage() {
   const [results, setResults] = useState<any[]>([]);
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
-  const [credits, setCredits] = useState(3); 
+  const [credits, setCredits] = useState(3);
   const [purchasing, setPurchasing] = useState(false);
   const [isPro, setIsPro] = useState(false);
 
-useEffect(() => {
-  const savedCredits = localStorage.getItem("aiCredits");
-  const savedPlan = localStorage.getItem("ai_plan");
+  // Carica stato iniziale
+  useEffect(() => {
+    if (typeof window === "undefined") return;
 
-  if (savedCredits) {
-    const c = parseInt(savedCredits, 10);
-    setCredits(c);
+    const savedCredits = localStorage.getItem("aiCredits");
+    const savedPlan = localStorage.getItem("ai_plan");
 
-    // se ha 10 crediti, allora è PRO
-    if (c >= 10) setIsPro(true);
-  }
+    if (savedCredits) {
+      const c = parseInt(savedCredits, 10);
+      if (!isNaN(c)) {
+        setCredits(c);
+        if (c >= 10) setIsPro(true);
+      }
+    }
 
-  if (savedPlan === "pro") {
-    setIsPro(true);
-  }
-}, []);
-
+    if (savedPlan === "pro") {
+      setIsPro(true);
+    }
+  }, []);
 
   // Salva crediti
   useEffect(() => {
+    if (typeof window === "undefined") return;
     localStorage.setItem("aiCredits", credits.toString());
   }, [credits]);
 
-  // Cerca
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    if (!query.trim()) return alert("Scrivi una domanda o ricerca qualcosa!");
+    if (!query.trim()) {
+      alert("Scrivi una domanda o ricerca qualcosa!");
+      return;
+    }
 
-    if (credits <= 0) {
-      alert("Hai esaurito le 3 ricerche gratuite. Attiva il piano PRO.");
+    if (credits <= 0 && !isPro) {
+      alert("Hai esaurito le 3 ricerche gratuite. Attiva il piano PRO per continuare.");
       return;
     }
 
@@ -47,7 +52,7 @@ useEffect(() => {
     setResults([]);
     setSummary("");
 
-    const plan = credits > 0 ? "free" : "pro";
+    const plan: "free" | "pro" = isPro ? "pro" : "free";
 
     try {
       const res = await fetch("/api/finder", {
@@ -57,10 +62,13 @@ useEffect(() => {
       });
 
       const data = await res.json();
+
       if (res.ok) {
         setResults(data.items || []);
         setSummary(data.summary || "");
-        if (plan === "free") setCredits((c) => c - 1);
+        if (!isPro) {
+          setCredits((c) => c - 1);
+        }
       } else {
         alert("Errore nella ricerca: " + (data.error || "Server error"));
       }
@@ -72,78 +80,198 @@ useEffect(() => {
     }
   }
 
-  // 🔥 Acquista piano PRO
   async function handleBuyPro() {
     try {
       setPurchasing(true);
-      window.location.href = "/api/pay"; 
+      window.location.href = "/api/pay";
     } finally {
       setPurchasing(false);
     }
   }
 
-  // Reset crediti
   function resetCredits() {
     if (confirm("Vuoi ripristinare i crediti gratuiti?")) {
       setCredits(3);
+      localStorage.setItem("ai_plan", "free");
+      setIsPro(false);
     }
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-   <div className="flex justify-center items-center gap-3 mb-6">
-  <h1 className="text-3xl font-bold">🔍 IFindItForYou AI</h1>
-
-  {isPro && (
-    <span
+    <main
       style={{
-        background: "#a855f7",
-        padding: "4px 12px",
-        borderRadius: 999,
-        fontSize: 12,
-        fontWeight: 700,
+        minHeight: "100vh",
+        background: "#0f172a",
         color: "white",
-        letterSpacing: 0.5,
+        display: "flex",
+        justifyContent: "center",
+        padding: "32px 16px",
       }}
     >
-      PRO
-    </span>
-  )}
-</div>
+      <div style={{ width: "100%", maxWidth: 720 }}>
+        {/* Titolo + badge PRO */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 8,
+            marginBottom: 24,
+          }}
+        >
+          <h1 style={{ fontSize: 32, fontWeight: 700 }}>🔍 iFindItForYou AI</h1>
+          {isPro && (
+            <span
+              style={{
+                background: "#a855f7",
+                padding: "4px 12px",
+                borderRadius: 999,
+                fontSize: 12,
+                fontWeight: 700,
+              }}
+            >
+              PRO
+            </span>
+          )}
+        </div>
 
-
-        {credits <= 0 && (
+        {/* Form ricerca */}
+        <form
+          onSubmit={handleSearch}
+          style={{ display: "flex", gap: 8, marginBottom: 12 }}
+        >
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Cerca un prodotto o un'informazione..."
+            style={{
+              flex: 1,
+              borderRadius: 999,
+              padding: "10px 16px",
+              border: "1px solid rgba(148,163,184,0.4)",
+              background: "rgba(15,23,42,0.8)",
+              color: "white",
+            }}
+          />
           <button
-            onClick={handleBuyPro}
-            disabled={purchasing}
-            className="bg-green-600 text-white text-xs px-3 py-1 rounded-lg hover:bg-green-700"
+            type="submit"
+            disabled={loading}
+            style={{
+              borderRadius: 999,
+              padding: "10px 18px",
+              border: "none",
+              background: loading ? "#4b5563" : "#a855f7",
+              color: "white",
+              fontWeight: 600,
+              cursor: loading ? "default" : "pointer",
+            }}
           >
-            {purchasing ? "Reindirizzamento..." : "💳 Attiva piano PRO"}
+            {loading ? "Cerco..." : "Cerca"}
           </button>
+        </form>
+
+        {/* Crediti + bottone PRO */}
+        <div
+          style={{
+            fontSize: 13,
+            opacity: 0.9,
+            marginBottom: 16,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div>
+            Crediti rimanenti:{" "}
+            <strong>
+              {isPro ? "PRO attivo" : `${credits} gratuiti`}
+            </strong>
+            <button
+              onClick={resetCredits}
+              style={{
+                marginLeft: 8,
+                textDecoration: "underline",
+                background: "transparent",
+                border: "none",
+                color: "#60a5fa",
+                fontSize: 11,
+                cursor: "pointer",
+              }}
+            >
+              reset
+            </button>
+          </div>
+
+          {!isPro && credits <= 0 && (
+            <button
+              onClick={handleBuyPro}
+              disabled={purchasing}
+              style={{
+                background: "#22c55e",
+                color: "black",
+                borderRadius: 999,
+                padding: "6px 12px",
+                border: "none",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              {purchasing ? "..." : "💳 Attiva PRO"}
+            </button>
+          )}
+        </div>
+
+        {/* Riassunto */}
+        {summary && (
+          <div
+            style={{
+              background: "rgba(15,23,42,0.9)",
+              borderRadius: 12,
+              padding: "12px 16px",
+              border: "1px solid rgba(148,163,184,0.4)",
+              marginBottom: 16,
+              fontSize: 14,
+            }}
+          >
+            {summary}
+          </div>
+        )}
+
+        {/* Risultati */}
+        {results.length > 0 && (
+          <div style={{ display: "grid", gap: 10 }}>
+            {results.map((r, i) => (
+              <div
+                key={i}
+                style={{
+                  background: "rgba(15,23,42,0.9)",
+                  borderRadius: 12,
+                  padding: "10px 14px",
+                  border: "1px solid rgba(148,163,184,0.3)",
+                  fontSize: 14,
+                }}
+              >
+                {r.url ? (
+                  <a
+                    href={r.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ color: "#60a5fa", fontWeight: 600 }}
+                  >
+                    {r.title}
+                  </a>
+                ) : (
+                  <div style={{ fontWeight: 600 }}>{r.title}</div>
+                )}
+                <div style={{ opacity: 0.8, fontSize: 12 }}>
+                  {r.source} {r.price && ` — ${r.price}`}
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
-
-      {summary && (
-        <div className="bg-gray-100 p-3 rounded-lg mb-4">{summary}</div>
-      )}
-
-      {results.length > 0 && (
-        <ul className="space-y-2">
-          {results.map((r, i) => (
-            <li
-              key={i}
-              className="border rounded-lg p-3 hover:bg-gray-50 transition"
-            >
-              <a href={r.url} target="_blank" className="font-semibold text-blue-700">
-                {r.title}
-              </a>
-              <p className="text-sm text-gray-500">
-                {r.source} — {r.price}
-              </p>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    </main>
   );
 }
