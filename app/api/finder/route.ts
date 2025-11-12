@@ -6,8 +6,18 @@ const OPENAI_KEY = process.env.OPENAI_API_KEY;
 
 async function searchPublic(query: string) {
   return [
-    { title: `Risultato base per “${query}” su eBay`, price: "—", url: "https://www.ebay.com", source: "eBay" },
-    { title: `Risultato simile su Vinted`,          price: "—", url: "https://www.vinted.com", source: "Vinted" },
+    {
+      title: `Risultato base per “${query}” su eBay`,
+      price: "—",
+      url: "https://www.ebay.com",
+      source: "eBay",
+    },
+    {
+      title: `Risultato simile su Vinted`,
+      price: "—",
+      url: "https://www.vinted.com",
+      source: "Vinted",
+    },
   ];
 }
 
@@ -19,8 +29,7 @@ async function searchPro(query: string) {
       "Content-Type": "application/json",
       "X-API-KEY": SERPER_KEY!,
     },
-    body: JSON.stringify({ q: query }), // <-- NIENTE aiCreditsLeft, NIENTE plan
-    // Serper è veloce: evitiamo cache strane
+    body: JSON.stringify({ q: query }),
     cache: "no-store",
   });
   const data = await res.json();
@@ -50,15 +59,24 @@ async function aiFallback(query: string) {
     }),
   });
   const json = await res.json();
-  return json?.choices?.[0]?.message?.content ?? "Nessun risultato preciso trovato.";
+  return (
+    json?.choices?.[0]?.message?.content ??
+    "Nessun risultato preciso trovato."
+  );
 }
 
 export async function POST(req: Request) {
-  const { query, plan } = await req.json() as { query: string; plan?: "free" | "pro" };
-  if (!query) return NextResponse.json({ error: "Nessuna query." }, { status: 400 });
+  const { query, plan } = (await req.json()) as {
+    query: string;
+    plan?: "free" | "pro";
+  };
+
+  if (!query) {
+    return NextResponse.json({ error: "Nessuna query." }, { status: 400 });
+  }
 
   const base = await searchPublic(query);
-  const pro  = plan === "pro" ? await searchPro(query) : [];
+  const pro = plan === "pro" ? await searchPro(query) : [];
   const items = [...base, ...pro];
 
   if (items.length === 0) {
@@ -68,12 +86,12 @@ export async function POST(req: Request) {
 
   return NextResponse.json({
     items,
-    summary: plan === "pro"
-      ? "🔍 Ricerca Pro completata con fonti IA avanzate."
-      : "🔎 Risultati base dalle fonti pubbliche.",
+    summary:
+      plan === "pro"
+        ? "🔍 Ricerca Pro completata con fonti IA avanzate."
+        : "🔎 Risultati base dalle fonti pubbliche.",
   });
 }
-
 
 
 
