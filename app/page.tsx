@@ -477,6 +477,50 @@ const handleAiFinder = async () => {
           </p>
         )}
       </div>
+{/* BOX PRO – mettilo sotto i campi di ricerca */}
+{(() => {
+  // Nascondi il box se l’utente è già PRO
+  const isPro =
+    typeof window !== "undefined" &&
+    (localStorage.getItem("ai_plan") === "pro" ||
+     localStorage.getItem("ai_plan") === "lifetime");
+
+  if (isPro) return null;
+
+  return (
+    <div
+      style={{
+        background: "rgba(168,85,247,0.10)",
+        border: "1px solid rgba(168,85,247,0.35)",
+        borderRadius: 16,
+        padding: "16px 20px",
+        textAlign: "center",
+        maxWidth: 750,
+        margin: "18px auto 0",
+      }}
+    >
+      <h3 style={{ margin: 0, marginBottom: 8, fontSize: 18 }}>{t.proSectionTitle}</h3>
+      <p style={{ margin: 0, marginBottom: 12, opacity: 0.85, lineHeight: 1.5 }}>
+        {t.proSectionText}
+      </p>
+      <button
+        onClick={() => (window.location.href = "/api/pay")}
+        style={{
+          background: "#a855f7",
+          color: "white",
+          border: "none",
+          borderRadius: 999,
+          padding: "10px 22px",
+          fontWeight: 700,
+          cursor: "pointer",
+          boxShadow: "0 6px 20px rgba(168,85,247,0.35)",
+        }}
+      >
+        {t.proCTA}
+      </button>
+    </div>
+  );
+})()}
 
       {/* RISULTATI */}
       <div
