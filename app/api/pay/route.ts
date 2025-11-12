@@ -2,9 +2,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-06-20",
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!); // ← niente apiVersion
 
 export async function GET() {
   try {
@@ -15,10 +13,8 @@ export async function GET() {
         {
           price_data: {
             currency: "eur",
-            product_data: {
-              name: "10 crediti AI",
-            },
-            unit_amount: 500, // 5,00 €
+            product_data: { name: "10 crediti AI" },
+            unit_amount: 500, // 5€
           },
           quantity: 1,
         },
@@ -29,11 +25,10 @@ export async function GET() {
 
     return NextResponse.redirect(session.url!, 303);
   } catch (error) {
-    console.error("Errore Stripe:", error);
+    console.error("Stripe checkout error:", error);
     return NextResponse.json(
-      { error: "Errore nella creazione della sessione di pagamento" },
+      { error: "Errore creazione pagamento" },
       { status: 500 }
     );
   }
 }
-
