@@ -10,11 +10,23 @@ export default function FinderPage() {
   const [purchasing, setPurchasing] = useState(false);
   const [isPro, setIsPro] = useState(false);
 
-  // Carica crediti salvati
-  useEffect(() => {
-    const saved = localStorage.getItem("aiCredits");
-    if (saved) setCredits(parseInt(saved, 10));
-  }, []);
+useEffect(() => {
+  const savedCredits = localStorage.getItem("aiCredits");
+  const savedPlan = localStorage.getItem("ai_plan");
+
+  if (savedCredits) {
+    const c = parseInt(savedCredits, 10);
+    setCredits(c);
+
+    // se ha 10 crediti, allora è PRO
+    if (c >= 10) setIsPro(true);
+  }
+
+  if (savedPlan === "pro") {
+    setIsPro(true);
+  }
+}, []);
+
 
   // Salva crediti
   useEffect(() => {
