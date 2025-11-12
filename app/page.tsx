@@ -6,27 +6,27 @@ export default function FinderPage() {
   const [results, setResults] = useState<any[]>([]);
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
-  const [credits, setCredits] = useState(3); // default 3 ricerche gratuite
+  const [credits, setCredits] = useState(3); 
+  const [purchasing, setPurchasing] = useState(false);
 
-  // --- Carica i crediti dal localStorage (persistenza tra sessioni)
+  // Carica crediti salvati
   useEffect(() => {
     const saved = localStorage.getItem("aiCredits");
     if (saved) setCredits(parseInt(saved, 10));
   }, []);
 
-  // --- Salva i crediti aggiornati ogni volta che cambiano
+  // Salva crediti
   useEffect(() => {
     localStorage.setItem("aiCredits", credits.toString());
   }, [credits]);
 
-  // --- Funzione per eseguire la ricerca
+  // Cerca
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     if (!query.trim()) return alert("Scrivi una domanda o ricerca qualcosa!");
 
-    // Se i crediti sono finiti, blocca la ricerca
     if (credits <= 0) {
-      alert("Hai esaurito le 3 ricerche gratuite. Passa al piano PRO per continuare.");
+      alert("Hai esaurito le 3 ricerche gratuite. Attiva il piano PRO.");
       return;
     }
 
@@ -34,7 +34,6 @@ export default function FinderPage() {
     setResults([]);
     setSummary("");
 
-    // Determina piano in base ai crediti (in futuro: se PRO, viene da backend)
     const plan = credits > 0 ? "free" : "pro";
 
     try {
@@ -43,13 +42,11 @@ export default function FinderPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query, plan }),
       });
-      const data = await res.json();
 
+      const data = await res.json();
       if (res.ok) {
         setResults(data.items || []);
         setSummary(data.summary || "");
-
-        // Se piano free, scala un credito
         if (plan === "free") setCredits((c) => c - 1);
       } else {
         alert("Errore nella ricerca: " + (data.error || "Server error"));
@@ -62,7 +59,17 @@ export default function FinderPage() {
     }
   }
 
-  // --- Reset crediti manuale (solo per test o debug)
+  // 🔥 Acquista piano PRO
+  async function handleBuyPro() {
+    try {
+      setPurchasing(true);
+      window.location.href = "/api/pay"; 
+    } finally {
+      setPurchasing(false);
+    }
+  }
+
+  // Reset crediti
   function resetCredits() {
     if (confirm("Vuoi ripristinare i crediti gratuiti?")) {
       setCredits(3);
@@ -92,17 +99,29 @@ export default function FinderPage() {
         </button>
       </form>
 
-      <div className="text-sm text-gray-600 mb-4">
-        Crediti rimanenti:{" "}
-        <strong>
-          {credits > 0 ? `${credits} gratuiti` : "Nessuno (attiva PRO)"}
-        </strong>
-        <button
-          onClick={resetCredits}
-          className="ml-2 underline text-blue-600 text-xs"
-        >
-          (reset)
-        </button>
+      <div className="text-sm text-gray-600 mb-4 flex items-center justify-between">
+        <div>
+          Crediti rimanenti:{" "}
+          <strong>
+            {credits > 0 ? `${credits} gratuiti` : "Nessuno (attiva PRO)"}
+          </strong>
+          <button
+            onClick={resetCredits}
+            className="ml-2 underline text-blue-600 text-xs"
+          >
+            (reset)
+          </button>
+        </div>
+
+        {credits <= 0 && (
+          <button
+            onClick={handleBuyPro}
+            disabled={purchasing}
+            className="bg-green-600 text-white text-xs px-3 py-1 rounded-lg hover:bg-green-700"
+          >
+            {purchasing ? "Reindirizzamento..." : "💳 Attiva piano PRO"}
+          </button>
+        )}
       </div>
 
       {summary && (
@@ -129,4 +148,3 @@ export default function FinderPage() {
     </div>
   );
 }
-
