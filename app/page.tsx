@@ -163,47 +163,54 @@ export default function HomePage() {
   };
 
   // ricerca AI
+// ricerca AI (versione con piano free/pro + pagamento)
 const handleAiFinder = async () => {
   const q = query.trim();
   if (!q) return;
 
-  // 1) leggo quante volte ha già usato l'AI dal browser
-  const currentUses = typeof window !== "undefined"
-    ? Number(localStorage.getItem("ai_uses") || "0")
-    : 0;
+  // 🔐 stato "Pro" dopo acquisto (salvato alla /pay/success)
+  const isPro =
+    typeof window !== "undefined" &&
+    (localStorage.getItem("ai_plan") === "pro" ||
+      localStorage.getItem("ai_plan") === "lifetime");
 
-  // 2) se ha già fatto 3 ricerche → niente chiamata API, vai a pagamento
-  if (currentUses >= 3) {
+  // 📊 conteggio usi per gli utenti Free
+  const currentUses =
+    typeof window !== "undefined"
+      ? Number(localStorage.getItem("ai_uses") || "0")
+      : 0;
+
+  // ⛔️ se NON sei Pro e hai finito le 3 gratuite → monetizza
+  if (!isPro && currentUses >= 3) {
     setAiError(
       lang === "it"
-        ? "Hai usato le 3 ricerche gratuite. Puoi acquistare altri crediti."
+        ? "Hai usato le 3 ricerche gratuite. Puoi acquistare i crediti Pro."
         : lang === "fr"
-        ? "Tu as utilisé les 3 recherches gratuites. Tu peux acheter d’autres crédits."
+        ? "Tu as utilisé les 3 recherches gratuites. Tu peux acheter des crédits Pro."
         : lang === "de"
-        ? "Du hast die 3 Gratis-Suchen verwendet. Du kannst weitere Credits kaufen."
-        : "You used the 3 free searches. You can buy more credits."
+        ? "Du hast die 3 Gratis-Suchen verwendet. Kaufe Pro-Credits."
+        : "You used the 3 free searches. You can buy Pro credits."
     );
-
-    // mostri un messaggio nella lista risultati
     setResults([
       lang === "it"
-        ? "Per continuare: acquista 10 crediti."
+        ? "Per continuare: attiva la Ricerca Pro (10 crediti)."
         : lang === "fr"
-        ? "Pour continuer : achète 10 crédits."
+        ? "Pour continuer : active la Recherche Pro (10 crédits)."
         : lang === "de"
-        ? "Um fortzufahren: 10 Credits kaufen."
-        : "To continue: buy 10 credits.",
+        ? "Um fortzufahren: Pro-Suche aktivieren (10 Credits)."
+        : "To continue: enable Pro Search (10 credits).",
     ]);
 
-    // lo porti alla tua route di pagamento
+    // redirect dolce al checkout
     setTimeout(() => {
       window.location.href = "/api/pay";
     }, 1200);
-
     return;
   }
 
-  // 3) se NON ha superato il limite → fai la chiamata normale
+  // 🧭 piano da usare per questa chiamata
+  const plan: "free" | "pro" = isPro ? "pro" : "free";
+
   setAiLoading(true);
   setAiError("");
 
@@ -211,37 +218,37 @@ const handleAiFinder = async () => {
     const res = await fetch("/api/finder", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: q, lang }),
+      body: JSON.stringify({ query: q, lang, plan }), // ← passa il piano
     });
+
     const data = await res.json();
 
-    // se il server comunque risponde purchase (tipo da backend)
+    // backend può ancora chiedere acquisto
     if (res.status === 402 || data?.action === "purchase") {
       setAiError(
         lang === "it"
-          ? "Hai usato le ricerche gratuite. Puoi acquistare altri crediti."
+          ? "Ricerche gratuite esaurite. Attiva la Ricerca Pro."
           : lang === "fr"
-          ? "Tu as utilisé les recherches gratuites. Tu peux acheter d’autres crédits."
+          ? "Recherches gratuites épuisées. Active la Recherche Pro."
           : lang === "de"
-          ? "Du hast die Gratis-Suchen verwendet. Du kannst weitere Credits kaufen."
-          : "You used the free searches. You can buy more credits."
+          ? "Gratis-Suchen aufgebraucht. Pro-Suche aktivieren."
+          : "Free searches exhausted. Enable Pro Search."
       );
       setTimeout(() => {
         window.location.href = "/api/pay";
-      }, 1200);
+      }, 1000);
       return;
     }
 
-    // 4) parsiamo la risposta AI in modo elastico
+    // parsing elastico
     let parsed: any = null;
     try {
-      parsed = JSON.parse(data.data);
+      parsed = JSON.parse(data.data ?? data);
     } catch {
-      parsed = data.data ?? data;
+      parsed = data?.data ?? data;
     }
 
     const aiResults: string[] = [];
-
     if (Array.isArray(parsed?.items)) {
       parsed.items.forEach((item: any) => {
         aiResults.push(
@@ -251,12 +258,8 @@ const handleAiFinder = async () => {
         );
       });
     }
-
-    if (parsed?.summary) {
-      aiResults.push(parsed.summary);
-    } else if (typeof parsed === "string") {
-      aiResults.push(parsed);
-    }
+    if (parsed?.summary) aiResults.push(parsed.summary);
+    if (typeof parsed === "string" && aiResults.length === 0) aiResults.push(parsed);
 
     if (aiResults.length > 0) {
       setResults(aiResults);
@@ -270,23 +273,31 @@ const handleAiFinder = async () => {
           ? "Die automatische Suche hat kein Ergebnis zum Anzeigen gefunden."
           : "The automatic search didn’t find a result to show here.",
       ]);
-      // puoi anche aprire direttamente il form
-      setShowLead(true);
+      setShowLead(true); // offri servizio email
     }
 
-    // 5) qui aggiorniamo il conteggio sul browser
-    if (typeof window !== "undefined") {
+    // aggiorna conteggio SOLO se Free
+    if (!isPro && typeof window !== "undefined") {
       localStorage.setItem("ai_uses", String(currentUses + 1));
     }
 
     setShowExamples(true);
   } catch (err) {
-    setAiError("Non riesco a parlare con l’AI adesso.");
+    setAiError(
+      lang === "it"
+        ? "Non riesco a parlare con l’AI adesso."
+        : lang === "fr"
+        ? "Je n’arrive pas à contacter l’IA."
+        : lang === "de"
+        ? "Ich kann die KI gerade nicht erreichen."
+        : "I can’t reach the AI right now."
+    );
     setShowLead(true);
   } finally {
     setAiLoading(false);
   }
 };
+
 
 
 
