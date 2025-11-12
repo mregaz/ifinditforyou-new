@@ -8,6 +8,7 @@ export default function FinderPage() {
   const [loading, setLoading] = useState(false);
   const [credits, setCredits] = useState(3); 
   const [purchasing, setPurchasing] = useState(false);
+  const [isPro, setIsPro] = useState(false);
 
   // Carica crediti salvati
   useEffect(() => {
