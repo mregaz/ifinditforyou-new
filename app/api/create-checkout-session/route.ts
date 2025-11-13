@@ -2,12 +2,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2023-10-16",
-});
+// usa la tua env con la S finale e senza apiVersion
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEYS as string);
 
 const MONTHLY_PRICE_ID = process.env.STRIPE_PRICE_MONTHLY!;
 const YEARLY_PRICE_ID = process.env.STRIPE_PRICE_YEARLY!;
+
 
 export async function POST(req: NextRequest) {
   try {
