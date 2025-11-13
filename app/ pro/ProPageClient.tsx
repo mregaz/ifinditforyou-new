@@ -135,11 +135,9 @@ export default function ProPageClient() {
               Ideale per provare IFindItForYou e fare le prime ricerche.
             </p>
             <p className="text-3xl font-semibold text-gray-900">
-              0 CHF{" "}
-              <span className="text-sm font-normal text-gray-500">
-                / per sempre
-              </span>
-            </p>
+         $0 <span className="text-sm font-normal text-gray-500">/ per sempre</span>
+         </p>
+
 
             <ul className="mt-4 space-y-2 text-sm text-gray-600">
               <li>• 1 ricerca gratuita iniziale</li>
