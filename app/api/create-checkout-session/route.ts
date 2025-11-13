@@ -4,7 +4,6 @@ import Stripe from "stripe";
 function getStripe() {
   const secretKey = process.env.STRIPE_SECRET_KEYS;
   if (!secretKey) {
-    // Questo serve solo a dare un errore chiaro se manca la chiave
     throw new Error("Missing STRIPE_SECRET_KEYS environment variable");
   }
   return new Stripe(secretKey);
@@ -12,6 +11,7 @@ function getStripe() {
 
 const MONTHLY_PRICE_ID = process.env.STRIPE_PRICE_MONTHLY!;
 const YEARLY_PRICE_ID = process.env.STRIPE_PRICE_YEARLY!;
+
 
 export async function POST(req: NextRequest) {
   try {
