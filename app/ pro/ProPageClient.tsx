@@ -170,20 +170,21 @@ export default function ProPageClient() {
             </p>
 
             {billing === "monthly" ? (
-              <p className="text-3xl font-semibold text-gray-900">
-                7.90 CHF{" "}
-                <span className="text-sm font-normal text-gray-500">
-                  / mese
-                </span>
-              </p>
-            ) : (
-              <p className="text-3xl font-semibold text-gray-900">
-                75 CHF{" "}
-                <span className="text-sm font-normal text-gray-500">
-                  / anno
-                </span>
-              </p>
-            )}
+  <p className="text-3xl font-semibold text-gray-900">
+    $9.99{" "}
+    <span className="text-sm font-normal text-gray-500">
+      / mese
+    </span>
+  </p>
+) : (
+  <p className="text-3xl font-semibold text-gray-900">
+    $89{" "}
+    <span className="text-sm font-normal text-gray-500">
+      / anno
+    </span>
+  </p>
+)}
+
 
             <ul className="mt-4 space-y-2 text-sm text-gray-700">
               <li>• Ricerche illimitate</li>
