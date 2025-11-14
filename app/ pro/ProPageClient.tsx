@@ -1,208 +1,210 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 type BillingPeriod = "monthly" | "yearly";
 
+const FEATURES_FREE: string[] = [
+  "1 ricerca senza email",
+  "+1 ricerca aggiuntiva lasciando l'email",
+  "Risultati base",
+];
+
+const FEATURES_PRO: string[] = [
+  "Ricerche illimitate",
+  "Filtri avanzati sui risultati",
+  "Priorità nella coda delle richieste",
+  "Supporto via email",
+];
+
+const PRICE_LABELS: Record<BillingPeriod, string> = {
+  monthly: "9.99 / mese",
+  yearly: "89.00 / anno",
+};
+
+const SUBTITLE_LABELS: Record<BillingPeriod, string> = {
+  monthly: "Fatturazione mensile, puoi annullare quando vuoi.",
+  yearly: "Fatturazione annuale, risparmi rispetto al mensile.",
+};
+
 export default function ProPageClient() {
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
-  const [isLoading, setIsLoading] = useState<BillingPeriod | null>(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isPro, setIsPro] = useState(false);
 
-  // Se hai già un flag "isPro" nel localStorage lo leggiamo
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const value = window.localStorage.getItem("isPro");
-      setIsPro(value === "true");
-    }
-  }, []);
-
-  const handleCheckout = async (period: BillingPeriod) => {
+  async function handleSubscribe() {
     try {
-      setIsLoading(period);
+      setLoading(true);
       setError(null);
 
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ billingPeriod: period }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ billingPeriod }),
       });
-
-      if (!res.ok) {
-        throw new Error("Errore nella creazione della sessione di pagamento.");
-      }
 
       const data = await res.json();
 
-      if (!data.url) {
-        throw new Error("URL di checkout non ricevuto da Stripe.");
+      if (!res.ok || !data.url) {
+        setError("Errore nella creazione della sessione di pagamento.");
+        return;
       }
 
       window.location.href = data.url;
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      setError(
-        err?.message || "Qualcosa è andato storto. Riprova fra qualche secondo."
-      );
+      setError("Si è verificato un errore imprevisto. Riprova più tardi.");
     } finally {
-      setIsLoading(null);
+      setLoading(false);
     }
-  };
-
-  const isMonthly = billingPeriod === "monthly";
+  }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50 flex flex-col items-center px-4 py-10">
-      <div className="w-full max-w-5xl">
-        {/* Header */}
-        <header className="text-center mb-10">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-3">
-            Passa a <span className="text-emerald-400">IFindItForYou PRO</span>
-          </h1>
-          <p className="text-slate-300 max-w-2xl mx-auto">
-            Lascia che l’AI faccia le ricerche complicate al posto tuo.  
-            Tu scrivi cosa ti serve, noi troviamo il meglio del web.
-          </p>
-        </header>
+    <main className="mx-auto max-w-4xl px-4 py-12">
+      <header className="mb-10 text-center">
+        <h1 className="mb-2 text-3xl font-semibold">
+          IFindItForYou <span className="text-green-600">PRO</span>
+        </h1>
+        <p className="text-sm text-gray-700">
+          Passa alla versione PRO per ricerche illimitate e funzionalità avanzate.
+        </p>
+      </header>
 
-        {/* Toggle mensile / annuale */}
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex items-center rounded-full bg-slate-900 p-1 border border-slate-700">
-            <button
-              type="button"
-              onClick={() => setBillingPeriod("monthly")}
-              className={`px-4 py-1 text-sm rounded-full transition ${
-                isMonthly
-                  ? "bg-emerald-500 text-slate-900 font-semibold"
-                  : "text-slate-300"
-              }`}
-            >
-              Mensile
-            </button>
-            <button
-              type="button"
-              onClick={() => setBillingPeriod("yearly")}
-              className={`px-4 py-1 text-sm rounded-full transition ${
-                !isMonthly
-                  ? "bg-emerald-500 text-slate-900 font-semibold"
-                  : "text-slate-300"
-              }`}
-            >
-              Annuale <span className="ml-1 text-xs text-emerald-200">- risparmia</span>
-            </button>
-          </div>
-        </div>
+      {/* Toggle mensile / annuale */}
+      <section className="mb-8 flex justify-center">
+        <BillingToggle
+          value={billingPeriod}
+          onChange={setBillingPeriod}
+        />
+      </section>
 
-        {/* Cards Free / PRO */}
-        <div className="grid md:grid-cols-2 gap-6 items-stretch">
-          {/* FREE */}
-          <section className="border border-slate-800 bg-slate-900/60 rounded-2xl p-6 flex flex-col">
-            <h2 className="text-lg font-semibold mb-1">Piano Free</h2>
-            <p className="text-sm text-slate-300 mb-4">
-              Per provare il servizio senza impegno.
+      {/* Cards Free vs PRO */}
+      <section className="grid gap-6 md:grid-cols-2">
+        <PricingCard
+          title="Piano Free"
+          price="0 €"
+          subtitle="Per sempre."
+          features={FEATURES_FREE}
+          highlight={false}
+          footerContent={
+            <p className="text-xs text-gray-500">
+              Ideale per provare IFindItForYou con qualche ricerca di base.
             </p>
-            <p className="text-3xl font-bold mb-1">
-              $0{" "}
-              <span className="text-sm font-normal text-slate-400">
-                / per sempre
-              </span>
-            </p>
-            <ul className="mt-4 space-y-2 text-sm text-slate-200">
-              <li>• 1 ricerca gratuita senza email</li>
-              <li>• +1 ricerca gratuita con email</li>
-              <li>• Risultati base generati dall&apos;AI</li>
-              <li>• Nessun obbligo di carta di credito</li>
-            </ul>
-            <div className="mt-auto pt-6">
+          }
+        />
+
+        <PricingCard
+          title="IFindItForYou PRO"
+          price={PRICE_LABELS[billingPeriod]}
+          subtitle={SUBTITLE_LABELS[billingPeriod]}
+          features={FEATURES_PRO}
+          highlight
+          footerContent={
+            <div className="flex flex-col gap-2">
+              {error && (
+                <p className="text-xs text-red-600">
+                  {error}
+                </p>
+              )}
               <button
                 type="button"
-                disabled
-                className="w-full rounded-xl border border-slate-700 bg-slate-800 py-2 text-sm text-slate-400 cursor-not-allowed"
+                onClick={handleSubscribe}
+                disabled={loading}
+                className="w-full rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Piano attuale
+                {loading ? "Reindirizzamento in corso..." : "Passa a PRO"}
               </button>
-            </div>
-          </section>
-
-          {/* PRO */}
-          <section className="border border-emerald-400/60 bg-slate-900 rounded-2xl p-6 shadow-xl shadow-emerald-500/20 flex flex-col relative overflow-hidden">
-            <span className="absolute right-4 top-4 text-xs px-2 py-1 rounded-full bg-emerald-500 text-slate-900 font-semibold">
-              Consigliato
-            </span>
-
-            <h2 className="text-lg font-semibold mb-1">IFindItForYou PRO</h2>
-            <p className="text-sm text-slate-300 mb-4">
-              Per chi vuole risposte migliori, più veloci e pronte da usare.
-            </p>
-
-            {isMonthly ? (
-              <p className="text-3xl font-bold mb-1">
-                $9.99{" "}
-                <span className="text-sm font-normal text-slate-400">
-                  / mese
-                </span>
-              </p>
-            ) : (
-              <p className="text-3xl font-bold mb-1">
-                $89{" "}
-                <span className="text-sm font-normal text-slate-400">
-                  / anno
-                </span>
-              </p>
-            )}
-
-            <p className="text-xs text-emerald-300 mb-4">
-              Pagamento sicuro con Stripe. Disdici quando vuoi.
-            </p>
-
-            <ul className="mt-2 space-y-2 text-sm text-slate-100">
-              <li>• Ricerche avanzate illimitate</li>
-              <li>• Risultati filtrati, ordinati e riassunti per te</li>
-              <li>• Priorità nelle code di elaborazione</li>
-              <li>• Accesso prima alle nuove funzioni</li>
-              <li>• Supporto via email dedicato</li>
-            </ul>
-
-            <div className="mt-auto pt-6 space-y-2">
-              <button
-                type="button"
-                onClick={() => handleCheckout(billingPeriod)}
-                disabled={isPro || isLoading !== null}
-                className={`w-full rounded-xl py-2 text-sm font-semibold transition ${
-                  isPro
-                    ? "bg-slate-700 text-slate-300 cursor-not-allowed"
-                    : isLoading
-                    ? "bg-emerald-400/70 text-slate-900 cursor-wait"
-                    : "bg-emerald-500 hover:bg-emerald-400 text-slate-900"
-                }`}
-              >
-                {isPro
-                  ? "Sei già PRO"
-                  : isLoading === "monthly"
-                  ? "Reindirizzamento a Stripe (mensile)..."
-                  : isLoading === "yearly"
-                  ? "Reindirizzamento a Stripe (annuale)..."
-                  : "Passa a PRO"}
-              </button>
-
-              <p className="text-[11px] text-slate-400 text-center">
-                Nessun vincolo lungo termine. Puoi annullare il rinnovo in
-                qualsiasi momento dal tuo account Stripe.
+              <p className="text-xs text-gray-500">
+                Pagamenti gestiti in modo sicuro da Stripe. Puoi annullare il rinnovo in qualsiasi momento.
               </p>
             </div>
-
-            {error && (
-              <p className="mt-3 text-xs text-red-400 text-center">
-                {error}
-              </p>
-            )}
-          </section>
-        </div>
-      </div>
+          }
+        />
+      </section>
     </main>
+  );
+}
+
+type BillingToggleProps = {
+  value: BillingPeriod;
+  onChange: (value: BillingPeriod) => void;
+};
+
+function BillingToggle({ value, onChange }: BillingToggleProps) {
+  return (
+    <div className="inline-flex items-center rounded-full border border-gray-300 bg-white p-1 text-xs">
+      <button
+        type="button"
+        onClick={() => onChange("monthly")}
+        className={
+          "rounded-full px-4 py-1 " +
+          (value === "monthly"
+            ? "bg-green-600 text-white"
+            : "text-gray-700")
+        }
+      >
+        Mensile
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange("yearly")}
+        className={
+          "rounded-full px-4 py-1 " +
+          (value === "yearly"
+            ? "bg-green-600 text-white"
+            : "text-gray-700")
+        }
+      >
+        Annuale <span className="ml-1 text-[10px] opacity-80">risparmi</span>
+      </button>
+    </div>
+  );
+}
+
+type PricingCardProps = {
+  title: string;
+  price: string;
+  subtitle: string;
+  features: string[];
+  highlight?: boolean;
+  footerContent?: React.ReactNode;
+};
+
+function PricingCard({
+  title,
+  price,
+  subtitle,
+  features,
+  highlight = false,
+  footerContent,
+}: PricingCardProps) {
+  return (
+    <article
+      className={
+        "flex h-full flex-col rounded-lg border bg-white p-5 text-sm " +
+        (highlight
+          ? "border-green-500 shadow-md"
+          : "border-gray-200")
+      }
+    >
+      <header className="mb-4">
+        <h2 className="mb-1 text-lg font-semibold">{title}</h2>
+        <p className="text-2xl font-bold">{price}</p>
+        <p className="mt-1 text-xs text-gray-600">{subtitle}</p>
+      </header>
+
+      <ul className="mb-4 flex-1 list-disc space-y-1 pl-5 text-xs text-gray-700">
+        {features.map((feature) => (
+          <li key={feature}>{feature}</li>
+        ))}
+      </ul>
+
+      {footerContent && (
+        <footer className="mt-2">
+          {footerContent}
+        </footer>
+      )}
+    </article>
   );
 }
 
