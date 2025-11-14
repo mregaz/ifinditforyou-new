@@ -137,16 +137,62 @@ export default function ProPageClient() {
   return (
     <main style={pageStyle}>
       <div style={containerStyle}>
-        {/* Header */}
-        <header style={{ textAlign: "center", marginBottom: 32 }}>
-          <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>
-            Passa a <span style={{ color: "#22c55e" }}>IFindItForYou PRO</span>
-          </h1>
-          <p style={{ maxWidth: 600, margin: "0 auto", color: "#9ca3af" }}>
-            Tu descrivi quello che cerchi, noi troviamo per te il meglio del web
-            e te lo serviamo già filtrato e riassunto.
-          </p>
+               {/* Header */}
+        <header style={{ marginBottom: 32 }}>
+          {/* Switch lingua in alto a destra */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 8,
+              fontSize: 12,
+              color: "#9ca3af",
+              marginBottom: 8,
+            }}
+          >
+            <span>Lingua:</span>
+            <a
+              href="/pro"
+              style={{ color: "#6ee7b7", textDecoration: "underline" }}
+            >
+              IT
+            </a>
+            <span>|</span>
+            <a
+              href="/fr/pro"
+              style={{ color: "#6ee7b7", textDecoration: "underline" }}
+            >
+              FR
+            </a>
+            <span>|</span>
+            <a
+              href="/de/pro"
+              style={{ color: "#6ee7b7", textDecoration: "underline" }}
+            >
+              DE
+            </a>
+            <span>|</span>
+            <a
+              href="/en/pro"
+              style={{ color: "#6ee7b7", textDecoration: "underline" }}
+            >
+              EN
+            </a>
+          </div>
+
+          {/* Titolo e sottotitolo centrati */}
+          <div style={{ textAlign: "center" }}>
+            <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>
+              Passa a{" "}
+              <span style={{ color: "#22c55e" }}>IFindItForYou PRO</span>
+            </h1>
+            <p style={{ maxWidth: 600, margin: "0 auto", color: "#9ca3af" }}>
+              Tu descrivi quello che cerchi, noi troviamo per te il meglio del
+              web e te lo serviamo già filtrato e riassunto.
+            </p>
+          </div>
         </header>
+
 
         {/* Toggle mensile / annuale */}
         <div
