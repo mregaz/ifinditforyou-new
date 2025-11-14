@@ -361,6 +361,76 @@ export default function ProPageClient() {
             </div>
           </section>
         </div>
+{/* FAQ */}
+<section
+  style={{
+    marginTop: 48,
+    padding: "24px 16px",
+    borderRadius: 16,
+    backgroundColor: "#0f172a",
+    border: "1px solid #1e293b",
+  }}
+>
+  <h2
+    style={{
+      fontSize: 20,
+      fontWeight: 700,
+      marginBottom: 16,
+      textAlign: "center",
+      color: "#22c55e",
+    }}
+  >
+    Domande frequenti (FAQ)
+  </h2>
+
+  <div style={{ marginBottom: 16 }}>
+    <p style={{ fontWeight: 600, marginBottom: 4 }}>
+      Posso annullare l&apos;abbonamento quando voglio?
+    </p>
+    <p style={{ color: "#9ca3af" }}>
+      Certo. Puoi annullare il rinnovo automatico in qualsiasi momento dal tuo
+      account Stripe. Continuerai a usare il piano PRO fino alla scadenza già pagata.
+    </p>
+  </div>
+
+  <div style={{ marginBottom: 16 }}>
+    <p style={{ fontWeight: 600, marginBottom: 4 }}>
+      Il pagamento è sicuro?
+    </p>
+    <p style={{ color: "#9ca3af" }}>
+      Usiamo Stripe, la piattaforma n°1 al mondo per pagamenti online. Nessun
+      dato della tua carta passa dai nostri server.
+    </p>
+  </div>
+
+  <div style={{ marginBottom: 16 }}>
+    <p style={{ fontWeight: 600, marginBottom: 4 }}>
+      Cosa cambia tra la versione Free e PRO?
+    </p>
+    <p style={{ color: "#9ca3af" }}>
+      La versione Free offre solo richieste limitate e risultati base. La versione
+      PRO include ricerche illimitate, risposte avanzate, priorità e funzioni extra.
+    </p>
+  </div>
+
+  <div style={{ marginBottom: 16 }}>
+    <p style={{ fontWeight: 600, marginBottom: 4 }}>
+      Posso usare il servizio anche da mobile?
+    </p>
+    <p style={{ color: "#9ca3af" }}>
+      Sì, tutta la piattaforma è ottimizzata anche per smartphone e tablet.
+    </p>
+  </div>
+
+  <div>
+    <p style={{ fontWeight: 600, marginBottom: 4 }}>
+      Riceverò fattura per l&apos;abbonamento?
+    </p>
+    <p style={{ color: "#9ca3af" }}>
+      Sì, Stripe invia automaticamente la ricevuta/fattura via email dopo ogni pagamento.
+    </p>
+  </div>
+</section>
 
         {/* Legal: Termini & Privacy */}
         <section
