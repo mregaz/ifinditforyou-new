@@ -361,6 +361,216 @@ export default function ProPageClient() {
             </div>
           </section>
         </div>
+                {/* Tabella confronto Free vs PRO */}
+        <section
+          style={{
+            marginTop: 40,
+            padding: 16,
+            borderRadius: 16,
+            backgroundColor: "#020617",
+            border: "1px solid #1f2937",
+            overflowX: "auto",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: 18,
+              fontWeight: 600,
+              marginBottom: 12,
+              textAlign: "center",
+              color: "#22c55e",
+            }}
+          >
+            Confronto veloce: Free vs PRO
+          </h2>
+
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              fontSize: 13,
+            }}
+          >
+            <thead>
+              <tr>
+                <th
+                  style={{
+                    textAlign: "left",
+                    padding: "8px 4px",
+                    borderBottom: "1px solid #1f2937",
+                    color: "#9ca3af",
+                  }}
+                >
+                  Funzionalità
+                </th>
+                <th
+                  style={{
+                    textAlign: "center",
+                    padding: "8px 4px",
+                    borderBottom: "1px solid #1f2937",
+                    color: "#9ca3af",
+                  }}
+                >
+                  Free
+                </th>
+                <th
+                  style={{
+                    textAlign: "center",
+                    padding: "8px 4px",
+                    borderBottom: "1px solid #1f2937",
+                    color: "#bbf7d0",
+                  }}
+                >
+                  PRO
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td
+                  style={{
+                    padding: "8px 4px",
+                    borderBottom: "1px solid #111827",
+                  }}
+                >
+                  Numero di ricerche
+                </td>
+                <td
+                  style={{
+                    textAlign: "center",
+                    padding: "8px 4px",
+                    borderBottom: "1px solid #111827",
+                  }}
+                >
+                  2 (1 + 1 con email)
+                </td>
+                <td
+                  style={{
+                    textAlign: "center",
+                    padding: "8px 4px",
+                    borderBottom: "1px solid #111827",
+                    color: "#4ade80",
+                    fontWeight: 600,
+                  }}
+                >
+                  Illimitate
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style={{
+                    padding: "8px 4px",
+                    borderBottom: "1px solid #111827",
+                  }}
+                >
+                  Qualità risultati
+                </td>
+                <td
+                  style={{
+                    textAlign: "center",
+                    padding: "8px 4px",
+                    borderBottom: "1px solid #111827",
+                  }}
+                >
+                  Base
+                </td>
+                <td
+                  style={{
+                    textAlign: "center",
+                    padding: "8px 4px",
+                    borderBottom: "1px solid #111827",
+                    color: "#4ade80",
+                    fontWeight: 600,
+                  }}
+                >
+                  Avanzata, filtrata e riassunta
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style={{
+                    padding: "8px 4px",
+                    borderBottom: "1px solid #111827",
+                  }}
+                >
+                  Priorità nelle richieste
+                </td>
+                <td
+                  style={{
+                    textAlign: "center",
+                    padding: "8px 4px",
+                    borderBottom: "1px solid #111827",
+                  }}
+                >
+                  Normale
+                </td>
+                <td
+                  style={{
+                    textAlign: "center",
+                    padding: "8px 4px",
+                    borderBottom: "1px solid #111827",
+                    color: "#4ade80",
+                    fontWeight: 600,
+                  }}
+                >
+                  Alta
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style={{
+                    padding: "8px 4px",
+                    borderBottom: "1px solid #111827",
+                  }}
+                >
+                  Nuove funzioni
+                </td>
+                <td
+                  style={{
+                    textAlign: "center",
+                    padding: "8px 4px",
+                    borderBottom: "1px solid #111827",
+                  }}
+                >
+                  Accesso standard
+                </td>
+                <td
+                  style={{
+                    textAlign: "center",
+                    padding: "8px 4px",
+                    borderBottom: "1px solid #111827",
+                    color: "#4ade80",
+                    fontWeight: 600,
+                  }}
+                >
+                  Accesso anticipato
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: "8px 4px" }}>Supporto</td>
+                <td
+                  style={{
+                    textAlign: "center",
+                    padding: "8px 4px",
+                  }}
+                >
+                  —
+                </td>
+                <td
+                  style={{
+                    textAlign: "center",
+                    padding: "8px 4px",
+                    color: "#4ade80",
+                    fontWeight: 600,
+                  }}
+                >
+                  Email dedicata
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
 {/* FAQ */}
 <section
   style={{
