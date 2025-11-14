@@ -2,7 +2,8 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!); // ← niente apiVersion
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEYS!);
+
 
 export async function GET() {
   try {
