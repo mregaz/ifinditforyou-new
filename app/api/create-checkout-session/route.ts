@@ -1,47 +1,55 @@
-import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { NextResponse } from "next/server";
 
-function getStripe() {
-  const secretKey = process.env.STRIPE_SECRET_KEYS;
-  if (!secretKey) {
-    throw new Error("Missing STRIPE_SECRET_KEYS environment variable");
-  }
-  return new Stripe(secretKey);
-}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEYS as string, {
+  apiVersion: "2023-10-16",
+});
 
-const MONTHLY_PRICE_ID = process.env.STRIPE_PRICE_MONTHLY;
-const YEARLY_PRICE_ID = process.env.STRIPE_PRICE_YEARLY;
-
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const body = await req.json().catch(() => ({}));
-    const billingPeriod =
-      body.billingPeriod === "yearly" ? "yearly" : "monthly";
+    const body = await req.json();
+    const billingPeriod = body.billingPeriod as "monthly" | "yearly";
 
     const priceId =
-      billingPeriod === "yearly" ? YEARLY_PRICE_ID : MONTHLY_PRICE_ID;
+      billingPeriod === "yearly"
+        ? process.env.STRIPE_PRICE_YEARLY
+        : process.env.STRIPE_PRICE_MONTHLY;
 
     if (!priceId) {
-      return new NextResponse("Stripe price ID missing", { status: 500 });
+      return NextResponse.json(
+        { error: "Stripe price ID mancante." },
+        { status: 400 }
+      );
     }
 
-    const stripe = getStripe();
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
+      payment_method_types: ["card"],
       line_items: [
         {
           price: priceId,
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
+      success_url: `${baseUrl}/success`,
+      cancel_url: `${baseUrl}/pay/cancel`,
     });
 
+    if (!session.url) {
+      return NextResponse.json(
+        { error: "Stripe non ha restituito una URL di checkout." },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({ url: session.url });
-  } catch (err) {
-    console.error("Errore create-checkout-session:", err);
-    return new NextResponse("Errore creazione sessione Stripe", { status: 500 });
+  } catch (error) {
+    console.error("Errore Stripe:", error);
+    return NextResponse.json(
+      { error: "Errore nella creazione della sessione Stripe." },
+      { status: 500 }
+    );
   }
 }
