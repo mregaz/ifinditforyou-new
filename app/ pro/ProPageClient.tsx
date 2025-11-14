@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 type BillingPeriod = "monthly" | "yearly";
 
@@ -72,10 +72,7 @@ export default function ProPageClient() {
 
       {/* Toggle mensile / annuale */}
       <section className="mb-8 flex justify-center">
-        <BillingToggle
-          value={billingPeriod}
-          onChange={setBillingPeriod}
-        />
+        <BillingToggle value={billingPeriod} onChange={setBillingPeriod} />
       </section>
 
       {/* Cards Free vs PRO */}
@@ -101,11 +98,7 @@ export default function ProPageClient() {
           highlight
           footerContent={
             <div className="flex flex-col gap-2">
-              {error && (
-                <p className="text-xs text-red-600">
-                  {error}
-                </p>
-              )}
+              {error && <p className="text-xs text-red-600">{error}</p>}
               <button
                 type="button"
                 onClick={handleSubscribe}
@@ -115,7 +108,8 @@ export default function ProPageClient() {
                 {loading ? "Reindirizzamento in corso..." : "Passa a PRO"}
               </button>
               <p className="text-xs text-gray-500">
-                Pagamenti gestiti in modo sicuro da Stripe. Puoi annullare il rinnovo in qualsiasi momento.
+                Pagamenti gestiti in modo sicuro da Stripe. Puoi annullare il
+                rinnovo in qualsiasi momento.
               </p>
             </div>
           }
@@ -138,9 +132,7 @@ function BillingToggle({ value, onChange }: BillingToggleProps) {
         onClick={() => onChange("monthly")}
         className={
           "rounded-full px-4 py-1 " +
-          (value === "monthly"
-            ? "bg-green-600 text-white"
-            : "text-gray-700")
+          (value === "monthly" ? "bg-green-600 text-white" : "text-gray-700")
         }
       >
         Mensile
@@ -150,12 +142,11 @@ function BillingToggle({ value, onChange }: BillingToggleProps) {
         onClick={() => onChange("yearly")}
         className={
           "rounded-full px-4 py-1 " +
-          (value === "yearly"
-            ? "bg-green-600 text-white"
-            : "text-gray-700")
+          (value === "yearly" ? "bg-green-600 text-white" : "text-gray-700")
         }
       >
-        Annuale <span className="ml-1 text-[10px] opacity-80">risparmi</span>
+        Annuale{" "}
+        <span className="ml-1 text-[10px] opacity-80">risparmi</span>
       </button>
     </div>
   );
@@ -167,7 +158,7 @@ type PricingCardProps = {
   subtitle: string;
   features: string[];
   highlight?: boolean;
-  footerContent?: React.ReactNode;
+  footerContent?: ReactNode;
 };
 
 function PricingCard({
@@ -182,9 +173,7 @@ function PricingCard({
     <article
       className={
         "flex h-full flex-col rounded-lg border bg-white p-5 text-sm " +
-        (highlight
-          ? "border-green-500 shadow-md"
-          : "border-gray-200")
+        (highlight ? "border-green-500 shadow-md" : "border-gray-200")
       }
     >
       <header className="mb-4">
@@ -199,11 +188,7 @@ function PricingCard({
         ))}
       </ul>
 
-      {footerContent && (
-        <footer className="mt-2">
-          {footerContent}
-        </footer>
-      )}
+      {footerContent && <footer className="mt-2">{footerContent}</footer>}
     </article>
   );
 }
