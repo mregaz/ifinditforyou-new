@@ -124,6 +124,11 @@ export default function ProPageClient() {
     color: "#022c22",
   };
 
+  const linkStyle: React.CSSProperties = {
+    color: "#6ee7b7",
+    textDecoration: "underline",
+  };
+
   return (
     <main style={pageStyle}>
       <div style={containerStyle}>
@@ -139,7 +144,13 @@ export default function ProPageClient() {
         </header>
 
         {/* Toggle mensile / annuale */}
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: 24,
+          }}
+        >
           <div
             style={{
               display: "inline-flex",
@@ -203,7 +214,9 @@ export default function ProPageClient() {
               </p>
               <p style={priceStyle}>
                 $0{" "}
-                <span style={{ fontSize: 14, fontWeight: 400, color: "#9ca3af" }}>
+                <span
+                  style={{ fontSize: 14, fontWeight: 400, color: "#9ca3af" }}
+                >
                   / per sempre
                 </span>
               </p>
@@ -338,12 +351,3 @@ export default function ProPageClient() {
                   }}
                 >
                   {error}
-                </p>
-              )}
-            </div>
-          </section>
-        </div>
-      </div>
-    </main>
-  );
-}
