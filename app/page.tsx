@@ -238,7 +238,7 @@ export default function HomePage() {
   }
 
   function handleGoPro() {
-    window.location.href = "/api/pay";
+    window.location.href = "/pro";
   }
 
   return (

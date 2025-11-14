@@ -49,7 +49,7 @@ export default function PayCancelPage() {
           </Link>
 
           <Link
-            href="/api/pay"
+            href="/pro"
             style={{
               background: "#a855f7",
               borderRadius: 999,
