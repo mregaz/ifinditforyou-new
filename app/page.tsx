@@ -4,151 +4,132 @@ import { useEffect, useState } from "react";
 
 type Lang = "it" | "fr" | "de" | "en";
 
-const UI_TEXTS: Record<
-  Lang,
-  {
-    tagline: string;
-    placeholder: string;
-    search: string;
-    proCta: string;
-    creditsLabel: (credits: number, isPro: boolean) => string;
-    outOfCredits: string;
-    sectionHowTitle: string;
-    sectionHowText: string;
-    sectionWhyTitle: string;
-    sectionWhyText: string;
-    sectionProTitle: string;
-    sectionProFree: string;
-    sectionProPaid: string;
-    sectionFaqTitle: string;
-    sectionFaqText: string;
-    resultsTitle: string;
-    empty: string;
-  }
-> = {
+const UI_TEXTS = {
   it: {
-  tagline: "Scrivi cosa cerchi, io lo trovo per te.",
-  placeholder: "Es. iPhone 13 mini blu sotto 350 CHF in Svizzera",
-  search: "Cerca",
-  proCta: "Diventa PRO",
-  creditsLabel: (credits, isPro) =>
-    isPro
-      ? "Piano PRO attivo: ricerche illimitate."
-      : credits > 0
-      ? `Hai ancora ${credits} ricerche gratuite.`
-      : "Hai esaurito le 2 ricerche gratuite.",
-  outOfCredits:
-    "Hai esaurito le ricerche gratuite. Attiva il piano PRO per continuare.",
-  sectionHowTitle: "Come funziona",
-  sectionHowText:
-    "Scrivi cosa ti serve, in qualsiasi lingua. L’AI analizza la richiesta, interroga i motori di ricerca e ti restituisce link già filtrati, con un breve riassunto.",
-  sectionWhyTitle: "Perché non usare solo Google?",
-  sectionWhyText:
-    "Google ti dà milioni di risultati. iFindItForYou ti restituisce solo poche opzioni curate, spiegate in modo chiaro, con un occhio a prezzo e affidabilità.",
-  sectionProTitle: "Free vs PRO",
-  sectionProFree:
-    "2 ricerche gratuite per provare il servizio (1 senza email + 1 con email).",
-  sectionProPaid:
-    "Con PRO puoi fare tutte le ricerche che vuoi e ricevere risultati più approfonditi e personalizzati.",
-  sectionFaqTitle: "Privacy & dati",
-  sectionFaqText:
-    "Le tue ricerche vengono usate solo per trovare risultati migliori. Non vendiamo i dati a terzi.",
-  resultsTitle: "Risultati",
-  empty: "Fai una ricerca per vedere qualche esempio 👆",
-},
-
+    tagline: "Scrivi cosa cerchi, io lo trovo per te.",
+    placeholder: "Es. iPhone 13 mini blu sotto 350 CHF in Svizzera",
+    search: "Cerca",
+    proCta: "Diventa PRO",
+    creditsLabel: (credits: number, isPro: boolean) =>
+      isPro
+        ? "Piano PRO attivo: ricerche illimitate."
+        : credits > 0
+        ? `Hai ancora ${credits} ricerche gratuite.`
+        : "Hai esaurito le 2 ricerche gratuite.",
+    outOfCredits:
+      "Hai esaurito le ricerche gratuite. Attiva il piano PRO per continuare.",
+    sectionHowTitle: "Come funziona",
+    sectionHowText:
+      "Scrivi cosa ti serve, in qualsiasi lingua. L’AI analizza la richiesta, interroga i motori di ricerca e ti restituisce link già filtrati, con un breve riassunto.",
+    sectionWhyTitle: "Perché non usare solo Google?",
+    sectionWhyText:
+      "Google ti dà milioni di risultati. iFindItForYou ti restituisce solo poche opzioni curate, spiegate in modo chiaro, con un occhio a prezzo e affidabilità.",
+    sectionProTitle: "Free vs PRO",
+    sectionProFree:
+      "2 ricerche gratuite per provare il servizio (1 senza email + 1 con email).",
+    sectionProPaid:
+      "Con PRO puoi fare tutte le ricerche che vuoi e ricevere risultati più approfonditi e personalizzati.",
+    sectionFaqTitle: "Privacy & dati",
+    sectionFaqText:
+      "Le tue ricerche vengono usate solo per trovare risultati migliori. Non vendiamo i dati a terzi.",
+    resultsTitle: "Risultati",
+    empty: "Fai una ricerca per vedere qualche esempio 👆",
   },
+
   en: {
-    tagline: "Tell me what you need, I’ll hunt it down for you.",
-    placeholder: "e.g. vintage Nikon camera under 200 CHF in Switzerland",
+    tagline: "Write what you need, I’ll find it for you.",
+    placeholder: "E.g. iPhone 13 mini blue under 350 CHF in Switzerland",
     search: "Search",
     proCta: "Go PRO",
-    creditsLabel: (credits, isPro) =>
+    creditsLabel: (credits: number, isPro: boolean) =>
       isPro
         ? "PRO plan active: unlimited searches."
         : credits > 0
         ? `You have ${credits} free searches left.`
-        : "You’ve used your 3 free searches.",
+        : "You’ve used all 2 free searches.",
     outOfCredits:
-      "You’ve used all your free searches. Activate the PRO plan to continue.",
+      "You’ve used your free searches. Activate PRO to continue.",
     sectionHowTitle: "How it works",
     sectionHowText:
-      "Type what you’re looking for in plain language. The AI analyses your request, queries search engines and returns filtered links with a short summary.",
-    sectionWhyTitle: "Why not just use Google?",
+      "Describe what you need in any language. The AI analyzes your request, searches the web and returns curated results with short summaries.",
+    sectionWhyTitle: "Why not just Google?",
     sectionWhyText:
-      "Google gives you millions of results. iFindItForYou gives you a few curated options with clear explanations, focused on price and trust.",
-    sectionProTitle: "Free vs PRO",
-    sectionProFree: "3 free searches to test the service.",
-    sectionProPaid:
-      "With PRO you can search as much as you want and get deeper, more tailored results.",
-    sectionFaqTitle: "Privacy & data",
-    sectionFaqText:
-      "Your queries are only used to improve your results. We don’t sell your data to third parties.",
-    resultsTitle: "Results",
-    empty: "Search something to see an example 👆",
-  },
-  fr: {
-    tagline: "Écris ton besoin, je trouve les meilleurs liens pour toi.",
-    placeholder:
-      "ex. iPhone 13 mini bleu en dessous de 350 CHF en Suisse",
-    search: "Chercher",
-    proCta: "Passer en PRO",
-    creditsLabel: (credits, isPro) =>
-      isPro
-        ? "Plan PRO actif : recherches illimitées."
-        : credits > 0
-        ? `Il te reste ${credits} recherches gratuites.`
-        : "Tu as utilisé tes 3 recherches gratuites.",
-    outOfCredits:
-      "Tu as utilisé toutes les recherches gratuites. Active le plan PRO pour continuer.",
-    sectionHowTitle: "Comment ça marche",
-    sectionHowText:
-      "Écris simplement ce que tu cherches. L’IA analyse la demande, consulte les moteurs de recherche et te renvoie quelques liens déjà filtrés, avec un résumé.",
-    sectionWhyTitle: "Pourquoi pas seulement Google ?",
-    sectionWhyText:
-      "Google te donne des millions de résultats. iFindItForYou te propose quelques options sélectionnées, expliquées clairement, avec un focus sur le prix et la fiabilité.",
+      "Google gives you millions of results. iFindItForYou gives you a small set of curated answers, already filtered and explained clearly.",
     sectionProTitle: "Free vs PRO",
     sectionProFree:
-      "3 recherches gratuites pour tester le service.",
+      "2 free searches to try the service (1 without email + 1 with email).",
     sectionProPaid:
-      "Avec PRO, recherches illimitées et résultats plus détaillés et personnalisés.",
-    sectionFaqTitle: "Confidentialité & données",
+      "With PRO you can make unlimited searches and receive deeper, more curated results.",
+    sectionFaqTitle: "Privacy & data",
     sectionFaqText:
-      "Tes recherches servent uniquement à améliorer les résultats. Tes données ne sont pas revendues.",
+      "Your searches are used only to improve results. We do not sell data to third parties.",
+    resultsTitle: "Results",
+    empty: "Start a search to see how it works 👆",
+  },
+
+  fr: {
+    tagline: "Écris ce que tu cherches, je le trouve pour toi.",
+    placeholder: "Ex. iPhone 13 mini bleu à moins de 350 CHF en Suisse",
+    search: "Rechercher",
+    proCta: "Passer en PRO",
+    creditsLabel: (credits: number, isPro: boolean) =>
+      isPro
+        ? "Abonnement PRO actif : recherches illimitées."
+        : credits > 0
+        ? `Il te reste ${credits} recherches gratuites.`
+        : "Tu as utilisé tes 2 recherches gratuites.",
+    outOfCredits:
+      "Tu as utilisé toutes tes recherches gratuites. Active le plan PRO pour continuer.",
+    sectionHowTitle: "Comment ça marche",
+    sectionHowText:
+      "Décris ce dont tu as besoin, dans n’importe quelle langue. L’IA analyse ta demande, interroge le web et te renvoie des résultats filtrés et résumés.",
+    sectionWhyTitle: "Pourquoi ne pas utiliser seulement Google ?",
+    sectionWhyText:
+      "Google donne des millions de résultats. iFindItForYou te donne quelques options déjà filtrées, expliquées clairement et axées sur la fiabilité.",
+    sectionProTitle: "Free vs PRO",
+    sectionProFree:
+      "2 recherches gratuites pour tester le service (1 sans email + 1 avec email).",
+    sectionProPaid:
+      "Avec PRO, tu peux faire autant de recherches que tu veux et recevoir des résultats plus précis et personnalisés.",
+    sectionFaqTitle: "Vie privée & données",
+    sectionFaqText:
+      "Tes recherches servent uniquement à améliorer les résultats. Nous ne vendons jamais tes données.",
     resultsTitle: "Résultats",
     empty: "Fais une recherche pour voir un exemple 👆",
   },
+
   de: {
-    tagline: "Schreib, was du brauchst – ich finde die besten Optionen.",
-    placeholder: "z.B. Nikon Kamera unter 200 CHF in der Schweiz",
+    tagline: "Schreib, was du suchst – ich finde es für dich.",
+    placeholder: "Z.B. iPhone 13 mini blau unter 350 CHF in der Schweiz",
     search: "Suchen",
-    proCta: "PRO aktivieren",
-    creditsLabel: (credits, isPro) =>
+    proCta: "PRO werden",
+    creditsLabel: (credits: number, isPro: boolean) =>
       isPro
-        ? "PRO-Plan aktiv: unbegrenzte Suchen."
+        ? "PRO-Plan aktiv: unbegrenzte Suchanfragen."
         : credits > 0
         ? `Du hast noch ${credits} kostenlose Suchanfragen.`
-        : "Du hast deine 3 kostenlosen Suchanfragen verbraucht.",
+        : "Du hast die 2 kostenlosen Suchanfragen aufgebraucht.",
     outOfCredits:
-      "Keine kostenlosen Suchanfragen mehr. Aktiviere den PRO-Plan, um weiterzumachen.",
-    sectionHowTitle: "So funktioniert es",
+      "Du hast deine kostenlosen Suchen aufgebraucht. Aktiviere PRO, um weiterzumachen.",
+    sectionHowTitle: "So funktioniert’s",
     sectionHowText:
-      "Schreib einfach, was du suchst. Die KI analysiert deine Anfrage, fragt Suchmaschinen ab und liefert dir gefilterte Links mit kurzer Zusammenfassung.",
-    sectionWhyTitle: "Warum nicht nur Google?",
+      "Beschreibe, was du brauchst – in jeder Sprache. Die KI analysiert deine Anfrage, durchsucht das Web und liefert gefilterte Ergebnisse mit kurzen Zusammenfassungen.",
+    sectionWhyTitle: "Warum nicht einfach Google?",
     sectionWhyText:
-      "Google liefert Millionen Treffer. iFindItForYou zeigt dir nur wenige, kuratierte Optionen mit klaren Erklärungen, Fokus auf Preis und Vertrauen.",
+      "Google liefert Millionen von Ergebnissen. iFindItForYou liefert dir wenige, kuratierte Antworten – klar erklärt und bereits sortiert.",
     sectionProTitle: "Free vs PRO",
     sectionProFree:
-      "3 kostenlose Suchanfragen zum Testen des Dienstes.",
+      "2 kostenlose Suchanfragen zum Testen (1 ohne E-Mail + 1 mit E-Mail).",
     sectionProPaid:
-      "Mit PRO kannst du unbegrenzt suchen und bekommst tiefere, persönlichere Ergebnisse.",
-    sectionFaqTitle: "Datenschutz",
+      "Mit PRO kannst du unbegrenzt suchen und erhältst tiefere, besser kuratierte Ergebnisse.",
+    sectionFaqTitle: "Datenschutz & Daten",
     sectionFaqText:
-      "Deine Anfragen werden nur genutzt, um bessere Ergebnisse zu liefern. Wir verkaufen deine Daten nicht.",
+      "Deine Suchanfragen werden nur verwendet, um bessere Ergebnisse zu liefern. Wir verkaufen keine Daten an Dritte.",
     resultsTitle: "Ergebnisse",
-    empty: "Starte eine Suche, um Beispiele zu sehen 👆",
+    empty: "Starte eine Suche, um ein Beispiel zu sehen 👆",
   },
-};
+} as const;
+
 
 // Cambia questo valore tra 1, 2, 3 per provare
 const LOGO_VARIANT: 1 | 2 | 3 = 3;
