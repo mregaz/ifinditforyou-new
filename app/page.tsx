@@ -140,7 +140,7 @@ export default function HomePage() {
   const [results, setResults] = useState<any[]>([]);
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
-  const [credits, setCredits] = useState(3);
+  const [credits, setCredits] = useState(2);
   const [isPro, setIsPro] = useState(false);
 
   const t = UI_TEXTS[lang];
