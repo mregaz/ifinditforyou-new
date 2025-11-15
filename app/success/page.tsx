@@ -1,4 +1,4 @@
-export default function CancelPage() {
+export default function SuccessPage() {
   const pageStyle: React.CSSProperties = {
     minHeight: "100vh",
     margin: 0,
@@ -15,10 +15,11 @@ export default function CancelPage() {
     width: "100%",
     maxWidth: 600,
     borderRadius: 16,
-    border: "1px solid #4b5563",
+    border: "1px solid #22c55e33",
     backgroundColor: "#020617",
     padding: 24,
     textAlign: "center",
+    boxShadow: "0 0 40px rgba(34,197,94,0.3)",
   };
 
   const buttonStyle: React.CSSProperties = {
@@ -43,25 +44,24 @@ export default function CancelPage() {
   return (
     <main style={pageStyle}>
       <div style={boxStyle}>
-        <div style={{ fontSize: 40, marginBottom: 8 }}>⚠️</div>
+        <div style={{ fontSize: 40, marginBottom: 8 }}>✅</div>
         <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>
-          Pagamento annullato
+          Pagamento completato!
         </h1>
         <p style={{ fontSize: 14, color: "#9ca3af", marginBottom: 16 }}>
-          Sembra che tu abbia annullato il pagamento o che qualcosa non sia
-          andato a buon fine su Stripe.
+          Grazie, il tuo abbonamento <strong>IFindItForYou PRO</strong> è attivo.
         </p>
         <p style={{ fontSize: 14, color: "#9ca3af" }}>
-          Nessun addebito è stato effettuato. Puoi riprovare quando vuoi dalla
-          pagina <strong>IFindItForYou PRO</strong>.
+          Ti abbiamo inviato una email di conferma da Stripe con il riepilogo del
+          pagamento. Da lì potrai anche gestire il rinnovo dell&apos;abbonamento.
         </p>
 
-        <a href="/pro" style={buttonStyle}>
-          Torna alla pagina PRO →
+        <a href="/" style={buttonStyle}>
+          Torna alla home e inizia a usare il servizio →
         </a>
 
         <p style={{ fontSize: 12, color: "#6b7280", marginTop: 16 }}>
-          Se pensi che ci sia un errore, scrivici a{" "}
+          In caso di problemi puoi contattarci a{" "}
           <a href="mailto:support@ifinditforyou.com" style={linkStyle}>
             support@ifinditforyou.com
           </a>
@@ -71,4 +71,5 @@ export default function CancelPage() {
     </main>
   );
 }
+
 
