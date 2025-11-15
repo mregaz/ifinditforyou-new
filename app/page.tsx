@@ -27,33 +27,36 @@ const UI_TEXTS: Record<
   }
 > = {
   it: {
-    tagline: "Scrivi cosa cerchi, io lo trovo per te.",
-    placeholder: "Es. iPhone 13 mini blu sotto 350 CHF in Svizzera",
-    search: "Cerca",
-    proCta: "Diventa PRO",
-    creditsLabel: (credits, isPro) =>
-      isPro
-        ? "Piano PRO attivo: ricerche illimitate."
-        : credits > 0
-        ? `Hai ancora ${credits} ricerche gratuite.`
-        : "Hai esaurito le 3 ricerche gratuite.",
-    outOfCredits:
-      "Hai esaurito le ricerche gratuite. Attiva il piano PRO per continuare.",
-    sectionHowTitle: "Come funziona",
-    sectionHowText:
-      "Scrivi cosa ti serve, in qualsiasi lingua. L’AI analizza la richiesta, interroga i motori di ricerca e ti restituisce link già filtrati, con un breve riassunto.",
-    sectionWhyTitle: "Perché non usare solo Google?",
-    sectionWhyText:
-      "Google ti dà milioni di risultati. iFindItForYou ti restituisce solo poche opzioni curate, spiegate in modo chiaro, con un occhio a prezzo e affidabilità.",
-    sectionProTitle: "Free vs PRO",
-    sectionProFree: "3 ricerche gratuite per provare il servizio.",
-    sectionProPaid:
-      "Con PRO puoi fare tutte le ricerche che vuoi e ricevere risultati più approfonditi e personalizzati.",
-    sectionFaqTitle: "Privacy & dati",
-    sectionFaqText:
-      "Le tue ricerche vengono usate solo per trovare risultati migliori. Non vendiamo i dati a terzi.",
-    resultsTitle: "Risultati",
-    empty: "Fai una ricerca per vedere qualche esempio 👆",
+  tagline: "Scrivi cosa cerchi, io lo trovo per te.",
+  placeholder: "Es. iPhone 13 mini blu sotto 350 CHF in Svizzera",
+  search: "Cerca",
+  proCta: "Diventa PRO",
+  creditsLabel: (credits, isPro) =>
+    isPro
+      ? "Piano PRO attivo: ricerche illimitate."
+      : credits > 0
+      ? `Hai ancora ${credits} ricerche gratuite.`
+      : "Hai esaurito le 2 ricerche gratuite.",
+  outOfCredits:
+    "Hai esaurito le ricerche gratuite. Attiva il piano PRO per continuare.",
+  sectionHowTitle: "Come funziona",
+  sectionHowText:
+    "Scrivi cosa ti serve, in qualsiasi lingua. L’AI analizza la richiesta, interroga i motori di ricerca e ti restituisce link già filtrati, con un breve riassunto.",
+  sectionWhyTitle: "Perché non usare solo Google?",
+  sectionWhyText:
+    "Google ti dà milioni di risultati. iFindItForYou ti restituisce solo poche opzioni curate, spiegate in modo chiaro, con un occhio a prezzo e affidabilità.",
+  sectionProTitle: "Free vs PRO",
+  sectionProFree:
+    "2 ricerche gratuite per provare il servizio (1 senza email + 1 con email).",
+  sectionProPaid:
+    "Con PRO puoi fare tutte le ricerche che vuoi e ricevere risultati più approfonditi e personalizzati.",
+  sectionFaqTitle: "Privacy & dati",
+  sectionFaqText:
+    "Le tue ricerche vengono usate solo per trovare risultati migliori. Non vendiamo i dati a terzi.",
+  resultsTitle: "Risultati",
+  empty: "Fai una ricerca per vedere qualche esempio 👆",
+},
+
   },
   en: {
     tagline: "Tell me what you need, I’ll hunt it down for you.",
