@@ -130,7 +130,6 @@ const UI_TEXTS = {
   },
 } as const;
 
-
 // Cambia questo valore tra 1, 2, 3 per provare
 const LOGO_VARIANT: 1 | 2 | 3 = 3;
 
@@ -148,91 +147,70 @@ export default function HomePage() {
   const t = UI_TEXTS[lang];
 
   // Carica stato da localStorage
-useEffect(() => {
-  try {
-    const savedLang = localStorage.getItem("ifiy_lang") as Lang | null;
-    if (savedLang && UI_TEXTS[savedLang]) {
-      setLang(savedLang);
-    }
+  useEffect(() => {
+    try {
+      const savedLang = localStorage.getItem("ifiy_lang") as Lang | null;
+      if (savedLang && UI_TEXTS[savedLang]) {
+        setLang(savedLang);
+      }
 
-    const savedCredits = localStorage.getItem("ifiy_credits");
-    if (savedCredits !== null) {
-      setCredits(parseInt(savedCredits, 10));
-    }
+      const savedCredits = localStorage.getItem("ifiy_credits");
+      if (savedCredits !== null) {
+        setCredits(parseInt(savedCredits, 10));
+      }
 
-    const savedPro = localStorage.getItem("ifiy_isPro");
-    if (savedPro === "true") {
-      setIsPro(true);
-    }
+      const savedPro = localStorage.getItem("ifiy_isPro");
+      if (savedPro === "true") {
+        setIsPro(true);
+      }
 
-    const savedEmail = localStorage.getItem("ifiy_email");
-    if (savedEmail) {
-      setUserEmail(savedEmail);
+      const savedEmail = localStorage.getItem("ifiy_email");
+      if (savedEmail) {
+        setUserEmail(savedEmail);
+      }
+    } catch {
+      // ignore
     }
-  } catch {
-    // ignore
-  }
-}, []);
-
+  }, []);
 
   // Salva stato
-useEffect(() => {
-  try {
-    localStorage.setItem("ifiy_credits", String(credits));
-    localStorage.setItem("ifiy_isPro", isPro ? "true" : "false");
-    localStorage.setItem("ifiy_lang", lang);
+  useEffect(() => {
+    try {
+      localStorage.setItem("ifiy_credits", String(credits));
+      localStorage.setItem("ifiy_isPro", isPro ? "true" : "false");
+      localStorage.setItem("ifiy_lang", lang);
 
-    if (userEmail) {
-      localStorage.setItem("ifiy_email", userEmail);
+      if (userEmail) {
+        localStorage.setItem("ifiy_email", userEmail);
+      }
+    } catch {
+      // ignore
     }
-  } catch {
-    // ignore
-  }
-}, [credits, isPro, lang, userEmail]);
+  }, [credits, isPro, lang, userEmail]);
 
+  // Ricerca principale
+  async function handleSearch(e?: React.FormEvent) {
+    if (e) e.preventDefault();
 
-  async function handleSearch(e: React.FormEvent) {
-    const handleEmailCollected = async (email: string) => {
-  // Salvo l'email in stato (e quindi anche in localStorage grazie al useEffect)
-  setUserEmail(email);
-  setShowEmailGate(false);
+    const q = query.trim();
+    if (!q) return;
 
-  try {
-    await fetch("/api/collect-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-  } catch (error) {
-    console.error("Errore nel salvataggio email:", error);
-  }
+    // Nuova logica crediti + email-gate
+    if (!isPro) {
+      // Nessun credito rimasto
+      if (credits <= 0) {
+        alert(t.outOfCredits);
+        return;
+      }
 
-  // 🔁 Ora rilanciamo la stessa ricerca che l'utente voleva fare
-  await handleSearch({ preventDefault: () => {} } as React.FormEvent);
-};
-
-    e.preventDefault();
-     const q = query.trim();
-  if (!q) return;
-
-  // 🔹 Nuova logica crediti + email-gate
-  if (!isPro) {
-    // Se non ho più crediti → messaggio "out of credits"
-    if (credits <= 0) {
-      alert(t.outOfCredits);
-      return;
+      // Seconda ricerca (credits === 1) ma ancora senza email → apri modale
+      if (credits === 1 && !userEmail) {
+        setShowEmailGate(true);
+        return;
+      }
     }
 
-    // Sto per usare l'ULTIMO credito gratuito, ma non ho ancora email
-    if (credits === 1 && !userEmail) {
-      setShowEmailGate(true); // apre la modale
-      return;
-    }
-  }
-
-  // Da qui in giù il codice resta uguale a prima
-  setLoading(true);
-
+    setLoading(true);
     setResults([]);
     setSummary("");
 
@@ -266,6 +244,25 @@ useEffect(() => {
       setLoading(false);
     }
   }
+
+  // Chiamata quando l'utente inserisce l'email nella modale
+  const handleEmailCollected = async (email: string) => {
+    setUserEmail(email);
+    setShowEmailGate(false);
+
+    try {
+      await fetch("/api/collect-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+    } catch (error) {
+      console.error("Errore nel salvataggio email:", error);
+    }
+
+    // Dopo aver salvato l'email, rilanciamo la ricerca
+    await handleSearch();
+  };
 
   function handleGoPro() {
     window.location.href = "/pro";
@@ -572,7 +569,145 @@ useEffect(() => {
           </div>
         </div>
       </section>
+
+      {/* Modale email-gate */}
+      <EmailGateModal
+        isOpen={showEmailGate}
+        onClose={() => setShowEmailGate(false)}
+        onConfirm={handleEmailCollected}
+      />
     </main>
+  );
+}
+
+function EmailGateModal({
+  isOpen,
+  onClose,
+  onConfirm,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (email: string) => void;
+}) {
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    const trimmed = email.trim();
+
+    if (!trimmed || !trimmed.includes("@")) {
+      setError("Per favore inserisci un'email valida.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await onConfirm(trimmed);
+    } catch (err) {
+      console.error(err);
+      setError("C'è stato un problema, riprova.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.35)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 50,
+      }}
+    >
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: 12,
+          padding: 24,
+          maxWidth: 420,
+          width: "100%",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+        }}
+      >
+        <h2 style={{ marginBottom: 8 }}>Sblocca la seconda ricerca gratuita</h2>
+        <p style={{ marginBottom: 16, fontSize: 14, opacity: 0.9 }}>
+          Ti chiediamo solo la tua email per concederti la seconda ricerca gratuita.
+        </p>
+
+        <form onSubmit={handleSubmit}>
+          <input
+            type="email"
+            placeholder="la-tua-email@esempio.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "10px 12px",
+              borderRadius: 8,
+              border: "1px solid #ddd",
+              marginBottom: 10,
+            }}
+          />
+
+          {error && (
+            <p style={{ color: "red", fontSize: 13, marginBottom: 8 }}>
+              {error}
+            </p>
+          )}
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 8,
+              marginTop: 8,
+            }}
+          >
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSubmitting}
+              style={{
+                padding: "8px 14px",
+                borderRadius: 8,
+                border: "1px solid "#ddd",
+                background: "#fff",
+                cursor: "pointer",
+              }}
+            >
+              Annulla
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              style={{
+                padding: "8px 14px",
+                borderRadius: 8,
+                border: "none",
+                cursor: "pointer",
+                fontWeight: 600,
+              }}
+            >
+              {isSubmitting ? "Invio..." : "Sblocca ricerca"}
+            </button>
+          </div>
+        </form>
+
+        <p style={{ marginTop: 10, fontSize: 11, opacity: 0.7 }}>
+          Niente spam, solo aggiornamenti importanti su iFindItForYou.
+        </p>
+      </div>
+    </div>
   );
 }
 
