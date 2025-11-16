@@ -192,6 +192,25 @@ useEffect(() => {
 
 
   async function handleSearch(e: React.FormEvent) {
+    const handleEmailCollected = async (email: string) => {
+  // Salvo l'email in stato (e quindi anche in localStorage grazie al useEffect)
+  setUserEmail(email);
+  setShowEmailGate(false);
+
+  try {
+    await fetch("/api/collect-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+  } catch (error) {
+    console.error("Errore nel salvataggio email:", error);
+  }
+
+  // 🔁 Ora rilanciamo la stessa ricerca che l'utente voleva fare
+  await handleSearch({ preventDefault: () => {} } as React.FormEvent);
+};
+
     e.preventDefault();
      const q = query.trim();
   if (!q) return;
