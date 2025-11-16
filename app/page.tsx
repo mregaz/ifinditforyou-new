@@ -135,6 +135,7 @@ export default function HomePage() {
   const [lang, setLang] = useState<Lang>("it");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
+  const [sortMode, setSortMode] = useState<"relevance" | "priceAsc" | "priceDesc">("relevance");
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
   const [credits, setCredits] = useState(2);
@@ -543,6 +544,42 @@ export default function HomePage() {
               </div>
             )}
 {/* Frase: Ho trovato X opzioni */}
+{/* Ordinamento risultati */}
+<div style={{ marginBottom: 10 }}>
+  <select
+    value={sortMode}
+    onChange={(e) => setSortMode(e.target.value as any)}
+    style={{
+      padding: "6px 10px",
+      borderRadius: 8,
+      border: "1px solid rgba(148,163,184,0.6)",
+      background: "#fff",
+      fontSize: 13,
+    }}
+  >
+    <option value="relevance">
+      {lang === "it" && "Rilevanza (default)"}
+      {lang === "en" && "Relevance (default)"}
+      {lang === "fr" && "Pertinence (défaut)"}
+      {lang === "de" && "Relevanz (Standard)"}
+    </option>
+
+    <option value="priceAsc">
+      {lang === "it" && "Prezzo: dal più basso"}
+      {lang === "en" && "Price: low to high"}
+      {lang === "fr" && "Prix : du plus bas"}
+      {lang === "de" && "Preis: niedrig zu hoch"}
+    </option>
+
+    <option value="priceDesc">
+      {lang === "it" && "Prezzo: dal più alto"}
+      {lang === "en" && "Price: high to low"}
+      {lang === "fr" && "Prix : du plus élevé"}
+      {lang === "de" && "Preis: hoch zu niedrig"}
+    </option>
+  </select>
+</div>
+
 {results.length > 0 && (
   <p
     style={{
