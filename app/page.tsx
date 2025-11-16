@@ -542,6 +542,22 @@ export default function HomePage() {
                 {summary}
               </div>
             )}
+{/* Frase: Ho trovato X opzioni */}
+{results.length > 0 && (
+  <p
+    style={{
+      fontSize: 14,
+      fontWeight: 600,
+      marginBottom: 8,
+      color: "#0f172a",
+    }}
+  >
+    {lang === "it" && `Ho trovato ${results.length} opzioni per te:`}
+    {lang === "en" && `I found ${results.length} options for you:`}
+    {lang === "fr" && `J’ai trouvé ${results.length} options pour toi :`}
+    {lang === "de" && `${results.length} Optionen für dich gefunden:`}
+  </p>
+)}
 
             <div
               style={{
