@@ -435,6 +435,18 @@ export default function HomePage() {
           >
             {t.creditsLabel(credits, isPro)}
           </div>
+<div
+  style={{
+    fontSize: 12,
+    opacity: 0.65,
+    marginBottom: 12,
+  }}
+>
+  🎁 {lang === "it" && "Hai 2 ricerche gratuite: la prima senza email, la seconda con email."}
+  {lang === "en" && "You have 2 free searches: first without email, second with email."}
+  {lang === "fr" && "Tu as 2 recherches gratuites : la première sans email, la deuxième avec email."}
+  {lang === "de" && "Du hast 2 kostenlose Suchanfragen: die erste ohne E-Mail, die zweite mit E-Mail."}
+</div>
 
           <button
             type="button"
