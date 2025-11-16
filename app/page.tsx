@@ -153,6 +153,79 @@ export default function HomePage() {
       if (savedLang && UI_TEXTS[savedLang]) {
         setLang(savedLang);
       }
+function Logo({ variant }: { variant: 1 | 2 | 3 }) {
+  const styleBase: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    fontWeight: 700,
+    fontSize: 18,
+    color: "#0f172a",
+  };
+
+  if (variant === 1) {
+    return (
+      <div style={styleBase}>
+        <span style={{ fontWeight: 800 }}>iFind</span>
+        <span style={{ fontWeight: 500 }}>It</span>
+        <span style={{ fontWeight: 700, opacity: 0.8 }}>ForYou</span>
+      </div>
+    );
+  }
+
+  if (variant === 2) {
+    return (
+      <div style={styleBase}>
+        <span
+          style={{
+            width: 18,
+            height: 18,
+            borderRadius: "50%",
+            border: "2px solid #4f46e5",
+            position: "relative",
+          }}
+        >
+          <span
+            style={{
+              position: "absolute",
+              width: 10,
+              height: 2,
+              background: "#4f46e5",
+              borderRadius: 999,
+              bottom: -4,
+              right: -4,
+              transform: "rotate(45deg)",
+            }}
+          />
+        </span>
+        <span>iFindItForYou</span>
+      </div>
+    );
+  }
+
+  return (
+    <div style={styleBase}>
+      <span
+        style={{
+          width: 18,
+          height: 18,
+          borderRadius: 6,
+          background:
+            "linear-gradient(135deg,#4f46e5,#6366f1,#22c55e,#f97316)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#f9fafb",
+          fontSize: 10,
+          fontWeight: 800,
+        }}
+      >
+        AI
+      </span>
+      <span>iFindItForYou</span>
+    </div>
+  );
+}
 
       const savedCredits = localStorage.getItem("ifiy_credits");
       if (savedCredits !== null) {
