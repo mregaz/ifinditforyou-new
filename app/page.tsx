@@ -302,9 +302,7 @@ function getSortedResults() {
 
   return results;
 }
-
 /* ⬆️ FINITO – la funzione è al posto giusto */
-
 return (
   <main>
     …
