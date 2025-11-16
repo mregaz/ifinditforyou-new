@@ -550,46 +550,56 @@ export default function HomePage() {
                 gap: 8,
               }}
             >
-              {results.map((item, idx) => (
-                <a
-                  key={idx}
-                  href={item.url ?? "#"}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    textDecoration: "none",
-                    color: "inherit",
-                    borderRadius: 12,
-                    padding: "10px 12px",
-                    background: "#ffffff",
-                    border: "1px solid rgba(148,163,184,0.4)",
-                  }}
-                >
-                  <div
-                    style={{
-                      fontWeight: 600,
-                      fontSize: 14,
-                      marginBottom: 4,
-                    }}
-                  >
-                    {item.title ?? "Senza titolo"}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      opacity: 0.7,
-                    }}
-                  >
-                    {item.source && <span>{item.source}</span>}
-                    {item.price && (
-                      <span>
-                        {" "}
-                        • <strong>{item.price}</strong>
-                      </span>
-                    )}
-                  </div>
-                </a>
-              ))}
+            {results.map((item, idx) => (
+  <a
+    key={idx}
+    href={item.url ?? "#"}
+    target="_blank"
+    rel="noreferrer"
+    style={{
+      textDecoration: "none",
+      color: "inherit",
+      borderRadius: 12,
+      padding: "14px 16px",
+      background: "#ffffff",
+      border: "1px solid rgba(148,163,184,0.35)",
+      boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+      transition: "all 0.15s ease",
+      display: "flex",
+      flexDirection: "column",
+      gap: 6,
+    }}
+    onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.12)")}
+    onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "0 1px 2px rgba(0,0,0,0.04)")}
+  >
+    <div
+      style={{
+        fontWeight: 600,
+        fontSize: 15,
+        lineHeight: 1.3,
+      }}
+    >
+      {item.title ?? "Senza titolo"}
+    </div>
+
+    <div
+      style={{
+        fontSize: 12,
+        opacity: 0.7,
+        display: "flex",
+        gap: 8,
+      }}
+    >
+      {item.source && <span>{item.source}</span>}
+      {item.price && (
+        <span>
+          · <strong>{item.price}</strong>
+        </span>
+      )}
+    </div>
+  </a>
+))}
+
             </div>
           </div>
 
