@@ -135,7 +135,9 @@ export default function HomePage() {
   const [lang, setLang] = useState<Lang>("it");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
-  const [sortMode, setSortMode] = useState<"relevance" | "priceAsc" | "priceDesc">("relevance");
+  const [sortMode, setSortMode] = useState<
+    "relevance" | "priceAsc" | "priceDesc"
+  >("relevance");
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
   const [credits, setCredits] = useState(2);
@@ -194,15 +196,13 @@ export default function HomePage() {
     const q = query.trim();
     if (!q) return;
 
-    // Nuova logica crediti + email-gate
+    // logica crediti + email-gate
     if (!isPro) {
-      // Nessun credito rimasto
       if (credits <= 0) {
         alert(t.outOfCredits);
         return;
       }
 
-      // Seconda ricerca (credits === 1) ma ancora senza email → apri modale
       if (credits === 1 && !userEmail) {
         setShowEmailGate(true);
         return;
@@ -259,89 +259,45 @@ export default function HomePage() {
       console.error("Errore nel salvataggio email:", error);
     }
 
-    // Dopo aver salvato l'email, rilanciamo la ricerca
     await handleSearch();
   };
 
- function handleGoPro() {
-  window.location.href = "/pro";
-}
-
-/* ⬇️ INCOLLA QUI LA FUNZIONE getSortedResults() */
-
-function getSortedResults() {
-  if (sortMode === "relevance") return results;
-
-  // Dividiamo i risultati che hanno prezzo da quelli senza
-  const withPrice = results.filter((r) => r.price);
-  const withoutPrice = results.filter((r) => !r.price);
-
-  // Funzione che trasforma stringhe tipo "CHF 299.–" in numeri 299
-  function extractNumber(str: string) {
-    const match = str.replace(/[^\d.,]/g, "").replace(",", ".");
-    return parseFloat(match) || 0;
+  function handleGoPro() {
+    window.location.href = "/pro";
   }
 
-  if (sortMode === "priceAsc") {
-    return [
-      ...withPrice.sort(
-        (a, b) => extractNumber(a.price) - extractNumber(b.price)
-      ),
-      ...withoutPrice,
-    ];
+  // Ordinamento risultati in base a sortMode
+  function getSortedResults() {
+    if (sortMode === "relevance") return results;
+
+    const withPrice = results.filter((r) => r.price);
+    const withoutPrice = results.filter((r) => !r.price);
+
+    function extractNumber(str: string) {
+      const match = str.replace(/[^\d.,]/g, "").replace(",", ".");
+      return parseFloat(match) || 0;
+    }
+
+    if (sortMode === "priceAsc") {
+      return [
+        ...withPrice.sort(
+          (a, b) => extractNumber(a.price) - extractNumber(b.price),
+        ),
+        ...withoutPrice,
+      ];
+    }
+
+    if (sortMode === "priceDesc") {
+      return [
+        ...withPrice.sort(
+          (a, b) => extractNumber(b.price) - extractNumber(a.price),
+        ),
+        ...withoutPrice,
+      ];
+    }
+
+    return results;
   }
-
-  if (sortMode === "priceDesc") {
-    return [
-      ...withPrice.sort(
-        (a, b) => extractNumber(b.price) - extractNumber(a.price)
-      ),
-      ...withoutPrice,
-    ];
-  }
-
-  return results;
-}
-/* ⬆️ FINITO – la funzione è al posto giusto */
-return (
-  <main>
-    …
-
-{/* Ordinamento risultati */}
-<div style={{ marginBottom: 10 }}>
-  <select
-    value={sortMode}
-    onChange={(e) => setSortMode(e.target.value as any)}
-    style={{
-      padding: "6px 10px",
-      borderRadius: 8,
-      border: "1px solid rgba(148,163,184,0.6)",
-      background: "#fff",
-      fontSize: 13,
-    }}
-  >
-    <option value="relevance">
-      {lang === "it" && "Rilevanza (default)"}
-      {lang === "en" && "Relevance (default)"}
-      {lang === "fr" && "Pertinence (défaut)"}
-      {lang === "de" && "Relevanz (Standard)"}
-    </option>
-
-    <option value="priceAsc">
-      {lang === "it" && "Prezzo: dal più basso"}
-      {lang === "en" && "Price: low to high"}
-      {lang === "fr" && "Prix : du plus bas"}
-      {lang === "de" && "Preis: niedrig zu hoch"}
-    </option>
-
-    <option value="priceDesc">
-      {lang === "it" && "Prezzo: dal più alto"}
-      {lang === "en" && "Price: high to low"}
-      {lang === "fr" && "Prix : du plus élevé"}
-      {lang === "de" && "Preis: hoch zu niedrig"}
-    </option>
-  </select>
-</div>
 
   return (
     <main
@@ -503,27 +459,35 @@ return (
             </div>
           </form>
 
+          {/* messaggio crediti */}
           <div
             style={{
               fontSize: 13,
               opacity: 0.7,
-              marginBottom: 8,
+              marginBottom: 4,
             }}
           >
             {t.creditsLabel(credits, isPro)}
           </div>
-<div
-  style={{
-    fontSize: 12,
-    opacity: 0.65,
-    marginBottom: 12,
-  }}
->
-  🎁 {lang === "it" && "Hai 2 ricerche gratuite: la prima senza email, la seconda con email."}
-  {lang === "en" && "You have 2 free searches: first without email, second with email."}
-  {lang === "fr" && "Tu as 2 recherches gratuites : la première sans email, la deuxième avec email."}
-  {lang === "de" && "Du hast 2 kostenlose Suchanfragen: die erste ohne E-Mail, die zweite mit E-Mail."}
-</div>
+
+          {/* banner spiegazione free model */}
+          <div
+            style={{
+              fontSize: 12,
+              opacity: 0.65,
+              marginBottom: 12,
+            }}
+          >
+            🎁
+            {lang === "it" &&
+              " Hai 2 ricerche gratuite: la prima senza email, la seconda con email."}
+            {lang === "en" &&
+              " You have 2 free searches: first without email, second with email."}
+            {lang === "fr" &&
+              " Tu as 2 recherches gratuites : la première sans email, la deuxième avec email."}
+            {lang === "de" &&
+              " Du hast 2 kostenlose Suchanfragen: die erste ohne E-Mail, die zweite mit E-Mail."}
+          </div>
 
           <button
             type="button"
@@ -576,35 +540,38 @@ return (
             {results.length === 0 && !summary && (
               <p style={{ fontSize: 14, opacity: 0.7 }}>{t.empty}</p>
             )}
-{!isPro && credits === 0 && (
-  <p
-    style={{
-      marginTop: 12,
-      fontSize: 14,
-      fontWeight: 600,
-      color: "#b91c1c",
-    }}
-  >
-    Hai esaurito le 2 ricerche gratuite. Passa al piano PRO per continuare.
-  </p>
-)}
-{!isPro && credits === 0 && (
-  <button
-    onClick={handleGoPro}
-    style={{
-      marginTop: 8,
-      borderRadius: 999,
-      border: "1px solid #312e81",
-      padding: "8px 16px",
-      fontSize: 14,
-      background: "#eef2ff",
-      color: "#312e81",
-      cursor: "pointer",
-    }}
-  >
-    Vai al piano PRO
-  </button>
-)}
+
+            {/* Messaggio out of credits */}
+            {!isPro && credits === 0 && (
+              <>
+                <p
+                  style={{
+                    marginTop: 12,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: "#b91c1c",
+                  }}
+                >
+                  Hai esaurito le 2 ricerche gratuite. Passa al piano PRO per
+                  continuare.
+                </p>
+                <button
+                  onClick={handleGoPro}
+                  style={{
+                    marginTop: 8,
+                    borderRadius: 999,
+                    border: "1px solid #312e81",
+                    padding: "8px 16px",
+                    fontSize: 14,
+                    background: "#eef2ff",
+                    color: "#312e81",
+                    cursor: "pointer",
+                  }}
+                >
+                  Vai al piano PRO
+                </button>
+              </>
+            )}
 
             {summary && (
               <div
@@ -619,58 +586,62 @@ return (
                 {summary}
               </div>
             )}
-{/* Frase: Ho trovato X opzioni */}
-{/* Ordinamento risultati */}
-<div style={{ marginBottom: 10 }}>
-  <select
-    value={sortMode}
-    onChange={(e) => setSortMode(e.target.value as any)}
-    style={{
-      padding: "6px 10px",
-      borderRadius: 8,
-      border: "1px solid rgba(148,163,184,0.6)",
-      background: "#fff",
-      fontSize: 13,
-    }}
-  >
-    <option value="relevance">
-      {lang === "it" && "Rilevanza (default)"}
-      {lang === "en" && "Relevance (default)"}
-      {lang === "fr" && "Pertinence (défaut)"}
-      {lang === "de" && "Relevanz (Standard)"}
-    </option>
 
-    <option value="priceAsc">
-      {lang === "it" && "Prezzo: dal più basso"}
-      {lang === "en" && "Price: low to high"}
-      {lang === "fr" && "Prix : du plus bas"}
-      {lang === "de" && "Preis: niedrig zu hoch"}
-    </option>
+            {/* Frase: ho trovato X opzioni + select ordinamento */}
+            {results.length > 0 && (
+              <>
+                <p
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 600,
+                    marginBottom: 6,
+                    color: "#0f172a",
+                  }}
+                >
+                  {lang === "it" && `Ho trovato ${results.length} opzioni per te:`}
+                  {lang === "en" && `I found ${results.length} options for you:`}
+                  {lang === "fr" &&
+                    `J’ai trouvé ${results.length} options pour toi :`}
+                  {lang === "de" &&
+                    `${results.length} Optionen für dich gefunden:`}
+                </p>
 
-    <option value="priceDesc">
-      {lang === "it" && "Prezzo: dal più alto"}
-      {lang === "en" && "Price: high to low"}
-      {lang === "fr" && "Prix : du plus élevé"}
-      {lang === "de" && "Preis: hoch zu niedrig"}
-    </option>
-  </select>
-</div>
-
-{results.length > 0 && (
-  <p
-    style={{
-      fontSize: 14,
-      fontWeight: 600,
-      marginBottom: 8,
-      color: "#0f172a",
-    }}
-  >
-    {lang === "it" && `Ho trovato ${results.length} opzioni per te:`}
-    {lang === "en" && `I found ${results.length} options for you:`}
-    {lang === "fr" && `J’ai trouvé ${results.length} options pour toi :`}
-    {lang === "de" && `${results.length} Optionen für dich gefunden:`}
-  </p>
-)}
+                <div style={{ marginBottom: 10 }}>
+                  <select
+                    value={sortMode}
+                    onChange={(e) =>
+                      setSortMode(e.target.value as "relevance" | "priceAsc" | "priceDesc")
+                    }
+                    style={{
+                      padding: "6px 10px",
+                      borderRadius: 8,
+                      border: "1px solid rgba(148,163,184,0.6)",
+                      background: "#fff",
+                      fontSize: 13,
+                    }}
+                  >
+                    <option value="relevance">
+                      {lang === "it" && "Rilevanza (default)"}
+                      {lang === "en" && "Relevance (default)"}
+                      {lang === "fr" && "Pertinence (défaut)"}
+                      {lang === "de" && "Relevanz (Standard)"}
+                    </option>
+                    <option value="priceAsc">
+                      {lang === "it" && "Prezzo: dal più basso"}
+                      {lang === "en" && "Price: low to high"}
+                      {lang === "fr" && "Prix : du plus bas"}
+                      {lang === "de" && "Preis: niedrig zu hoch"}
+                    </option>
+                    <option value="priceDesc">
+                      {lang === "it" && "Prezzo: dal più alto"}
+                      {lang === "en" && "Price: high to low"}
+                      {lang === "fr" && "Prix : du plus élevé"}
+                      {lang === "de" && "Preis: hoch zu niedrig"}
+                    </option>
+                  </select>
+                </div>
+              </>
+            )}
 
             <div
               style={{
@@ -679,56 +650,60 @@ return (
                 gap: 8,
               }}
             >
-            {results.map((item, idx) => (
-  <a
-    key={idx}
-    href={item.url ?? "#"}
-    target="_blank"
-    rel="noreferrer"
-    style={{
-      textDecoration: "none",
-      color: "inherit",
-      borderRadius: 12,
-      padding: "14px 16px",
-      background: "#ffffff",
-      border: "1px solid rgba(148,163,184,0.35)",
-      boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
-      transition: "all 0.15s ease",
-      display: "flex",
-      flexDirection: "column",
-      gap: 6,
-    }}
-    onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.12)")}
-    onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "0 1px 2px rgba(0,0,0,0.04)")}
-  >
-    <div
-      style={{
-        fontWeight: 600,
-        fontSize: 15,
-        lineHeight: 1.3,
-      }}
-    >
-      {item.title ?? "Senza titolo"}
-    </div>
-
-    <div
-      style={{
-        fontSize: 12,
-        opacity: 0.7,
-        display: "flex",
-        gap: 8,
-      }}
-    >
-      {item.source && <span>{item.source}</span>}
-      {item.price && (
-        <span>
-          · <strong>{item.price}</strong>
-        </span>
-      )}
-    </div>
-  </a>
-))}
-
+              {getSortedResults().map((item, idx) => (
+                <a
+                  key={idx}
+                  href={item.url ?? "#"}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    textDecoration: "none",
+                    color: "inherit",
+                    borderRadius: 12,
+                    padding: "14px 16px",
+                    background: "#ffffff",
+                    border: "1px solid rgba(148,163,184,0.35)",
+                    boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+                    transition: "all 0.15s ease",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 6,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow =
+                      "0 2px 8px rgba(0,0,0,0.12)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow =
+                      "0 1px 2px rgba(0,0,0,0.04)";
+                  }}
+                >
+                  <div
+                    style={{
+                      fontWeight: 600,
+                      fontSize: 15,
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    {item.title ?? "Senza titolo"}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      opacity: 0.7,
+                      display: "flex",
+                      gap: 8,
+                    }}
+                  >
+                    {item.source && <span>{item.source}</span>}
+                    {item.price && (
+                      <span>
+                        · <strong>{item.price}</strong>
+                      </span>
+                    )}
+                  </div>
+                </a>
+              ))}
             </div>
           </div>
 
