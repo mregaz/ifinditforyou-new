@@ -263,9 +263,52 @@ export default function HomePage() {
     await handleSearch();
   };
 
-  function handleGoPro() {
-    window.location.href = "/pro";
+ function handleGoPro() {
+  window.location.href = "/pro";
+}
+
+/* ⬇️ INCOLLA QUI LA FUNZIONE getSortedResults() */
+
+function getSortedResults() {
+  if (sortMode === "relevance") return results;
+
+  // Dividiamo i risultati che hanno prezzo da quelli senza
+  const withPrice = results.filter((r) => r.price);
+  const withoutPrice = results.filter((r) => !r.price);
+
+  // Funzione che trasforma stringhe tipo "CHF 299.–" in numeri 299
+  function extractNumber(str: string) {
+    const match = str.replace(/[^\d.,]/g, "").replace(",", ".");
+    return parseFloat(match) || 0;
   }
+
+  if (sortMode === "priceAsc") {
+    return [
+      ...withPrice.sort(
+        (a, b) => extractNumber(a.price) - extractNumber(b.price)
+      ),
+      ...withoutPrice,
+    ];
+  }
+
+  if (sortMode === "priceDesc") {
+    return [
+      ...withPrice.sort(
+        (a, b) => extractNumber(b.price) - extractNumber(a.price)
+      ),
+      ...withoutPrice,
+    ];
+  }
+
+  return results;
+}
+
+/* ⬆️ FINITO – la funzione è al posto giusto */
+
+return (
+  <main>
+    …
+
 {/* Ordinamento risultati */}
 <div style={{ marginBottom: 10 }}>
   <select
