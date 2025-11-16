@@ -193,15 +193,27 @@ useEffect(() => {
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    const q = query.trim();
-    if (!q) return;
+     const q = query.trim();
+  if (!q) return;
 
-    if (!isPro && credits <= 0) {
+  // 🔹 Nuova logica crediti + email-gate
+  if (!isPro) {
+    // Se non ho più crediti → messaggio "out of credits"
+    if (credits <= 0) {
       alert(t.outOfCredits);
       return;
     }
 
-    setLoading(true);
+    // Sto per usare l'ULTIMO credito gratuito, ma non ho ancora email
+    if (credits === 1 && !userEmail) {
+      setShowEmailGate(true); // apre la modale
+      return;
+    }
+  }
+
+  // Da qui in giù il codice resta uguale a prima
+  setLoading(true);
+
     setResults([]);
     setSummary("");
 
