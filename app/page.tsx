@@ -130,8 +130,7 @@ const UI_TEXTS = {
   },
 } as const;
 
-// Cambia questo valore tra 1, 2, 3 per provare
-const LOGO_VARIANT: 1 | 2 | 3 = 3;
+
 
 export default function HomePage() {
   const [lang, setLang] = useState<Lang>("it");
