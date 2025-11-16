@@ -1,5 +1,6 @@
 "use client";
 
+import type React from "react";
 import { useEffect, useState } from "react";
 
 type Lang = "it" | "fr" | "de" | "en";
@@ -130,8 +131,6 @@ const UI_TEXTS = {
   },
 } as const;
 
-
-
 export default function HomePage() {
   const [lang, setLang] = useState<Lang>("it");
   const [query, setQuery] = useState("");
@@ -152,79 +151,6 @@ export default function HomePage() {
       if (savedLang && UI_TEXTS[savedLang]) {
         setLang(savedLang);
       }
-function Logo({ variant }: { variant: 1 | 2 | 3 }) {
-  const styleBase: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    gap: 6,
-    fontWeight: 700,
-    fontSize: 18,
-    color: "#0f172a",
-  };
-
-  if (variant === 1) {
-    return (
-      <div style={styleBase}>
-        <span style={{ fontWeight: 800 }}>iFind</span>
-        <span style={{ fontWeight: 500 }}>It</span>
-        <span style={{ fontWeight: 700, opacity: 0.8 }}>ForYou</span>
-      </div>
-    );
-  }
-
-  if (variant === 2) {
-    return (
-      <div style={styleBase}>
-        <span
-          style={{
-            width: 18,
-            height: 18,
-            borderRadius: "50%",
-            border: "2px solid #4f46e5",
-            position: "relative",
-          }}
-        >
-          <span
-            style={{
-              position: "absolute",
-              width: 10,
-              height: 2,
-              background: "#4f46e5",
-              borderRadius: 999,
-              bottom: -4,
-              right: -4,
-              transform: "rotate(45deg)",
-            }}
-          />
-        </span>
-        <span>iFindItForYou</span>
-      </div>
-    );
-  }
-
-  return (
-    <div style={styleBase}>
-      <span
-        style={{
-          width: 18,
-          height: 18,
-          borderRadius: 6,
-          background:
-            "linear-gradient(135deg,#4f46e5,#6366f1,#22c55e,#f97316)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "#f9fafb",
-          fontSize: 10,
-          fontWeight: 800,
-        }}
-      >
-        AI
-      </span>
-      <span>iFindItForYou</span>
-    </div>
-  );
-}
 
       const savedCredits = localStorage.getItem("ifiy_credits");
       if (savedCredits !== null) {
@@ -368,11 +294,10 @@ function Logo({ variant }: { variant: 1 | 2 | 3 }) {
           }}
         >
           <div
-  style={{ fontWeight: 700, fontSize: 18, color: "#0f172a" }}
->
-  iFindItForYou
-</div>
-
+            style={{ fontWeight: 700, fontSize: 18, color: "#0f172a" }}
+          >
+            iFindItForYou
+          </div>
 
           <div
             style={{
@@ -718,7 +643,8 @@ function EmailGateModal({
       >
         <h2 style={{ marginBottom: 8 }}>Sblocca la seconda ricerca gratuita</h2>
         <p style={{ marginBottom: 16, fontSize: 14, opacity: 0.9 }}>
-          Ti chiediamo solo la tua email per concederti la seconda ricerca gratuita.
+          Ti chiediamo solo la tua email per concederti la seconda ricerca
+          gratuita.
         </p>
 
         <form onSubmit={handleSubmit}>
@@ -784,6 +710,30 @@ function EmailGateModal({
           Niente spam, solo aggiornamenti importanti su iFindItForYou.
         </p>
       </div>
+    </div>
+  );
+}
+
+function InfoBlock({ title, text }: { title: string; text: string }) {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: 12,
+        padding: "10px 12px",
+        border: "1px solid rgba(148,163,184,0.4)",
+      }}
+    >
+      <div
+        style={{
+          fontWeight: 600,
+          marginBottom: 4,
+          fontSize: 13,
+        }}
+      >
+        {title}
+      </div>
+      <div style={{ opacity: 0.8, lineHeight: 1.5 }}>{text}</div>
     </div>
   );
 }
