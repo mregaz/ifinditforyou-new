@@ -368,7 +368,12 @@ function Logo({ variant }: { variant: 1 | 2 | 3 }) {
             gap: 16,
           }}
         >
-          <Logo variant={LOGO_VARIANT} />
+          <div
+  style={{ fontWeight: 700, fontSize: 18, color: "#0f172a" }}
+>
+  iFindItForYou
+</div>
+
 
           <div
             style={{
