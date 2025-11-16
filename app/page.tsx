@@ -499,6 +499,18 @@ export default function HomePage() {
             {results.length === 0 && !summary && (
               <p style={{ fontSize: 14, opacity: 0.7 }}>{t.empty}</p>
             )}
+{!isPro && credits === 0 && (
+  <p
+    style={{
+      marginTop: 12,
+      fontSize: 14,
+      fontWeight: 600,
+      color: "#b91c1c",
+    }}
+  >
+    Hai esaurito le 2 ricerche gratuite. Passa al piano PRO per continuare.
+  </p>
+)}
 
             {summary && (
               <div
