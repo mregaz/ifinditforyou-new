@@ -148,35 +148,48 @@ export default function HomePage() {
   const t = UI_TEXTS[lang];
 
   // Carica stato da localStorage
-  useEffect(() => {
-    try {
-      const savedLang = localStorage.getItem("ifiy_lang") as Lang | null;
-      if (savedLang && UI_TEXTS[savedLang]) {
-        setLang(savedLang);
-      }
-      const savedCredits = localStorage.getItem("ifiy_credits");
-      if (savedCredits !== null) {
-        setCredits(parseInt(savedCredits, 10));
-      }
-      const savedPro = localStorage.getItem("ifiy_isPro");
-      if (savedPro === "true") {
-        setIsPro(true);
-      }
-    } catch {
-      // ignore
+useEffect(() => {
+  try {
+    const savedLang = localStorage.getItem("ifiy_lang") as Lang | null;
+    if (savedLang && UI_TEXTS[savedLang]) {
+      setLang(savedLang);
     }
-  }, []);
+
+    const savedCredits = localStorage.getItem("ifiy_credits");
+    if (savedCredits !== null) {
+      setCredits(parseInt(savedCredits, 10));
+    }
+
+    const savedPro = localStorage.getItem("ifiy_isPro");
+    if (savedPro === "true") {
+      setIsPro(true);
+    }
+
+    const savedEmail = localStorage.getItem("ifiy_email");
+    if (savedEmail) {
+      setUserEmail(savedEmail);
+    }
+  } catch {
+    // ignore
+  }
+}, []);
+
 
   // Salva stato
-  useEffect(() => {
-    try {
-      localStorage.setItem("ifiy_credits", String(credits));
-      localStorage.setItem("ifiy_isPro", isPro ? "true" : "false");
-      localStorage.setItem("ifiy_lang", lang);
-    } catch {
-      // ignore
+useEffect(() => {
+  try {
+    localStorage.setItem("ifiy_credits", String(credits));
+    localStorage.setItem("ifiy_isPro", isPro ? "true" : "false");
+    localStorage.setItem("ifiy_lang", lang);
+
+    if (userEmail) {
+      localStorage.setItem("ifiy_email", userEmail);
     }
-  }, [credits, isPro, lang]);
+  } catch {
+    // ignore
+  }
+}, [credits, isPro, lang, userEmail]);
+
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
