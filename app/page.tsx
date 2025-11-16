@@ -580,7 +580,7 @@ export default function HomePage() {
   );
 }
 
-ffunction EmailGateModal({
+function EmailGateModal({
   isOpen,
   onClose,
   onConfirm,
