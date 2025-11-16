@@ -511,6 +511,23 @@ export default function HomePage() {
     Hai esaurito le 2 ricerche gratuite. Passa al piano PRO per continuare.
   </p>
 )}
+{!isPro && credits === 0 && (
+  <button
+    onClick={handleGoPro}
+    style={{
+      marginTop: 8,
+      borderRadius: 999,
+      border: "1px solid #312e81",
+      padding: "8px 16px",
+      fontSize: 14,
+      background: "#eef2ff",
+      color: "#312e81",
+      cursor: "pointer",
+    }}
+  >
+    Vai al piano PRO
+  </button>
+)}
 
             {summary && (
               <div
