@@ -262,9 +262,12 @@ export default function HomePage() {
     await handleSearch();
   };
 
-  function handleGoPro() {
-    window.location.href = "/pro";
-  }
+ function handleGoPro() {
+  // porta l’utente a /pro passando la lingua corrente nella query string
+  const url = `/pro?lang=${lang}`;
+  window.location.href = url;
+}
+
 
   // Ordinamento risultati in base a sortMode
   function getSortedResults() {
