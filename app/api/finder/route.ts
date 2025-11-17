@@ -6,7 +6,7 @@ import { Lang, normalizeLang } from "@/lib/lang"; // 👈 AGGIUNTO
 const SERPER_KEY = process.env.SERPER_API_KEY;
 const OPENAI_KEY = process.env.OPENAI_API_KEY;
 
-}
+
 
 const TEXTS = {
   it: {
