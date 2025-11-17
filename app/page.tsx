@@ -261,10 +261,11 @@ export default function HomePage() {
     await handleSearch();
   };
 
- function handleGoPro() {
-  // porta l’utente a /pro passando la lingua corrente nella query string
-  const url = `/pro?lang=${lang}`;
-  window.location.href = url;
+function handleGoPro() {
+  // porta con te la lingua attuale nella query string
+  window.location.href = `/pro?lang=${lang}`;
+}
+
 }
 
 
