@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import type { ReactNode } from "react";   // 👈 AGGIUNTA
+import React, { useState, useEffect } from "react";
 import { Lang, normalizeLang } from "@/lib/lang";
 
 
@@ -276,7 +275,7 @@ type PricingCardProps = {
   subtitle: string;
   features: string[];
   highlight?: boolean;
-  footerContent?: ReactNode;
+  footerContent?: React.ReactNode;
 };
 
 function PricingCard({
