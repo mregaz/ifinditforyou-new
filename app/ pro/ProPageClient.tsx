@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, useEffect } from "react";
+import { Lang, normalizeLang } from "@/lib/lang"; // 👈 AGGIUNTO
+
 
 type BillingPeriod = "monthly" | "yearly";
 
