@@ -1,9 +1,8 @@
 "use client";
 
-import type React from "react";
 import { useEffect, useState } from "react";
+import { Lang } from "@/lib/lang"; // 👈 AGGIUNTO
 
-type Lang = "it" | "fr" | "de" | "en";
 
 const UI_TEXTS = {
   it: {
