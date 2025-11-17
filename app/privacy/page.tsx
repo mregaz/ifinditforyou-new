@@ -2,6 +2,12 @@
 export default function PrivacyPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-12 text-sm text-gray-800">
+      <main>
+  <p style={{ fontStyle: "italic", marginBottom: "1rem" }}>
+    L'informativa sulla protezione dei dati è attualmente disponibile solo in italiano.
+  </p>
+</main>
+
       <h1 className="mb-6 text-2xl font-semibold">
         Protezione dei dati personali (Privacy)
       </h1>
