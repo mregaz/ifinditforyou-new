@@ -105,6 +105,19 @@ export default function TerminiPage() {
         </p>
       </section>
     </main>
+    export default function TerminiPage() {
+  return (
+    <main>
+      <p style={{ fontStyle: "italic", marginBottom: "1rem" }}>
+        Le condizioni legali sono attualmente disponibili solo in italiano.
+      </p>
+
+      {/* qui lasci TUTTO il testo che c’è già adesso */}
+      ...
+    </main>
+  );
+}
+
   );
 }
 
