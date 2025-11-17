@@ -2,6 +2,10 @@
 export default function TerminiPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-12 text-sm text-gray-800">
+       <p style={{ fontStyle: "italic", marginBottom: "1rem" }}>
+        Le condizioni legali sono attualmente disponibili solo in italiano.
+      </p>
+
       <h1 className="mb-6 text-2xl font-semibold">Termini e condizioni d&apos;uso</h1>
 
       <p className="mb-4 text-xs text-gray-500">
@@ -105,19 +109,9 @@ export default function TerminiPage() {
         </p>
       </section>
     </main>
-    export default function TerminiPage() {
-  return (
-    <main>
-      <p style={{ fontStyle: "italic", marginBottom: "1rem" }}>
-        Le condizioni legali sono attualmente disponibili solo in italiano.
-      </p>
-
-      {/* qui lasci TUTTO il testo che c’è già adesso */}
-      ...
-    </main>
+  
   );
 }
 
-  );
-}
+
 
