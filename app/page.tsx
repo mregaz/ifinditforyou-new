@@ -299,7 +299,7 @@ export default function HomePage() {
     return results;
   }
 
-  return (
+   return (
     <main
       style={{
         minHeight: "100vh",
@@ -542,38 +542,32 @@ export default function HomePage() {
             )}
 
             {/* Messaggio out of credits */}
-           {!isPro && credits === 0 && (
-  <>
-    <p
-      style={{
-        marginTop: 12,
-        fontSize: 14,
-        fontWeight: 600,
-        color: "#b91c1c",
-      }}
-    >
-      {t.outOfCredits}
-    </p>
-    <button
-      onClick={handleGoPro}
-      style={{
-        marginTop: 8,
-        borderRadius: 999,
-        border: "1px solid #312e81",
-        padding: "8px 16px",
-        fontSize: 14,
-        background: "#eef2ff",
-        color: "#312e81",
-        cursor: "pointer",
-      }}
-    >
-      {t.proCta}
-    </button>
-  </>
-)}
-
+            {!isPro && credits === 0 && (
+              <>
+                <p
+                  style={{
+                    marginTop: 12,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: "#b91c1c",
+                  }}
                 >
-                  Vai al piano PRO
+                  {t.outOfCredits}
+                </p>
+                <button
+                  onClick={handleGoPro}
+                  style={{
+                    marginTop: 8,
+                    borderRadius: 999,
+                    border: "1px solid #312e81",
+                    padding: "8px 16px",
+                    fontSize: 14,
+                    background: "#eef2ff",
+                    color: "#312e81",
+                    cursor: "pointer",
+                  }}
+                >
+                  {t.proCta}
                 </button>
               </>
             )}
@@ -615,7 +609,9 @@ export default function HomePage() {
                   <select
                     value={sortMode}
                     onChange={(e) =>
-                      setSortMode(e.target.value as "relevance" | "priceAsc" | "priceDesc")
+                      setSortMode(
+                        e.target.value as "relevance" | "priceAsc" | "priceDesc",
+                      )
                     }
                     style={{
                       padding: "6px 10px",
@@ -740,6 +736,7 @@ export default function HomePage() {
       />
     </main>
   );
+
 }
 
 function EmailGateModal({
