@@ -1,14 +1,11 @@
 // app/api/finder/route.ts
 import { NextResponse } from "next/server";
+import { Lang, normalizeLang } from "@/lib/lang"; // 👈 AGGIUNTO
+
 
 const SERPER_KEY = process.env.SERPER_API_KEY;
 const OPENAI_KEY = process.env.OPENAI_API_KEY;
 
-type Lang = "it" | "en" | "fr" | "de";
-
-function normalizeLang(raw?: string): Lang {
-  if (raw === "en" || raw === "fr" || raw === "de") return raw;
-  return "it";
 }
 
 const TEXTS = {
