@@ -4,16 +4,66 @@ import { NextResponse } from "next/server";
 const SERPER_KEY = process.env.SERPER_API_KEY;
 const OPENAI_KEY = process.env.OPENAI_API_KEY;
 
-async function searchPublic(query: string) {
+type Lang = "it" | "en" | "fr" | "de";
+
+function normalizeLang(raw?: string): Lang {
+  if (raw === "en" || raw === "fr" || raw === "de") return raw;
+  return "it";
+}
+
+const TEXTS = {
+  it: {
+    publicTitleMain: (q: string) => `Risultato base per “${q}” su eBay`,
+    publicTitleAlt: "Risultato simile su Vinted",
+    noResult: "Nessun risultato preciso trovato.",
+    aiSystem:
+      "Sei un assistente che trova prodotti rari o equivalenti utili. Rispondi in italiano.",
+    summaryFree: "🔎 Risultati base dalle fonti pubbliche.",
+    summaryPro: "🔍 Ricerca Pro completata con fonti IA avanzate.",
+  },
+  en: {
+    publicTitleMain: (q: string) => `Basic result for “${q}” on eBay`,
+    publicTitleAlt: "Similar result on Vinted",
+    noResult: "No precise result found.",
+    aiSystem:
+      "You are an assistant that finds rare or equivalent useful products. Answer in English.",
+    summaryFree: "🔎 Basic results from public sources.",
+    summaryPro: "🔍 Pro search completed with advanced AI sources.",
+  },
+  fr: {
+    publicTitleMain: (q: string) =>
+      `Résultat de base pour « ${q} » sur eBay`,
+    publicTitleAlt: "Résultat similaire sur Vinted",
+    noResult: "Aucun résultat précis trouvé.",
+    aiSystem:
+      "Tu es un assistant qui trouve des produits rares ou équivalents utiles. Réponds en français.",
+    summaryFree: "🔎 Résultats de base provenant de sources publiques.",
+    summaryPro:
+      "🔍 Recherche Pro terminée avec des sources IA avancées.",
+  },
+  de: {
+    publicTitleMain: (q: string) => `Basis-Ergebnis für „${q}“ auf eBay`,
+    publicTitleAlt: "Ähnliches Ergebnis auf Vinted",
+    noResult: "Kein genaues Ergebnis gefunden.",
+    aiSystem:
+      "Du bist ein Assistent, der seltene oder passende Produkte findet. Antworte auf Deutsch.",
+    summaryFree: "🔎 Basis-Ergebnisse aus öffentlichen Quellen.",
+    summaryPro:
+      "🔍 Pro-Suche mit erweiterten KI-Quellen abgeschlossen.",
+  },
+} as const;
+
+async function searchPublic(query: string, lang: Lang) {
+  const t = TEXTS[lang];
   return [
     {
-      title: `Risultato base per “${query}” su eBay`,
+      title: t.publicTitleMain(query),
       price: "—",
       url: "https://www.ebay.com",
       source: "eBay",
     },
     {
-      title: `Risultato simile su Vinted`,
+      title: t.publicTitleAlt,
       price: "—",
       url: "https://www.vinted.com",
       source: "Vinted",
@@ -21,7 +71,7 @@ async function searchPublic(query: string) {
   ];
 }
 
-async function searchPro(query: string) {
+async function searchPro(query: string, lang: Lang) {
   if (!SERPER_KEY) return [];
   const res = await fetch("https://google.serper.dev/search", {
     method: "POST",
@@ -32,18 +82,31 @@ async function searchPro(query: string) {
     body: JSON.stringify({ q: query }),
     cache: "no-store",
   });
+
   const data = await res.json();
   if (!data?.organic) return [];
+
+  const sourceLabel =
+    lang === "fr"
+      ? "Moteur Pro"
+      : lang === "de"
+      ? "Pro-Suche"
+      : lang === "en"
+      ? "Pro engine"
+      : "Motore Pro";
+
   return data.organic.slice(0, 5).map((r: any) => ({
     title: r.title,
     url: r.link,
     price: "—",
-    source: "Motore Pro",
+    source: sourceLabel,
   }));
 }
 
-async function aiFallback(query: string) {
-  if (!OPENAI_KEY) return "Nessun risultato preciso trovato.";
+async function aiFallback(query: string, lang: Lang) {
+  const t = TEXTS[lang];
+  if (!OPENAI_KEY) return t.noResult;
+
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -53,45 +116,51 @@ async function aiFallback(query: string) {
     body: JSON.stringify({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: "Trova prodotti rari o equivalenti utili." },
-        { role: "user", content: `Trova questo: ${query}` },
+        {
+          role: "system",
+          content: t.aiSystem,
+        },
+        {
+          role: "user",
+          content: `Trova / trouve / find / finde questo: ${query}`,
+        },
       ],
     }),
   });
+
   const json = await res.json();
-  return (
-    json?.choices?.[0]?.message?.content ??
-    "Nessun risultato preciso trovato."
-  );
+  return json?.choices?.[0]?.message?.content ?? t.noResult;
 }
 
 export async function POST(req: Request) {
-  const { query, plan } = (await req.json()) as {
+  const { query, plan, lang: rawLang } = (await req.json()) as {
     query: string;
     plan?: "free" | "pro";
+    lang?: string;
   };
 
   if (!query) {
     return NextResponse.json({ error: "Nessuna query." }, { status: 400 });
   }
 
-  const base = await searchPublic(query);
-  const pro = plan === "pro" ? await searchPro(query) : [];
+  const lang = normalizeLang(rawLang);
+  const texts = TEXTS[lang];
+
+  const base = await searchPublic(query, lang);
+  const pro = plan === "pro" ? await searchPro(query, lang) : [];
   const items = [...base, ...pro];
 
   if (items.length === 0) {
-    const summary = await aiFallback(query);
+    const summary = await aiFallback(query, lang);
     return NextResponse.json({ items: [], summary });
   }
 
   return NextResponse.json({
     items,
-    summary:
-      plan === "pro"
-        ? "🔍 Ricerca Pro completata con fonti IA avanzate."
-        : "🔎 Risultati base dalle fonti pubbliche.",
+    summary: plan === "pro" ? texts.summaryPro : texts.summaryFree,
   });
 }
+
 
 
 
