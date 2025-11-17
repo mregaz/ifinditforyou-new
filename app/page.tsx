@@ -739,7 +739,6 @@ function handleGoPro() {
       />
     </main>
   );
-
 }
 
 function EmailGateModal({
