@@ -1,117 +1,152 @@
-// app/termini/page.tsx
+"use client";
+
+import { useEffect, useState } from "react";
+import { Lang, normalizeLang } from "@/lib/lang";
+import { TERMS_TEXTS, type TermsContent } from "@/lib/terms";
+
 export default function TerminiPage() {
+  const [lang, setLang] = useState<Lang>("it");
+  const [content, setContent] = useState<TermsContent>(TERMS_TEXTS.it);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const urlLang = params.get("lang");
+      const normalized = normalizeLang(urlLang);
+      setLang(normalized);
+      setContent(TERMS_TEXTS[normalized]);
+    }
+  }, []);
+
+  const t = content;
+
+  const pageStyle = {
+    minHeight: "100vh",
+    margin: 0,
+    padding: "40px 16px",
+    backgroundColor: "#f8fafc",
+    color: "#0f172a",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "flex-start",
+    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+  } as const;
+
+  const containerStyle = {
+    width: "100%",
+    maxWidth: 800,
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    padding: 24,
+    boxShadow: "0 10px 30px rgba(15,23,42,0.08)",
+    border: "1px solid rgba(148,163,184,0.4)",
+  } as const;
+
+  const langLinkStyle = (code: Lang) =>
+    ({
+      fontSize: 12,
+      textDecoration: "underline",
+      cursor: "pointer",
+      color: lang === code ? "#1d4ed8" : "#64748b",
+      fontWeight: lang === code ? 600 : 400,
+    } as const);
+
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12 text-sm text-gray-800">
-       <p style={{ fontStyle: "italic", marginBottom: "1rem" }}>
-        Le condizioni legali sono attualmente disponibili solo in italiano.
-      </p>
+    <main style={pageStyle}>
+      <article style={containerStyle}>
+        {/* Switch lingua in alto a destra */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: 8,
+            marginBottom: 12,
+            color: "#64748b",
+            fontSize: 12,
+          }}
+        >
+          <span>Lingua / Language:</span>
+          <a href="/termini?lang=it" style={langLinkStyle("it")}>
+            IT
+          </a>
+          <span>|</span>
+          <a href="/termini?lang=fr" style={langLinkStyle("fr")}>
+            FR
+          </a>
+          <span>|</span>
+          <a href="/termini?lang=de" style={langLinkStyle("de")}>
+            DE
+          </a>
+          <span>|</span>
+          <a href="/termini?lang=en" style={langLinkStyle("en")}>
+            EN
+          </a>
+        </div>
 
-      <h1 className="mb-6 text-2xl font-semibold">Termini e condizioni d&apos;uso</h1>
+        <h1
+          style={{
+            fontSize: 24,
+            fontWeight: 700,
+            marginBottom: 4,
+          }}
+        >
+          {t.title}
+        </h1>
+        <p
+          style={{
+            fontSize: 13,
+            color: "#6b7280",
+            marginBottom: 16,
+          }}
+        >
+          {t.lastUpdated}
+        </p>
 
-      <p className="mb-4 text-xs text-gray-500">
-        Ultimo aggiornamento: {new Date().getFullYear()}
-      </p>
+        {/* Nota sulla lingua ufficiale */}
+        {lang !== "it" && (
+          <p
+            style={{
+              fontSize: 12,
+              fontStyle: "italic",
+              padding: "8px 10px",
+              borderRadius: 8,
+              backgroundColor: "#eff6ff",
+              color: "#1e3a8a",
+              marginBottom: 16,
+            }}
+          >
+            La versione legalmente vincolante è quella in italiano. Questa è una
+            traduzione fornita a scopo informativo.
+          </p>
+        )}
 
-      <section className="mb-6">
-        <h2 className="mb-2 text-base font-semibold">1. Oggetto del servizio</h2>
-        <p className="mb-2">
-          IFindItForYou è uno strumento online che aiuta l&apos;utente a trovare
-          informazioni e risultati sulla base delle richieste inserite.
-        </p>
-        <p>
-          Il servizio viene fornito &quot;così com&apos;è&quot;, senza garanzia di
-          disponibilità continua, accuratezza dei risultati o idoneità per uno
-          scopo specifico.
-        </p>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="mb-2 text-base font-semibold">2. Utilizzo consentito</h2>
-        <p className="mb-2">
-          L&apos;utente si impegna a utilizzare il servizio in modo lecito e nel
-          rispetto delle normative vigenti.
-        </p>
-        <ul className="ml-5 list-disc space-y-1">
-          <li>è vietato utilizzare il servizio per attività illegali o abusive;</li>
-          <li>
-            è vietato tentare di aggirare i limiti tecnici o di sicurezza della
-            piattaforma;
-          </li>
-          <li>
-            è vietato utilizzare il servizio per inviare spam o contenuti non
-            richiesti.
-          </li>
-        </ul>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="mb-2 text-base font-semibold">
-          3. Piani Free e PRO, pagamenti
-        </h2>
-        <p className="mb-2">
-          Il piano Free consente un numero limitato di ricerche. Il piano PRO
-          consente un utilizzo più esteso del servizio, secondo le condizioni
-          indicate nella pagina dedicata.
-        </p>
-        <p className="mb-2">
-          I pagamenti per il piano PRO sono gestiti da Stripe. IFindItForYou non
-          memorizza i dati della carta di pagamento dell&apos;utente.
-        </p>
-        <p>
-          L&apos;abbonamento si rinnova automaticamente alla scadenza (mensile o
-          annuale, a seconda del piano scelto), salvo annullamento da parte
-          dell&apos;utente prima della data di rinnovo.
-        </p>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="mb-2 text-base font-semibold">4. Annullamento e rimborsi</h2>
-        <p className="mb-2">
-          L&apos;utente può annullare il rinnovo dell&apos;abbonamento in qualsiasi
-          momento tramite l&apos;area di gestione dei pagamenti fornita da Stripe
-          (o i link indicati nelle email di conferma).
-        </p>
-        <p>
-          Salvo diverse indicazioni di legge, i pagamenti già effettuati non sono
-          normalmente rimborsabili, ma l&apos;utente continuerà a godere del piano
-          PRO fino alla fine del periodo già pagato.
-        </p>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="mb-2 text-base font-semibold">5. Limitazione di responsabilità</h2>
-        <p className="mb-2">
-          Nei limiti massimi consentiti dalla legge applicabile, IFindItForYou non
-          è responsabile per:
-        </p>
-        <ul className="ml-5 list-disc space-y-1">
-          <li>eventuali errori, imprecisioni o mancanza di aggiornamento dei risultati;</li>
-          <li>eventuali danni indiretti, consequenziali o perdita di dati;</li>
-          <li>interruzioni o malfunzionamenti del servizio.</li>
-        </ul>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="mb-2 text-base font-semibold">6. Modifiche ai termini</h2>
-        <p>
-          I presenti termini possono essere aggiornati nel tempo. In caso di
-          modifiche rilevanti, potremmo informare l&apos;utente tramite il sito o
-          altri canali appropriati. L&apos;uso continuato del servizio dopo le
-          modifiche costituisce accettazione dei nuovi termini.
-        </p>
-      </section>
-
-      <section>
-        <h2 className="mb-2 text-base font-semibold">7. Contatti</h2>
-        <p>
-          Per domande sui presenti termini o sul servizio, puoi contattarci
-          all&apos;indirizzo e-mail indicato sul sito.
-        </p>
-      </section>
+        {t.sections.map((section, idx) => (
+          <section key={idx} style={{ marginBottom: 16 }}>
+            <h2
+              style={{
+                fontSize: 16,
+                fontWeight: 600,
+                marginBottom: 6,
+              }}
+            >
+              {section.heading}
+            </h2>
+            {section.paragraphs.map((p, i) => (
+              <p
+                key={i}
+                style={{
+                  fontSize: 14,
+                  color: "#111827",
+                  marginBottom: 6,
+                  lineHeight: 1.6,
+                }}
+              >
+                {p}
+              </p>
+            ))}
+          </section>
+        ))}
+      </article>
     </main>
-  
   );
 }
-
-
-
