@@ -50,9 +50,7 @@ errorNetwork:
         : n === 1
         ? "Ho trovato 1 opzione per te."
         : `Ho trovato ${n} opzioni per te.`,
-    errorSearch: "Errore nella ricerca. Riprova tra poco.",
-    errorNetwork:
-      "Problema di rete. Controlla la connessione e riprova.",
+    
   },
 
   en: {
