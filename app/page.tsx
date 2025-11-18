@@ -531,7 +531,7 @@ export default function HomePage() {
             gap: 24,
           }}
         >
-          {/* Colonna risultati */}
+                   {/* Colonna risultati */}
           <div>
             <h2
               style={{
@@ -543,24 +543,14 @@ export default function HomePage() {
               {t.resultsTitle}
             </h2>
 
+            {/* Messaggio vuoto (nessun risultato e nessun riassunto) */}
             {results.length === 0 && !summary && (
               <p style={{ fontSize: 14, opacity: 0.7 }}>{t.empty}</p>
             )}
 
+            {/* Riassunto AI */}
             {summary && (
-             {results.length > 0 && (
-  <p
-    style={{
-      fontSize: 13,
-      opacity: 0.8,
-      marginBottom: 8,
-    }}
-  >
-    {t.resultsCountLabel(results.length)}
-  </p>
-)}
-
-          <div
+              <div
                 style={{
                   marginBottom: 12,
                   padding: "10px 12px",
@@ -573,6 +563,20 @@ export default function HomePage() {
               </div>
             )}
 
+            {/* Frasetta "Ho trovato X opzioni per te" */}
+            {results.length > 0 && (
+              <p
+                style={{
+                  fontSize: 13,
+                  opacity: 0.8,
+                  marginBottom: 8,
+                }}
+              >
+                {t.resultsCountLabel(results.length)}
+              </p>
+            )}
+
+            {/* Lista risultati */}
             <div
               style={{
                 display: "flex",
@@ -622,6 +626,7 @@ export default function HomePage() {
               ))}
             </div>
           </div>
+
 
           {/* Colonna testo marketing */}
           <div
