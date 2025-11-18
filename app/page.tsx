@@ -73,6 +73,11 @@ errorNetwork:
     empty: "Start a search to see how it works 👆",
   },
   fr: {
+    errorSearch:
+  "Erreur lors de la recherche. Réessaie dans un instant.",
+errorNetwork:
+  "Problème de connexion. Vérifie ta connexion et réessaie.",
+
     tagline: "Écris ce que tu cherches, je le trouve pour toi.",
     placeholder: "Ex. iPhone 13 mini bleu à moins de 350 CHF en Suisse",
     search: "Rechercher",
@@ -103,6 +108,11 @@ errorNetwork:
     empty: "Fais une recherche pour voir un exemple 👆",
   },
   de: {
+    errorSearch:
+  "Fehler bei der Suche. Bitte versuche es in Kürze erneut.",
+errorNetwork:
+  "Netzwerkproblem. Bitte prüfe deine Verbindung und versuche es erneut.",
+
     tagline: "Schreib, was du suchst – ich finde es für dich.",
     placeholder: "Z.B. iPhone 13 mini blau unter 350 CHF in der Schweiz",
     search: "Suchen",
