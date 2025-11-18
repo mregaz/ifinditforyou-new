@@ -100,7 +100,6 @@ resultsCount: (n: number) =>
 empty: "Start a search to see how it works 👆",
 
 
-    empty: "Start a search to see how it works 👆",
     resultsCountLabel: (n: number) =>
       n === 0
         ? "No options found."
@@ -155,7 +154,6 @@ resultsCount: (n: number) =>
 empty: "Fais une recherche pour voir un exemple 👆",
 
 
-    empty: "Fais une recherche pour voir un exemple 👆",
     resultsCountLabel: (n: number) =>
       n === 0
         ? "Aucune option trouvée."
@@ -209,7 +207,6 @@ resultsCount: (n: number) =>
     : `Ich habe ${n} Optionen für dich gefunden.`,
 empty: "Starte eine Suche, um ein Beispiel zu sehen 👆",
 
-    empty: "Starte eine Suche, um ein Beispiel zu sehen 👆",
     resultsCountLabel: (n: number) =>
       n === 0
         ? "Keine Option gefunden."
