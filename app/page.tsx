@@ -8,6 +8,12 @@ const UI_TEXTS = {
     errorSearch: "Errore nella ricerca. Riprova tra poco.",
 errorNetwork:
   "Problema di rete. Controlla la connessione e riprova.",
+resultsCountLabel: (n: number) =>
+  n === 0
+    ? "Nessuna opzione trovata."
+    : n === 1
+    ? "Ho trovato 1 opzione per te."
+    : `Ho trovato ${n} opzioni per te.`,
 
     tagline: "Scrivi cosa cerchi, io lo trovo per te.",
     placeholder: "Es. iPhone 13 mini blu sotto 350 CHF in Svizzera",
