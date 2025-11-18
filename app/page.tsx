@@ -592,50 +592,45 @@ export default function HomePage() {
               }}
             >
               {t.resultsTitle}
-            </h2>
+           <h2
+  style={{
+    fontSize: 16,
+    fontWeight: 600,
+    marginBottom: 4,
+  }}
+>
+  {t.resultsTitle}
+</h2>
 
-            {/* Messaggio vuoto (nessun risultato e nessun riassunto) */}
-            {results.length === 0 && !summary && (
-              <p style={{ fontSize: 14, opacity: 0.7 }}>{t.empty}</p>
-            )}
+{/* Nuova riga: quanti risultati abbiamo trovato */}
+{results.length > 0 && (
+  <p
+    style={{
+      fontSize: 13,
+      opacity: 0.8,
+      marginBottom: 8,
+    }}
+  >
+    {t.resultsCount(results.length)}
+  </p>
+)}
 
-            {/* Riassunto AI */}
-            {summary && (
-              <div
-                style={{
-                  marginBottom: 12,
-                  padding: "10px 12px",
-                  borderRadius: 12,
-                  background: "#e5e7eb",
-                  fontSize: 14,
-                }}
-              >
-                {summary}
-              </div>
-            )}
+{results.length === 0 && !summary && (
+  <p style={{ fontSize: 14, opacity: 0.7 }}>{t.empty}</p>
+)}
 
-            {/* Frasetta "Ho trovato X opzioni per te" */}
-            {results.length > 0 && (
-              <p
-                style={{
-                  fontSize: 13,
-                  opacity: 0.8,
-                  marginBottom: 8,
-                }}
-              >
-                {t.resultsCountLabel(results.length)}
-              </p>
-            )}
+{summary && (/* come prima */)}
 
-            {/* Lista risultati */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 8,
-              }}
-            >
-              {results.map((item, idx) => (
+<div
+  style={{
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+  }}
+>
+  {results.map(...)}
+</div>
+
                 <a
                   key={idx}
                   href={item.url ?? "#"}
