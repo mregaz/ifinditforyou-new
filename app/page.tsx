@@ -546,7 +546,19 @@ export default function HomePage() {
             )}
 
             {summary && (
-              <div
+             {results.length > 0 && (
+  <p
+    style={{
+      fontSize: 13,
+      opacity: 0.8,
+      marginBottom: 8,
+    }}
+  >
+    {t.resultsCountLabel(results.length)}
+  </p>
+)}
+
+          <div
                 style={{
                   marginBottom: 12,
                   padding: "10px 12px",
