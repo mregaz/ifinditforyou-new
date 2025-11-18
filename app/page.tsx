@@ -259,10 +259,11 @@ export default function HomePage() {
       const data = await res.json();
 
       if (!res.ok) {
-        console.error(data);
-        alert("Errore nella ricerca. Riprova tra poco.");
-        return;
-      }
+  console.error(data);
+  alert(t.errorSearch);
+  return;
+}
+
 
       setResults(Array.isArray(data.items) ? data.items : []);
       setSummary(typeof data.summary === "string" ? data.summary : "");
@@ -271,9 +272,10 @@ export default function HomePage() {
         setCredits((c) => (c > 0 ? c - 1 : 0));
       }
     } catch (err) {
-      console.error(err);
-      alert("Problema di rete. Controlla la connessione e riprova.");
-    } finally {
+  console.error(err);
+  alert(t.errorNetwork);
+} finally {
+
       setLoading(false);
     }
   }
