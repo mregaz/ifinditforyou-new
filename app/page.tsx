@@ -7,6 +7,13 @@ const UI_TEXTS = {
   it: {
     tagline: "Scrivi cosa cerchi, io lo trovo per te.",
     placeholder: "Es. iPhone 13 mini blu sotto 350 CHF in Svizzera",
+        examplesLabel: "Esempi:",
+    examples: [
+      "iPhone 13 mini blu sotto 350 CHF in Svizzera",
+      "Hotel 3 stelle a Zurigo sotto 150 CHF",
+      "Idea regalo per 12enne appassionato di Lego",
+    ],
+
     search: "Cerca",
     proCta: "Diventa PRO",
     creditsLabel: (credits: number, isPro: boolean) =>
@@ -48,6 +55,13 @@ const UI_TEXTS = {
   en: {
     tagline: "Write what you need, I’ll find it for you.",
     placeholder: "E.g. iPhone 13 mini blue under 350 CHF in Switzerland",
+        examplesLabel: "Examples:",
+    examples: [
+      "iPhone 13 mini blue under 350 CHF in Switzerland",
+      "3-star hotel in Zurich under 150 CHF",
+      "Gift idea for a 12-year-old who loves LEGO",
+    ],
+
     search: "Search",
     proCta: "Go PRO",
     creditsLabel: (credits: number, isPro: boolean) =>
@@ -89,6 +103,13 @@ const UI_TEXTS = {
   fr: {
     tagline: "Écris ce que tu cherches, je le trouve pour toi.",
     placeholder: "Ex. iPhone 13 mini bleu à moins de 350 CHF en Suisse",
+        examplesLabel: "Exemples :",
+    examples: [
+      "iPhone 13 mini bleu à moins de 350 CHF en Suisse",
+      "Hôtel 3 étoiles à Zurich pour moins de 150 CHF",
+      "Idée cadeau pour un enfant de 12 ans fan de LEGO",
+    ],
+
     search: "Rechercher",
     proCta: "Passer en PRO",
     creditsLabel: (credits: number, isPro: boolean) =>
@@ -130,6 +151,13 @@ const UI_TEXTS = {
   de: {
     tagline: "Schreib, was du suchst – ich finde es für dich.",
     placeholder: "Z.B. iPhone 13 mini blau unter 350 CHF in der Schweiz",
+        examplesLabel: "Beispiele:",
+    examples: [
+      "iPhone 13 mini blau unter 350 CHF in der Schweiz",
+      "3-Sterne-Hotel in Zürich unter 150 CHF",
+      "Geschenkidee für 12-jährigen LEGO-Fan",
+    ],
+
     search: "Suchen",
     proCta: "PRO werden",
     creditsLabel: (credits: number, isPro: boolean) =>
