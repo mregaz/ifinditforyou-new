@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import type { ReactNode } from "react";   // 👈 AGGIUNGI QUESTA
+
 import { Lang, normalizeLang } from "@/lib/lang";
 
 
