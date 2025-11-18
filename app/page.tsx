@@ -42,6 +42,12 @@ errorNetwork:
     sectionFaqText:
       "Le tue ricerche vengono usate solo per trovare risultati migliori. Non vendiamo i dati a terzi.",
     resultsTitle: "Risultati",
+resultsCount: (n: number) =>
+  n === 1
+    ? "Ho trovato 1 opzione per te."
+    : `Ho trovato ${n} opzioni per te.`,
+empty: "Fai una ricerca per vedere qualche esempio 👆",
+
     empty: "Fai una ricerca per vedere qualche esempio 👆",
     // ✅ nuovi testi
     resultsCountLabel: (n: number) =>
@@ -87,7 +93,14 @@ errorNetwork:
     sectionFaqTitle: "Privacy & data",
     sectionFaqText:
       "Your searches are used only to improve results. We do not sell data to third parties.",
-    resultsTitle: "Results",
+ resultsTitle: "Results",
+resultsCount: (n: number) =>
+  n === 1
+    ? "I’ve found 1 option for you."
+    : `I’ve found ${n} options for you.`,
+empty: "Start a search to see how it works 👆",
+
+
     empty: "Start a search to see how it works 👆",
     resultsCountLabel: (n: number) =>
       n === 0
@@ -135,7 +148,14 @@ errorNetwork:
     sectionFaqTitle: "Vie privée & données",
     sectionFaqText:
       "Tes recherches servent uniquement à améliorer les résultats. Nous ne vendons jamais tes données.",
-    resultsTitle: "Résultats",
+  resultsTitle: "Résultats",
+resultsCount: (n: number) =>
+  n === 1
+    ? "J’ai trouvé 1 option pour toi."
+    : `J’ai trouvé ${n} options pour toi.`,
+empty: "Fais une recherche pour voir un exemple 👆",
+
+
     empty: "Fais une recherche pour voir un exemple 👆",
     resultsCountLabel: (n: number) =>
       n === 0
@@ -183,7 +203,13 @@ errorNetwork:
     sectionFaqTitle: "Datenschutz & Daten",
     sectionFaqText:
       "Deine Suchanfragen werden nur verwendet, um bessere Ergebnisse zu liefern. Wir verkaufen keine Daten an Dritte.",
-    resultsTitle: "Ergebnisse",
+   resultsTitle: "Ergebnisse",
+resultsCount: (n: number) =>
+  n === 1
+    ? "Ich habe 1 Option für dich gefunden."
+    : `Ich habe ${n} Optionen für dich gefunden.`,
+empty: "Starte eine Suche, um ein Beispiel zu sehen 👆",
+
     empty: "Starte eine Suche, um ein Beispiel zu sehen 👆",
     resultsCountLabel: (n: number) =>
       n === 0
