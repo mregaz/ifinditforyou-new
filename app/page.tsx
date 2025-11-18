@@ -13,6 +13,9 @@ const UI_TEXTS = {
       "Hotel 3 stelle a Zurigo sotto 150 CHF",
       "Idea regalo per 12enne appassionato di Lego",
     ],
+errorSearch: "Errore nella ricerca. Riprova tra poco.",
+errorNetwork:
+  "Problema di rete. Controlla la connessione e riprova.",
 
     search: "Cerca",
     proCta: "Diventa PRO",
