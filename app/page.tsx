@@ -48,7 +48,6 @@ resultsCount: (n: number) =>
     : `Ho trovato ${n} opzioni per te.`,
 empty: "Fai una ricerca per vedere qualche esempio 👆",
 
-    empty: "Fai una ricerca per vedere qualche esempio 👆",
     // ✅ nuovi testi
     resultsCountLabel: (n: number) =>
       n === 0
