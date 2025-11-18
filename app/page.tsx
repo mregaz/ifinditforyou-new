@@ -39,6 +39,10 @@ errorNetwork:
     empty: "Fai una ricerca per vedere qualche esempio 👆",
   },
   en: {
+    errorSearch: "Error while searching. Please try again in a moment.",
+errorNetwork:
+  "Network problem. Check your connection and try again.",
+
     tagline: "Write what you need, I’ll find it for you.",
     placeholder: "E.g. iPhone 13 mini blue under 350 CHF in Switzerland",
     search: "Search",
