@@ -5,16 +5,6 @@ import { Lang } from "@/lib/lang";
 
 const UI_TEXTS = {
   it: {
-    errorSearch: "Errore nella ricerca. Riprova tra poco.",
-errorNetwork:
-  "Problema di rete. Controlla la connessione e riprova.",
-resultsCountLabel: (n: number) =>
-  n === 0
-    ? "Nessuna opzione trovata."
-    : n === 1
-    ? "Ho trovato 1 opzione per te."
-    : `Ho trovato ${n} opzioni per te.`,
-
     tagline: "Scrivi cosa cerchi, io lo trovo per te.",
     placeholder: "Es. iPhone 13 mini blu sotto 350 CHF in Svizzera",
     search: "Cerca",
@@ -43,18 +33,19 @@ resultsCountLabel: (n: number) =>
       "Le tue ricerche vengono usate solo per trovare risultati migliori. Non vendiamo i dati a terzi.",
     resultsTitle: "Risultati",
     empty: "Fai una ricerca per vedere qualche esempio 👆",
+    // ✅ nuovi testi
+    resultsCountLabel: (n: number) =>
+      n === 0
+        ? "Nessuna opzione trovata."
+        : n === 1
+        ? "Ho trovato 1 opzione per te."
+        : `Ho trovato ${n} opzioni per te.`,
+    errorSearch: "Errore nella ricerca. Riprova tra poco.",
+    errorNetwork:
+      "Problema di rete. Controlla la connessione e riprova.",
   },
-  en: {
-    errorSearch: "Error while searching. Please try again in a moment.",
-errorNetwork:
-  "Network problem. Check your connection and try again.",
-resultsCountLabel: (n: number) =>
-  n === 0
-    ? "No options found."
-    : n === 1
-    ? "I’ve found 1 option for you."
-    : `I’ve found ${n} options for you.`,
 
+  en: {
     tagline: "Write what you need, I’ll find it for you.",
     placeholder: "E.g. iPhone 13 mini blue under 350 CHF in Switzerland",
     search: "Search",
@@ -83,19 +74,19 @@ resultsCountLabel: (n: number) =>
       "Your searches are used only to improve results. We do not sell data to third parties.",
     resultsTitle: "Results",
     empty: "Start a search to see how it works 👆",
-  },
-  fr: {
+    resultsCountLabel: (n: number) =>
+      n === 0
+        ? "No options found."
+        : n === 1
+        ? "I’ve found 1 option for you."
+        : `I’ve found ${n} options for you.`,
     errorSearch:
-  "Erreur lors de la recherche. Réessaie dans un instant.",
-errorNetwork:
-  "Problème de connexion. Vérifie ta connexion et réessaie.",
-resultsCountLabel: (n: number) =>
-  n === 0
-    ? "Aucune option trouvée."
-    : n === 1
-    ? "J’ai trouvé 1 option pour toi."
-    : `J’ai trouvé ${n} options pour toi.`,
+      "Error while searching. Please try again in a moment.",
+    errorNetwork:
+      "Network problem. Check your connection and try again.",
+  },
 
+  fr: {
     tagline: "Écris ce que tu cherches, je le trouve pour toi.",
     placeholder: "Ex. iPhone 13 mini bleu à moins de 350 CHF en Suisse",
     search: "Rechercher",
@@ -124,19 +115,19 @@ resultsCountLabel: (n: number) =>
       "Tes recherches servent uniquement à améliorer les résultats. Nous ne vendons jamais tes données.",
     resultsTitle: "Résultats",
     empty: "Fais une recherche pour voir un exemple 👆",
-  },
-  de: {
+    resultsCountLabel: (n: number) =>
+      n === 0
+        ? "Aucune option trouvée."
+        : n === 1
+        ? "J’ai trouvé 1 option pour toi."
+        : `J’ai trouvé ${n} options pour toi.`,
     errorSearch:
-  "Fehler bei der Suche. Bitte versuche es in Kürze erneut.",
-errorNetwork:
-  "Netzwerkproblem. Bitte prüfe deine Verbindung und versuche es erneut.",
-resultsCountLabel: (n: number) =>
-  n === 0
-    ? "Keine Option gefunden."
-    : n === 1
-    ? "Ich habe 1 Option für dich gefunden."
-    : `Ich habe ${n} Optionen für dich gefunden.`,
+      "Erreur lors de la recherche. Réessaie dans un instant.",
+    errorNetwork:
+      "Problème de connexion. Vérifie ta connexion et réessaie.",
+  },
 
+  de: {
     tagline: "Schreib, was du suchst – ich finde es für dich.",
     placeholder: "Z.B. iPhone 13 mini blau unter 350 CHF in der Schweiz",
     search: "Suchen",
@@ -165,8 +156,19 @@ resultsCountLabel: (n: number) =>
       "Deine Suchanfragen werden nur verwendet, um bessere Ergebnisse zu liefern. Wir verkaufen keine Daten an Dritte.",
     resultsTitle: "Ergebnisse",
     empty: "Starte eine Suche, um ein Beispiel zu sehen 👆",
+    resultsCountLabel: (n: number) =>
+      n === 0
+        ? "Keine Option gefunden."
+        : n === 1
+        ? "Ich habe 1 Option für dich gefunden."
+        : `Ich habe ${n} Optionen für dich gefunden.`,
+    errorSearch:
+      "Fehler bei der Suche. Bitte versuche es in Kürze erneut.",
+    errorNetwork:
+      "Netzwerkproblem. Bitte prüfe deine Verbindung und versuche es erneut.",
   },
 } as const;
+
 
 type ResultItem = {
   title?: string;
