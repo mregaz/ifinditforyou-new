@@ -1,126 +1,151 @@
-// app/privacy/page.tsx
+"use client";
+
+import { useEffect, useState } from "react";
+import { Lang, normalizeLang } from "@/lib/lang";
+import { PRIVACY_TEXTS, type PrivacyContent } from "@/lib/privacy";
+
 export default function PrivacyPage() {
+  const [lang, setLang] = useState<Lang>("it");
+  const [content, setContent] = useState<PrivacyContent>(PRIVACY_TEXTS.it);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const urlLang = params.get("lang");
+      const normalized = normalizeLang(urlLang);
+      setLang(normalized);
+      setContent(PRIVACY_TEXTS[normalized]);
+    }
+  }, []);
+
+  const t = content;
+
+  const pageStyle = {
+    minHeight: "100vh",
+    margin: 0,
+    padding: "40px 16px",
+    backgroundColor: "#f8fafc",
+    color: "#0f172a",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "flex-start",
+    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+  } as const;
+
+  const containerStyle = {
+    width: "100%",
+    maxWidth: 800,
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    padding: 24,
+    boxShadow: "0 10px 30px rgba(15,23,42,0.08)",
+    border: "1px solid rgba(148,163,184,0.4)",
+  } as const;
+
+  const langLinkStyle = (code: Lang) =>
+    ({
+      fontSize: 12,
+      textDecoration: "underline",
+      cursor: "pointer",
+      color: lang === code ? "#1d4ed8" : "#64748b",
+      fontWeight: lang === code ? 600 : 400,
+    } as const);
+
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12 text-sm text-gray-800">
-      <main>
-  <p style={{ fontStyle: "italic", marginBottom: "1rem" }}>
-    L'informativa sulla protezione dei dati è attualmente disponibile solo in italiano.
-  </p>
-</main>
+    <main style={pageStyle}>
+      <article style={containerStyle}>
+        {/* Switch lingua in alto a destra */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: 8,
+            marginBottom: 12,
+            color: "#64748b",
+            fontSize: 12,
+          }}
+        >
+          <span>Lingua / Language:</span>
+          <a href="/privacy?lang=it" style={langLinkStyle("it")}>
+            IT
+          </a>
+          <span>|</span>
+          <a href="/privacy?lang=fr" style={langLinkStyle("fr")}>
+            FR
+          </a>
+          <span>|</span>
+          <a href="/privacy?lang=de" style={langLinkStyle("de")}>
+            DE
+          </a>
+          <span>|</span>
+          <a href="/privacy?lang=en" style={langLinkStyle("en")}>
+            EN
+          </a>
+        </div>
 
-      <h1 className="mb-6 text-2xl font-semibold">
-        Protezione dei dati personali (Privacy)
-      </h1>
-
-      <p className="mb-4 text-xs text-gray-500">
-        Ultimo aggiornamento: {new Date().getFullYear()}
-      </p>
-
-      <section className="mb-6">
-        <h2 className="mb-2 text-base font-semibold">1. Titolare del trattamento</h2>
-        <p>
-          Il titolare del trattamento dei dati personali relativi al servizio
-          IFindItForYou è la persona o l&apos;entità che gestisce il sito. I dati
-          di contatto sono disponibili nella pagina di contatto del sito.
+        <h1
+          style={{
+            fontSize: 24,
+            fontWeight: 700,
+            marginBottom: 4,
+          }}
+        >
+          {t.title}
+        </h1>
+        <p
+          style={{
+            fontSize: 13,
+            color: "#6b7280",
+            marginBottom: 16,
+          }}
+        >
+          {t.lastUpdated}
         </p>
-      </section>
 
-      <section className="mb-6">
-        <h2 className="mb-2 text-base font-semibold">2. Dati raccolti</h2>
-        <p className="mb-2">In funzione dell&apos;uso del servizio, possiamo trattare:</p>
-        <ul className="ml-5 list-disc space-y-1">
-          <li>
-            dati tecnici di navigazione (es. indirizzo IP, log del server, informazioni
-            sul browser);
-          </li>
-          <li>
-            dati forniti volontariamente dall&apos;utente (es. indirizzo e-mail, testo
-            delle richieste inviate tramite il servizio);
-          </li>
-          <li>
-            dati relativi ai pagamenti per il piano PRO, gestiti da Stripe (IFindItForYou
-            non memorizza i dati completi della carta).
-          </li>
-        </ul>
-      </section>
+        {lang !== "it" && (
+          <p
+            style={{
+              fontSize: 12,
+              fontStyle: "italic",
+              padding: "8px 10px",
+              borderRadius: 8,
+              backgroundColor: "#eff6ff",
+              color: "#1e3a8a",
+              marginBottom: 16,
+            }}
+          >
+            La versione ufficiale di riferimento è quella in italiano. Questa è
+            una traduzione fornita a scopo informativo.
+          </p>
+        )}
 
-      <section className="mb-6">
-        <h2 className="mb-2 text-base font-semibold">3. Finalità del trattamento</h2>
-        <p className="mb-2">
-          I dati vengono trattati per le seguenti finalità principali:
-        </p>
-        <ul className="ml-5 list-disc space-y-1">
-          <li>erogare il servizio di ricerca richiesto dall&apos;utente;</li>
-          <li>gestire eventuali piani in abbonamento (Free / PRO);</li>
-          <li>garantire sicurezza e prevenire abusi o utilizzi illeciti del servizio;</li>
-          <li>rispondere a eventuali richieste di supporto inviate dall&apos;utente.</li>
-        </ul>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="mb-2 text-base font-semibold">
-          4. Base giuridica del trattamento
-        </h2>
-        <p>
-          La base giuridica del trattamento è, a seconda dei casi, l&apos;esecuzione di
-          un contratto (fornitura del servizio richiesto), l&apos;adempimento di obblighi
-          legali e il legittimo interesse del titolare a mantenere la sicurezza e il
-          corretto funzionamento del servizio.
-        </p>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="mb-2 text-base font-semibold">5. Conservazione dei dati</h2>
-        <p>
-          I dati sono conservati per il tempo strettamente necessario a fornire il
-          servizio, adempiere agli obblighi di legge e tutelare i diritti del titolare
-          in caso di contenzioso. I log tecnici possono essere conservati per un periodo
-          limitato per finalità di sicurezza e manutenzione.
-        </p>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="mb-2 text-base font-semibold">6. Dati di pagamento</h2>
-        <p>
-          I pagamenti per il piano PRO sono gestiti da Stripe in qualità di fornitore
-          terzo. IFindItForYou non ha accesso ai dati completi della carta di pagamento.
-          Per maggiori informazioni, si rimanda all&apos;informativa privacy di Stripe.
-        </p>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="mb-2 text-base font-semibold">
-          7. Diritti dell&apos;utente (es. GDPR)
-        </h2>
-        <p className="mb-2">
-          Nei limiti previsti dalla normativa applicabile (ad esempio il GDPR per gli
-          utenti nello Spazio Economico Europeo), l&apos;utente può avere diritto a:
-        </p>
-        <ul className="ml-5 list-disc space-y-1">
-          <li>accedere ai propri dati personali;</li>
-          <li>chiederne la rettifica o la cancellazione;</li>
-          <li>limitare o opporsi a determinati trattamenti;</li>
-          <li>richiedere la portabilità dei dati;</li>
-          <li>presentare reclamo all&apos;autorità di controllo competente.</li>
-        </ul>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="mb-2 text-base font-semibold">8. Cookie e tecnologie simili</h2>
-        <p>
-          Il sito può utilizzare cookie tecnici necessari al funzionamento del servizio
-          e, se previsto, cookie analitici o di terze parti. Maggiori dettagli possono
-          essere forniti in una eventuale cookie policy dedicata.
-        </p>
-      </section>
-
-      <section>
-        <h2 className="mb-2 text-base font-semibold">9. Contatti</h2>
-        <p>
-          Per domande sulla protezione dei dati personali o per esercitare i tuoi
-          diritti, puoi utilizzare i recapiti indicati sul sito.
-        </p>
-      </section>
+        {t.sections.map((section, idx) => (
+          <section key={idx} style={{ marginBottom: 16 }}>
+            <h2
+              style={{
+                fontSize: 16,
+                fontWeight: 600,
+                marginBottom: 6,
+              }}
+            >
+              {section.heading}
+            </h2>
+            {section.paragraphs.map((p, i) => (
+              <p
+                key={i}
+                style={{
+                  fontSize: 14,
+                  color: "#111827",
+                  marginBottom: 6,
+                  lineHeight: 1.6,
+                }}
+              >
+                {p}
+              </p>
+            ))}
+          </section>
+        ))}
+      </article>
     </main>
   );
 }
