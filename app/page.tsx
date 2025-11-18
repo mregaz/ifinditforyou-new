@@ -5,6 +5,10 @@ import { Lang } from "@/lib/lang";
 
 const UI_TEXTS = {
   it: {
+    errorSearch: "Errore nella ricerca. Riprova tra poco.",
+errorNetwork:
+  "Problema di rete. Controlla la connessione e riprova.",
+
     tagline: "Scrivi cosa cerchi, io lo trovo per te.",
     placeholder: "Es. iPhone 13 mini blu sotto 350 CHF in Svizzera",
     search: "Cerca",
