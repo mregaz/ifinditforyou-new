@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Lang } from "@/lib/lang"; // 👈 AGGIUNTO
-
+import { Lang } from "@/lib/lang";
 
 const UI_TEXTS = {
   it: {
@@ -35,7 +34,6 @@ const UI_TEXTS = {
     resultsTitle: "Risultati",
     empty: "Fai una ricerca per vedere qualche esempio 👆",
   },
-
   en: {
     tagline: "Write what you need, I’ll find it for you.",
     placeholder: "E.g. iPhone 13 mini blue under 350 CHF in Switzerland",
@@ -66,7 +64,6 @@ const UI_TEXTS = {
     resultsTitle: "Results",
     empty: "Start a search to see how it works 👆",
   },
-
   fr: {
     tagline: "Écris ce que tu cherches, je le trouve pour toi.",
     placeholder: "Ex. iPhone 13 mini bleu à moins de 350 CHF en Suisse",
@@ -97,7 +94,6 @@ const UI_TEXTS = {
     resultsTitle: "Résultats",
     empty: "Fais une recherche pour voir un exemple 👆",
   },
-
   de: {
     tagline: "Schreib, was du suchst – ich finde es für dich.",
     placeholder: "Z.B. iPhone 13 mini blau unter 350 CHF in der Schweiz",
@@ -130,13 +126,42 @@ const UI_TEXTS = {
   },
 } as const;
 
+type ResultItem = {
+  title?: string;
+  url?: string;
+  price?: string;
+  source?: string;
+};
+
+function InfoBlock({ title, text }: { title: string; text: string }) {
+  return (
+    <section
+      style={{
+        padding: "10px 12px",
+        borderRadius: 12,
+        background: "#ffffff",
+        border: "1px solid rgba(148,163,184,0.4)",
+        fontSize: 13,
+      }}
+    >
+      <h3
+        style={{
+          fontSize: 14,
+          fontWeight: 600,
+          marginBottom: 6,
+        }}
+      >
+        {title}
+      </h3>
+      <p style={{ opacity: 0.85 }}>{text}</p>
+    </section>
+  );
+}
+
 export default function HomePage() {
   const [lang, setLang] = useState<Lang>("it");
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
-  const [sortMode, setSortMode] = useState<
-    "relevance" | "priceAsc" | "priceDesc"
-  >("relevance");
+  const [results, setResults] = useState<ResultItem[]>([]);
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
   const [credits, setCredits] = useState(2);
@@ -153,17 +178,14 @@ export default function HomePage() {
       if (savedLang && UI_TEXTS[savedLang]) {
         setLang(savedLang);
       }
-
       const savedCredits = localStorage.getItem("ifiy_credits");
       if (savedCredits !== null) {
         setCredits(parseInt(savedCredits, 10));
       }
-
       const savedPro = localStorage.getItem("ifiy_isPro");
       if (savedPro === "true") {
         setIsPro(true);
       }
-
       const savedEmail = localStorage.getItem("ifiy_email");
       if (savedEmail) {
         setUserEmail(savedEmail);
@@ -179,7 +201,6 @@ export default function HomePage() {
       localStorage.setItem("ifiy_credits", String(credits));
       localStorage.setItem("ifiy_isPro", isPro ? "true" : "false");
       localStorage.setItem("ifiy_lang", lang);
-
       if (userEmail) {
         localStorage.setItem("ifiy_email", userEmail);
       }
@@ -188,20 +209,16 @@ export default function HomePage() {
     }
   }, [credits, isPro, lang, userEmail]);
 
-  // Ricerca principale
   async function handleSearch(e?: React.FormEvent) {
     if (e) e.preventDefault();
-
     const q = query.trim();
     if (!q) return;
 
-    // logica crediti + email-gate
     if (!isPro) {
       if (credits <= 0) {
         alert(t.outOfCredits);
         return;
       }
-
       if (credits === 1 && !userEmail) {
         setShowEmailGate(true);
         return;
@@ -243,7 +260,6 @@ export default function HomePage() {
     }
   }
 
-  // Chiamata quando l'utente inserisce l'email nella modale
   const handleEmailCollected = async (email: string) => {
     setUserEmail(email);
     setShowEmailGate(false);
@@ -261,48 +277,11 @@ export default function HomePage() {
     await handleSearch();
   };
 
-function handleGoPro() {
-  // porta con te la lingua attuale nella query string
-  window.location.href = `/pro?lang=${lang}`;
-}
-
-}
-
-
-  // Ordinamento risultati in base a sortMode
-  function getSortedResults() {
-    if (sortMode === "relevance") return results;
-
-    const withPrice = results.filter((r) => r.price);
-    const withoutPrice = results.filter((r) => !r.price);
-
-    function extractNumber(str: string) {
-      const match = str.replace(/[^\d.,]/g, "").replace(",", ".");
-      return parseFloat(match) || 0;
-    }
-
-    if (sortMode === "priceAsc") {
-      return [
-        ...withPrice.sort(
-          (a, b) => extractNumber(a.price) - extractNumber(b.price),
-        ),
-        ...withoutPrice,
-      ];
-    }
-
-    if (sortMode === "priceDesc") {
-      return [
-        ...withPrice.sort(
-          (a, b) => extractNumber(b.price) - extractNumber(a.price),
-        ),
-        ...withoutPrice,
-      ];
-    }
-
-    return results;
+  function handleGoPro() {
+    window.location.href = `/pro?lang=${lang}`;
   }
 
-   return (
+  return (
     <main
       style={{
         minHeight: "100vh",
@@ -329,9 +308,7 @@ function handleGoPro() {
             gap: 16,
           }}
         >
-          <div
-            style={{ fontWeight: 700, fontSize: 18, color: "#0f172a" }}
-          >
+          <div style={{ fontWeight: 700, fontSize: 18, color: "#0f172a" }}>
             iFindItForYou
           </div>
 
@@ -462,34 +439,14 @@ function handleGoPro() {
             </div>
           </form>
 
-          {/* messaggio crediti */}
           <div
             style={{
               fontSize: 13,
               opacity: 0.7,
-              marginBottom: 4,
+              marginBottom: 8,
             }}
           >
             {t.creditsLabel(credits, isPro)}
-          </div>
-
-          {/* banner spiegazione free model */}
-          <div
-            style={{
-              fontSize: 12,
-              opacity: 0.65,
-              marginBottom: 12,
-            }}
-          >
-            🎁
-            {lang === "it" &&
-              " Hai 2 ricerche gratuite: la prima senza email, la seconda con email."}
-            {lang === "en" &&
-              " You have 2 free searches: first without email, second with email."}
-            {lang === "fr" &&
-              " Tu as 2 recherches gratuites : la première sans email, la deuxième avec email."}
-            {lang === "de" &&
-              " Du hast 2 kostenlose Suchanfragen: die erste ohne E-Mail, die zweite mit E-Mail."}
           </div>
 
           <button
@@ -544,37 +501,6 @@ function handleGoPro() {
               <p style={{ fontSize: 14, opacity: 0.7 }}>{t.empty}</p>
             )}
 
-            {/* Messaggio out of credits */}
-            {!isPro && credits === 0 && (
-              <>
-                <p
-                  style={{
-                    marginTop: 12,
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: "#b91c1c",
-                  }}
-                >
-                  {t.outOfCredits}
-                </p>
-                <button
-                  onClick={handleGoPro}
-                  style={{
-                    marginTop: 8,
-                    borderRadius: 999,
-                    border: "1px solid #312e81",
-                    padding: "8px 16px",
-                    fontSize: 14,
-                    background: "#eef2ff",
-                    color: "#312e81",
-                    cursor: "pointer",
-                  }}
-                >
-                  {t.proCta}
-                </button>
-              </>
-            )}
-
             {summary && (
               <div
                 style={{
@@ -589,64 +515,6 @@ function handleGoPro() {
               </div>
             )}
 
-            {/* Frase: ho trovato X opzioni + select ordinamento */}
-            {results.length > 0 && (
-              <>
-                <p
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 600,
-                    marginBottom: 6,
-                    color: "#0f172a",
-                  }}
-                >
-                  {lang === "it" && `Ho trovato ${results.length} opzioni per te:`}
-                  {lang === "en" && `I found ${results.length} options for you:`}
-                  {lang === "fr" &&
-                    `J’ai trouvé ${results.length} options pour toi :`}
-                  {lang === "de" &&
-                    `${results.length} Optionen für dich gefunden:`}
-                </p>
-
-                <div style={{ marginBottom: 10 }}>
-                  <select
-                    value={sortMode}
-                    onChange={(e) =>
-                      setSortMode(
-                        e.target.value as "relevance" | "priceAsc" | "priceDesc",
-                      )
-                    }
-                    style={{
-                      padding: "6px 10px",
-                      borderRadius: 8,
-                      border: "1px solid rgba(148,163,184,0.6)",
-                      background: "#fff",
-                      fontSize: 13,
-                    }}
-                  >
-                    <option value="relevance">
-                      {lang === "it" && "Rilevanza (default)"}
-                      {lang === "en" && "Relevance (default)"}
-                      {lang === "fr" && "Pertinence (défaut)"}
-                      {lang === "de" && "Relevanz (Standard)"}
-                    </option>
-                    <option value="priceAsc">
-                      {lang === "it" && "Prezzo: dal più basso"}
-                      {lang === "en" && "Price: low to high"}
-                      {lang === "fr" && "Prix : du plus bas"}
-                      {lang === "de" && "Preis: niedrig zu hoch"}
-                    </option>
-                    <option value="priceDesc">
-                      {lang === "it" && "Prezzo: dal più alto"}
-                      {lang === "en" && "Price: high to low"}
-                      {lang === "fr" && "Prix : du plus élevé"}
-                      {lang === "de" && "Preis: hoch zu niedrig"}
-                    </option>
-                  </select>
-                </div>
-              </>
-            )}
-
             <div
               style={{
                 display: "flex",
@@ -654,7 +522,7 @@ function handleGoPro() {
                 gap: 8,
               }}
             >
-              {getSortedResults().map((item, idx) => (
+              {results.map((item, idx) => (
                 <a
                   key={idx}
                   href={item.url ?? "#"}
@@ -664,29 +532,16 @@ function handleGoPro() {
                     textDecoration: "none",
                     color: "inherit",
                     borderRadius: 12,
-                    padding: "14px 16px",
+                    padding: "10px 12px",
                     background: "#ffffff",
-                    border: "1px solid rgba(148,163,184,0.35)",
-                    boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
-                    transition: "all 0.15s ease",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 6,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow =
-                      "0 2px 8px rgba(0,0,0,0.12)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow =
-                      "0 1px 2px rgba(0,0,0,0.04)";
+                    border: "1px solid rgba(148,163,184,0.4)",
                   }}
                 >
                   <div
                     style={{
                       fontWeight: 600,
-                      fontSize: 15,
-                      lineHeight: 1.3,
+                      fontSize: 14,
+                      marginBottom: 4,
                     }}
                   >
                     {item.title ?? "Senza titolo"}
@@ -695,14 +550,13 @@ function handleGoPro() {
                     style={{
                       fontSize: 12,
                       opacity: 0.7,
-                      display: "flex",
-                      gap: 8,
                     }}
                   >
                     {item.source && <span>{item.source}</span>}
                     {item.price && (
                       <span>
-                        · <strong>{item.price}</strong>
+                        {" "}
+                        • <strong>{item.price}</strong>
                       </span>
                     )}
                   </div>
@@ -869,30 +723,6 @@ function EmailGateModal({
           Niente spam, solo aggiornamenti importanti su iFindItForYou.
         </p>
       </div>
-    </div>
-  );
-}
-
-function InfoBlock({ title, text }: { title: string; text: string }) {
-  return (
-    <div
-      style={{
-        background: "#ffffff",
-        borderRadius: 12,
-        padding: "10px 12px",
-        border: "1px solid rgba(148,163,184,0.4)",
-      }}
-    >
-      <div
-        style={{
-          fontWeight: 600,
-          marginBottom: 4,
-          fontSize: 13,
-        }}
-      >
-        {title}
-      </div>
-      <div style={{ opacity: 0.8, lineHeight: 1.5 }}>{text}</div>
     </div>
   );
 }
