@@ -584,7 +584,7 @@ export default function HomePage() {
         >
                    {/* Colonna risultati */}
           <div>
-          <h2
+    <h2
   style={{
     fontSize: 16,
     fontWeight: 600,
@@ -673,6 +673,7 @@ export default function HomePage() {
     </a>
   ))}
 </div>
+
 
                 <a
                   key={idx}
