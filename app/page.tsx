@@ -376,8 +376,7 @@ export default function HomePage() {
 
   function handleGoPro() {
     window.location.href = `/pro?lang=${lang}`;
-  }
-
+  
   return (
     <main
       style={{
