@@ -376,7 +376,7 @@ export default function HomePage() {
 
   function handleGoPro() {
     window.location.href = `/pro?lang=${lang}`;
-  
+  }
   return (
     <main
       style={{
@@ -581,7 +581,7 @@ export default function HomePage() {
             gap: 24,
           }}
         >
-            {/* Colonna risultati */}
+          {/* Colonna risultati */}
           <div>
             <h2
               style={{
@@ -606,10 +606,12 @@ export default function HomePage() {
               </p>
             )}
 
+            {/* Testo vuoto iniziale */}
             {results.length === 0 && !summary && (
               <p style={{ fontSize: 14, opacity: 0.7 }}>{t.empty}</p>
             )}
 
+            {/* Riassunto AI */}
             {summary && (
               <div
                 style={{
@@ -624,6 +626,7 @@ export default function HomePage() {
               </div>
             )}
 
+            {/* Lista risultati */}
             <div
               style={{
                 display: "flex",
@@ -674,50 +677,6 @@ export default function HomePage() {
             </div>
           </div>
 
-
-                <a
-                  key={idx}
-                  href={item.url ?? "#"}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    textDecoration: "none",
-                    color: "inherit",
-                    borderRadius: 12,
-                    padding: "10px 12px",
-                    background: "#ffffff",
-                    border: "1px solid rgba(148,163,184,0.4)",
-                  }}
-                >
-                  <div
-                    style={{
-                      fontWeight: 600,
-                      fontSize: 14,
-                      marginBottom: 4,
-                    }}
-                  >
-                    {item.title ?? "Senza titolo"}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      opacity: 0.7,
-                    }}
-                  >
-                    {item.source && <span>{item.source}</span>}
-                    {item.price && (
-                      <span>
-                        {" "}
-                        • <strong>{item.price}</strong>
-                      </span>
-                    )}
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-
-
           {/* Colonna testo marketing */}
           <div
             style={{
@@ -737,6 +696,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
 
       {/* Modale email-gate */}
       <EmailGateModal
