@@ -581,97 +581,98 @@ export default function HomePage() {
             gap: 24,
           }}
         >
-                   {/* Colonna risultati */}
+            {/* Colonna risultati */}
           <div>
-    <h2
-  style={{
-    fontSize: 16,
-    fontWeight: 600,
-    marginBottom: 4,
-  }}
->
-  {t.resultsTitle}
-</h2>
+            <h2
+              style={{
+                fontSize: 16,
+                fontWeight: 600,
+                marginBottom: 12,
+              }}
+            >
+              {t.resultsTitle}
+            </h2>
 
-{/* Nuova riga: quanti risultati abbiamo trovato */}
-{results.length > 0 && (
-  <p
-    style={{
-      fontSize: 13,
-      opacity: 0.8,
-      marginBottom: 8,
-    }}
-  >
-    {t.resultsCount(results.length)}
-  </p>
-)}
+            {/* Nuova riga: quanti risultati abbiamo trovato */}
+            {results.length > 0 && (
+              <p
+                style={{
+                  fontSize: 13,
+                  opacity: 0.8,
+                  marginBottom: 8,
+                }}
+              >
+                {t.resultsCount(results.length)}
+              </p>
+            )}
 
-{results.length === 0 && !summary && (
-  <p style={{ fontSize: 14, opacity: 0.7 }}>{t.empty}</p>
-)}
+            {results.length === 0 && !summary && (
+              <p style={{ fontSize: 14, opacity: 0.7 }}>{t.empty}</p>
+            )}
 
-{summary && (
-  <div
-    style={{
-      marginBottom: 12,
-      padding: "10px 12px",
-      borderRadius: 12,
-      background: "#e5e7eb",
-      fontSize: 14,
-    }}
-  >
-    {summary}
-  </div>
-)}
+            {summary && (
+              <div
+                style={{
+                  marginBottom: 12,
+                  padding: "10px 12px",
+                  borderRadius: 12,
+                  background: "#e5e7eb",
+                  fontSize: 14,
+                }}
+              >
+                {summary}
+              </div>
+            )}
 
-<div
-  style={{
-    display: "flex",
-    flexDirection: "column",
-    gap: 8,
-  }}
->
-  {results.map((item, idx) => (
-    <a
-      key={idx}
-      href={item.url ?? "#"}
-      target="_blank"
-      rel="noreferrer"
-      style={{
-        textDecoration: "none",
-        color: "inherit",
-        borderRadius: 12,
-        padding: "10px 12px",
-        background: "#ffffff",
-        border: "1px solid rgba(148,163,184,0.4)",
-      }}
-    >
-      <div
-        style={{
-          fontWeight: 600,
-          fontSize: 14,
-          marginBottom: 4,
-        }}
-      >
-        {item.title ?? "Senza titolo"}
-      </div>
-      <div
-        style={{
-          fontSize: 12,
-          opacity: 0.7,
-        }}
-      >
-        {item.source && <span>{item.source}</span>}
-        {item.price && (
-          <span>
-            {" "}
-            • <strong>{item.price}</strong>
-          </span>
-        )}
-      </div>
-    </a>
-  ))}
-</div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+              }}
+            >
+              {results.map((item, idx) => (
+                <a
+                  key={idx}
+                  href={item.url ?? "#"}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    textDecoration: "none",
+                    color: "inherit",
+                    borderRadius: 12,
+                    padding: "10px 12px",
+                    background: "#ffffff",
+                    border: "1px solid rgba(148,163,184,0.4)",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontWeight: 600,
+                      fontSize: 14,
+                      marginBottom: 4,
+                    }}
+                  >
+                    {item.title ?? "Senza titolo"}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      opacity: 0.7,
+                    }}
+                  >
+                    {item.source && <span>{item.source}</span>}
+                    {item.price && (
+                      <span>
+                        {" "}
+                        • <strong>{item.price}</strong>
+                      </span>
+                    )}
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
 
 
                 <a
