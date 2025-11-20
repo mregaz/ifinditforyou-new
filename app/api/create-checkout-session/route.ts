@@ -1,6 +1,7 @@
 // app/api/create-checkout-session/route.ts
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
+import { getUserFromRequest } from "@/lib/auth"; // <-- Devi averla
 
 type BillingPeriod = "monthly" | "yearly";
 
@@ -12,12 +13,10 @@ function getPriceId(billingPeriod: BillingPeriod): string | null {
 }
 
 function getBaseUrl(req: Request): string {
-  // Se è settata NEXT_PUBLIC_APP_URL, la usiamo
   if (process.env.NEXT_PUBLIC_APP_URL) {
     return process.env.NEXT_PUBLIC_APP_URL;
   }
 
-  // Next.js dà accesso all'URL assoluto della request
   try {
     const url = new URL(req.url);
     return url.origin;
@@ -30,7 +29,6 @@ export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => null);
 
-    // Validazione: billingPeriod obbligatorio
     if (!body || (body.billingPeriod !== "monthly" && body.billingPeriod !== "yearly")) {
       return NextResponse.json(
         { error: "Parametro billingPeriod mancante o non valido." },
@@ -50,18 +48,26 @@ export async function POST(req: Request) {
 
     const baseUrl = getBaseUrl(req);
 
-    // Creazione sessione Stripe Checkout
-    const session = await stripe.checkout.sessions.create({
-  mode: "subscription",
-  line_items: [{ price: priceId, quantity: 1 }],
-  success_url: `${baseUrl}/success`,
-  cancel_url: `${baseUrl}/pay/cancel`,
-  metadata: {
-    userId: user.id,  // 👈 NECESSARIO
-    email: user.email,  // non obbligatorio, ma consigliato
-  },
-});
+    // 🔐 Recupero utente dal token/supabase
+    const user = await getUserFromRequest(req);
+    if (!user) {
+      return NextResponse.json(
+        { error: "Utente non autenticato." },
+        { status: 401 }
+      );
+    }
 
+    // 🎉 Creazione sessione Stripe Checkout
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${baseUrl}/success`,
+      cancel_url: `${baseUrl}/pay/cancel`,
+      metadata: {
+        userId: user.id,     // 👈 adesso funziona
+        email: user.email,    // opzionale
+      },
+    });
 
     if (!session.url) {
       return NextResponse.json(
@@ -74,9 +80,5 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Stripe error:", error);
     return NextResponse.json(
-      { error: "Errore nel creare la sessione Stripe." },
-      { status: 500 }
-    );
-  }
-}
+      { error: "Errore ne
 
