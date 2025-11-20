@@ -52,7 +52,6 @@ export async function POST(req: Request) {
 
     // Creazione sessione Stripe Checkout
     const session = await stripe.checkout.sessions.create({
-const session = await stripe.checkout.sessions.create({
   mode: "subscription",
   line_items: [{ price: priceId, quantity: 1 }],
   success_url: `${baseUrl}/success`,
