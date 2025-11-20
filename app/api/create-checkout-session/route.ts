@@ -1,7 +1,6 @@
 // app/api/create-checkout-session/route.ts
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
-import { getUserFromRequest } from "@/lib/auth"; // <-- Devi averla
 
 type BillingPeriod = "monthly" | "yearly";
 
@@ -48,25 +47,11 @@ export async function POST(req: Request) {
 
     const baseUrl = getBaseUrl(req);
 
-    // 🔐 Recupero utente dal token/supabase
-    const user = await getUserFromRequest(req);
-    if (!user) {
-      return NextResponse.json(
-        { error: "Utente non autenticato." },
-        { status: 401 }
-      );
-    }
-
-    // 🎉 Creazione sessione Stripe Checkout
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${baseUrl}/success`,
       cancel_url: `${baseUrl}/pay/cancel`,
-      metadata: {
-        userId: user.id,     // 👈 adesso funziona
-        email: user.email,    // opzionale
-      },
     });
 
     if (!session.url) {
@@ -80,5 +65,9 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Stripe error:", error);
     return NextResponse.json(
-      { error: "Errore ne
+      { error: "Errore nel creare la sessione Stripe." },
+      { status: 500 }
+    );
+  }
+}
 
