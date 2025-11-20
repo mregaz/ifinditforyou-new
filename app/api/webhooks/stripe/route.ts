@@ -32,27 +32,28 @@ export async function POST(req: NextRequest) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
 
-        // 🔑 Assunzione: quando crei la checkout session
-        // passi userId in metadata (metadata: { userId })
+        // 1️⃣ Recupero metadata
         const metaUserId = session.metadata?.userId ?? null;
 
-        // Fallback: usiamo l'email se non abbiamo userId in metadata
+        // 2️⃣ Fallback email
         const email =
-          session.customer_details?.email || session.customer_email || undefined;
+          session.customer_details?.email ||
+          session.customer_email ||
+          undefined;
 
         const amountTotal = session.amount_total ?? 0;
 
         let userId: string | null = metaUserId;
 
-        // Se non abbiamo userId ma abbiamo l'email → upsert user
+        // 3️⃣ Se manca userId ma abbiamo email → upsert user
         if (!userId && email) {
           const user = await prisma.user.upsert({
             where: { email },
-            update: {}, // esiste già, non tocchiamo altro qui
+            update: {},
             create: {
               email,
               credits: 0,
-              plan: "free", // verrà aggiornato subito dopo a "pro"
+              plan: "free",
             },
           });
           userId = user.id;
@@ -65,35 +66,36 @@ export async function POST(req: NextRequest) {
           break;
         }
 
-        // 1️⃣ Salviamo il pagamento
-        await prisma.payment.create({
-          data: {
+        // 4️⃣ Salviamo il pagamento
+        await prisma.payment.upsert({
+          where: { stripeSessionId: session.id },
+          update: {},
+          create: {
             userId,
             stripeSessionId: session.id,
             amount: amountTotal,
-            creditsGranted: 0, // se in futuro vuoi dare crediti, aggiorna qui
+            creditsGranted: 0,
           },
         });
 
-        // 2️⃣ Aggiorniamo il piano a PRO
+        // 5️⃣ Aggiorniamo il piano a PRO
         await prisma.user.update({
           where: { id: userId },
           data: { plan: "pro" },
         });
 
-        console.log(`✅ Utente ${userId} aggiornato a PRO da Stripe webhook`);
+        console.log(`✅ Utente ${userId} aggiornato a PRO!`);
         break;
       }
 
       default:
-        // Per ora ignoriamo gli altri eventi, ma puoi loggarli se vuoi
-        // console.log(`Unhandled Stripe event type: ${event.type}`);
+        // altri eventi ignorati
         break;
     }
 
     return new NextResponse("ok", { status: 200 });
   } catch (err) {
-    console.error("❌ Errore nel gestire l'evento Stripe:", err);
+    console.error("❌ Errore nel webhook Stripe:", err);
     return new NextResponse("Webhook handler failed", { status: 500 });
   }
 }
