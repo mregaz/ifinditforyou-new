@@ -10,13 +10,15 @@ datasource db {
 
 model User {
   id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  plan      String   @default("free")
+  email     String   @unique      @db.Text      // <— IMPORTANTE: @unique
+  name      String?                 @db.Text
+  plan      String   @default("free") @db.Text
   credits   Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt      @db.Timestamptz
+
+  // relazioni
   searches  Search[]
   payments  Payment[]
 }
