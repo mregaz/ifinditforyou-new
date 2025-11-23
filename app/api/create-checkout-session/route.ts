@@ -6,7 +6,6 @@ export async function POST(req: NextRequest) {
   try {
     const { priceId } = await req.json();
 
-    // 0️⃣ Validazione input di base
     if (!priceId) {
       return NextResponse.json(
         { error: "priceId mancante nel body della richiesta" },
@@ -14,7 +13,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 1️⃣ Legge la base URL dall'ENV
     const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL;
 
     if (!rawBaseUrl) {
@@ -25,9 +23,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const baseUrl = rawBaseUrl.trim().replace(/\/+$/, ""); // toglie spazi e slash finali
+    const baseUrl = rawBaseUrl.trim().replace(/\/+$/, "");
 
-    // 2️⃣ Controllo extra: deve iniziare con http
     if (!baseUrl.startsWith("http")) {
       console.error("❌ NEXT_PUBLIC_APP_URL non valida:", baseUrl);
       return NextResponse.json(
@@ -36,20 +33,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ATTENZIONE:
-    // Se le tue pagine reali fossero /fr/success e /fr/pay/cancel,
-    // qui basta cambiare i path.
     const successUrl = `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${baseUrl}/pay/cancel`;
 
-    console.log("✅ URL usate per Stripe:", { baseUrl, successUrl, cancelUrl });
+    console.log("✅ URL usate per Stripe:", { successUrl, cancelUrl });
 
-    // 3️⃣ Crea la sessione Stripe
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [
         {
-          price: priceId, // oppure process.env.STRIPE_PRICE_ID
+          price: priceId,
           quantity: 1,
         },
       ],
@@ -67,7 +60,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// opzionale ma utile per evitare usi errati dell'endpoint
 export async function GET() {
   return NextResponse.json(
     { error: "Usa il metodo POST per creare una sessione di Checkout" },
