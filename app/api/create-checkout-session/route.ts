@@ -4,35 +4,52 @@ import { stripe } from "@/lib/stripe";
 
 export async function POST(req: NextRequest) {
   try {
-    const { priceId } = await req.json(); // o quello che usi tu
+    const { priceId } = await req.json();
+
+    // 0️⃣ Validazione input di base
+    if (!priceId) {
+      return NextResponse.json(
+        { error: "priceId mancante nel body della richiesta" },
+        { status: 400 }
+      );
+    }
 
     // 1️⃣ Legge la base URL dall'ENV
-    const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
-    const cleanedBaseUrl = rawBaseUrl.trim().replace(/\/+$/, ""); // toglie spazi e slash finali
+    const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL;
 
-    // 2️⃣ Fallback sicuro se l'ENV è vuoto
-    const baseUrl = cleanedBaseUrl || "https://ifinditforyou.com";
-
-    // 3️⃣ Controllo extra: deve iniziare con http
-    if (!baseUrl.startsWith("http")) {
-      console.error("❌ NEXT_PUBLIC_APP_URL non valida:", baseUrl);
+    if (!rawBaseUrl) {
+      console.error("❌ NEXT_PUBLIC_APP_URL non è definita");
       return NextResponse.json(
-        { error: "Configurazione URL non valida" },
+        { error: "Configurazione NEXT_PUBLIC_APP_URL mancante" },
         { status: 500 }
       );
     }
 
-    const successUrl = `${baseUrl}/success`;
+    const baseUrl = rawBaseUrl.trim().replace(/\/+$/, ""); // toglie spazi e slash finali
+
+    // 2️⃣ Controllo extra: deve iniziare con http
+    if (!baseUrl.startsWith("http")) {
+      console.error("❌ NEXT_PUBLIC_APP_URL non valida:", baseUrl);
+      return NextResponse.json(
+        { error: "Configurazione NEXT_PUBLIC_APP_URL non valida" },
+        { status: 500 }
+      );
+    }
+
+    // ATTENZIONE:
+    // Se le tue pagine reali fossero /fr/success e /fr/pay/cancel,
+    // qui basta cambiare i path.
+    const successUrl = `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${baseUrl}/pay/cancel`;
 
-    console.log("✅ URL usate per Stripe:", { successUrl, cancelUrl });
+    console.log("✅ URL usate per Stripe:", { baseUrl, successUrl, cancelUrl });
 
-    // 4️⃣ Crea la sessione Stripe
+    // 3️⃣ Crea la sessione Stripe
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [
         {
-          price: priceId, // o process.env.STRIPE_PRICE_MONTHLY / YEARLY
+          price: priceId, // oppure process.env.STRIPE_PRICE_ID
           quantity: 1,
         },
       ],
@@ -42,12 +59,19 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
-    console.error("❌ Stripe error in create-checkout-session:", err?.message);
+    console.error("❌ Stripe error in create-checkout-session:", err);
     return NextResponse.json(
-      { error: "Stripe error: " + err?.message },
+      { error: "Stripe error: " + (err?.message ?? "errore sconosciuto") },
       { status: 500 }
     );
   }
 }
 
+// opzionale ma utile per evitare usi errati dell'endpoint
+export async function GET() {
+  return NextResponse.json(
+    { error: "Usa il metodo POST per creare una sessione di Checkout" },
+    { status: 405 }
+  );
+}
 
