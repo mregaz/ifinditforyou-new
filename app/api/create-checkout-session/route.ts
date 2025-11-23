@@ -2,60 +2,52 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
-function getBaseUrl() {
-  // Prova prima con NEXT_PUBLIC_APP_URL, poi con URL_APP, poi fallback
-  const raw =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    process.env.URL_APP ??
-    "";
-
-  // pulizia: trim + rimuovi eventuale "/" finale
-  const cleaned = raw.trim().replace(/\/+$/, "");
-
-  // fallback se vuoto o palesemente sbagliato
-  const baseUrl = cleaned || "https://ifinditforyou.com";
-
-  console.log("DEBUG baseUrl per Stripe:", JSON.stringify(baseUrl));
-
-  return baseUrl;
-}
-
 export async function POST(req: NextRequest) {
   try {
-    const { priceId, userId } = await req.json();
+    const { priceId } = await req.json(); // o quello che usi tu
 
-    if (!priceId) {
-      return new NextResponse("Missing priceId", { status: 400 });
+    // 1️⃣ Legge la base URL dall'ENV
+    const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+    const cleanedBaseUrl = rawBaseUrl.trim().replace(/\/+$/, ""); // toglie spazi e slash finali
+
+    // 2️⃣ Fallback sicuro se l'ENV è vuoto
+    const baseUrl = cleanedBaseUrl || "https://ifinditforyou.com";
+
+    // 3️⃣ Controllo extra: deve iniziare con http
+    if (!baseUrl.startsWith("http")) {
+      console.error("❌ NEXT_PUBLIC_APP_URL non valida:", baseUrl);
+      return NextResponse.json(
+        { error: "Configurazione URL non valida" },
+        { status: 500 }
+      );
     }
 
-    const baseUrl = getBaseUrl();
+    const successUrl = `${baseUrl}/success`;
+    const cancelUrl = `${baseUrl}/pay/cancel`;
 
+    console.log("✅ URL usate per Stripe:", { successUrl, cancelUrl });
+
+    // 4️⃣ Crea la sessione Stripe
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      payment_method_types: ["card", "link"],
       line_items: [
         {
-          price: priceId,
+          price: priceId, // o process.env.STRIPE_PRICE_MONTHLY / YEARLY
           quantity: 1,
         },
       ],
-      metadata: {
-        userId: userId ?? "",
-      },
-      success_url: `${baseUrl}/success`,
-      cancel_url: `${baseUrl}/pay/cancel`,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
     });
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
-    console.error("Stripe error in create-checkout-session:", err);
-    return new NextResponse(
-      `Stripe error: ${err?.message ?? "Unknown error"}`,
+    console.error("❌ Stripe error in create-checkout-session:", err?.message);
+    return NextResponse.json(
+      { error: "Stripe error: " + err?.message },
       { status: 500 }
     );
   }
 }
+
 
