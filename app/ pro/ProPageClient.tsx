@@ -83,7 +83,7 @@ export default function ProPageClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubscribe() {
+   async function handleSubscribe() {
     try {
       setLoading(true);
       setError(null);
@@ -94,12 +94,36 @@ export default function ProPageClient() {
         body: JSON.stringify({ billingPeriod }),
       });
 
-      const data = await res.json();
+      // Proviamo a leggere il JSON, ma senza andare in errore se non è valido
+      const data = await res.json().catch(() => null);
 
-      if (!res.ok || !data.url) {
-        setError("Errore nella creazione della sessione di pagamento.");
+      if (!res.ok) {
+        console.error("Errore API /api/create-checkout-session:", data);
+        setError(
+          (data && typeof data.error === "string" && data.error) ||
+            "Errore nella creazione della sessione di pagamento."
+        );
         return;
       }
+
+      if (!data || !data.url) {
+        console.error("Risposta API senza url di checkout:", data);
+        setError("URL di checkout non ricevuto da Stripe.");
+        return;
+      }
+
+      // Redirect a Stripe
+      window.location.href = data.url;
+    } catch (err) {
+      console.error("Errore generico in handleSubscribe:", err);
+      setError(
+        "Si è verificato un errore imprevisto. Riprova fra qualche secondo."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
 
       window.location.href = data.url;
     } catch (err) {
