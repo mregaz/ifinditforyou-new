@@ -2,48 +2,58 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 
-// Stripe vuole il runtime Node, NON Edge
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const appUrl =
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://ifinditforyou.com.vercel.app";
+function getBaseUrl() {
+  // Prova prima con NEXT_PUBLIC_APP_URL, poi con URL_APP, poi fallback
+  const raw =
+    process.env.NEXT_PUBLIC_APP_URL ??
+    process.env.URL_APP ??
+    "";
 
-const monthlyPriceId = process.env.STRIPE_PRICE_MONTHLY; // 👈 come in Vercel
+  // pulizia: trim + rimuovi eventuale "/" finale
+  const cleaned = raw.trim().replace(/\/+$/, "");
 
-if (!monthlyPriceId) {
-  throw new Error("Missing STRIPE_PRICE_MONTHLY environment variable");
+  // fallback se vuoto o palesemente sbagliato
+  const baseUrl = cleaned || "https://ifinditforyou.com";
+
+  console.log("DEBUG baseUrl per Stripe:", JSON.stringify(baseUrl));
+
+  return baseUrl;
 }
 
-export async function POST(_req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
+    const { priceId, userId } = await req.json();
+
+    if (!priceId) {
+      return new NextResponse("Missing priceId", { status: 400 });
+    }
+
+    const baseUrl = getBaseUrl();
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: ["card", "link"],
       line_items: [
         {
-          price: monthlyPriceId,
+          price: priceId,
           quantity: 1,
         },
       ],
-      success_url: `${appUrl}/success`,
-      cancel_url: `${appUrl}/pay/cancel`,
-      // metadata: userId ... NON la usiamo, il webhook fa fallback sull'email
+      metadata: {
+        userId: userId ?? "",
+      },
+      success_url: `${baseUrl}/success`,
+      cancel_url: `${baseUrl}/pay/cancel`,
     });
-
-    if (!session.url) {
-      throw new Error("Stripe non ha restituito una URL di Checkout");
-    }
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
-    console.error("❌ Errore Stripe create-checkout-session:", err?.message, err);
-
-    return NextResponse.json(
-      {
-        error:
-          "Errore nella creazione della sessione di pagamento. (server)",
-      },
+    console.error("Stripe error in create-checkout-session:", err);
+    return new NextResponse(
+      `Stripe error: ${err?.message ?? "Unknown error"}`,
       { status: 500 }
     );
   }
