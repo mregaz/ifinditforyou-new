@@ -2,17 +2,43 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 
+type BillingPeriod = "monthly" | "yearly";
+
 export async function POST(req: NextRequest) {
   try {
-    const { priceId } = await req.json();
+    const { billingPeriod } = (await req.json()) as {
+      billingPeriod?: BillingPeriod;
+    };
 
-    if (!priceId) {
+    // 0️⃣ Validazione input di base
+    if (billingPeriod !== "monthly" && billingPeriod !== "yearly") {
       return NextResponse.json(
-        { error: "priceId mancante nel body della richiesta" },
+        { error: "billingPeriod mancante o non valido" },
         { status: 400 }
       );
     }
 
+    // 1️⃣ Mappa billingPeriod -> priceId (dalle ENV)
+    const priceMonthly = process.env.STRIPE_PRICE_ID_MONTHLY;
+    const priceYearly = process.env.STRIPE_PRICE_ID_YEARLY;
+
+    const priceId =
+      billingPeriod === "monthly" ? priceMonthly : priceYearly;
+
+    if (!priceId) {
+      console.error(
+        "❌ Manca la ENV per il priceId:",
+        billingPeriod === "monthly"
+          ? "STRIPE_PRICE_ID_MONTHLY"
+          : "STRIPE_PRICE_ID_YEARLY"
+      );
+      return NextResponse.json(
+        { error: "Configurazione price Stripe mancante" },
+        { status: 500 }
+      );
+    }
+
+    // 2️⃣ Legge e valida la base URL
     const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL;
 
     if (!rawBaseUrl) {
@@ -33,11 +59,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // 3️⃣ URL di ritorno (abbiamo visto che le pagine reali sono /success e /pay/cancel)
     const successUrl = `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${baseUrl}/pay/cancel`;
 
     console.log("✅ URL usate per Stripe:", { successUrl, cancelUrl });
 
+    // 4️⃣ Crea la sessione Stripe
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [
@@ -66,4 +94,5 @@ export async function GET() {
     { status: 405 }
   );
 }
+
 
