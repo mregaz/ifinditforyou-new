@@ -85,16 +85,69 @@ export default function ProPageClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-    async function handleSubscribe() {
+   async function handleSubscribe() {
     try {
       setLoading(true);
       setError(null);
 
+      // 1️⃣ Recupera l'utente loggato da Supabase
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+
+      if (authError) {
+        console.error("Errore Supabase getUser:", authError);
+      }
+
+      if (!user) {
+        setError(
+          "Per abbonarti devi prima registrarti ed effettuare il login."
+        );
+        setLoading(false);
+        return;
+      }
+
+      // 2️⃣ Chiamata all'API con billingPeriod + userId + email
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ billingPeriod }),
+        body: JSON.stringify({
+          billingPeriod,
+          userId: user.id,
+          email: user.email ?? undefined,
+        }),
       });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        console.error("Errore API /api/create-checkout-session:", data);
+        setError(
+          (data && typeof data.error === "string" && data.error) ||
+            "Errore nella creazione della sessione di pagamento."
+        );
+        return;
+      }
+
+      if (!data || !data.url) {
+        console.error("Risposta API senza url di checkout:", data);
+        setError("URL di checkout non ricevuto da Stripe.");
+        return;
+      }
+
+      // 3️⃣ Redirect a Stripe
+      window.location.href = data.url as string;
+    } catch (err) {
+      console.error("Errore generico in handleSubscribe:", err);
+      setError(
+        "Si è verificato un errore imprevisto. Riprova più tardi."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
 
       // Proviamo a leggere il JSON, ma senza esplodere se non è valido
       const data = await res.json().catch(() => null);
