@@ -6,8 +6,10 @@ type BillingPeriod = "monthly" | "yearly";
 
 export async function POST(req: NextRequest) {
   try {
-    const { billingPeriod } = (await req.json()) as {
+    const { billingPeriod, userId, email } = (await req.json()) as {
       billingPeriod?: BillingPeriod;
+      userId?: string;
+      email?: string | null;
     };
 
     // 0️⃣ Validazione input di base
@@ -15,6 +17,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "billingPeriod mancante o non valido" },
         { status: 400 }
+      );
+    }
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: "userId mancante: devi essere loggato per abbonarti." },
+        { status: 401 }
       );
     }
 
@@ -59,7 +68,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3️⃣ URL di ritorno (abbiamo visto che le pagine reali sono /success e /pay/cancel)
+    // 3️⃣ URL di ritorno
     const successUrl = `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${baseUrl}/pay/cancel`;
 
@@ -74,6 +83,11 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
+      // collega la sessione all'utente
+      customer_email: email ?? undefined,
+      metadata: {
+        supabase_user_id: userId,
+      },
       success_url: successUrl,
       cancel_url: cancelUrl,
     });
@@ -94,5 +108,3 @@ export async function GET() {
     { status: 405 }
   );
 }
-
-
