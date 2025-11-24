@@ -36,7 +36,6 @@ export default function RegisterPage() {
       return;
     }
 
-    // Registrazione ok → mando al login
     router.push("/login");
   }
 
@@ -80,9 +79,7 @@ export default function RegisterPage() {
           />
         </label>
 
-        {error && (
-          <p className="text-sm text-red-600">{error}</p>
-        )}
+        {error && <p className="text-sm text-red-600">{error}</p>}
 
         <button
           type="submit"
@@ -102,5 +99,3 @@ export default function RegisterPage() {
     </main>
   );
 }
-
-
