@@ -1,8 +1,7 @@
-// app/login/page.tsx
 "use client";
 
 import { useState } from "react";
-import { createSupabaseClient } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -17,8 +16,6 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
 
-    const supabase = createSupabaseClient();
-
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -27,12 +24,10 @@ export default function LoginPage() {
     setLoading(false);
 
     if (error) {
-      console.error(error);
       setError(error.message);
       return;
     }
 
-    // Login OK → porta l'utente alla home (o /pro)
     router.push("/");
   }
 
@@ -65,9 +60,7 @@ export default function LoginPage() {
           />
         </label>
 
-        {error && (
-          <p className="text-sm text-red-600">{error}</p>
-        )}
+        {error && <p className="text-sm text-red-600">{error}</p>}
 
         <button
           type="submit"
