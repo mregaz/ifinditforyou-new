@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { ReactNode } from "react";   // 👈 AGGIUNGI QUESTA
+import type { ReactNode } from "react";
 
 import { Lang, normalizeLang } from "@/lib/lang";
+import { supabase } from "@/lib/supabaseClient";  // 👈 AGGIUNGI QUESTA
+
 
 
 
