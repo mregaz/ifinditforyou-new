@@ -67,33 +67,33 @@ export async function POST(req: NextRequest) {
         break;
       }
 
-      case "customer.subscription.deleted":
-      case "customer.subscription.canceled": {
-        const subscription = event.data.object as Stripe.Subscription;
-        const email = (subscription as any).customer_email as
-          | string
-          | null;
+    case "customer.subscription.deleted": {
+  const subscription = event.data.object as Stripe.Subscription;
+  const email = (subscription as any).customer_email as
+    | string
+    | null;
 
-        if (!email) {
-          console.warn(
-            "⚠️ subscription deleted senza email in metadata/customer_email"
-          );
-          break;
-        }
+  if (!email) {
+    console.warn(
+      "⚠️ subscription deleted senza email in metadata/customer_email"
+    );
+    break;
+  }
 
-        console.log("⚠️ Imposto is_pro = false per utente con email:", email);
+  console.log("⚠️ Imposto is_pro = false per utente con email:", email);
 
-        const { error } = await supabase
-          .from("User")
-          .update({ is_pro: false })
-          .eq("email", email);
+  const { error } = await supabase
+    .from("User")
+    .update({ is_pro: false })
+    .eq("email", email);
 
-        if (error) {
-          console.error("❌ Errore aggiornando is_pro a false:", error);
-        }
+  if (error) {
+    console.error("❌ Errore aggiornando is_pro a false:", error);
+  }
 
-        break;
-      }
+  break;
+}
+
 
       default: {
         // Per ora ignoriamo gli altri eventi
