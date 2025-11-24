@@ -1,13 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { ReactNode } from "react";
 
 import { Lang, normalizeLang } from "@/lib/lang";
-import { supabase } from "@/lib/supabaseClient";  // 👈 AGGIUNGI QUESTA
-
-
-
+import { supabase } from "@/lib/supabaseClient";
 
 type BillingPeriod = "monthly" | "yearly";
 
@@ -81,11 +78,12 @@ const FAQ_ITEMS = [
 ];
 
 export default function ProPageClient() {
-  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
+  const [billingPeriod, setBillingPeriod] =
+    useState<BillingPeriod>("monthly");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-   async function handleSubscribe() {
+  async function handleSubscribe() {
     try {
       setLoading(true);
       setError(null);
@@ -147,37 +145,6 @@ export default function ProPageClient() {
       setLoading(false);
     }
   }
-
-
-      // Proviamo a leggere il JSON, ma senza esplodere se non è valido
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        console.error("Errore API /api/create-checkout-session:", data);
-        setError(
-          (data && typeof data.error === "string" && data.error) ||
-            "Errore nella creazione della sessione di pagamento."
-        );
-        return;
-      }
-
-      if (!data || !data.url) {
-        console.error("Risposta API senza url di checkout:", data);
-        setError("URL di checkout non ricevuto da Stripe.");
-        return;
-      }
-
-      window.location.href = data.url;
-    } catch (err) {
-      console.error("Errore generico in handleSubscribe:", err);
-      setError(
-        "Si è verificato un errore imprevisto. Riprova più tardi."
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
@@ -346,7 +313,7 @@ type PricingCardProps = {
   subtitle: string;
   features: string[];
   highlight?: boolean;
-  footerContent?: React.ReactNode;
+  footerContent?: ReactNode;
 };
 
 function PricingCard({
