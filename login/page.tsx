@@ -1,7 +1,8 @@
+// app/login/page.tsx
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { createSupabaseClient } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -16,6 +17,8 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
 
+    const supabase = createSupabaseClient();
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -29,7 +32,7 @@ export default function LoginPage() {
       return;
     }
 
-    // Login OK → porto alla home o a /pro
+    // Login OK → porta l'utente alla home (o /pro)
     router.push("/");
   }
 
