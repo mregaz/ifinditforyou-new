@@ -1,7 +1,8 @@
 "use client";
-
+import { supabase } from "@/lib/supabaseClient";
 import { useEffect, useState } from "react";
 import { Lang } from "@/lib/lang";
+
 
 const UI_TEXTS = {
   it: {
@@ -267,7 +268,58 @@ export default function HomePage() {
   const t = UI_TEXTS[lang];
 
   // Carica stato da localStorage
+    // Sincronizza lo stato PRO con Supabase (se l'utente è loggato)
   useEffect(() => {
+    async function syncProFromSupabase() {
+      try {
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
+
+        if (userError) {
+          console.error("Errore lettura user Supabase:", userError);
+          return;
+        }
+
+        if (!user) {
+          // Utente anonimo → resta Free
+          return;
+        }
+
+        // Legge la tabella User su Supabase, colonna is_pro
+        const { data, error } = await supabase
+          .from("User")
+          .select("is_pro, email")
+          .eq("id", user.id)
+          .single();
+
+        if (error) {
+          console.error("Errore lettura is_pro da Supabase:", error);
+          return;
+        }
+
+        if (data?.is_pro) {
+          // Utente PRO
+          setIsPro(true);
+
+          // Aggiorna email se non è già salvata
+          if (user.email) {
+            setUserEmail(user.email);
+          }
+
+          // Opzionale: azzera la logica dei crediti per i PRO
+          // (tanto il testo usa isPro per mostrare "illimitate")
+          setCredits(2); // o un numero alto, non conta, è ignorato dalla label in caso PRO
+        }
+      } catch (err) {
+        console.error("Errore generale syncProFromSupabase:", err);
+      }
+    }
+
+    syncProFromSupabase();
+  }, []);
+
     try {
       const savedLang = localStorage.getItem("ifiy_lang") as Lang | null;
       if (savedLang && UI_TEXTS[savedLang]) {
