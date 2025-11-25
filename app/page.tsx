@@ -343,18 +343,7 @@ export default function HomePage() {
   }, []);
 
   // Salva stato su localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem("ifiy_credits", String(credits));
-      localStorage.setItem("ifiy_isPro", isPro ? "true" : "false");
-      localStorage.setItem("ifiy_lang", lang);
-      if (userEmail) {
-        localStorage.setItem("ifiy_email", userEmail);
-      }
-    } catch {
-      // ignore
-    }
-  }, [credits, isPro, lang, userEmail]);
+
 
   useEffect(() => {
     try {
@@ -598,34 +587,67 @@ export default function HomePage() {
                 {loading ? "..." : t.search}
               </button>
             </div>
-          </form>
+                   {isPro ? (
+            // Banner ben visibile per gli utenti PRO
+            <div
+              style={{
+                marginTop: 12,
+                padding: "10px 16px",
+                borderRadius: 12,
+                background: "#16a34a", // verde
+                color: "#f9fafb",
+                fontWeight: 700,
+                fontSize: 15,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                justifyContent: "center",
+              }}
+            >
+              <span
+                style={{
+                  padding: "2px 10px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(248,250,252,0.9)",
+                  fontSize: 12,
+                }}
+              >
+                PRO
+              </span>
+              <span>{t.creditsLabel(credits, true)}</span>
+            </div>
+          ) : (
+            // Stato Free: testo crediti + bottone "Diventa PRO"
+            <>
+              <div
+                style={{
+                  fontSize: 13,
+                  opacity: 0.7,
+                  marginBottom: 8,
+                }}
+              >
+                {t.creditsLabel(credits, false)}
+              </div>
 
-          <div
-            style={{
-              fontSize: 13,
-              opacity: 0.7,
-              marginBottom: 8,
-            }}
-          >
-            {t.creditsLabel(credits, isPro)}
-          </div>
+              <button
+                type="button"
+                onClick={handleGoPro}
+                style={{
+                  marginTop: 4,
+                  borderRadius: 999,
+                  border: "1px solid rgba(79,70,229,0.8)",
+                  padding: "8px 18px",
+                  fontSize: 14,
+                  background: "#eef2ff",
+                  color: "#312e81",
+                  cursor: "pointer",
+                }}
+              >
+                {t.proCta}
+              </button>
+            </>
+          )}
 
-          <button
-            type="button"
-            onClick={handleGoPro}
-            style={{
-              marginTop: 4,
-              borderRadius: 999,
-              border: "1px solid rgba(79,70,229,0.8)",
-              padding: "8px 18px",
-              fontSize: 14,
-              background: "#eef2ff",
-              color: "#312e81",
-              cursor: "pointer",
-            }}
-          >
-            {t.proCta}
-          </button>
         </div>
       </section>
 
