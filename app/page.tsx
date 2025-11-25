@@ -267,8 +267,34 @@ export default function HomePage() {
 
   const t = UI_TEXTS[lang];
 
-  // Carica stato da localStorage
-    // Sincronizza lo stato PRO con Supabase (se l'utente è loggato)
+  // Carica stato iniziale da localStorage
+  useEffect(() => {
+    try {
+      const savedLang = localStorage.getItem("ifiy_lang") as Lang | null;
+      if (savedLang && UI_TEXTS[savedLang]) {
+        setLang(savedLang);
+      }
+
+      const savedCredits = localStorage.getItem("ifiy_credits");
+      if (savedCredits !== null) {
+        setCredits(parseInt(savedCredits, 10));
+      }
+
+      const savedPro = localStorage.getItem("ifiy_isPro");
+      if (savedPro === "true") {
+        setIsPro(true);
+      }
+
+      const savedEmail = localStorage.getItem("ifiy_email");
+      if (savedEmail) {
+        setUserEmail(savedEmail);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  // Sincronizza lo stato PRO con Supabase (se l'utente è loggato)
   useEffect(() => {
     async function syncProFromSupabase() {
       try {
@@ -287,7 +313,6 @@ export default function HomePage() {
           return;
         }
 
-        // Legge la tabella User su Supabase, colonna is_pro
         const { data, error } = await supabase
           .from("User")
           .select("is_pro, email")
@@ -300,17 +325,14 @@ export default function HomePage() {
         }
 
         if (data?.is_pro) {
-          // Utente PRO
           setIsPro(true);
 
-          // Aggiorna email se non è già salvata
           if (user.email) {
             setUserEmail(user.email);
           }
 
-          // Opzionale: azzera la logica dei crediti per i PRO
-          // (tanto il testo usa isPro per mostrare "illimitate")
-          setCredits(2); // o un numero alto, non conta, è ignorato dalla label in caso PRO
+          // opzionale: per i PRO i crediti non contano, ma lasciamo un valore coerente
+          setCredits(2);
         }
       } catch (err) {
         console.error("Errore generale syncProFromSupabase:", err);
@@ -320,29 +342,20 @@ export default function HomePage() {
     syncProFromSupabase();
   }, []);
 
+  // Salva stato su localStorage
+  useEffect(() => {
     try {
-      const savedLang = localStorage.getItem("ifiy_lang") as Lang | null;
-      if (savedLang && UI_TEXTS[savedLang]) {
-        setLang(savedLang);
-      }
-      const savedCredits = localStorage.getItem("ifiy_credits");
-      if (savedCredits !== null) {
-        setCredits(parseInt(savedCredits, 10));
-      }
-      const savedPro = localStorage.getItem("ifiy_isPro");
-      if (savedPro === "true") {
-        setIsPro(true);
-      }
-      const savedEmail = localStorage.getItem("ifiy_email");
-      if (savedEmail) {
-        setUserEmail(savedEmail);
+      localStorage.setItem("ifiy_credits", String(credits));
+      localStorage.setItem("ifiy_isPro", isPro ? "true" : "false");
+      localStorage.setItem("ifiy_lang", lang);
+      if (userEmail) {
+        localStorage.setItem("ifiy_email", userEmail);
       }
     } catch {
       // ignore
     }
-  }, []);
+  }, [credits, isPro, lang, userEmail]);
 
-  // Salva stato
   useEffect(() => {
     try {
       localStorage.setItem("ifiy_credits", String(credits));
