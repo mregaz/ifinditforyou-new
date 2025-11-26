@@ -1,3 +1,4 @@
+import { RequirePro } from "@/components/RequirePro";
 // app/layout.tsx
 import type { ReactNode } from "react";
 
