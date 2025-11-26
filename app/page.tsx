@@ -48,6 +48,17 @@ resultsCount: (n: number) =>
     ? "Ho trovato 1 opzione per te."
     : `Ho trovato ${n} opzioni per te.`,
 empty: "Fai una ricerca per vedere qualche esempio 👆",
+    emailGateTitle: "Sblocca la seconda ricerca gratuita",
+    emailGateDescription:
+      "Ti chiediamo solo la tua email per concederti la seconda ricerca gratuita.",
+    emailGatePlaceholder: "la-tua-email@esempio.com",
+    emailGateCancel: "Annulla",
+    emailGateSubmit: "Sblocca ricerca",
+    emailGateSubmitting: "Invio...",
+    emailGateErrorInvalid: "Per favore inserisci un'email valida.",
+    emailGateErrorGeneric: "C'è stato un problema, riprova.",
+    emailGateFooter:
+      "Niente spam, solo aggiornamenti importanti su iFindItForYou.",
 
     // ✅ nuovi testi
     resultsCountLabel: (n: number) =>
