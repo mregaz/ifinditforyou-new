@@ -1,4 +1,4 @@
-import { RequirePro } from "@/components/RequirePro";
+import Header from "@/components/Header";
 // app/layout.tsx
 import type { ReactNode } from "react";
 
