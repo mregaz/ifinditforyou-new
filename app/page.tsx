@@ -827,7 +827,9 @@ export default function HomePage() {
         isOpen={showEmailGate}
         onClose={() => setShowEmailGate(false)}
         onConfirm={handleEmailCollected}
+        t={t}
       />
+
     </main>
   );
 }
@@ -837,10 +839,12 @@ function EmailGateModal({
   isOpen,
   onClose,
   onConfirm,
+  t,
 }: {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (email: string) => void;
+  t: any; // per semplicità
 }) {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -855,7 +859,7 @@ function EmailGateModal({
     const trimmed = email.trim();
 
     if (!trimmed || !trimmed.includes("@")) {
-      setError("Per favore inserisci un'email valida.");
+      setError(t.emailGateErrorInvalid);
       return;
     }
 
@@ -864,7 +868,7 @@ function EmailGateModal({
       await onConfirm(trimmed);
     } catch (err) {
       console.error(err);
-      setError("C'è stato un problema, riprova.");
+      setError(t.emailGateErrorGeneric);
     } finally {
       setIsSubmitting(false);
     }
@@ -892,16 +896,15 @@ function EmailGateModal({
           boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
         }}
       >
-        <h2 style={{ marginBottom: 8 }}>Sblocca la seconda ricerca gratuita</h2>
+        <h2 style={{ marginBottom: 8 }}>{t.emailGateTitle}</h2>
         <p style={{ marginBottom: 16, fontSize: 14, opacity: 0.9 }}>
-          Ti chiediamo solo la tua email per concederti la seconda ricerca
-          gratuita.
+          {t.emailGateDescription}
         </p>
 
         <form onSubmit={handleSubmit}>
           <input
             type="email"
-            placeholder="la-tua-email@esempio.com"
+            placeholder={t.emailGatePlaceholder}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             style={{
@@ -939,7 +942,7 @@ function EmailGateModal({
                 cursor: "pointer",
               }}
             >
-              Annulla
+              {t.emailGateCancel}
             </button>
             <button
               type="submit"
@@ -952,16 +955,17 @@ function EmailGateModal({
                 fontWeight: 600,
               }}
             >
-              {isSubmitting ? "Invio..." : "Sblocca ricerca"}
+              {isSubmitting ? t.emailGateSubmitting : t.emailGateSubmit}
             </button>
           </div>
         </form>
 
         <p style={{ marginTop: 10, fontSize: 11, opacity: 0.7 }}>
-          Niente spam, solo aggiornamenti importanti su iFindItForYou.
+          {t.emailGateFooter}
         </p>
       </div>
     </div>
   );
 }
+
 
