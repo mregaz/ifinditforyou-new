@@ -37,7 +37,7 @@ export default function Header() {
         .single();
 
       setUser({
-        email: user.email,
+        email: user.email ?? null,      // ← FIX QUI
         isPro: profile?.is_pro ?? false,
         loading: false,
       });
@@ -58,15 +58,12 @@ export default function Header() {
           IFindItForYou
         </Link>
 
-        {/* Loading state */}
         {user.loading ? (
           <span className="text-gray-500 text-sm">Caricamento...</span>
         ) : user.email ? (
-          // Logged-in UI
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-700">{user.email}</span>
 
-            {/* Badge PRO / FREE */}
             <span
               className={`text-xs px-2 py-1 rounded ${
                 user.isPro
@@ -92,7 +89,6 @@ export default function Header() {
             </button>
           </div>
         ) : (
-          // Logged-out UI
           <div className="flex items-center gap-4">
             <Link
               href="/login"
@@ -112,3 +108,4 @@ export default function Header() {
     </header>
   );
 }
+
