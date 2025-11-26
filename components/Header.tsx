@@ -109,7 +109,7 @@ export default function Header() {
         {user.loading ? (
           <span className="text-gray-500 text-sm">{t.loading}</span>
         ) : user.email ? (
-          <div className="flex items-center gap-12">
+          <div className="flex items-center gap-20">
             <span className="text-sm text-gray-700">{user.email}</span>
 
             <span
