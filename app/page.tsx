@@ -1,24 +1,26 @@
 "use client";
-import { supabase } from "@/lib/supabaseClient";
-import { useEffect, useState } from "react";
-import { Lang } from "@/lib/lang";
-import type React from "react";
 
+import { useEffect, useState } from "react";
+import type React from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { Lang } from "@/lib/lang";
+
+/* ============================================================================
+   TEXTS MULTILINGUA
+============================================================================ */
 
 const UI_TEXTS = {
   it: {
     tagline: "Scrivi cosa cerchi, io lo trovo per te.",
     placeholder: "Es. iPhone 13 mini blu sotto 350 CHF in Svizzera",
-        examplesLabel: "Esempi:",
+    examplesLabel: "Esempi:",
     examples: [
       "iPhone 13 mini blu sotto 350 CHF in Svizzera",
       "Hotel 3 stelle a Zurigo sotto 150 CHF",
       "Idea regalo per 12enne appassionato di Lego",
     ],
-errorSearch: "Errore nella ricerca. Riprova tra poco.",
-errorNetwork:
-  "Problema di rete. Controlla la connessione e riprova.",
-
+    errorSearch: "Errore nella ricerca. Riprova tra poco.",
+    errorNetwork: "Problema di rete. Controlla la connessione e riprova.",
     search: "Cerca",
     proCta: "Diventa PRO",
     creditsLabel: (credits: number, isPro: boolean) =>
@@ -31,24 +33,24 @@ errorNetwork:
       "Hai esaurito le ricerche gratuite. Attiva il piano PRO per continuare.",
     sectionHowTitle: "Come funziona",
     sectionHowText:
-      "Scrivi cosa ti serve, in qualsiasi lingua. L’AI analizza la richiesta, interroga i motori di ricerca e ti restituisce link già filtrati, con un breve riassunto.",
+      "Scrivi cosa ti serve. L’AI analizza la richiesta, cerca sul web e ti mostra solo risultati filtrati.",
     sectionWhyTitle: "Perché non usare solo Google?",
     sectionWhyText:
-      "Google ti dà milioni di risultati. iFindItForYou ti restituisce solo poche opzioni curate, spiegate in modo chiaro, con un occhio a prezzo e affidabilità.",
+      "Google ti dà milioni di risultati. iFindItForYou ti restituisce solo pochi risultati pertinenti, già filtrati.",
     sectionProTitle: "Free vs PRO",
     sectionProFree:
       "2 ricerche gratuite per provare il servizio (1 senza email + 1 con email).",
     sectionProPaid:
-      "Con PRO puoi fare tutte le ricerche che vuoi e ricevere risultati più approfonditi e personalizzati.",
+      "Con PRO hai ricerche illimitate e risultati più approfonditi.",
     sectionFaqTitle: "Privacy & dati",
     sectionFaqText:
-      "Le tue ricerche vengono usate solo per trovare risultati migliori. Non vendiamo i dati a terzi.",
+      "Le tue ricerche servono solo a migliorare i risultati. Non vendiamo dati.",
     resultsTitle: "Risultati",
-resultsCount: (n: number) =>
-  n === 1
-    ? "Ho trovato 1 opzione per te."
-    : `Ho trovato ${n} opzioni per te.`,
-empty: "Fai una ricerca per vedere qualche esempio 👆",
+    resultsCount: (n: number) =>
+      n === 1 ? "Ho trovato 1 opzione per te." : `Ho trovato ${n} opzioni per te.`,
+    empty: "Fai una ricerca per vedere qualche esempio 👆",
+
+    // MODALE EMAIL
     emailGateTitle: "Sblocca la seconda ricerca gratuita",
     emailGateDescription:
       "Ti chiediamo solo la tua email per concederti la seconda ricerca gratuita.",
@@ -56,31 +58,21 @@ empty: "Fai una ricerca per vedere qualche esempio 👆",
     emailGateCancel: "Annulla",
     emailGateSubmit: "Sblocca ricerca",
     emailGateSubmitting: "Invio...",
-    emailGateErrorInvalid: "Per favore inserisci un'email valida.",
-    emailGateErrorGeneric: "C'è stato un problema, riprova.",
+    emailGateErrorInvalid: "Per favore inserisci un’email valida.",
+    emailGateErrorGeneric: "Errore temporaneo, riprova.",
     emailGateFooter:
-      "Niente spam, solo aggiornamenti importanti su iFindItForYou.",
-
-    // ✅ nuovi testi
-    resultsCountLabel: (n: number) =>
-      n === 0
-        ? "Nessuna opzione trovata."
-        : n === 1
-        ? "Ho trovato 1 opzione per te."
-        : `Ho trovato ${n} opzioni per te.`,
-    
+      "Nessuno spam. Solo aggiornamenti importanti sul servizio.",
   },
 
   en: {
     tagline: "Write what you need, I’ll find it for you.",
     placeholder: "E.g. iPhone 13 mini blue under 350 CHF in Switzerland",
-        examplesLabel: "Examples:",
+    examplesLabel: "Examples:",
     examples: [
       "iPhone 13 mini blue under 350 CHF in Switzerland",
       "3-star hotel in Zurich under 150 CHF",
       "Gift idea for a 12-year-old who loves LEGO",
     ],
-
     search: "Search",
     proCta: "Go PRO",
     creditsLabel: (credits: number, isPro: boolean) =>
@@ -89,28 +81,25 @@ empty: "Fai una ricerca per vedere qualche esempio 👆",
         : credits > 0
         ? `You have ${credits} free searches left.`
         : "You’ve used all 2 free searches.",
-    outOfCredits:
-      "You’ve used your free searches. Activate PRO to continue.",
+    outOfCredits: "You’ve used your free searches. Activate PRO to continue.",
     sectionHowTitle: "How it works",
     sectionHowText:
-      "Describe what you need in any language. The AI analyzes your request, searches the web and returns curated results with short summaries.",
-    sectionWhyTitle: "Why not just Google?",
+      "Describe what you need. The AI analyzes your request, searches online and shows filtered results.",
+    sectionWhyTitle: "Why not Google?",
     sectionWhyText:
-      "Google gives you millions of results. iFindItForYou gives you a small set of curated answers, already filtered and explained clearly.",
+      "Google gives millions of results. iFindItForYou gives a few, curated and focused ones.",
     sectionProTitle: "Free vs PRO",
     sectionProFree:
-      "2 free searches to try the service (1 without email + 1 with email).",
+      "2 free searches to try the service (1 anonymous + 1 with email).",
     sectionProPaid:
-      "With PRO you can make unlimited searches and receive deeper, more curated results.",
+      "With PRO you get unlimited searches and deeper results.",
     sectionFaqTitle: "Privacy & data",
     sectionFaqText:
-      "Your searches are used only to improve results. We do not sell data to third parties.",
- resultsTitle: "Results",
-resultsCount: (n: number) =>
-  n === 1
-    ? "I’ve found 1 option for you."
-    : `I’ve found ${n} options for you.`,
-empty: "Start a search to see how it works 👆",
+      "Your searches are used only to improve the service. We never sell data.",
+    resultsTitle: "Results",
+    resultsCount: (n: number) =>
+      n === 1 ? "I found 1 option for you." : `I found ${n} options for you.`,
+    empty: "Start a search to see how it works 👆",
     emailGateTitle: "Unlock your second free search",
     emailGateDescription:
       "We only ask for your email to give you the second free search.",
@@ -119,153 +108,121 @@ empty: "Start a search to see how it works 👆",
     emailGateSubmit: "Unlock search",
     emailGateSubmitting: "Sending...",
     emailGateErrorInvalid: "Please enter a valid email.",
-    emailGateErrorGeneric: "Something went wrong, please try again.",
-    emailGateFooter:
-      "No spam, only important updates about iFindItForYou.",
-
-
-    resultsCountLabel: (n: number) =>
-      n === 0
-        ? "No options found."
-        : n === 1
-        ? "I’ve found 1 option for you."
-        : `I’ve found ${n} options for you.`,
-    errorSearch:
-      "Error while searching. Please try again in a moment.",
-    errorNetwork:
-      "Network problem. Check your connection and try again.",
+    emailGateErrorGeneric: "Something went wrong. Try again.",
+    emailGateFooter: "No spam. Only useful updates.",
+    errorSearch: "Search error. Try again soon.",
+    errorNetwork: "Network problem. Check your connection.",
   },
 
   fr: {
     tagline: "Écris ce que tu cherches, je le trouve pour toi.",
-    placeholder: "Ex. iPhone 13 mini bleu à moins de 350 CHF en Suisse",
-        examplesLabel: "Exemples :",
+    placeholder: "Ex. iPhone 13 mini bleu sous 350 CHF en Suisse",
+    examplesLabel: "Exemples :",
     examples: [
-      "iPhone 13 mini bleu à moins de 350 CHF en Suisse",
-      "Hôtel 3 étoiles à Zurich pour moins de 150 CHF",
-      "Idée cadeau pour un enfant de 12 ans fan de LEGO",
+      "iPhone 13 mini bleu sous 350 CHF en Suisse",
+      "Hôtel 3 étoiles à Zurich sous 150 CHF",
+      "Idée cadeau pour un fan de LEGO de 12 ans",
     ],
-
     search: "Rechercher",
-    proCta: "Passer en PRO",
-    creditsLabel: (credits: number, isPro: boolean) =>
+    proCta: "Passer PRO",
+    creditsLabel: (c: number, isPro: boolean) =>
       isPro
         ? "Abonnement PRO actif : recherches illimitées."
-        : credits > 0
-        ? `Il te reste ${credits} recherches gratuites.`
+        : c > 0
+        ? `Il te reste ${c} recherches gratuites.`
         : "Tu as utilisé tes 2 recherches gratuites.",
     outOfCredits:
-      "Tu as utilisé toutes tes recherches gratuites. Active le plan PRO pour continuer.",
+      "Tu as utilisé toutes tes recherches gratuites. Active PRO pour continuer.",
     sectionHowTitle: "Comment ça marche",
     sectionHowText:
-      "Décris ce dont tu as besoin, dans n’importe quelle langue. L’IA analyse ta demande, interroge le web et te renvoie des résultats filtrés et résumés.",
-    sectionWhyTitle: "Pourquoi ne pas utiliser seulement Google ?",
+      "Décris ce dont tu as besoin. L’IA analyse ta demande, cherche en ligne et filtre les résultats.",
+    sectionWhyTitle: "Pourquoi pas Google ?",
     sectionWhyText:
-      "Google donne des millions de résultats. iFindItForYou te donne quelques options déjà filtrées, expliquées clairement et axées sur la fiabilité.",
+      "Google donne des millions de résultats. iFindItForYou en donne quelques-uns, déjà filtrés.",
     sectionProTitle: "Free vs PRO",
     sectionProFree:
-      "2 recherches gratuites pour tester le service (1 sans email + 1 avec email).",
-    sectionProPaid:
-      "Avec PRO, tu peux faire autant de recherches que tu veux et recevoir des résultats plus précis et personnalisés.",
+      "2 recherches gratuites pour tester (1 sans email + 1 avec email).",
+    sectionProPaid: "Avec PRO tu as des recherches illimitées.",
     sectionFaqTitle: "Vie privée & données",
     sectionFaqText:
-      "Tes recherches servent uniquement à améliorer les résultats. Nous ne vendons jamais tes données.",
-  resultsTitle: "Résultats",
-resultsCount: (n: number) =>
-  n === 1
-    ? "J’ai trouvé 1 option pour toi."
-    : `J’ai trouvé ${n} options pour toi.`,
-empty: "Fais une recherche pour voir un exemple 👆",
-
+      "Tes recherches servent seulement à améliorer le service.",
+    resultsTitle: "Résultats",
+    resultsCount: (n: number) =>
+      n === 1 ? "J’ai trouvé 1 option pour toi." : `J’ai trouvé ${n} options.`,
+    empty: "Fais une recherche pour voir comment ça marche 👆",
     emailGateTitle: "Débloque ta deuxième recherche gratuite",
     emailGateDescription:
-      "On te demande seulement ton e-mail pour t’offrir la deuxième recherche gratuite.",
+      "On te demande juste ton email pour t’offrir la deuxième recherche.",
     emailGatePlaceholder: "ton-email@exemple.com",
     emailGateCancel: "Annuler",
-    emailGateSubmit: "Débloquer la recherche",
+    emailGateSubmit: "Débloquer",
     emailGateSubmitting: "Envoi...",
-    emailGateErrorInvalid: "Veuillez entrer une adresse e-mail valide.",
-    emailGateErrorGeneric: "Un problème est survenu, réessaie.",
+    emailGateErrorInvalid: "Email invalide.",
+    emailGateErrorGeneric: "Erreur. Réessaie.",
     emailGateFooter:
-      "Pas de spam, seulement des infos importantes sur iFindItForYou.",
-
-    resultsCountLabel: (n: number) =>
-      n === 0
-        ? "Aucune option trouvée."
-        : n === 1
-        ? "J’ai trouvé 1 option pour toi."
-        : `J’ai trouvé ${n} options pour toi.`,
-    errorSearch:
-      "Erreur lors de la recherche. Réessaie dans un instant.",
-    errorNetwork:
-      "Problème de connexion. Vérifie ta connexion et réessaie.",
+      "Pas de spam. Seulement des infos importantes.",
+    errorSearch: "Erreur lors de la recherche.",
+    errorNetwork: "Problème réseau.",
   },
 
   de: {
-    tagline: "Schreib, was du suchst – ich finde es für dich.",
+    tagline: "Schreib, was du suchst – ich finde es.",
     placeholder: "Z.B. iPhone 13 mini blau unter 350 CHF in der Schweiz",
-        examplesLabel: "Beispiele:",
+    examplesLabel: "Beispiele:",
     examples: [
       "iPhone 13 mini blau unter 350 CHF in der Schweiz",
       "3-Sterne-Hotel in Zürich unter 150 CHF",
-      "Geschenkidee für 12-jährigen LEGO-Fan",
+      "Geschenkidee für LEGO-Fan (12 Jahre)",
     ],
-
     search: "Suchen",
     proCta: "PRO werden",
-    creditsLabel: (credits: number, isPro: boolean) =>
+    creditsLabel: (c: number, isPro: boolean) =>
       isPro
-        ? "PRO-Plan aktiv: unbegrenzte Suchanfragen."
-        : credits > 0
-        ? `Du hast noch ${credits} kostenlose Suchanfragen.`
-        : "Du hast die 2 kostenlosen Suchanfragen aufgebraucht.",
+        ? "PRO aktiv: unbegrenzte Suchen."
+        : c > 0
+        ? `Du hast noch ${c} kostenlose Suchanfragen.`
+        : "Du hast deine 2 kostenlosen Suchanfragen aufgebraucht.",
     outOfCredits:
-      "Du hast deine kostenlosen Suchen aufgebraucht. Aktiviere PRO, um weiterzumachen.",
-    sectionHowTitle: "So funktioniert’s",
+      "Keine freien Suchanfragen mehr. Aktiviere PRO.",
+    sectionHowTitle: "Wie es funktioniert",
     sectionHowText:
-      "Beschreibe, was du brauchst – in jeder Sprache. Die KI analysiert deine Anfrage, durchsucht das Web und liefert gefilterte Ergebnisse mit kurzen Zusammenfassungen.",
-    sectionWhyTitle: "Warum nicht einfach Google?",
+      "Beschreibe, was du brauchst. Die KI sucht online und filtert die besten Ergebnisse.",
+    sectionWhyTitle: "Warum nicht Google?",
     sectionWhyText:
-      "Google liefert Millionen von Ergebnissen. iFindItForYou liefert dir wenige, kuratierte Antworten – klar erklärt und bereits sortiert.",
+      "Google gibt Millionen Treffer. iFindItForYou gibt nur die relevanten.",
     sectionProTitle: "Free vs PRO",
     sectionProFree:
-      "2 kostenlose Suchanfragen zum Testen (1 ohne E-Mail + 1 mit E-Mail).",
+      "2 kostenlose Suchanfragen zum Testen.",
     sectionProPaid:
-      "Mit PRO kannst du unbegrenzt suchen und erhältst tiefere, besser kuratierte Ergebnisse.",
-    sectionFaqTitle: "Datenschutz & Daten",
+      "Mit PRO hast du unbegrenzte Suchen.",
+    sectionFaqTitle: "Datenschutz",
     sectionFaqText:
-      "Deine Suchanfragen werden nur verwendet, um bessere Ergebnisse zu liefern. Wir verkaufen keine Daten an Dritte.",
-   resultsTitle: "Ergebnisse",
-resultsCount: (n: number) =>
-  n === 1
-    ? "Ich habe 1 Option für dich gefunden."
-    : `Ich habe ${n} Optionen für dich gefunden.`,
-empty: "Starte eine Suche, um ein Beispiel zu sehen 👆",
-    emailGateTitle: "Schalte die zweite kostenlose Suche frei",
+      "Deine Suchanfragen werden nicht verkauft.",
+    resultsTitle: "Ergebnisse",
+    resultsCount: (n: number) =>
+      n === 1
+        ? "Ich habe 1 Option gefunden."
+        : `Ich habe ${n} Optionen gefunden.`,
+    empty: "Starte eine Suche 👆",
+    emailGateTitle: "Zweite kostenlose Suche freischalten",
     emailGateDescription:
-      "Wir fragen nur nach deiner E-Mail, um dir die zweite kostenlose Suche zu schenken.",
+      "Wir brauchen nur deine E-Mail für die zweite Suchanfrage.",
     emailGatePlaceholder: "deine-email@beispiel.com",
     emailGateCancel: "Abbrechen",
-    emailGateSubmit: "Suche freischalten",
+    emailGateSubmit: "Freischalten",
     emailGateSubmitting: "Senden...",
-    emailGateErrorInvalid: "Bitte gib eine gültige E-Mail-Adresse ein.",
-    emailGateErrorGeneric: "Es ist ein Fehler aufgetreten. Bitte versuche es erneut.",
+    emailGateErrorInvalid: "Bitte gültige E-Mail eingeben.",
+    emailGateErrorGeneric: "Fehler. Versuch es erneut.",
     emailGateFooter:
-      "Kein Spam, nur wichtige Updates zu iFindItForYou.",
-
-    resultsCountLabel: (n: number) =>
-      n === 0
-        ? "Keine Option gefunden."
-        : n === 1
-        ? "Ich habe 1 Option für dich gefunden."
-        : `Ich habe ${n} Optionen für dich gefunden.`,
-    errorSearch:
-      "Fehler bei der Suche. Bitte versuche es in Kürze erneut.",
-    errorNetwork:
-      "Netzwerkproblem. Bitte prüfe deine Verbindung und versuche es erneut.",
+      "Kein Spam. Nur wichtige Updates.",
+    errorSearch: "Fehler bei der Suche.",
+    errorNetwork: "Netzwerkproblem.",
   },
 } as const;
 
+/* ============================================================================
+   COMPONENTE INFO BLOCK
+============================================================================ */
 
 type ResultItem = {
   title?: string;
@@ -285,19 +242,15 @@ function InfoBlock({ title, text }: { title: string; text: string }) {
         fontSize: 13,
       }}
     >
-      <h3
-        style={{
-          fontSize: 14,
-          fontWeight: 600,
-          marginBottom: 6,
-        }}
-      >
-        {title}
-      </h3>
+      <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>{title}</h3>
       <p style={{ opacity: 0.85 }}>{text}</p>
     </section>
   );
 }
+
+/* ============================================================================
+   HOME PAGE
+============================================================================ */
 
 export default function HomePage() {
   const [lang, setLang] = useState<Lang>("it");
@@ -312,105 +265,74 @@ export default function HomePage() {
 
   const t = UI_TEXTS[lang];
 
-  // Carica stato iniziale da localStorage
+  /* ----------------- CARICA STATO DA LOCALSTORAGE ----------------- */
   useEffect(() => {
     try {
       const savedLang = localStorage.getItem("ifiy_lang") as Lang | null;
-      if (savedLang && UI_TEXTS[savedLang]) {
-        setLang(savedLang);
-      }
+      if (savedLang && UI_TEXTS[savedLang]) setLang(savedLang);
 
       const savedCredits = localStorage.getItem("ifiy_credits");
-      if (savedCredits !== null) {
-        setCredits(parseInt(savedCredits, 10));
-      }
+      if (savedCredits !== null) setCredits(parseInt(savedCredits, 10));
 
       const savedPro = localStorage.getItem("ifiy_isPro");
-      if (savedPro === "true") {
-        setIsPro(true);
-      }
+      if (savedPro === "true") setIsPro(true);
 
       const savedEmail = localStorage.getItem("ifiy_email");
-      if (savedEmail) {
-        setUserEmail(savedEmail);
-      }
-    } catch {
-      // ignore
-    }
+      if (savedEmail) setUserEmail(savedEmail);
+    } catch {}
   }, []);
 
-  // Sincronizza lo stato PRO con Supabase (se l'utente è loggato)
+  /* ----------------- SINCRONIZZA PRO DA SUPABASE ----------------- */
   useEffect(() => {
-    async function syncProFromSupabase() {
+    async function syncPro() {
       try {
-        const {
-          data: { user },
-          error: userError,
-        } = await supabase.auth.getUser();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
-        if (userError) {
-          console.error("Errore lettura user Supabase:", userError);
-          ;
-        }
-
-        if (!user) {
-          // Utente anonimo → resta Free
-          ;
-        }
-
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from("User")
           .select("is_pro, email")
           .eq("id", user.id)
           .single();
 
-        if (error) {
-          console.error("Errore lettura is_pro da Supabase:", error);
-          return;
-        }
-
         if (data?.is_pro) {
           setIsPro(true);
-
-          if (user.email) {
-            setUserEmail(user.email);
-          }
-
-          // Per i PRO i crediti non contano, ma teniamo un valore coerente
-          setCredits(2);
+          if (data.email) setUserEmail(data.email);
         }
-      } catch (err) {
-        console.error("Errore generale syncProFromSupabase:", err);
+      } catch (e) {
+        console.error("syncProFromSupabase error:", e);
       }
     }
-
-    syncProFromSupabase();
+    syncPro();
   }, []);
 
-  // Salva stato su localStorage
+  /* ----------------- SALVA SU LOCAL STORAGE ----------------- */
   useEffect(() => {
     try {
       localStorage.setItem("ifiy_credits", String(credits));
       localStorage.setItem("ifiy_isPro", isPro ? "true" : "false");
       localStorage.setItem("ifiy_lang", lang);
-      if (userEmail) {
-        localStorage.setItem("ifiy_email", userEmail);
-      }
-    } catch {
-      // ignore
-    }
+      if (userEmail) localStorage.setItem("ifiy_email", userEmail);
+    } catch {}
   }, [credits, isPro, lang, userEmail]);
 
+  /* ----------------- CAMBIO LINGUA ----------------- */
+  const handleChangeLang = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newLang = e.target.value as Lang;
+    setLang(newLang);
+
+    localStorage.setItem("ifiy_lang", newLang);
+    window.location.reload();
+  };
+
+  /* ----------------- SEARCH ----------------- */
   async function handleSearch(e?: React.FormEvent) {
     if (e) e.preventDefault();
     const q = query.trim();
     if (!q) return;
 
     if (!isPro) {
-      if (credits <= 0) {
-        alert(t.outOfCredits);
-        return;
-      }
+      if (credits <= 0) return alert(t.outOfCredits);
       if (credits === 1 && !userEmail) {
         setShowEmailGate(true);
         return;
@@ -431,27 +353,23 @@ export default function HomePage() {
       });
 
       const data = await res.json();
-
       if (!res.ok) {
-        console.error(data);
         alert(t.errorSearch);
         return;
       }
 
-      setResults(Array.isArray(data.items) ? data.items : []);
-      setSummary(typeof data.summary === "string" ? data.summary : "");
+      setResults(data.items || []);
+      setSummary(data.summary || "");
 
-      if (!isPro) {
-        setCredits((c) => (c > 0 ? c - 1 : 0));
-      }
+      if (!isPro) setCredits((c) => (c > 0 ? c - 1 : 0));
     } catch (err) {
-      console.error(err);
       alert(t.errorNetwork);
     } finally {
       setLoading(false);
     }
   }
 
+  /* ----------------- EMAIL 2a RICERCA ----------------- */
   const handleEmailCollected = async (email: string) => {
     setUserEmail(email);
     setShowEmailGate(false);
@@ -462,16 +380,17 @@ export default function HomePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-    } catch (error) {
-      console.error("Errore nel salvataggio email:", error);
-    }
+    } catch {}
 
     await handleSearch();
   };
 
+  /* ----------------- CTA PRO ----------------- */
   function handleGoPro() {
     window.location.href = `/pro?lang=${lang}`;
   }
+
+  /* ----------------- RENDER ----------------- */
 
   return (
     <main
@@ -500,18 +419,9 @@ export default function HomePage() {
             gap: 16,
           }}
         >
-          <div style={{ fontWeight: 700, fontSize: 18, color: "#0f172a" }}>
-            iFindItForYou
-          </div>
+          <div style={{ fontWeight: 700, fontSize: 18 }}>iFindItForYou</div>
 
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              fontSize: 14,
-            }}
-          >
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <span
               style={{
                 padding: "4px 8px",
@@ -520,27 +430,27 @@ export default function HomePage() {
                 background: isPro ? "#0f172a" : "#f8fafc",
                 color: isPro ? "#f9fafb" : "#0f172a",
                 fontWeight: 500,
+                fontSize: 14,
               }}
             >
               {isPro ? "PRO" : "Free"}
             </span>
 
-       <select
-  value={lang}
-  onChange={handleChangeLang}
-  style={{
-    borderRadius: 999,
-    border: "1px solid rgba(148,163,184,0.7)",
-    padding: "4px 10px",
-    background: "#ffffff",
-  }}
->
-  <option value="it">🇮🇹 Italiano</option>
-  <option value="fr">🇫🇷 Français</option>
-  <option value="de">🇩🇪 Deutsch</option>
-  <option value="en">🇬🇧 English</option>
-</select>
-
+            <select
+              value={lang}
+              onChange={handleChangeLang}
+              style={{
+                borderRadius: 999,
+                border: "1px solid rgba(148,163,184,0.7)",
+                padding: "4px 10px",
+                background: "#ffffff",
+              }}
+            >
+              <option value="it">🇮🇹 Italiano</option>
+              <option value="fr">🇫🇷 Français</option>
+              <option value="de">🇩🇪 Deutsch</option>
+              <option value="en">🇬🇧 English</option>
+            </select>
           </div>
         </div>
       </header>
@@ -555,13 +465,7 @@ export default function HomePage() {
           padding: "32px 16px 24px",
         }}
       >
-        <div
-          style={{
-            maxWidth: 720,
-            width: "100%",
-            textAlign: "center",
-          }}
-        >
+        <div style={{ maxWidth: 720, width: "100%", textAlign: "center" }}>
           <h1
             style={{
               fontSize: "clamp(32px, 5vw, 44px)",
@@ -571,13 +475,8 @@ export default function HomePage() {
           >
             iFindItForYou
           </h1>
-          <p
-            style={{
-              fontSize: 16,
-              opacity: 0.7,
-              marginBottom: 24,
-            }}
-          >
+
+          <p style={{ fontSize: 16, opacity: 0.7, marginBottom: 24 }}>
             {t.tagline}
           </p>
 
@@ -588,17 +487,9 @@ export default function HomePage() {
               flexDirection: "column",
               gap: 12,
               alignItems: "center",
-              marginBottom: 12,
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                width: "100%",
-                maxWidth: 640,
-                gap: 8,
-              }}
-            >
+            <div style={{ display: "flex", width: "100%", maxWidth: 640, gap: 8 }}>
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -609,7 +500,6 @@ export default function HomePage() {
                   border: "1px solid rgba(148,163,184,0.8)",
                   padding: "12px 18px",
                   fontSize: 15,
-                  outline: "none",
                 }}
               />
               <button
@@ -624,7 +514,6 @@ export default function HomePage() {
                   background: "#0f172a",
                   color: "#f9fafb",
                   cursor: loading ? "not-allowed" : "pointer",
-                  whiteSpace: "nowrap",
                 }}
               >
                 {loading ? "..." : t.search}
@@ -632,8 +521,8 @@ export default function HomePage() {
             </div>
           </form>
 
+          {/* Crediti / PRO */}
           {isPro ? (
-            // Banner ben visibile per gli utenti PRO
             <div
               style={{
                 marginTop: 12,
@@ -642,18 +531,15 @@ export default function HomePage() {
                 background: "#16a34a",
                 color: "#f9fafb",
                 fontWeight: 700,
-                fontSize: 15,
                 display: "inline-flex",
-                alignItems: "center",
                 gap: 8,
-                justifyContent: "center",
               }}
             >
               <span
                 style={{
                   padding: "2px 10px",
                   borderRadius: 999,
-                  border: "1px solid rgba(248,250,252,0.9)",
+                  border: "1px solid #fff",
                   fontSize: 12,
                 }}
               >
@@ -662,15 +548,8 @@ export default function HomePage() {
               <span>{t.creditsLabel(credits, true)}</span>
             </div>
           ) : (
-            // Stato Free: testo crediti + bottone "Diventa PRO"
             <>
-              <div
-                style={{
-                  fontSize: 13,
-                  opacity: 0.7,
-                  marginBottom: 8,
-                }}
-              >
+              <div style={{ fontSize: 13, opacity: 0.7, marginTop: 12 }}>
                 {t.creditsLabel(credits, false)}
               </div>
 
@@ -695,7 +574,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* RISULTATI + SEZIONI INFO */}
+      {/* RISULTATI + INFO */}
       <section
         style={{
           borderTop: "1px solid rgba(148,163,184,0.25)",
@@ -712,26 +591,14 @@ export default function HomePage() {
             gap: 24,
           }}
         >
-          {/* Colonna risultati */}
+          {/* RISULTATI */}
           <div>
-            <h2
-              style={{
-                fontSize: 16,
-                fontWeight: 600,
-                marginBottom: 12,
-              }}
-            >
+            <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
               {t.resultsTitle}
             </h2>
 
             {results.length > 0 && (
-              <p
-                style={{
-                  fontSize: 13,
-                  opacity: 0.8,
-                  marginBottom: 8,
-                }}
-              >
+              <p style={{ fontSize: 13, opacity: 0.8, marginBottom: 8 }}>
                 {t.resultsCount(results.length)}
               </p>
             )}
@@ -754,19 +621,12 @@ export default function HomePage() {
               </div>
             )}
 
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 8,
-              }}
-            >
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {results.map((item, idx) => (
                 <a
                   key={idx}
-                  href={item.url ?? "#"}
+                  href={item.url || "#"}
                   target="_blank"
-                  rel="noreferrer"
                   style={{
                     textDecoration: "none",
                     color: "inherit",
@@ -776,21 +636,10 @@ export default function HomePage() {
                     border: "1px solid rgba(148,163,184,0.4)",
                   }}
                 >
-                  <div
-                    style={{
-                      fontWeight: 600,
-                      fontSize: 14,
-                      marginBottom: 4,
-                    }}
-                  >
-                    {item.title ?? "Senza titolo"}
+                  <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>
+                    {item.title || "Senza titolo"}
                   </div>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      opacity: 0.7,
-                    }}
-                  >
+                  <div style={{ fontSize: 12, opacity: 0.7 }}>
                     {item.source && <span>{item.source}</span>}
                     {item.price && (
                       <span>
@@ -804,7 +653,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Colonna testo marketing */}
+          {/* COLUMNA INFO */}
           <div
             style={{
               fontSize: 13,
@@ -824,18 +673,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Modale email-gate */}
+      {/* MODALE EMAIL */}
       <EmailGateModal
         isOpen={showEmailGate}
         onClose={() => setShowEmailGate(false)}
         onConfirm={handleEmailCollected}
         t={t}
       />
-
     </main>
   );
 }
 
+/* ============================================================================
+   EMAIL GATE MODAL
+============================================================================ */
 
 function EmailGateModal({
   isOpen,
@@ -846,7 +697,7 @@ function EmailGateModal({
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (email: string) => void;
-  t: any; // per semplicità
+  t: any;
 }) {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -859,7 +710,6 @@ function EmailGateModal({
     setError(null);
 
     const trimmed = email.trim();
-
     if (!trimmed || !trimmed.includes("@")) {
       setError(t.emailGateErrorInvalid);
       return;
@@ -868,8 +718,7 @@ function EmailGateModal({
     setIsSubmitting(true);
     try {
       await onConfirm(trimmed);
-    } catch (err) {
-      console.error(err);
+    } catch {
       setError(t.emailGateErrorGeneric);
     } finally {
       setIsSubmitting(false);
@@ -899,7 +748,8 @@ function EmailGateModal({
         }}
       >
         <h2 style={{ marginBottom: 8 }}>{t.emailGateTitle}</h2>
-        <p style={{ marginBottom: 16, fontSize: 14, opacity: 0.9 }}>
+
+        <p style={{ marginBottom: 16, opacity: 0.9 }}>
           {t.emailGateDescription}
         </p>
 
@@ -929,7 +779,6 @@ function EmailGateModal({
               display: "flex",
               justifyContent: "flex-end",
               gap: 8,
-              marginTop: 8,
             }}
           >
             <button
@@ -946,6 +795,7 @@ function EmailGateModal({
             >
               {t.emailGateCancel}
             </button>
+
             <button
               type="submit"
               disabled={isSubmitting}
@@ -953,8 +803,10 @@ function EmailGateModal({
                 padding: "8px 14px",
                 borderRadius: 8,
                 border: "none",
-                cursor: "pointer",
                 fontWeight: 600,
+                cursor: "pointer",
+                background: "#0f172a",
+                color: "#fff",
               }}
             >
               {isSubmitting ? t.emailGateSubmitting : t.emailGateSubmit}
@@ -969,5 +821,3 @@ function EmailGateModal({
     </div>
   );
 }
-
-
