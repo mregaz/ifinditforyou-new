@@ -1,6 +1,6 @@
-import Header from "@/components/Header";
 // app/layout.tsx
 import type { ReactNode } from "react";
+import Header from "@/components/Header";
 
 export const metadata = {
   title: "iFindItForYou",
@@ -21,7 +21,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           a { color: #93c5fd; text-decoration: underline; }
         `}</style>
       </head>
-      <body>{children}</body>
+      <body>
+        {/* HEADER visibile su tutte le pagine */}
+        <Header />
+
+        {/* CONTENUTO DELLA PAGINA */}
+        {children}
+      </body>
     </html>
   );
 }
+
