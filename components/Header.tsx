@@ -3,14 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import { Lang } from "@/lib/lang";
 
 type UserState = {
   email: string | null;
   isPro: boolean;
   loading: boolean;
 };
-
-type Lang = "it" | "fr" | "en" | "de";
 
 const LABELS: Record<
   Lang,
@@ -53,14 +52,15 @@ export default function Header() {
     loading: true,
   });
 
+  // lingua di default
   const [lang, setLang] = useState<Lang>("it");
 
-  // Legge la lingua salvata in localStorage
+  // Legge la lingua salvata dalla Home (ifiy_lang)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const stored = window.localStorage.getItem("ifind_lang") as Lang | null;
-    if (stored && ["it", "fr", "en", "de"].includes(stored)) {
+    const stored = window.localStorage.getItem("ifiy_lang") as Lang | null;
+    if (stored && (["it", "fr", "en", "de"] as Lang[]).includes(stored)) {
       setLang(stored);
     }
   }, []);
@@ -156,3 +156,4 @@ export default function Header() {
     </header>
   );
 }
+
