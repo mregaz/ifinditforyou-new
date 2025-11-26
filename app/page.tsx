@@ -110,6 +110,17 @@ resultsCount: (n: number) =>
     ? "I’ve found 1 option for you."
     : `I’ve found ${n} options for you.`,
 empty: "Start a search to see how it works 👆",
+    emailGateTitle: "Unlock your second free search",
+    emailGateDescription:
+      "We only ask for your email to give you the second free search.",
+    emailGatePlaceholder: "your-email@example.com",
+    emailGateCancel: "Cancel",
+    emailGateSubmit: "Unlock search",
+    emailGateSubmitting: "Sending...",
+    emailGateErrorInvalid: "Please enter a valid email.",
+    emailGateErrorGeneric: "Something went wrong, please try again.",
+    emailGateFooter:
+      "No spam, only important updates about iFindItForYou.",
 
 
     resultsCountLabel: (n: number) =>
@@ -165,6 +176,17 @@ resultsCount: (n: number) =>
     : `J’ai trouvé ${n} options pour toi.`,
 empty: "Fais une recherche pour voir un exemple 👆",
 
+    emailGateTitle: "Débloque ta deuxième recherche gratuite",
+    emailGateDescription:
+      "On te demande seulement ton e-mail pour t’offrir la deuxième recherche gratuite.",
+    emailGatePlaceholder: "ton-email@exemple.com",
+    emailGateCancel: "Annuler",
+    emailGateSubmit: "Débloquer la recherche",
+    emailGateSubmitting: "Envoi...",
+    emailGateErrorInvalid: "Veuillez entrer une adresse e-mail valide.",
+    emailGateErrorGeneric: "Un problème est survenu, réessaie.",
+    emailGateFooter:
+      "Pas de spam, seulement des infos importantes sur iFindItForYou.",
 
     resultsCountLabel: (n: number) =>
       n === 0
