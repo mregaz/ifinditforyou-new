@@ -10,6 +10,42 @@ type UserState = {
   loading: boolean;
 };
 
+type Lang = "it" | "fr" | "en" | "de";
+
+const LABELS: Record<
+  Lang,
+  { loading: string; login: string; register: string; account: string; logout: string }
+> = {
+  it: {
+    loading: "Caricamento...",
+    login: "Login",
+    register: "Registrati",
+    account: "Account",
+    logout: "Logout",
+  },
+  fr: {
+    loading: "Chargement...",
+    login: "Connexion",
+    register: "Créer un compte",
+    account: "Compte",
+    logout: "Se déconnecter",
+  },
+  en: {
+    loading: "Loading...",
+    login: "Login",
+    register: "Sign up",
+    account: "Account",
+    logout: "Logout",
+  },
+  de: {
+    loading: "Laden...",
+    login: "Anmelden",
+    register: "Registrieren",
+    account: "Konto",
+    logout: "Abmelden",
+  },
+};
+
 export default function Header() {
   const [user, setUser] = useState<UserState>({
     email: null,
@@ -17,9 +53,20 @@ export default function Header() {
     loading: true,
   });
 
+  const [lang, setLang] = useState<Lang>("it");
+
+  // Legge la lingua salvata in localStorage
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const stored = window.localStorage.getItem("ifind_lang") as Lang | null;
+    if (stored && ["it", "fr", "en", "de"].includes(stored)) {
+      setLang(stored);
+    }
+  }, []);
+
   useEffect(() => {
     const loadUser = async () => {
-      // 1) Recupera utente loggato
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -29,7 +76,6 @@ export default function Header() {
         return;
       }
 
-      // 2) Recupera flag is_pro dalla tabella User
       const { data: profile } = await supabase
         .from("User")
         .select("is_pro")
@@ -37,7 +83,7 @@ export default function Header() {
         .single();
 
       setUser({
-        email: user.email ?? null,      // ← FIX QUI
+        email: user.email ?? null,
         isPro: profile?.is_pro ?? false,
         loading: false,
       });
@@ -51,6 +97,8 @@ export default function Header() {
     window.location.href = "/login";
   };
 
+  const t = LABELS[lang];
+
   return (
     <header className="w-full border-b bg-white">
       <div className="max-w-5xl mx-auto flex items-center justify-between py-4 px-4">
@@ -59,7 +107,7 @@ export default function Header() {
         </Link>
 
         {user.loading ? (
-          <span className="text-gray-500 text-sm">Caricamento...</span>
+          <span className="text-gray-500 text-sm">{t.loading}</span>
         ) : user.email ? (
           <div className="flex items-center gap-6">
             <span className="text-sm text-gray-700">{user.email}</span>
@@ -78,29 +126,29 @@ export default function Header() {
               href="/account"
               className="text-sm underline text-blue-600 hover:text-blue-800"
             >
-              Account
+              {t.account}
             </Link>
 
             <button
               onClick={handleLogout}
               className="text-sm text-red-600 underline hover:text-red-800"
             >
-              Logout
+              {t.logout}
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             <Link
               href="/login"
               className="text-sm underline text-blue-600 hover:text-blue-800"
             >
-              Login
+              {t.login}
             </Link>
             <Link
               href="/register"
               className="text-sm underline text-blue-600 hover:text-blue-800"
             >
-              Registrati
+              {t.register}
             </Link>
           </div>
         )}
@@ -108,4 +156,3 @@ export default function Header() {
     </header>
   );
 }
-
