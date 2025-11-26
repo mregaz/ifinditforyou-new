@@ -61,7 +61,7 @@ export default function Header() {
         {user.loading ? (
           <span className="text-gray-500 text-sm">Caricamento...</span>
         ) : user.email ? (
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             <span className="text-sm text-gray-700">{user.email}</span>
 
             <span
