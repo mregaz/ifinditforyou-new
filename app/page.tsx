@@ -2,6 +2,7 @@
 import { supabase } from "@/lib/supabaseClient";
 import { useEffect, useState } from "react";
 import { Lang } from "@/lib/lang";
+import type React from "react";
 
 
 const UI_TEXTS = {
@@ -349,12 +350,12 @@ export default function HomePage() {
 
         if (userError) {
           console.error("Errore lettura user Supabase:", userError);
-          return;
+          ;
         }
 
         if (!user) {
           // Utente anonimo → resta Free
-          return;
+          ;
         }
 
         const { data, error } = await supabase
@@ -524,21 +525,22 @@ export default function HomePage() {
               {isPro ? "PRO" : "Free"}
             </span>
 
-            <select
-              value={lang}
-              onChange={(e) => setLang(e.target.value as Lang)}
-              style={{
-                borderRadius: 999,
-                border: "1px solid rgba(148,163,184,0.7)",
-                padding: "4px 10px",
-                background: "#ffffff",
-              }}
-            >
-              <option value="it">🇮🇹 Italiano</option>
-              <option value="fr">🇫🇷 Français</option>
-              <option value="de">🇩🇪 Deutsch</option>
-              <option value="en">🇬🇧 English</option>
-            </select>
+       <select
+  value={lang}
+  onChange={handleChangeLang}
+  style={{
+    borderRadius: 999,
+    border: "1px solid rgba(148,163,184,0.7)",
+    padding: "4px 10px",
+    background: "#ffffff",
+  }}
+>
+  <option value="it">🇮🇹 Italiano</option>
+  <option value="fr">🇫🇷 Français</option>
+  <option value="de">🇩🇪 Deutsch</option>
+  <option value="en">🇬🇧 English</option>
+</select>
+
           </div>
         </div>
       </header>
