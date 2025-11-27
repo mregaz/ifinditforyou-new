@@ -1,5 +1,12 @@
 "use client";
 
+import ProPageClient from "./ProPageClient";
+
+export default function ProPage() {
+  return <ProPageClient />;
+}
+
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Lang, normalizeLang } from "@/lib/lang";
