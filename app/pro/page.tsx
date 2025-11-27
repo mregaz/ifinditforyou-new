@@ -100,7 +100,6 @@ const PRO_TEXTS: Record<
   },
 };
 
-export default function ProPage() {
   const [lang, setLang] = useState<Lang>("it");
   const [isPro, setIsPro] = useState(false);
   const [loadingUser, setLoadingUser] = useState(true);
