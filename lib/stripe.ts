@@ -1,11 +1,17 @@
 // lib/stripe.ts
 import Stripe from "stripe";
 
-const secretKey = process.env.STRIPE_SECRET_KEY;
+// Leggiamo sia STRIPE_SECRET_KEY sia STRIPE_SECRET_KEYS
+const secretKey =
+  process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEYS || "";
 
 if (!secretKey) {
-  throw new Error("ENV STRIPE_SECRET_KEY non è definita");
+  // Non blocchiamo la build con un errore, ma lasciamo un log chiaro
+  console.error(
+    "Stripe: nessuna chiave segreta trovata (STRIPE_SECRET_KEY o STRIPE_SECRET_KEYS)."
+  );
 }
 
-// Costruttore Stripe SENZA apiVersion (usa quella di default)
+// Se manca, Stripe verrà comunque inizializzato con stringa vuota, ma
+// l'API /api/create-checkout-session intercetterà il problema.
 export const stripe = new Stripe(secretKey);
