@@ -7,7 +7,5 @@ if (!secretKey) {
   throw new Error("ENV STRIPE_SECRET_KEY non è definita");
 }
 
-export const stripe = new Stripe(secretKey, {
-  apiVersion: "2022-11-15",
-});
-
+// Costruttore Stripe SENZA apiVersion (usa quella di default)
+export const stripe = new Stripe(secretKey);
