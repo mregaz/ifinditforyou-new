@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { Lang, normalizeLang } from "@/lib/lang";
 
@@ -95,31 +94,25 @@ const PRO_TEXTS: Record<
 };
 
 export default function ProPage() {
-  const searchParams = useSearchParams();
-  const langFromQuery = normalizeLang(searchParams.get("lang"));
-  const [lang, setLang] = useState<Lang>(langFromQuery);
+  const [lang, setLang] = useState<Lang>("it");
   const [isPro, setIsPro] = useState(false);
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingCheckout, setLoadingCheckout] = useState(false);
 
   const t = PRO_TEXTS[lang];
 
-  // allinea lingua con localStorage
+  // Legge la lingua da localStorage (come la home)
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("ifiy_lang") as Lang | null;
-      if (saved && PRO_TEXTS[saved]) {
-        setLang(saved);
-      } else {
-        localStorage.setItem("ifiy_lang", langFromQuery);
-      }
+      const saved = localStorage.getItem("ifiy_lang");
+      const normalized = normalizeLang(saved);
+      setLang(normalized);
     } catch {
-      // ignore
+      // se qualcosa va storto, resta "it"
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // verifica se l’utente è già PRO
+  // Verifica se l’utente è già PRO
   useEffect(() => {
     async function loadUser() {
       try {
@@ -160,12 +153,13 @@ export default function ProPage() {
     window.location.href = "/";
   };
 
+  // QUI usiamo l'endpoint corretto per il checkout
   const handleGoProCheckout = async () => {
     try {
       setLoadingCheckout(true);
 
-      // ATTENZIONE: cambia l’endpoint se nel tuo progetto il file è diverso
-      const res = await fetch("/api/stripe/create-checkout-session", {
+      // Cambia questo path SOLO se il tuo route.ts ha un altro nome
+      const res = await fetch("/api/create-checkout-session", {
         method: "POST",
       });
 
