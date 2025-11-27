@@ -1,32 +1,37 @@
 // app/api/create-checkout-session/route.ts
 import { NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe"; // usa la tua lib esistente
+import { stripe } from "@/lib/stripe";
 
-export async function POST() {
+export const runtime = "nodejs";
+
+type BillingPeriod = "monthly" | "yearly";
+
+export async function POST(req: Request) {
   try {
-    // 1) Prendiamo i price ID dalle env
-    const priceMonthly = process.env.STRIPE_PRICE_ID_MONTHLY;
-    const priceYearly = process.env.STRIPE_PRICE_ID_YEARLY;
+    const body = await req.json().catch(() => ({}));
+    const billingPeriod: BillingPeriod = body.billingPeriod ?? "monthly";
 
-    // Se vuoi gestire solo il mensile, puoi usare solo priceMonthly.
-    // Per ora usiamo il mensile COME DEFAULT, così non dipendiamo dal body.
-    const priceId = priceMonthly;
+    // Scegliamo il priceId in base al periodo
+    const priceId =
+      billingPeriod === "yearly"
+        ? process.env.STRIPE_PRICE_ID_YEARLY
+        : process.env.STRIPE_PRICE_ID_MONTHLY;
 
     if (!priceId) {
-      console.error("❌ Manca STRIPE_PRICE_ID_MONTHLY nelle variabili di ambiente");
+      // Qui NON è colpa tua, ma della config Stripe
+      console.error("Price ID mancante per", billingPeriod);
       return NextResponse.json(
-        { error: "Configurazione Stripe mancante (price mensile)." },
+        {
+          error:
+            "Configurazione prezzo Stripe mancante per il piano " +
+            billingPeriod,
+        },
         { status: 500 }
       );
     }
 
-    // 2) Base URL dell’app (per success/cancel)
-    const rawBaseUrl =
-      process.env.NEXT_PUBLIC_APP_URL || "https://ifinditforyou.com";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-    const baseUrl = rawBaseUrl.trim().replace(/\/+$/, "");
-
-    // 3) Creiamo la sessione di Checkout
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [
@@ -35,38 +40,33 @@ export async function POST() {
           quantity: 1,
         },
       ],
-      success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/pro`,
+      success_url: `${appUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appUrl}/pro`,
     });
 
     if (!session.url) {
-      console.error("❌ Stripe non ha restituito una URL di checkout");
+      console.error("Sessione Stripe creata ma senza URL", session);
       return NextResponse.json(
-        { error: "Stripe non ha restituito una URL di checkout." },
+        {
+          error:
+            "Stripe ha creato la sessione ma non ha fornito un URL di checkout.",
+        },
         { status: 500 }
       );
     }
 
-    // 4) Rispondiamo al frontend
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({ url: session.url }, { status: 200 });
   } catch (err: any) {
-    console.error("❌ Errore create-checkout-session:", err);
+    console.error("Stripe error in create-checkout-session:", err);
     return NextResponse.json(
       {
         error:
           "Stripe error: " +
-          (err?.message ?? "errore sconosciuto durante la creazione del checkout"),
+          (err?.message ??
+            "Errore sconosciuto nella creazione della sessione di pagamento."),
       },
       { status: 500 }
     );
   }
 }
-
-export async function GET() {
-  return NextResponse.json(
-    { error: "Usa POST per creare una sessione di pagamento." },
-    { status: 405 }
-  );
-}
-
 
