@@ -846,6 +846,11 @@ const handleCheckout = async (period: BillingPeriod) => {
               </p>
 
               {error && (
+  <p style={{ marginTop: 12, color: "red", fontSize: 14 }}>
+    {error}
+  </p>
+)}
+
                 <p
                   style={{
                     fontSize: 12,
