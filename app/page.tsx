@@ -1,14 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type React from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { Lang } from "@/lib/lang";
-
-/* ============================================================================
-   TEXTS MULTILINGUA
-============================================================================ */
-
 const UI_TEXTS = {
   it: {
     tagline: "Scrivi cosa cerchi, io lo trovo per te.",
@@ -23,37 +14,43 @@ const UI_TEXTS = {
     errorNetwork: "Problema di rete. Controlla la connessione e riprova.",
     search: "Cerca",
     proCta: "Diventa PRO",
+
     creditsLabel: (credits: number, isPro: boolean) =>
       isPro
         ? "Piano PRO attivo: ricerche illimitate."
         : credits > 0
-        ? `Hai ancora ${credits} ricerche gratuite.`
-        : "Hai esaurito le 2 ricerche gratuite.",
+        ? `Hai ancora ${credits} ricerca gratuita (totale: 1 senza email + 1 con email).`
+        : "Hai esaurito le ricerche gratuite (1 senza email + 1 con email).",
+
     outOfCredits:
       "Hai esaurito le ricerche gratuite. Attiva il piano PRO per continuare.",
+
     sectionHowTitle: "Come funziona",
     sectionHowText:
       "Scrivi cosa ti serve. L’AI analizza la richiesta, cerca sul web e ti mostra solo risultati filtrati.",
     sectionWhyTitle: "Perché non usare solo Google?",
     sectionWhyText:
       "Google ti dà milioni di risultati. iFindItForYou ti restituisce solo pochi risultati pertinenti, già filtrati.",
+
     sectionProTitle: "Free vs PRO",
     sectionProFree:
       "2 ricerche gratuite per provare il servizio (1 senza email + 1 con email).",
     sectionProPaid:
       "Con PRO hai ricerche illimitate e risultati più approfonditi.",
+
     sectionFaqTitle: "Privacy & dati",
     sectionFaqText:
       "Le tue ricerche servono solo a migliorare i risultati. Non vendiamo dati.",
+
     resultsTitle: "Risultati",
     resultsCount: (n: number) =>
       n === 1 ? "Ho trovato 1 opzione per te." : `Ho trovato ${n} opzioni per te.`,
     empty: "Fai una ricerca per vedere qualche esempio 👆",
 
-    // MODALE EMAIL
+    // Email gate
     emailGateTitle: "Sblocca la seconda ricerca gratuita",
     emailGateDescription:
-      "Ti chiediamo solo la tua email per concederti la seconda ricerca gratuita.",
+      "Ti chiediamo solo la tua email per darti la seconda ricerca gratuita.",
     emailGatePlaceholder: "la-tua-email@esempio.com",
     emailGateCancel: "Annulla",
     emailGateSubmit: "Sblocca ricerca",
@@ -75,41 +72,49 @@ const UI_TEXTS = {
     ],
     search: "Search",
     proCta: "Go PRO",
+
     creditsLabel: (credits: number, isPro: boolean) =>
       isPro
         ? "PRO plan active: unlimited searches."
         : credits > 0
-        ? `You have ${credits} free searches left.`
-        : "You’ve used all 2 free searches.",
+        ? `You have ${credits} free search left (total: 1 anonymous + 1 with email).`
+        : "You’ve used all your free searches (1 anonymous + 1 with email).",
+
     outOfCredits: "You’ve used your free searches. Activate PRO to continue.",
+
     sectionHowTitle: "How it works",
     sectionHowText:
       "Describe what you need. The AI analyzes your request, searches online and shows filtered results.",
     sectionWhyTitle: "Why not Google?",
     sectionWhyText:
-      "Google gives millions of results. iFindItForYou gives a few, curated and focused ones.",
+      "Google gives millions of results. iFindItForYou gives a few curated ones.",
+
     sectionProTitle: "Free vs PRO",
     sectionProFree:
       "2 free searches to try the service (1 anonymous + 1 with email).",
     sectionProPaid:
       "With PRO you get unlimited searches and deeper results.",
+
     sectionFaqTitle: "Privacy & data",
     sectionFaqText:
       "Your searches are used only to improve the service. We never sell data.",
+
     resultsTitle: "Results",
     resultsCount: (n: number) =>
       n === 1 ? "I found 1 option for you." : `I found ${n} options for you.`,
     empty: "Start a search to see how it works 👆",
+
+    // Email gate
     emailGateTitle: "Unlock your second free search",
     emailGateDescription:
-      "We only ask for your email to give you the second free search.",
+      "We ask only for your email to give you the second free search.",
     emailGatePlaceholder: "your-email@example.com",
     emailGateCancel: "Cancel",
     emailGateSubmit: "Unlock search",
     emailGateSubmitting: "Sending...",
     emailGateErrorInvalid: "Please enter a valid email.",
     emailGateErrorGeneric: "Something went wrong. Try again.",
-    emailGateFooter: "No spam. Only useful updates.",
+    emailGateFooter: "No spam. Only important updates.",
     errorSearch: "Search error. Try again soon.",
     errorNetwork: "Network problem. Check your connection.",
   },
@@ -125,31 +130,41 @@ const UI_TEXTS = {
     ],
     search: "Rechercher",
     proCta: "Passer PRO",
+
     creditsLabel: (c: number, isPro: boolean) =>
       isPro
         ? "Abonnement PRO actif : recherches illimitées."
         : c > 0
-        ? `Il te reste ${c} recherches gratuites.`
-        : "Tu as utilisé tes 2 recherches gratuites.",
+        ? `Il te reste ${c} recherche gratuite (total : 1 sans email + 1 avec email).`
+        : "Tu as utilisé toutes tes recherches gratuites (1 sans email + 1 avec email).",
+
     outOfCredits:
       "Tu as utilisé toutes tes recherches gratuites. Active PRO pour continuer.",
+
     sectionHowTitle: "Comment ça marche",
     sectionHowText:
-      "Décris ce dont tu as besoin. L’IA analyse ta demande, cherche en ligne et filtre les résultats.",
+      "Décris ce dont tu as besoin. L’IA analyse ta demande, cherche en ligne et filtre les meilleurs résultats.",
     sectionWhyTitle: "Pourquoi pas Google ?",
     sectionWhyText:
       "Google donne des millions de résultats. iFindItForYou en donne quelques-uns, déjà filtrés.",
+
     sectionProTitle: "Free vs PRO",
     sectionProFree:
       "2 recherches gratuites pour tester (1 sans email + 1 avec email).",
-    sectionProPaid: "Avec PRO tu as des recherches illimitées.",
+    sectionProPaid:
+      "Avec PRO tu as des recherches illimitées.",
+
     sectionFaqTitle: "Vie privée & données",
     sectionFaqText:
-      "Tes recherches servent seulement à améliorer le service.",
+      "Tes recherches sont utilisées uniquement pour améliorer le service.",
+
     resultsTitle: "Résultats",
     resultsCount: (n: number) =>
       n === 1 ? "J’ai trouvé 1 option pour toi." : `J’ai trouvé ${n} options.`,
+
     empty: "Fais une recherche pour voir comment ça marche 👆",
+
+    // Email gate
     emailGateTitle: "Débloque ta deuxième recherche gratuite",
     emailGateDescription:
       "On te demande juste ton email pour t’offrir la deuxième recherche.",
@@ -159,8 +174,8 @@ const UI_TEXTS = {
     emailGateSubmitting: "Envoi...",
     emailGateErrorInvalid: "Email invalide.",
     emailGateErrorGeneric: "Erreur. Réessaie.",
-    emailGateFooter:
-      "Pas de spam. Seulement des infos importantes.",
+    emailGateFooter: "Pas de spam. Seulement des infos utiles.",
+
     errorSearch: "Erreur lors de la recherche.",
     errorNetwork: "Problème réseau.",
   },
@@ -176,49 +191,59 @@ const UI_TEXTS = {
     ],
     search: "Suchen",
     proCta: "PRO werden",
+
     creditsLabel: (c: number, isPro: boolean) =>
       isPro
         ? "PRO aktiv: unbegrenzte Suchen."
         : c > 0
-        ? `Du hast noch ${c} kostenlose Suchanfragen.`
-        : "Du hast deine 2 kostenlosen Suchanfragen aufgebraucht.",
+        ? `Du hast noch ${c} kostenlose Suchanfrage (insgesamt: 1 ohne E-Mail + 1 mit E-Mail).`
+        : "Du hast deine kostenlosen Suchanfragen aufgebraucht (1 ohne E-Mail + 1 mit E-Mail).",
+
     outOfCredits:
-      "Keine freien Suchanfragen mehr. Aktiviere PRO.",
+      "Keine kostenlosen Suchanfragen mehr. Aktiviere PRO, um fortzufahren.",
+
     sectionHowTitle: "Wie es funktioniert",
     sectionHowText:
       "Beschreibe, was du brauchst. Die KI sucht online und filtert die besten Ergebnisse.",
     sectionWhyTitle: "Warum nicht Google?",
     sectionWhyText:
       "Google gibt Millionen Treffer. iFindItForYou gibt nur die relevanten.",
+
     sectionProTitle: "Free vs PRO",
     sectionProFree:
-      "2 kostenlose Suchanfragen zum Testen.",
+      "2 kostenlose Suchanfragen zum Testen (1 ohne E-Mail + 1 mit E-Mail).",
     sectionProPaid:
       "Mit PRO hast du unbegrenzte Suchen.",
+
     sectionFaqTitle: "Datenschutz",
     sectionFaqText:
       "Deine Suchanfragen werden nicht verkauft.",
+
     resultsTitle: "Ergebnisse",
     resultsCount: (n: number) =>
       n === 1
         ? "Ich habe 1 Option gefunden."
         : `Ich habe ${n} Optionen gefunden.`,
+
     empty: "Starte eine Suche 👆",
+
+    // Email gate
     emailGateTitle: "Zweite kostenlose Suche freischalten",
     emailGateDescription:
-      "Wir brauchen nur deine E-Mail für die zweite Suchanfrage.",
+      "Wir brauchen nur deine E-Mail, um die zweite Suche freizuschalten.",
     emailGatePlaceholder: "deine-email@beispiel.com",
     emailGateCancel: "Abbrechen",
     emailGateSubmit: "Freischalten",
     emailGateSubmitting: "Senden...",
     emailGateErrorInvalid: "Bitte gültige E-Mail eingeben.",
     emailGateErrorGeneric: "Fehler. Versuch es erneut.",
-    emailGateFooter:
-      "Kein Spam. Nur wichtige Updates.",
+    emailGateFooter: "Kein Spam. Nur wichtige Updates.",
+
     errorSearch: "Fehler bei der Suche.",
     errorNetwork: "Netzwerkproblem.",
   },
 } as const;
+
 
 /* ============================================================================
    COMPONENTE INFO BLOCK
