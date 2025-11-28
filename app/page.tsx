@@ -1,4 +1,7 @@
 "use client";
+"use client";
+
+import React, { useEffect, useState } from "react";
 
 const UI_TEXTS = {
   it: {
