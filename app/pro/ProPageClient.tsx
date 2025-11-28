@@ -815,40 +815,27 @@ const handleCheckout = async (period: BillingPeriod) => {
             </div>
 
             <div style={{ marginTop: 24 }}>
-              <button
-                type="button"
-                onClick={() => handleCheckout(billingPeriod)}
-                disabled={isPro || isLoading !== null}
-                style={
-                  isPro || isLoading !== null
-                    ? disabledButtonStyle
-                    : primaryButtonStyle
-                }
-              >
-                {isPro
-                  ? t.buttonAlreadyPro
-                  : isLoading === "monthly"
-                  ? t.buttonRedirectMonthly
-                  : isLoading === "yearly"
-                  ? t.buttonRedirectYearly
-                  : t.buttonGoPro}
-              </button>
+  <button
+    type="button"
+    onClick={() => handleCheckout(billingPeriod)}
+    disabled={isPro || isLoading !== null}
+    style={isPro || isLoading !== null ? disabledButtonStyle : primaryButtonStyle}
+  >
+    {isPro
+      ? "Sei già PRO"
+      : isLoading === billingPeriod
+        ? "Caricamento..."
+        : "Passa a PRO"}
+  </button>
 
-              <p
-                style={{
-                  fontSize: 11,
-                  color: "#9ca3af",
-                  marginTop: 8,
-                  textAlign: "center",
-                }}
-              >
-                {t.cancelNote}
-              </p>
+  {/* Messaggio di errore sotto al bottone */}
+  {error ? (
+    <p style={{ marginTop: 12, color: "red", fontSize: 14 }}>
+      {error}
+    </p>
+  ) : null}
+</div>
 
-              {error && (
-  <p style={{ marginTop: 12, color: "red", fontSize: 14 }}>
-    {error}
-  </p>
 )}
 
                 <p
