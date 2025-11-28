@@ -49,20 +49,37 @@ export async function POST(req: Request) {
     }
 
     // 5) URL dell'app (fallback localhost in dev)
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+// 5) URL dell'app (fallback localhost in dev)
+const rawAppUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-    // 6) Creiamo la sessione di checkout Stripe
-    const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      success_url: `${appUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/pro`,
-    });
+// togliamo eventuali spazi e slash finali
+const appUrl = rawAppUrl.trim().replace(/\/+$/, "");
+
+// controlliamo che sia una URL valida
+try {
+  new URL(appUrl);
+} catch {
+  return NextResponse.json(
+    {
+      error: `Configurazione NEXT_PUBLIC_APP_URL non valida: "${rawAppUrl}"`,
+    },
+    { status: 500 }
+  );
+}
+
+// 6) Creiamo la sessione di checkout Stripe
+const session = await stripe.checkout.sessions.create({
+  mode: "subscription",
+  line_items: [
+    {
+      price: priceId,
+      quantity: 1,
+    },
+  ],
+  success_url: `${appUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
+  cancel_url: `${appUrl}/pro`,
+});
+
 
     if (!session.url) {
       return NextResponse.json(
