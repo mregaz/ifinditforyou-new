@@ -1,17 +1,19 @@
 // lib/stripe.ts
 import Stripe from "stripe";
 
-// Leggiamo sia STRIPE_SECRET_KEY sia STRIPE_SECRET_KEYS
+// leggiamo entrambe le possibili ENV
 const secretKey =
-  process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEYS || "";
+  process.env.STRIPE_SECRET_KEYS || process.env.STRIPE_SECRET_KEY || "";
 
 if (!secretKey) {
-  // Non blocchiamo la build con un errore, ma lasciamo un log chiaro
+  // NON lanciamo più un errore che blocca tutto,
+  // ci limitiamo a loggare un avviso.
   console.error(
-    "Stripe: nessuna chiave segreta trovata (STRIPE_SECRET_KEY o STRIPE_SECRET_KEYS)."
+    "ATTENZIONE: manca STRIPE_SECRET_KEYS / STRIPE_SECRET_KEY. Le chiamate Stripe daranno errore."
   );
 }
 
-// Se manca, Stripe verrà comunque inizializzato con stringa vuota, ma
-// l'API /api/create-checkout-session intercetterà il problema.
-export const stripe = new Stripe(secretKey);
+// inizializziamo comunque Stripe; se la chiave è vuota o sbagliata,
+// le API Stripe restituiranno un errore "Invalid API Key provided",
+// che verrà catturato nella route /api/create-checkout-session.
+export const stripe = new Stripe(secretKey || "sk_test_dummy");
