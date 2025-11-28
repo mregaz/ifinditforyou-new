@@ -1,7 +1,14 @@
 "use client";
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import type React from "react";
+import { supabase } from "@/lib/supabaseClient";
+// TOGLI questa riga se c'è ancora
+// import { Lang } from "@/lib/lang";
+type Lang = "it" | "fr" | "de" | "en";
+
+
 
 const UI_TEXTS = {
   it: {
