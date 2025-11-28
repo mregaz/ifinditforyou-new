@@ -836,7 +836,7 @@ const handleCheckout = async (period: BillingPeriod) => {
   ) : null}
 </div>
 
-)}
+
 
                 <p
                   style={{
