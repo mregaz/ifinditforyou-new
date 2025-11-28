@@ -49,11 +49,7 @@ const PRO_TEXTS = {
     compFree: "Free",
     compPro: "PRO",
     compRows: [
-      {
-        feature: "Numero di ricerche",
-        free: "2 (1 + 1 con email)",
-        pro: "Illimitate",
-      },
+      { feature: "Numero di ricerche", free: "2 (1 + 1 con email)", pro: "Illimitate" },
       {
         feature: "Qualità risultati",
         free: "Base",
@@ -137,10 +133,8 @@ const PRO_TEXTS = {
       "Support par email dédié",
     ],
     buttonAlreadyPro: "Tu es déjà PRO",
-    buttonRedirectMonthly:
-      "Redirection vers Stripe (mensuel)…",
-    buttonRedirectYearly:
-      "Redirection vers Stripe (annuel)…",
+    buttonRedirectMonthly: "Redirection vers Stripe (mensuel)…",
+    buttonRedirectYearly: "Redirection vers Stripe (annuel)…",
     buttonGoPro: "Passer à PRO",
     cancelNote:
       "Pas d'engagement long terme. Tu peux annuler le renouvellement à tout moment depuis ton compte Stripe.",
@@ -149,11 +143,7 @@ const PRO_TEXTS = {
     compFree: "Free",
     compPro: "PRO",
     compRows: [
-      {
-        feature: "Nombre de recherches",
-        free: "2 (1 + 1 avec email)",
-        pro: "Illimitées",
-      },
+      { feature: "Nombre de recherches", free: "2 (1 + 1 avec email)", pro: "Illimitées" },
       {
         feature: "Qualité des résultats",
         free: "Basique",
@@ -237,10 +227,8 @@ const PRO_TEXTS = {
       "Dedizierter E-Mail-Support",
     ],
     buttonAlreadyPro: "Du bist bereits PRO",
-    buttonRedirectMonthly:
-      "Weiterleitung zu Stripe (monatlich)…",
-    buttonRedirectYearly:
-      "Weiterleitung zu Stripe (jährlich)…",
+    buttonRedirectMonthly: "Weiterleitung zu Stripe (monatlich)…",
+    buttonRedirectYearly: "Weiterleitung zu Stripe (jährlich)…",
     buttonGoPro: "Zu PRO wechseln",
     cancelNote:
       "Keine langfristige Bindung. Du kannst die Verlängerung jederzeit in deinem Stripe-Konto deaktivieren.",
@@ -249,11 +237,7 @@ const PRO_TEXTS = {
     compFree: "Free",
     compPro: "PRO",
     compRows: [
-      {
-        feature: "Anzahl der Suchanfragen",
-        free: "2 (1 + 1 mit E-Mail)",
-        pro: "Unbegrenzt",
-      },
+      { feature: "Anzahl der Suchanfragen", free: "2 (1 + 1 mit E-Mail)", pro: "Unbegrenzt" },
       {
         feature: "Qualität der Ergebnisse",
         free: "Basis",
@@ -337,10 +321,8 @@ const PRO_TEXTS = {
       "Dedicated email support",
     ],
     buttonAlreadyPro: "You’re already PRO",
-    buttonRedirectMonthly:
-      "Redirecting to Stripe (monthly)…",
-    buttonRedirectYearly:
-      "Redirecting to Stripe (yearly)…",
+    buttonRedirectMonthly: "Redirecting to Stripe (monthly)…",
+    buttonRedirectYearly: "Redirecting to Stripe (yearly)…",
     buttonGoPro: "Go PRO",
     cancelNote:
       "No long-term commitment. You can cancel renewal at any time from your Stripe account.",
@@ -349,11 +331,7 @@ const PRO_TEXTS = {
     compFree: "Free",
     compPro: "PRO",
     compRows: [
-      {
-        feature: "Number of searches",
-        free: "2 (1 + 1 with email)",
-        pro: "Unlimited",
-      },
+      { feature: "Number of searches", free: "2 (1 + 1 with email)", pro: "Unlimited" },
       {
         feature: "Result quality",
         free: "Basic",
@@ -414,88 +392,81 @@ export default function ProPageClient() {
 
   const t = PRO_TEXTS[lang];
 
-  // leggi lingua da ?lang=it|fr|de|en
+  // leggi lingua e stato PRO
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const value = window.localStorage.getItem("isPro");
-      setIsPro(value === "true");
+    if (typeof window === "undefined") return;
 
-      const params = new URLSearchParams(window.location.search);
-      const urlLang = params.get("lang");
-      if (
-        urlLang === "it" ||
-        urlLang === "fr" ||
-        urlLang === "de" ||
-        urlLang === "en"
-      ) {
-        setLang(urlLang as Lang);
-      }
+    const value = window.localStorage.getItem("isPro");
+    setIsPro(value === "true");
+
+    const params = new URLSearchParams(window.location.search);
+    const urlLang = params.get("lang");
+    if (urlLang === "it" || urlLang === "fr" || urlLang === "de" || urlLang === "en") {
+      setLang(urlLang as Lang);
     }
   }, []);
 
-const handleCheckout = async (period: BillingPeriod) => {
-  try {
-    setIsLoading(period);
-    setError(null);
+  const handleCheckout = async (period: BillingPeriod) => {
+    try {
+      setIsLoading(period);
+      setError(null);
 
-    const res = await fetch("/api/create-checkout-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ billingPeriod: period }),
-    });
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ billingPeriod: period }),
+      });
 
-    const bodyText = await res.text();
-    console.log("checkout response:", res.status, bodyText);
+      const bodyText = await res.text();
+      console.log("checkout response:", res.status, bodyText);
 
-    if (!res.ok) {
-      let message = "Errore nella creazione della sessione di pagamento.";
+      if (!res.ok) {
+        let message = "Errore nella creazione della sessione di pagamento.";
 
-      try {
-        const parsed = JSON.parse(bodyText);
-        if (parsed && typeof parsed.error === "string") {
-          message = parsed.error;
+        try {
+          const parsed = JSON.parse(bodyText);
+          if (parsed && typeof parsed.error === "string") {
+            message = parsed.error;
+          }
+        } catch {
+          if (bodyText) {
+            message =
+              message +
+              " Dettagli: " +
+              bodyText.slice(0, 200) +
+              (bodyText.length > 200 ? "..." : "");
+          }
         }
-      } catch {
-        if (bodyText) {
-          message =
-            message +
-            " Dettagli: " +
-            bodyText.slice(0, 200) +
-            (bodyText.length > 200 ? "..." : "");
-        }
+
+        setError(message);
+        return;
       }
 
-      setError(message);
-      return;
-    }
+      let data: { url?: string } = {};
+      try {
+        data = JSON.parse(bodyText);
+      } catch {
+        setError(
+          "Risposta inattesa dal server durante la creazione del checkout."
+        );
+        return;
+      }
 
-    let data: { url?: string } = {};
-    try {
-      data = JSON.parse(bodyText);
-    } catch {
+      if (!data.url) {
+        setError("URL di checkout mancante nella risposta del server.");
+        return;
+      }
+
+      window.location.href = data.url;
+    } catch (err: any) {
+      console.error("handleCheckout error:", err);
       setError(
-        "Risposta inattesa dal server durante la creazione del checkout."
+        err?.message ?? "Errore imprevisto durante la creazione del checkout."
       );
-      return;
+    } finally {
+      setIsLoading(null);
     }
-
-    if (!data.url) {
-      setError("URL di checkout mancante nella risposta del server.");
-      return;
-    }
-
-    window.location.href = data.url;
-  } catch (err: any) {
-    console.error("handleCheckout error:", err);
-    setError(
-      err?.message ?? "Errore imprevisto durante la creazione del checkout."
-    );
-  } finally {
-    setIsLoading(null);
-  }
-};
-
-
+  };
 
   const isMonthly = billingPeriod === "monthly";
 
@@ -518,7 +489,7 @@ const handleCheckout = async (period: BillingPeriod) => {
 
   const cardsWrapperStyle = {
     display: "grid",
-    gridTemplateColumns: "1fr",
+    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
     gap: 24,
   } as const;
 
@@ -532,10 +503,7 @@ const handleCheckout = async (period: BillingPeriod) => {
     justifyContent: "space-between",
   };
 
-  const cardStyle = {
-    ...cardBaseStyle,
-  };
-
+  const cardStyle = { ...cardBaseStyle };
   const proCardStyle = {
     ...cardBaseStyle,
     borderColor: "#22c55e",
@@ -620,9 +588,7 @@ const handleCheckout = async (period: BillingPeriod) => {
           <div style={{ textAlign: "center" }}>
             <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>
               {t.heroTitleBefore}{" "}
-              <span style={{ color: "#22c55e" }}>
-                {t.heroTitleHighlight}
-              </span>
+              <span style={{ color: "#22c55e" }}>{t.heroTitleHighlight}</span>
             </h1>
             <p style={{ maxWidth: 600, margin: "0 auto", color: "#9ca3af" }}>
               {t.heroSubtitle}
@@ -683,12 +649,7 @@ const handleCheckout = async (period: BillingPeriod) => {
         </div>
 
         {/* Cards */}
-        <div
-          style={{
-            ...cardsWrapperStyle,
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-          }}
-        >
+        <div style={cardsWrapperStyle}>
           {/* FREE */}
           <section style={cardStyle}>
             <div>
@@ -731,7 +692,7 @@ const handleCheckout = async (period: BillingPeriod) => {
             </div>
           </section>
 
-           {/* PRO */}
+          {/* PRO */}
           <section style={proCardStyle}>
             <div>
               <div
@@ -841,26 +802,9 @@ const handleCheckout = async (period: BillingPeriod) => {
               )}
             </div>
           </section>
-
-
-
-
-                <p
-                  style={{
-                    fontSize: 12,
-                    color: "#f87171",
-                    marginTop: 8,
-                    textAlign: "center",
-                  }}
-                >
-                  {error}
-                </p>
-              )}
-            </div>
-          </section>
         </div>
 
-        {/* Tabella confronto Free vs PRO */}
+        {/* Tabella confronto */}
         <section
           style={{
             marginTop: 40,
@@ -991,7 +935,7 @@ const handleCheckout = async (period: BillingPeriod) => {
           ))}
         </section>
 
-        {/* Legal: Termini & Privacy */}
+        {/* Legal */}
         <section
           style={{
             marginTop: 32,
@@ -1017,3 +961,4 @@ const handleCheckout = async (period: BillingPeriod) => {
     </main>
   );
 }
+
