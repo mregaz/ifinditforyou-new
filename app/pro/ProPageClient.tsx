@@ -731,7 +731,7 @@ const handleCheckout = async (period: BillingPeriod) => {
             </div>
           </section>
 
-          {/* PRO */}
+           {/* PRO */}
           <section style={proCardStyle}>
             <div>
               <div
@@ -761,6 +761,7 @@ const handleCheckout = async (period: BillingPeriod) => {
                   {t.proBadge}
                 </span>
               </div>
+
               <p
                 style={{ fontSize: 13, color: "#9ca3af", marginBottom: 16 }}
               >
@@ -814,27 +815,33 @@ const handleCheckout = async (period: BillingPeriod) => {
               </ul>
             </div>
 
+            {/* Bottone + messaggio di errore */}
             <div style={{ marginTop: 24 }}>
-  <button
-    type="button"
-    onClick={() => handleCheckout(billingPeriod)}
-    disabled={isPro || isLoading !== null}
-    style={isPro || isLoading !== null ? disabledButtonStyle : primaryButtonStyle}
-  >
-    {isPro
-      ? "Sei già PRO"
-      : isLoading === billingPeriod
-        ? "Caricamento..."
-        : "Passa a PRO"}
-  </button>
+              <button
+                type="button"
+                onClick={() => handleCheckout(billingPeriod)}
+                disabled={isPro || isLoading !== null}
+                style={
+                  isPro || isLoading !== null
+                    ? disabledButtonStyle
+                    : primaryButtonStyle
+                }
+              >
+                {isPro
+                  ? "Sei già PRO"
+                  : isLoading === billingPeriod
+                    ? "Caricamento..."
+                    : "Passa a PRO"}
+              </button>
 
-  {/* Messaggio di errore sotto al bottone */}
-  {error ? (
-    <p style={{ marginTop: 12, color: "red", fontSize: 14 }}>
-      {error}
-    </p>
-  ) : null}
-</div>
+              {error && (
+                <p style={{ marginTop: 12, color: "red", fontSize: 14 }}>
+                  {error}
+                </p>
+              )}
+            </div>
+          </section>
+
 
 
 
