@@ -1,5 +1,5 @@
 "use client";
-"use client";
+
 
 import { useEffect, useState } from "react";
 import type React from "react";
@@ -557,55 +557,81 @@ export default function HomePage() {
           </form>
 
           {/* Crediti / PRO */}
-          {isPro ? (
-            <div
-              style={{
-                marginTop: 12,
-                padding: "10px 16px",
-                borderRadius: 12,
-                background: "#16a34a",
-                color: "#f9fafb",
-                fontWeight: 700,
-                display: "inline-flex",
-                gap: 8,
-              }}
-            >
-              <span
-                style={{
-                  padding: "2px 10px",
-                  borderRadius: 999,
-                  border: "1px solid #fff",
-                  fontSize: 12,
-                }}
-              >
-                PRO
-              </span>
-              <span>{t.creditsLabel(credits, true)}</span>
-            </div>
-          ) : (
-            <>
-              <div style={{ fontSize: 13, opacity: 0.7, marginTop: 12 }}>
-                {t.creditsLabel(credits, false)}
-              </div>
+{isPro ? (
+  <div
+    style={{
+      marginTop: 12,
+      padding: "10px 16px",
+      borderRadius: 12,
+      background: "#16a34a",
+      color: "#f9fafb",
+      fontWeight: 700,
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 8,
+    }}
+  >
+    <span
+      style={{
+        padding: "2px 10px",
+        borderRadius: 999,
+        border: "1px solid #fff",
+        fontSize: 12,
+      }}
+    >
+      PRO
+    </span>
+    <span>{t.creditsLabel(credits, true)}</span>
+  </div>
+) : (
+  <div style={{ marginTop: 12, textAlign: "center" }}>
+    <div
+      style={{
+        fontSize: 13,
+        opacity: 0.8,
+        marginBottom: 6,
+      }}
+    >
+      {t.creditsLabel(credits, false)}
+    </div>
 
-              <button
-                type="button"
-                onClick={handleGoPro}
-                style={{
-                  marginTop: 4,
-                  borderRadius: 999,
-                  border: "1px solid rgba(79,70,229,0.8)",
-                  padding: "8px 18px",
-                  fontSize: 14,
-                  background: "#eef2ff",
-                  color: "#312e81",
-                  cursor: "pointer",
-                }}
-              >
-                {t.proCta}
-              </button>
-            </>
-          )}
+    {credits <= 0 ? (
+      <div
+        style={{
+          fontSize: 13,
+          color: "#dc2626",
+          marginBottom: 8,
+          fontWeight: 500,
+        }}
+      >
+        {t.outOfCredits}
+      </div>
+    ) : null}
+
+    <button
+      type="button"
+      onClick={handleGoPro}
+      style={{
+        marginTop: 4,
+        borderRadius: 999,
+        border: "1px solid rgba(79,70,229,0.8)",
+        padding: "8px 18px",
+        fontSize: 14,
+        background: "#eef2ff",
+        color: "#312e81",
+        cursor: "pointer",
+      }}
+    >
+      {t.proCta}
+    </button>
+
+    <div style={{ marginTop: 6, fontSize: 11, opacity: 0.6 }}>
+      1 ricerca gratuita senza email + 1 con email.
+    </div>
+  </div>
+)}
+
+          
         </div>
       </section>
 
