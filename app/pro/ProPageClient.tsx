@@ -433,39 +433,35 @@ export default function ProPageClient() {
     }
   }, []);
 
-  const handleCheckout = async (period: BillingPeriod) => {
+const handleCheckout = async (period: BillingPeriod) => {
   try {
-    // indichiamo quale periodo è in loading
     setIsLoading(period);
     setError(null);
 
     const res = await fetch("/api/create-checkout-session", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ billingPeriod: period }),
     });
 
-    // leggiamo SEMPRE il testo grezzo
     const bodyText = await res.text();
     console.log("checkout response:", res.status, bodyText);
 
-    // Se la risposta NON è ok (status 4xx / 5xx)
     if (!res.ok) {
       let message = "Errore nella creazione della sessione di pagamento.";
 
-      // 1) Proviamo a leggere error da JSON { error: "..." }
       try {
         const parsed = JSON.parse(bodyText);
         if (parsed && typeof parsed.error === "string") {
           message = parsed.error;
         }
       } catch {
-        // 2) Se non è JSON, mostriamo comunque un pezzo del body
         if (bodyText) {
           message =
-            message + " Dettagli: " + bodyText.slice(0, 200) + (bodyText.length > 200 ? "..." : "");
+            message +
+            " Dettagli: " +
+            bodyText.slice(0, 200) +
+            (bodyText.length > 200 ? "..." : "");
         }
       }
 
@@ -473,12 +469,10 @@ export default function ProPageClient() {
       return;
     }
 
-    // Se la risposta è ok, proviamo a leggere { url: "..." }
     let data: { url?: string } = {};
     try {
       data = JSON.parse(bodyText);
     } catch {
-      // non è JSON: mostriamo errore
       setError(
         "Risposta inattesa dal server durante la creazione del checkout."
       );
@@ -490,7 +484,6 @@ export default function ProPageClient() {
       return;
     }
 
-    // Tutto ok: reindirizziamo a Stripe
     window.location.href = data.url;
   } catch (err: any) {
     console.error("handleCheckout error:", err);
@@ -498,10 +491,10 @@ export default function ProPageClient() {
       err?.message ?? "Errore imprevisto durante la creazione del checkout."
     );
   } finally {
-    // resettiamo lo stato di loading
     setIsLoading(null);
   }
 };
+
 
 
   const isMonthly = billingPeriod === "monthly";
