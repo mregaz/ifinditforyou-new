@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type Lang = "it" | "fr" | "de" | "en";
 
@@ -17,7 +16,7 @@ const SUCCESS_TEXTS: Record<
   it: {
     title: "Pagamento completato!",
     subtitle:
-      "Grazie, il tuo abbonamento IFindItForYou PRO è attivo. D’ora in poi hai ricerche illimitate e risultati migliori.",
+      "Grazie, il tuo abbonamento IFindItForYou PRO è attivo. Da ora hai ricerche illimitate e risultati migliori.",
     button: "Vai alla home",
     badge: "Ora sei PRO",
   },
@@ -45,32 +44,28 @@ const SUCCESS_TEXTS: Record<
 };
 
 export default function SuccessPage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-
-  // opzionale: potresti usare session_id per debug/log, ma per ora non serve
-  const langParam = (searchParams.get("lang") as Lang) || "it";
-  const lang: Lang =
-    langParam === "fr" || langParam === "de" || langParam === "en"
-      ? langParam
-      : "it";
-
-  const t = SUCCESS_TEXTS[lang];
+  const [lang, setLang] = useState<Lang>("it");
 
   useEffect(() => {
     try {
+      // leggi lang dalla query string, es. /success?lang=it
+      const params = new URLSearchParams(window.location.search);
+      const lp = params.get("lang") as Lang | null;
+
+      const normalized: Lang =
+        lp === "fr" || lp === "de" || lp === "en" ? lp : "it";
+
+      setLang(normalized);
+
       // segna lato client che l’utente è PRO
       localStorage.setItem("ifiy_isPro", "true");
-      // mantieni anche la lingua
-      localStorage.setItem("ifiy_lang", lang);
+      localStorage.setItem("ifiy_lang", normalized);
     } catch {
-      // se localStorage non è disponibile, pazienza
+      // se window/localStorage non disponibili, non facciamo nulla
     }
-  }, [lang]);
+  }, []);
 
-  const handleGoHome = () => {
-    router.push(`/?lang=${lang}`);
-  };
+  const t = SUCCESS_TEXTS[lang];
 
   return (
     <main
@@ -144,10 +139,10 @@ export default function SuccessPage() {
           {t.subtitle}
         </p>
 
-        <button
-          type="button"
-          onClick={handleGoHome}
+        <a
+          href={`/?lang=${lang}`}
           style={{
+            display: "inline-block",
             borderRadius: 999,
             border: "none",
             padding: "10px 22px",
@@ -155,15 +150,16 @@ export default function SuccessPage() {
             fontWeight: 600,
             backgroundColor: "#22c55e",
             color: "#022c22",
-            cursor: "pointer",
+            textDecoration: "none",
           }}
         >
           {t.button}
-        </button>
+        </a>
       </div>
     </main>
   );
 }
+
 
 
 
