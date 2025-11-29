@@ -1,14 +1,13 @@
 "use client";
 
-
 import { useEffect, useState } from "react";
 import type React from "react";
 import { supabase } from "@/lib/supabaseClient";
-// TOGLI questa riga se c'è ancora
-// import { Lang } from "@/lib/lang";
-type Lang = "it" | "fr" | "de" | "en";
+import { Lang } from "@/lib/lang";
 
-
+/* ============================================================================
+   TEXTS MULTILINGUA
+============================================================================ */
 
 const UI_TEXTS = {
   it: {
@@ -24,43 +23,39 @@ const UI_TEXTS = {
     errorNetwork: "Problema di rete. Controlla la connessione e riprova.",
     search: "Cerca",
     proCta: "Diventa PRO",
-
     creditsLabel: (credits: number, isPro: boolean) =>
       isPro
         ? "Piano PRO attivo: ricerche illimitate."
         : credits > 0
-        ? `Hai ancora ${credits} ricerca gratuita (totale: 1 senza email + 1 con email).`
-        : "Hai esaurito le ricerche gratuite (1 senza email + 1 con email).",
-
+        ? `Hai ancora ${credits} ricerche gratuite.`
+        : "Hai esaurito le ricerche gratuite.",
     outOfCredits:
       "Hai esaurito le ricerche gratuite. Attiva il piano PRO per continuare.",
-
     sectionHowTitle: "Come funziona",
     sectionHowText:
       "Scrivi cosa ti serve. L’AI analizza la richiesta, cerca sul web e ti mostra solo risultati filtrati.",
     sectionWhyTitle: "Perché non usare solo Google?",
     sectionWhyText:
       "Google ti dà milioni di risultati. iFindItForYou ti restituisce solo pochi risultati pertinenti, già filtrati.",
-
     sectionProTitle: "Free vs PRO",
     sectionProFree:
-      "2 ricerche gratuite per provare il servizio (1 senza email + 1 con email).",
+      "Ricerche gratuite per provare il servizio.",
     sectionProPaid:
       "Con PRO hai ricerche illimitate e risultati più approfonditi.",
-
     sectionFaqTitle: "Privacy & dati",
     sectionFaqText:
       "Le tue ricerche servono solo a migliorare i risultati. Non vendiamo dati.",
-
     resultsTitle: "Risultati",
     resultsCount: (n: number) =>
       n === 1 ? "Ho trovato 1 opzione per te." : `Ho trovato ${n} opzioni per te.`,
     empty: "Fai una ricerca per vedere qualche esempio 👆",
+    recentTitle: "Le tue ultime ricerche",
+    recentEmpty: "Ancora nessuna ricerca salvata.",
 
-    // Email gate
+    // MODALE EMAIL
     emailGateTitle: "Sblocca la seconda ricerca gratuita",
     emailGateDescription:
-      "Ti chiediamo solo la tua email per darti la seconda ricerca gratuita.",
+      "Ti chiediamo solo la tua email per concederti la seconda ricerca gratuita.",
     emailGatePlaceholder: "la-tua-email@esempio.com",
     emailGateCancel: "Annulla",
     emailGateSubmit: "Sblocca ricerca",
@@ -82,49 +77,43 @@ const UI_TEXTS = {
     ],
     search: "Search",
     proCta: "Go PRO",
-
     creditsLabel: (credits: number, isPro: boolean) =>
       isPro
         ? "PRO plan active: unlimited searches."
         : credits > 0
-        ? `You have ${credits} free search left (total: 1 anonymous + 1 with email).`
-        : "You’ve used all your free searches (1 anonymous + 1 with email).",
-
+        ? `You have ${credits} free searches left.`
+        : "You’ve used your free searches.",
     outOfCredits: "You’ve used your free searches. Activate PRO to continue.",
-
     sectionHowTitle: "How it works",
     sectionHowText:
       "Describe what you need. The AI analyzes your request, searches online and shows filtered results.",
     sectionWhyTitle: "Why not Google?",
     sectionWhyText:
-      "Google gives millions of results. iFindItForYou gives a few curated ones.",
-
+      "Google gives millions of results. iFindItForYou gives a few, curated and focused ones.",
     sectionProTitle: "Free vs PRO",
     sectionProFree:
-      "2 free searches to try the service (1 anonymous + 1 with email).",
+      "Free searches to try the service.",
     sectionProPaid:
       "With PRO you get unlimited searches and deeper results.",
-
     sectionFaqTitle: "Privacy & data",
     sectionFaqText:
       "Your searches are used only to improve the service. We never sell data.",
-
     resultsTitle: "Results",
     resultsCount: (n: number) =>
       n === 1 ? "I found 1 option for you." : `I found ${n} options for you.`,
     empty: "Start a search to see how it works 👆",
-
-    // Email gate
+    recentTitle: "Your recent searches",
+    recentEmpty: "No saved searches yet.",
     emailGateTitle: "Unlock your second free search",
     emailGateDescription:
-      "We ask only for your email to give you the second free search.",
+      "We only ask for your email to give you the second free search.",
     emailGatePlaceholder: "your-email@example.com",
     emailGateCancel: "Cancel",
     emailGateSubmit: "Unlock search",
     emailGateSubmitting: "Sending...",
     emailGateErrorInvalid: "Please enter a valid email.",
     emailGateErrorGeneric: "Something went wrong. Try again.",
-    emailGateFooter: "No spam. Only important updates.",
+    emailGateFooter: "No spam. Only useful updates.",
     errorSearch: "Search error. Try again soon.",
     errorNetwork: "Network problem. Check your connection.",
   },
@@ -140,41 +129,33 @@ const UI_TEXTS = {
     ],
     search: "Rechercher",
     proCta: "Passer PRO",
-
     creditsLabel: (c: number, isPro: boolean) =>
       isPro
         ? "Abonnement PRO actif : recherches illimitées."
         : c > 0
-        ? `Il te reste ${c} recherche gratuite (total : 1 sans email + 1 avec email).`
-        : "Tu as utilisé toutes tes recherches gratuites (1 sans email + 1 avec email).",
-
+        ? `Il te reste ${c} recherches gratuites.`
+        : "Tu as utilisé tes recherches gratuites.",
     outOfCredits:
       "Tu as utilisé toutes tes recherches gratuites. Active PRO pour continuer.",
-
     sectionHowTitle: "Comment ça marche",
     sectionHowText:
-      "Décris ce dont tu as besoin. L’IA analyse ta demande, cherche en ligne et filtre les meilleurs résultats.",
+      "Décris ce dont tu as besoin. L’IA analyse ta demande, cherche en ligne et filtre les résultats.",
     sectionWhyTitle: "Pourquoi pas Google ?",
     sectionWhyText:
       "Google donne des millions de résultats. iFindItForYou en donne quelques-uns, déjà filtrés.",
-
     sectionProTitle: "Free vs PRO",
     sectionProFree:
-      "2 recherches gratuites pour tester (1 sans email + 1 avec email).",
-    sectionProPaid:
-      "Avec PRO tu as des recherches illimitées.",
-
+      "Recherches gratuites pour tester (1 sans email + 1 avec email).",
+    sectionProPaid: "Avec PRO tu as des recherches illimitées.",
     sectionFaqTitle: "Vie privée & données",
     sectionFaqText:
-      "Tes recherches sont utilisées uniquement pour améliorer le service.",
-
+      "Tes recherches servent seulement à améliorer le service.",
     resultsTitle: "Résultats",
     resultsCount: (n: number) =>
       n === 1 ? "J’ai trouvé 1 option pour toi." : `J’ai trouvé ${n} options.`,
-
     empty: "Fais une recherche pour voir comment ça marche 👆",
-
-    // Email gate
+    recentTitle: "Tes dernières recherches",
+    recentEmpty: "Aucune recherche enregistrée pour l’instant.",
     emailGateTitle: "Débloque ta deuxième recherche gratuite",
     emailGateDescription:
       "On te demande juste ton email pour t’offrir la deuxième recherche.",
@@ -184,8 +165,8 @@ const UI_TEXTS = {
     emailGateSubmitting: "Envoi...",
     emailGateErrorInvalid: "Email invalide.",
     emailGateErrorGeneric: "Erreur. Réessaie.",
-    emailGateFooter: "Pas de spam. Seulement des infos utiles.",
-
+    emailGateFooter:
+      "Pas de spam. Seulement des infos importantes.",
     errorSearch: "Erreur lors de la recherche.",
     errorNetwork: "Problème réseau.",
   },
@@ -201,62 +182,54 @@ const UI_TEXTS = {
     ],
     search: "Suchen",
     proCta: "PRO werden",
-
     creditsLabel: (c: number, isPro: boolean) =>
       isPro
         ? "PRO aktiv: unbegrenzte Suchen."
         : c > 0
-        ? `Du hast noch ${c} kostenlose Suchanfrage (insgesamt: 1 ohne E-Mail + 1 mit E-Mail).`
-        : "Du hast deine kostenlosen Suchanfragen aufgebraucht (1 ohne E-Mail + 1 mit E-Mail).",
-
+        ? `Du hast noch ${c} kostenlose Suchanfragen.`
+        : "Du hast deine kostenlosen Suchanfragen aufgebraucht.",
     outOfCredits:
-      "Keine kostenlosen Suchanfragen mehr. Aktiviere PRO, um fortzufahren.",
-
+      "Keine freien Suchanfragen mehr. Aktiviere PRO.",
     sectionHowTitle: "Wie es funktioniert",
     sectionHowText:
       "Beschreibe, was du brauchst. Die KI sucht online und filtert die besten Ergebnisse.",
     sectionWhyTitle: "Warum nicht Google?",
     sectionWhyText:
       "Google gibt Millionen Treffer. iFindItForYou gibt nur die relevanten.",
-
     sectionProTitle: "Free vs PRO",
     sectionProFree:
-      "2 kostenlose Suchanfragen zum Testen (1 ohne E-Mail + 1 mit E-Mail).",
+      "Kostenlose Suchanfragen zum Testen.",
     sectionProPaid:
       "Mit PRO hast du unbegrenzte Suchen.",
-
     sectionFaqTitle: "Datenschutz",
     sectionFaqText:
       "Deine Suchanfragen werden nicht verkauft.",
-
     resultsTitle: "Ergebnisse",
     resultsCount: (n: number) =>
       n === 1
         ? "Ich habe 1 Option gefunden."
         : `Ich habe ${n} Optionen gefunden.`,
-
     empty: "Starte eine Suche 👆",
-
-    // Email gate
+    recentTitle: "Deine letzten Suchanfragen",
+    recentEmpty: "Noch keine gespeicherten Suchanfragen.",
     emailGateTitle: "Zweite kostenlose Suche freischalten",
     emailGateDescription:
-      "Wir brauchen nur deine E-Mail, um die zweite Suche freizuschalten.",
+      "Wir brauchen nur deine E-Mail für die zweite Suchanfrage.",
     emailGatePlaceholder: "deine-email@beispiel.com",
     emailGateCancel: "Abbrechen",
     emailGateSubmit: "Freischalten",
     emailGateSubmitting: "Senden...",
     emailGateErrorInvalid: "Bitte gültige E-Mail eingeben.",
     emailGateErrorGeneric: "Fehler. Versuch es erneut.",
-    emailGateFooter: "Kein Spam. Nur wichtige Updates.",
-
+    emailGateFooter:
+      "Kein Spam. Nur wichtige Updates.",
     errorSearch: "Fehler bei der Suche.",
     errorNetwork: "Netzwerkproblem.",
   },
 } as const;
 
-
 /* ============================================================================
-   COMPONENTE INFO BLOCK
+   TYPES & SMALL COMPONENTS
 ============================================================================ */
 
 type ResultItem = {
@@ -264,6 +237,11 @@ type ResultItem = {
   url?: string;
   price?: string;
   source?: string;
+};
+
+type SearchRow = {
+  query: string;
+  created_at: string;
 };
 
 function InfoBlock({ title, text }: { title: string; text: string }) {
@@ -297,6 +275,8 @@ export default function HomePage() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [showEmailGate, setShowEmailGate] = useState(false);
   const [isPro, setIsPro] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [recentSearches, setRecentSearches] = useState<SearchRow[]>([]);
 
   const t = UI_TEXTS[lang];
 
@@ -314,15 +294,21 @@ export default function HomePage() {
 
       const savedEmail = localStorage.getItem("ifiy_email");
       if (savedEmail) setUserEmail(savedEmail);
-    } catch {}
+    } catch {
+      // ignore
+    }
   }, []);
 
   /* ----------------- SINCRONIZZA PRO DA SUPABASE ----------------- */
   useEffect(() => {
     async function syncPro() {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
         if (!user) return;
+
+        setUserId(user.id);
 
         const { data } = await supabase
           .from("User")
@@ -341,6 +327,38 @@ export default function HomePage() {
     syncPro();
   }, []);
 
+  /* ----------------- CARICA ULTIME RICERCHE ----------------- */
+  useEffect(() => {
+    async function loadRecent() {
+      try {
+        if (!userId) {
+          setRecentSearches([]);
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from("Search")
+          .select("query, created_at")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false })
+          .limit(10);
+
+        if (error) {
+          console.error("loadRecentSearches error:", error);
+          setRecentSearches([]);
+          return;
+        }
+
+        setRecentSearches((data || []) as SearchRow[]);
+      } catch (e) {
+        console.error("loadRecentSearches fatal:", e);
+        setRecentSearches([]);
+      }
+    }
+
+    loadRecent();
+  }, [userId]);
+
   /* ----------------- SALVA SU LOCAL STORAGE ----------------- */
   useEffect(() => {
     try {
@@ -348,7 +366,9 @@ export default function HomePage() {
       localStorage.setItem("ifiy_isPro", isPro ? "true" : "false");
       localStorage.setItem("ifiy_lang", lang);
       if (userEmail) localStorage.setItem("ifiy_email", userEmail);
-    } catch {}
+    } catch {
+      // ignore
+    }
   }, [credits, isPro, lang, userEmail]);
 
   /* ----------------- CAMBIO LINGUA ----------------- */
@@ -397,6 +417,28 @@ export default function HomePage() {
       setSummary(data.summary || "");
 
       if (!isPro) setCredits((c) => (c > 0 ? c - 1 : 0));
+
+      // Salva la ricerca su Supabase se l’utente è loggato
+      try {
+        if (userId) {
+          await supabase.from("Search").insert({
+            user_id: userId,
+            query: q,
+            lang,
+            plan,
+          });
+          // ricarica le recenti
+          const { data: recentData } = await supabase
+            .from("Search")
+            .select("query, created_at")
+            .eq("user_id", userId)
+            .order("created_at", { ascending: false })
+            .limit(10);
+          setRecentSearches((recentData || []) as SearchRow[]);
+        }
+      } catch (err) {
+        console.error("Errore nel salvataggio della ricerca:", err);
+      }
     } catch (err) {
       alert(t.errorNetwork);
     } finally {
@@ -415,7 +457,9 @@ export default function HomePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-    } catch {}
+    } catch {
+      // ignore
+    }
 
     await handleSearch();
   };
@@ -557,81 +601,55 @@ export default function HomePage() {
           </form>
 
           {/* Crediti / PRO */}
-{isPro ? (
-  <div
-    style={{
-      marginTop: 12,
-      padding: "10px 16px",
-      borderRadius: 12,
-      background: "#16a34a",
-      color: "#f9fafb",
-      fontWeight: 700,
-      display: "inline-flex",
-      alignItems: "center",
-      gap: 8,
-    }}
-  >
-    <span
-      style={{
-        padding: "2px 10px",
-        borderRadius: 999,
-        border: "1px solid #fff",
-        fontSize: 12,
-      }}
-    >
-      PRO
-    </span>
-    <span>{t.creditsLabel(credits, true)}</span>
-  </div>
-) : (
-  <div style={{ marginTop: 12, textAlign: "center" }}>
-    <div
-      style={{
-        fontSize: 13,
-        opacity: 0.8,
-        marginBottom: 6,
-      }}
-    >
-      {t.creditsLabel(credits, false)}
-    </div>
+          {isPro ? (
+            <div
+              style={{
+                marginTop: 12,
+                padding: "10px 16px",
+                borderRadius: 12,
+                background: "#16a34a",
+                color: "#f9fafb",
+                fontWeight: 700,
+                display: "inline-flex",
+                gap: 8,
+              }}
+            >
+              <span
+                style={{
+                  padding: "2px 10px",
+                  borderRadius: 999,
+                  border: "1px solid #fff",
+                  fontSize: 12,
+                }}
+              >
+                PRO
+              </span>
+              <span>{t.creditsLabel(credits, true)}</span>
+            </div>
+          ) : (
+            <>
+              <div style={{ fontSize: 13, opacity: 0.7, marginTop: 12 }}>
+                {t.creditsLabel(credits, false)}
+              </div>
 
-    {credits <= 0 ? (
-      <div
-        style={{
-          fontSize: 13,
-          color: "#dc2626",
-          marginBottom: 8,
-          fontWeight: 500,
-        }}
-      >
-        {t.outOfCredits}
-      </div>
-    ) : null}
-
-    <button
-      type="button"
-      onClick={handleGoPro}
-      style={{
-        marginTop: 4,
-        borderRadius: 999,
-        border: "1px solid rgba(79,70,229,0.8)",
-        padding: "8px 18px",
-        fontSize: 14,
-        background: "#eef2ff",
-        color: "#312e81",
-        cursor: "pointer",
-      }}
-    >
-      {t.proCta}
-    </button>
-
-    <div style={{ marginTop: 6, fontSize: 11, opacity: 0.6 }}>
-      1 ricerca gratuita senza email + 1 con email.
-    </div>
-  </div>
-)}
-
-          
+              <button
+                type="button"
+                onClick={handleGoPro}
+                style={{
+                  marginTop: 4,
+                  borderRadius: 999,
+                  border: "1px solid rgba(79,70,229,0.8)",
+                  padding: "8px 18px",
+                  fontSize: 14,
+                  background: "#eef2ff",
+                  color: "#312e81",
+                  cursor: "pointer",
+                }}
+              >
+                {t.proCta}
+              </button>
+            </>
+          )}
         </div>
       </section>
 
@@ -654,6 +672,54 @@ export default function HomePage() {
         >
           {/* RISULTATI */}
           <div>
+            {/* Ultime ricerche */}
+            {userId && recentSearches.length === 0 && (
+              <p
+                style={{
+                  fontSize: 13,
+                  opacity: 0.7,
+                  marginBottom: 12,
+                }}
+              >
+                {t.recentEmpty}
+              </p>
+            )}
+
+            {recentSearches.length > 0 && (
+              <div
+                style={{
+                  marginBottom: 16,
+                  padding: 12,
+                  borderRadius: 12,
+                  background: "#e5e7eb",
+                }}
+              >
+                <h3
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 600,
+                    marginBottom: 6,
+                  }}
+                >
+                  {t.recentTitle}
+                </h3>
+                <ul
+                  style={{
+                    fontSize: 13,
+                    color: "#374151",
+                    paddingLeft: 18,
+                    margin: 0,
+                  }}
+                >
+                  {recentSearches.map((s, idx) => (
+                    <li key={idx} style={{ marginBottom: 2 }}>
+                      {s.query}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
               {t.resultsTitle}
             </h2>
@@ -688,6 +754,7 @@ export default function HomePage() {
                   key={idx}
                   href={item.url || "#"}
                   target="_blank"
+                  rel="noreferrer"
                   style={{
                     textDecoration: "none",
                     color: "inherit",
