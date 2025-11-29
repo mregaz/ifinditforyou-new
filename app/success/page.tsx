@@ -1,75 +1,169 @@
+"use client";
+
+import { useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+
+type Lang = "it" | "fr" | "de" | "en";
+
+const SUCCESS_TEXTS: Record<
+  Lang,
+  {
+    title: string;
+    subtitle: string;
+    button: string;
+    badge: string;
+  }
+> = {
+  it: {
+    title: "Pagamento completato!",
+    subtitle:
+      "Grazie, il tuo abbonamento IFindItForYou PRO è attivo. D’ora in poi hai ricerche illimitate e risultati migliori.",
+    button: "Vai alla home",
+    badge: "Ora sei PRO",
+  },
+  fr: {
+    title: "Paiement réussi !",
+    subtitle:
+      "Merci, ton abonnement IFindItForYou PRO est actif. Tu as maintenant des recherches illimitées et de meilleurs résultats.",
+    button: "Retour à l’accueil",
+    badge: "Tu es PRO",
+  },
+  de: {
+    title: "Zahlung erfolgreich!",
+    subtitle:
+      "Danke, dein IFindItForYou PRO-Abo ist aktiv. Ab jetzt hast du unbegrenzte Suchen und bessere Ergebnisse.",
+    button: "Zur Startseite",
+    badge: "Du bist jetzt PRO",
+  },
+  en: {
+    title: "Payment successful!",
+    subtitle:
+      "Thank you, your IFindItForYou PRO subscription is now active. You now get unlimited searches and better results.",
+    button: "Go to homepage",
+    badge: "You’re now PRO",
+  },
+};
+
 export default function SuccessPage() {
-  const pageStyle: React.CSSProperties = {
-    minHeight: "100vh",
-    margin: 0,
-    padding: "40px 16px",
-    backgroundColor: "#020617",
-    color: "#e5e7eb",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "flex-start",
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-  };
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-  const boxStyle: React.CSSProperties = {
-    width: "100%",
-    maxWidth: 600,
-    borderRadius: 16,
-    border: "1px solid #22c55e33",
-    backgroundColor: "#020617",
-    padding: 24,
-    textAlign: "center",
-    boxShadow: "0 0 40px rgba(34,197,94,0.3)",
-  };
+  // opzionale: potresti usare session_id per debug/log, ma per ora non serve
+  const langParam = (searchParams.get("lang") as Lang) || "it";
+  const lang: Lang =
+    langParam === "fr" || langParam === "de" || langParam === "en"
+      ? langParam
+      : "it";
 
-  const buttonStyle: React.CSSProperties = {
-    marginTop: 24,
-    display: "inline-block",
-    padding: "10px 20px",
-    borderRadius: 999,
-    border: "none",
-    backgroundColor: "#22c55e",
-    color: "#022c22",
-    fontWeight: 600,
-    fontSize: 14,
-    cursor: "pointer",
-    textDecoration: "none",
-  };
+  const t = SUCCESS_TEXTS[lang];
 
-  const linkStyle: React.CSSProperties = {
-    color: "#6ee7b7",
-    textDecoration: "underline",
+  useEffect(() => {
+    try {
+      // segna lato client che l’utente è PRO
+      localStorage.setItem("ifiy_isPro", "true");
+      // mantieni anche la lingua
+      localStorage.setItem("ifiy_lang", lang);
+    } catch {
+      // se localStorage non è disponibile, pazienza
+    }
+  }, [lang]);
+
+  const handleGoHome = () => {
+    router.push(`/?lang=${lang}`);
   };
 
   return (
-    <main style={pageStyle}>
-      <div style={boxStyle}>
-        <div style={{ fontSize: 40, marginBottom: 8 }}>✅</div>
-        <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>
-          Pagamento completato!
+    <main
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#020617",
+        color: "#e5e7eb",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "24px 16px",
+        fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 520,
+          width: "100%",
+          borderRadius: 16,
+          border: "1px solid #1f2937",
+          backgroundColor: "#020617",
+          padding: 24,
+          boxShadow: "0 20px 40px rgba(0,0,0,0.45)",
+          textAlign: "center",
+        }}
+      >
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            marginBottom: 16,
+            padding: "4px 10px",
+            borderRadius: 999,
+            backgroundColor: "#16a34a",
+            color: "#022c22",
+            fontSize: 12,
+            fontWeight: 700,
+          }}
+        >
+          <span
+            style={{
+              padding: "2px 8px",
+              borderRadius: 999,
+              border: "1px solid rgba(0,0,0,0.2)",
+              backgroundColor: "rgba(255,255,255,0.85)",
+            }}
+          >
+            PRO
+          </span>
+          <span>{t.badge}</span>
+        </div>
+
+        <h1
+          style={{
+            fontSize: 26,
+            fontWeight: 700,
+            marginBottom: 12,
+          }}
+        >
+          {t.title}
         </h1>
-        <p style={{ fontSize: 14, color: "#9ca3af", marginBottom: 16 }}>
-          Grazie, il tuo abbonamento <strong>IFindItForYou PRO</strong> è attivo.
-        </p>
-        <p style={{ fontSize: 14, color: "#9ca3af" }}>
-          Ti abbiamo inviato una email di conferma da Stripe con il riepilogo del
-          pagamento. Da lì potrai anche gestire il rinnovo dell&apos;abbonamento.
+
+        <p
+          style={{
+            fontSize: 14,
+            opacity: 0.85,
+            marginBottom: 24,
+          }}
+        >
+          {t.subtitle}
         </p>
 
-        <a href="/" style={buttonStyle}>
-          Torna alla home e inizia a usare il servizio →
-        </a>
-
-        <p style={{ fontSize: 12, color: "#6b7280", marginTop: 16 }}>
-          In caso di problemi puoi contattarci a{" "}
-          <a href="mailto:support@ifinditforyou.com" style={linkStyle}>
-            support@ifinditforyou.com
-          </a>
-          .
-        </p>
+        <button
+          type="button"
+          onClick={handleGoHome}
+          style={{
+            borderRadius: 999,
+            border: "none",
+            padding: "10px 22px",
+            fontSize: 15,
+            fontWeight: 600,
+            backgroundColor: "#22c55e",
+            color: "#022c22",
+            cursor: "pointer",
+          }}
+        >
+          {t.button}
+        </button>
       </div>
     </main>
   );
 }
+
 
 
