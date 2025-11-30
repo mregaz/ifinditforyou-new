@@ -8,7 +8,13 @@ type BillingPeriod = "monthly" | "yearly";
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
-    const billingPeriod: BillingPeriod = body.billingPeriod ?? "monthly";
+    let billingPeriod: BillingPeriod = body.billingPeriod ?? "monthly";
+
+    // Normalizza: se arriva qualcosa di strano, forzo "monthly"
+    if (billingPeriod !== "monthly" && billingPeriod !== "yearly") {
+      console.warn("Valore billingPeriod non valido:", billingPeriod);
+      billingPeriod = "monthly";
+    }
 
     const priceId =
       billingPeriod === "yearly"
@@ -16,6 +22,7 @@ export async function POST(req: Request) {
         : process.env.STRIPE_PRICE_ID_MONTHLY;
 
     if (!priceId) {
+      console.error("Manca priceId per billingPeriod:", billingPeriod);
       return NextResponse.json(
         {
           error:
@@ -32,6 +39,7 @@ export async function POST(req: Request) {
     try {
       new URL(appUrl);
     } catch {
+      console.error("NEXT_PUBLIC_APP_URL non valida:", rawAppUrl);
       return NextResponse.json(
         {
           error: `Configurazione NEXT_PUBLIC_APP_URL non valida: "${rawAppUrl}"`,
@@ -53,6 +61,7 @@ export async function POST(req: Request) {
     });
 
     if (!session.url) {
+      console.error("Sessione Stripe creata ma senza URL:", session.id);
       return NextResponse.json(
         {
           error:
@@ -76,5 +85,4 @@ export async function POST(req: Request) {
     );
   }
 }
-
 
