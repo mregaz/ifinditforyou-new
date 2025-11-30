@@ -1,14 +1,14 @@
 // app/api/my-searches/[id]/route.ts
 import { cookies } from "next/headers";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 
-export async function DELETE(
-  _req: NextRequest,
-  context: { params: { id: string } }
-) {
+export async function DELETE(req: Request) {
   try {
-    const id = context.params.id;
+    // prendo l'id dall'URL, ultimo segmento del path
+    const url = new URL(req.url);
+    const segments = url.pathname.split("/");
+    const id = segments[segments.length - 1];
 
     const supabase = createRouteHandlerClient({ cookies });
 
