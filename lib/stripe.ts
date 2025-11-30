@@ -7,7 +7,5 @@ if (!secretKey) {
   throw new Error("Missing STRIPE_SECRET_KEYS environment variable");
 }
 
-export const stripe = new Stripe(secretKey, {
-  apiVersion: "2022-11-15",
-});
-
+// NIENTE apiVersion: lasciamo che Stripe usi la versione di default
+export const stripe = new Stripe(secretKey);
