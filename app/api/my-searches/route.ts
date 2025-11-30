@@ -1,11 +1,7 @@
 // app/api/my-searches/route.ts
-import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-// Se usi ancora @supabase/auth-helpers-nextjs:
+import { NextResponse } from "next/server";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-// In alternativa, se usi @supabase/ssr, sostituisci la import con:
-// import { createServerClient } from "@supabase/ssr";
-// e adatti la creazione client sotto.
 
 type SearchRow = {
   id: string;
@@ -21,7 +17,7 @@ export async function GET(req: Request) {
     const limitParam = url.searchParams.get("limit");
     const offsetParam = url.searchParams.get("offset");
 
-    const limit = Math.min(Number(limitParam ?? 50) || 50, 200); // cap di sicurezza
+    const limit = Math.min(Number(limitParam ?? 50) || 50, 200);
     const offset = Number(offsetParam ?? 0) || 0;
 
     const supabase = createRouteHandlerClient({ cookies });
@@ -35,18 +31,14 @@ export async function GET(req: Request) {
       console.error("my-searches getUser error:", userError);
       return NextResponse.json(
         { error: "Errore nel recupero utente." },
-        { status: 500 },
+        { status: 500 }
       );
     }
 
     if (!user) {
-      return NextResponse.json(
-        { error: "Non autorizzato." },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: "Non autorizzato." }, { status: 401 });
     }
 
-    // Con le policy RLS già attive su Search, l'utente vede solo le proprie righe
     const { data, error } = await supabase
       .from("Search")
       .select("id, query, lang, plan, created_at")
@@ -58,7 +50,7 @@ export async function GET(req: Request) {
       console.error("my-searches select error:", error);
       return NextResponse.json(
         { error: "Errore nel recupero delle ricerche." },
-        { status: 500 },
+        { status: 500 }
       );
     }
 
@@ -82,7 +74,7 @@ export async function GET(req: Request) {
     console.error("my-searches unexpected error:", err);
     return NextResponse.json(
       { error: "Errore interno del server." },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
