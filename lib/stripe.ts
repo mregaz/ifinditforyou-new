@@ -1,5 +1,4 @@
 // lib/stripe.ts
-
 import Stripe from "stripe";
 
 const secretKey = process.env.STRIPE_SECRET_KEYS;
@@ -12,4 +11,3 @@ export const stripe = new Stripe(secretKey, {
   apiVersion: "2022-11-15",
 });
 
-export const stripe = new Stripe(secretKey || "sk_test_dummy");
