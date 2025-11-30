@@ -112,37 +112,6 @@ export default function AccountClient({ user }: Props) {
     }
   };
 
-  const handleDeleteSearch = async (id: string) => {
-    try {
-      setError(null);
-      const res = await fetch(`/api/my-searches/${id}`, {
-        method: "DELETE",
-      });
-      const bodyText = await res.text();
-
-      if (!res.ok) {
-        let msg = "Errore nella cancellazione della ricerca.";
-        try {
-          const parsed = JSON.parse(bodyText);
-          if (parsed && typeof parsed.error === "string") {
-            msg = parsed.error;
-          }
-        } catch {
-          /* lascia msg generico */
-        }
-        setError(msg);
-        return;
-      }
-
-      setSearches((prev) => prev.filter((s) => s.id !== id));
-    } catch (e: any) {
-      console.error(e);
-      setError(
-        e?.message ?? "Errore imprevisto nella cancellazione della ricerca."
-      );
-    }
-  };
-
   const downloadBlob = (blob: Blob, filename: string) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -321,39 +290,25 @@ export default function AccountClient({ user }: Props) {
                 borderTop: "1px solid #111827",
                 padding: "8px 0",
                 fontSize: 13,
-                display: "flex",
-                justifyContent: "space-between",
-                gap: 12,
               }}
             >
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    fontWeight: 500,
-                  }}
-                  title={s.query}
-                >
-                  {s.query}
-                </div>
-                <div style={{ color: "#9ca3af", fontSize: 12 }}>
-                  {s.lang} · {s.plan} ·{" "}
-                  {new Date(s.created_at).toLocaleString("it-CH", {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                  })}
-                </div>
+              <div
+                style={{
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  fontWeight: 500,
+                }}
+                title={s.query}
+              >
+                {s.query}
               </div>
-              <div>
-                <button
-                  type="button"
-                  onClick={() => handleDeleteSearch(s.id)}
-                  style={secondaryButtonStyle}
-                >
-                  Elimina
-                </button>
+              <div style={{ color: "#9ca3af", fontSize: 12 }}>
+                {s.lang} · {s.plan} ·{" "}
+                {new Date(s.created_at).toLocaleString("it-CH", {
+                  dateStyle: "short",
+                  timeStyle: "short",
+                })}
               </div>
             </li>
           ))}
@@ -368,4 +323,5 @@ export default function AccountClient({ user }: Props) {
     </div>
   );
 }
+
 
