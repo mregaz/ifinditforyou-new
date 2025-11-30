@@ -1,15 +1,15 @@
 // app/api/my-searches/[id]/route.ts
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
-    const { id } = params;
+    const id = context.params.id;
+
     const supabase = createRouteHandlerClient({ cookies });
 
     const {
@@ -53,4 +53,5 @@ export async function DELETE(
     );
   }
 }
+
 
