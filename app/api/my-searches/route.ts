@@ -3,12 +3,16 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 
-export async function DELETE(req: Request) {
+export async function DELETE(req: any, context: any) {
   try {
-    // prendo l'id dall'URL, ultimo segmento del path
-    const url = new URL(req.url);
+    // Provo a leggere l'id da context.params, fallback all'URL
+    const idFromContext = context?.params?.id as string | undefined;
+
+    const url = new URL(req.url as string);
     const segments = url.pathname.split("/");
-    const id = segments[segments.length - 1];
+    const idFromUrl = segments[segments.length - 1];
+
+    const id = idFromContext || idFromUrl;
 
     const supabase = createRouteHandlerClient({ cookies });
 
@@ -29,7 +33,6 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Non autorizzato." }, { status: 401 });
     }
 
-    // Cancello solo se la ricerca appartiene all'utente loggato
     const { error } = await supabase
       .from("Search")
       .delete()
