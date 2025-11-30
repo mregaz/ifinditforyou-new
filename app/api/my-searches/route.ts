@@ -1,25 +1,15 @@
-// app/api/my-searches/route.ts
+// app/api/my-searches/[id]/route.ts
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 
-type SearchRow = {
-  id: string;
-  query: string;
-  lang: string;
-  plan: string;
-  created_at: string;
-};
-
-export async function GET(req: Request) {
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const url = new URL(req.url);
-    const limitParam = url.searchParams.get("limit");
-    const offsetParam = url.searchParams.get("offset");
-
-    const limit = Math.min(Number(limitParam ?? 50) || 50, 200);
-    const offset = Number(offsetParam ?? 0) || 0;
-
+    const { id } = params;
     const supabase = createRouteHandlerClient({ cookies });
 
     const {
@@ -28,7 +18,7 @@ export async function GET(req: Request) {
     } = await supabase.auth.getUser();
 
     if (userError) {
-      console.error("my-searches getUser error:", userError);
+      console.error("delete my-searches getUser error:", userError);
       return NextResponse.json(
         { error: "Errore nel recupero utente." },
         { status: 500 }
@@ -39,42 +29,28 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Non autorizzato." }, { status: 401 });
     }
 
-    const { data, error } = await supabase
+    // Cancello solo se la ricerca appartiene all'utente loggato
+    const { error } = await supabase
       .from("Search")
-      .select("id, query, lang, plan, created_at")
-      .eq("user_id", user.id) // opzionale ma esplicito
-      .order("created_at", { ascending: false })
-      .range(offset, offset + limit - 1);
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id);
 
     if (error) {
-      console.error("my-searches select error:", error);
+      console.error("delete my-searches error:", error);
       return NextResponse.json(
-        { error: "Errore nel recupero delle ricerche." },
+        { error: "Errore nella cancellazione della ricerca." },
         { status: 500 }
       );
     }
 
-    const searches: SearchRow[] = (data ?? []).map((row) => ({
-      id: row.id,
-      query: row.query,
-      lang: row.lang,
-      plan: row.plan,
-      created_at: row.created_at,
-    }));
-
-    return NextResponse.json({
-      searches,
-      pagination: {
-        limit,
-        offset,
-        count: searches.length,
-      },
-    });
+    return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("my-searches unexpected error:", err);
+    console.error("delete my-searches unexpected error:", err);
     return NextResponse.json(
       { error: "Errore interno del server." },
       { status: 500 }
     );
   }
 }
+
