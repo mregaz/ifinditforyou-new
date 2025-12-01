@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type React from "react";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { Lang } from "@/lib/lang";
 
@@ -38,8 +39,7 @@ const UI_TEXTS = {
     sectionWhyText:
       "Google ti dà milioni di risultati. iFindItForYou ti restituisce solo pochi risultati pertinenti, già filtrati.",
     sectionProTitle: "Free vs PRO",
-    sectionProFree:
-      "Ricerche gratuite per provare il servizio.",
+    sectionProFree: "Ricerche gratuite per provare il servizio.",
     sectionProPaid:
       "Con PRO hai ricerche illimitate e risultati più approfonditi.",
     sectionFaqTitle: "Privacy & dati",
@@ -51,6 +51,7 @@ const UI_TEXTS = {
     empty: "Fai una ricerca per vedere qualche esempio 👆",
     recentTitle: "Le tue ultime ricerche",
     recentEmpty: "Ancora nessuna ricerca salvata.",
+    savedSearchBanner: "Stai rifacendo una ricerca salvata.",
 
     // MODALE EMAIL
     emailGateTitle: "Sblocca la seconda ricerca gratuita",
@@ -91,8 +92,7 @@ const UI_TEXTS = {
     sectionWhyText:
       "Google gives millions of results. iFindItForYou gives a few, curated and focused ones.",
     sectionProTitle: "Free vs PRO",
-    sectionProFree:
-      "Free searches to try the service.",
+    sectionProFree: "Free searches to try the service.",
     sectionProPaid:
       "With PRO you get unlimited searches and deeper results.",
     sectionFaqTitle: "Privacy & data",
@@ -104,6 +104,8 @@ const UI_TEXTS = {
     empty: "Start a search to see how it works 👆",
     recentTitle: "Your recent searches",
     recentEmpty: "No saved searches yet.",
+    savedSearchBanner: "You are repeating a saved search.",
+
     emailGateTitle: "Unlock your second free search",
     emailGateDescription:
       "We only ask for your email to give you the second free search.",
@@ -156,6 +158,8 @@ const UI_TEXTS = {
     empty: "Fais une recherche pour voir comment ça marche 👆",
     recentTitle: "Tes dernières recherches",
     recentEmpty: "Aucune recherche enregistrée pour l’instant.",
+    savedSearchBanner: "Tu relances une recherche enregistrée.",
+
     emailGateTitle: "Débloque ta deuxième recherche gratuite",
     emailGateDescription:
       "On te demande juste ton email pour t’offrir la deuxième recherche.",
@@ -165,8 +169,7 @@ const UI_TEXTS = {
     emailGateSubmitting: "Envoi...",
     emailGateErrorInvalid: "Email invalide.",
     emailGateErrorGeneric: "Erreur. Réessaie.",
-    emailGateFooter:
-      "Pas de spam. Seulement des infos importantes.",
+    emailGateFooter: "Pas de spam. Seulement des infos importantes.",
     errorSearch: "Erreur lors de la recherche.",
     errorNetwork: "Problème réseau.",
   },
@@ -212,6 +215,8 @@ const UI_TEXTS = {
     empty: "Starte eine Suche 👆",
     recentTitle: "Deine letzten Suchanfragen",
     recentEmpty: "Noch keine gespeicherten Suchanfragen.",
+    savedSearchBanner: "Du wiederholst eine gespeicherte Suche.",
+
     emailGateTitle: "Zweite kostenlose Suche freischalten",
     emailGateDescription:
       "Wir brauchen nur deine E-Mail für die zweite Suchanfrage.",
@@ -221,8 +226,7 @@ const UI_TEXTS = {
     emailGateSubmitting: "Senden...",
     emailGateErrorInvalid: "Bitte gültige E-Mail eingeben.",
     emailGateErrorGeneric: "Fehler. Versuch es erneut.",
-    emailGateFooter:
-      "Kein Spam. Nur wichtige Updates.",
+    emailGateFooter: "Kein Spam. Nur wichtige Updates.",
     errorSearch: "Fehler bei der Suche.",
     errorNetwork: "Netzwerkproblem.",
   },
@@ -266,6 +270,8 @@ function InfoBlock({ title, text }: { title: string; text: string }) {
 ============================================================================ */
 
 export default function HomePage() {
+  const searchParams = useSearchParams();
+
   const [lang, setLang] = useState<Lang>("it");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<ResultItem[]>([]);
@@ -277,6 +283,7 @@ export default function HomePage() {
   const [isPro, setIsPro] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [recentSearches, setRecentSearches] = useState<SearchRow[]>([]);
+  const [isFromSavedSearch, setIsFromSavedSearch] = useState(false);
 
   const t = UI_TEXTS[lang];
 
@@ -298,6 +305,21 @@ export default function HomePage() {
       // ignore
     }
   }, []);
+
+  /* ----------------- LEGGE PARAMETRI URL (q, lang) PER RICERCHE SALVATE ----------------- */
+  useEffect(() => {
+    const qParam = searchParams.get("q");
+    const langParam = searchParams.get("lang") as Lang | null;
+
+    if (qParam) {
+      setQuery(qParam);
+      setIsFromSavedSearch(true);
+    }
+
+    if (langParam && UI_TEXTS[langParam]) {
+      setLang(langParam);
+    }
+  }, [searchParams]);
 
   /* ----------------- SINCRONIZZA PRO DA SUPABASE ----------------- */
   useEffect(() => {
@@ -397,6 +419,7 @@ export default function HomePage() {
     setLoading(true);
     setResults([]);
     setSummary("");
+    setIsFromSavedSearch(false); // dopo aver lanciato nuova ricerca, non mostro più il banner
 
     const plan = isPro ? "pro" : "free";
 
@@ -600,6 +623,24 @@ export default function HomePage() {
             </div>
           </form>
 
+          {/* Banner per ricerche salvate */}
+          {isFromSavedSearch && query && (
+            <div
+              style={{
+                marginTop: 10,
+                display: "inline-block",
+                padding: "6px 12px",
+                borderRadius: 999,
+                border: "1px solid #fbbf24",
+                background: "#fef3c7",
+                fontSize: 13,
+                color: "#92400e",
+              }}
+            >
+              {t.savedSearchBanner}
+            </div>
+          )}
+
           {/* Crediti / PRO */}
           {isPro ? (
             <div
@@ -781,7 +822,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* COLUMNA INFO */}
+          {/* COLONNA INFO */}
           <div
             style={{
               fontSize: 13,
