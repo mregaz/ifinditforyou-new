@@ -124,6 +124,42 @@ export default function AccountClient({ user }: Props) {
     router.push(`/?${params.toString()}`);
   };
 
+  const handleDeleteSearch = async (id: string) => {
+    try {
+      setError(null);
+
+      const res = await fetch("/api/my-searches/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+
+      const bodyText = await res.text();
+
+      if (!res.ok) {
+        let msg = "Errore nella cancellazione della ricerca.";
+        try {
+          const parsed = JSON.parse(bodyText);
+          if (parsed && typeof parsed.error === "string") {
+            msg = parsed.error;
+          }
+        } catch {
+          /* lascia msg generico */
+        }
+        setError(msg);
+        return;
+      }
+
+      // aggiorna lista lato client
+      setSearches((prev) => prev.filter((s) => s.id !== id));
+    } catch (e: any) {
+      console.error(e);
+      setError(
+        e?.message ?? "Errore imprevisto nella cancellazione della ricerca."
+      );
+    }
+  };
+
   const downloadBlob = (blob: Blob, filename: string) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -194,6 +230,12 @@ export default function AccountClient({ user }: Props) {
     fontSize: 12,
     backgroundColor: "#020617",
     color: "#e5e7eb",
+  };
+
+  const dangerButtonStyle: React.CSSProperties = {
+    ...secondaryButtonStyle,
+    borderColor: "#b91c1c",
+    color: "#fecaca",
   };
 
   const disabledButtonStyle: React.CSSProperties = {
@@ -328,13 +370,27 @@ export default function AccountClient({ user }: Props) {
                 </div>
               </div>
 
-              <div style={{ display: "flex", alignItems: "center" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  whiteSpace: "nowrap",
+                }}
+              >
                 <button
                   type="button"
                   onClick={() => handleRepeatSearch(s)}
                   style={secondaryButtonStyle}
                 >
                   Rifai ricerca
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteSearch(s.id)}
+                  style={dangerButtonStyle}
+                >
+                  Elimina
                 </button>
               </div>
             </li>
@@ -350,6 +406,3 @@ export default function AccountClient({ user }: Props) {
     </div>
   );
 }
-
-
-
