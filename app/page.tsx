@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import type React from "react";
-import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { Lang } from "@/lib/lang";
 
@@ -270,8 +269,6 @@ function InfoBlock({ title, text }: { title: string; text: string }) {
 ============================================================================ */
 
 export default function HomePage() {
-  const searchParams = useSearchParams();
-
   const [lang, setLang] = useState<Lang>("it");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<ResultItem[]>([]);
@@ -308,18 +305,25 @@ export default function HomePage() {
 
   /* ----------------- LEGGE PARAMETRI URL (q, lang) PER RICERCHE SALVATE ----------------- */
   useEffect(() => {
-    const qParam = searchParams.get("q");
-    const langParam = searchParams.get("lang") as Lang | null;
+    if (typeof window === "undefined") return;
 
-    if (qParam) {
-      setQuery(qParam);
-      setIsFromSavedSearch(true);
-    }
+    try {
+      const url = new URL(window.location.href);
+      const qParam = url.searchParams.get("q");
+      const langParam = url.searchParams.get("lang") as Lang | null;
 
-    if (langParam && UI_TEXTS[langParam]) {
-      setLang(langParam);
+      if (qParam) {
+        setQuery(qParam);
+        setIsFromSavedSearch(true);
+      }
+
+      if (langParam && UI_TEXTS[langParam]) {
+        setLang(langParam);
+      }
+    } catch {
+      // ignore
     }
-  }, [searchParams]);
+  }, []);
 
   /* ----------------- SINCRONIZZA PRO DA SUPABASE ----------------- */
   useEffect(() => {
@@ -419,7 +423,7 @@ export default function HomePage() {
     setLoading(true);
     setResults([]);
     setSummary("");
-    setIsFromSavedSearch(false); // dopo aver lanciato nuova ricerca, non mostro più il banner
+    setIsFromSavedSearch(false); // dopo che lanci una nuova ricerca, tolgo il banner
 
     const plan = isPro ? "pro" : "free";
 
