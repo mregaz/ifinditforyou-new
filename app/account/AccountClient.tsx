@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type UserInfo = {
   email: string;
@@ -26,6 +27,8 @@ export default function AccountClient({ user }: Props) {
 
   const [searches, setSearches] = useState<Search[]>([]);
   const [searchesLoading, setSearchesLoading] = useState(false);
+
+  const router = useRouter();
 
   // Carica le ricerche alla prima render
   useEffect(() => {
@@ -110,6 +113,15 @@ export default function AccountClient({ user }: Props) {
     } finally {
       setPortalLoading(false);
     }
+  };
+
+  const handleRepeatSearch = (s: Search) => {
+    const params = new URLSearchParams();
+    params.set("q", s.query);
+    if (s.lang) {
+      params.set("lang", s.lang);
+    }
+    router.push(`/?${params.toString()}`);
   };
 
   const downloadBlob = (blob: Blob, filename: string) => {
@@ -290,25 +302,40 @@ export default function AccountClient({ user }: Props) {
                 borderTop: "1px solid #111827",
                 padding: "8px 0",
                 fontSize: 13,
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 12,
               }}
             >
-              <div
-                style={{
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  fontWeight: 500,
-                }}
-                title={s.query}
-              >
-                {s.query}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    fontWeight: 500,
+                  }}
+                  title={s.query}
+                >
+                  {s.query}
+                </div>
+                <div style={{ color: "#9ca3af", fontSize: 12 }}>
+                  {s.lang} · {s.plan} ·{" "}
+                  {new Date(s.created_at).toLocaleString("it-CH", {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  })}
+                </div>
               </div>
-              <div style={{ color: "#9ca3af", fontSize: 12 }}>
-                {s.lang} · {s.plan} ·{" "}
-                {new Date(s.created_at).toLocaleString("it-CH", {
-                  dateStyle: "short",
-                  timeStyle: "short",
-                })}
+
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <button
+                  type="button"
+                  onClick={() => handleRepeatSearch(s)}
+                  style={secondaryButtonStyle}
+                >
+                  Rifai ricerca
+                </button>
               </div>
             </li>
           ))}
