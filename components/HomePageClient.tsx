@@ -122,7 +122,7 @@ const UI_TEXTS = {
     errorNetwork: "Network problem. Check your connection.",
     headerAccount: "Account",
     headerLogin: "Log in",
-     mottoShort: "I find it for you",
+    mottoShort: "I find it for you",
   },
 
   fr: {
@@ -247,7 +247,7 @@ const UI_TEXTS = {
     errorNetwork: "Netzwerkproblem.",
     headerAccount: "Konto",
     headerLogin: "Anmelden",
-     mottoShort: "Ich finde es für dich",
+    mottoShort: "Ich finde es für dich",
   },
 } as const;
 
