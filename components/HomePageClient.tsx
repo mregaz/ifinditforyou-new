@@ -20,7 +20,7 @@ const UI_TEXTS = {
       "Hotel 3 stelle a Zurigo sotto 150 CHF",
       "Idea regalo per 12enne appassionato di Lego",
     ],
-    errorSearch: "Errore nella ricerca. Riprova tra poco.",
+     errorSearch: "Errore nella ricerca. Riprova tra poco.",
     errorNetwork: "Problema di rete. Controlla la connessione e riprova.",
     search: "Cerca",
     proCta: "Diventa PRO",
@@ -76,6 +76,14 @@ const UI_TEXTS = {
       "iPhone 13 mini blue under 350 CHF in Switzerland",
       "3-star hotel in Zurich under 150 CHF",
       "Gift idea for a 12-year-old who loves LEGO",
+   en: {
+  tagline: "...",
+  // ...
+  headerAccount: "Account",
+  headerLogin: "Log in",
+  mottoShort: "I find it for you",
+},
+
     ],
     search: "Search",
     proCta: "Go PRO",
