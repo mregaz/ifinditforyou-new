@@ -307,7 +307,8 @@ export default function HomePageClient({ initialLang }: HomePageClientProps) {
   const [isFromSavedSearch, setIsFromSavedSearch] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const t = UI_TEXTS[lang];
+  const t = UI_TEXTS[lang] as any;
+
 
   /* ----------------- CARICA STATO DA LOCALSTORAGE ----------------- */
   useEffect(() => {
