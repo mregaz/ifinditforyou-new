@@ -76,9 +76,7 @@ const UI_TEXTS = {
       "iPhone 13 mini blue under 350 CHF in Switzerland",
       "3-star hotel in Zurich under 150 CHF",
       "Gift idea for a 12-year-old who loves LEGO",
-   en: {
-  tagline: "...",
-  // ...
+ 
   headerAccount: "Account",
   headerLogin: "Log in",
   mottoShort: "I find it for you",
