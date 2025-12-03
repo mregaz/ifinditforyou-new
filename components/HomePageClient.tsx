@@ -586,7 +586,7 @@ export default function HomePageClient({ initialLang }: HomePageClientProps) {
                 color: "#4b5563",
               }}
             >
-              Io lo cerco per te
+            {t.mottoShort}
             </span>
           </div>
 
