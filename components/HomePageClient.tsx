@@ -66,6 +66,7 @@ const UI_TEXTS = {
       "Nessuno spam. Solo aggiornamenti importanti sul servizio.",
     headerAccount: "Account",
     headerLogin: "Accedi",
+    mottoShort: "Io lo cerco per te",
   },
 
   en: {
@@ -121,6 +122,7 @@ const UI_TEXTS = {
     errorNetwork: "Network problem. Check your connection.",
     headerAccount: "Account",
     headerLogin: "Log in",
+     mottoShort: "I find it for you",
   },
 
   fr: {
@@ -177,6 +179,14 @@ const UI_TEXTS = {
     errorNetwork: "Problème réseau.",
     headerAccount: "Compte",
     headerLogin: "Connexion",
+     fr: {
+  tagline: "...",
+  // ...
+  headerAccount: "Compte",
+  headerLogin: "Connexion",
+  mottoShort: "Je le trouve pour toi",
+},
+
   },
 
   de: {
@@ -237,6 +247,7 @@ const UI_TEXTS = {
     errorNetwork: "Netzwerkproblem.",
     headerAccount: "Konto",
     headerLogin: "Anmelden",
+     mottoShort: "Ich finde es für dich",
   },
 } as const;
 
