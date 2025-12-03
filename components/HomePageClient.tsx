@@ -71,15 +71,15 @@ const UI_TEXTS = {
   en: {
     tagline: "Write what you need, I’ll find it for you.",
     placeholder: "E.g. iPhone 13 mini blue under 350 CHF in Switzerland",
-    examplesLabel: "Examples:",
+    headerAccount: "Account",
+  headerLogin: "Log in",
+  mottoShort: "I find it for you",
+     examplesLabel: "Examples:",
     examples: [
       "iPhone 13 mini blue under 350 CHF in Switzerland",
       "3-star hotel in Zurich under 150 CHF",
       "Gift idea for a 12-year-old who loves LEGO",
  
-  headerAccount: "Account",
-  headerLogin: "Log in",
-  mottoShort: "I find it for you",
 },
 
     ],
