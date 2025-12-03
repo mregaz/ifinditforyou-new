@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { Lang } from "@/lib/lang";
 
@@ -52,7 +53,6 @@ const UI_TEXTS = {
     recentEmpty: "Ancora nessuna ricerca salvata.",
     savedSearchBanner: "Stai rifacendo una ricerca salvata.",
 
-    // MODALE EMAIL
     emailGateTitle: "Sblocca la seconda ricerca gratuita",
     emailGateDescription:
       "Ti chiediamo solo la tua email per concederti la seconda ricerca gratuita.",
@@ -64,6 +64,8 @@ const UI_TEXTS = {
     emailGateErrorGeneric: "Errore temporaneo, riprova.",
     emailGateFooter:
       "Nessuno spam. Solo aggiornamenti importanti sul servizio.",
+    headerAccount: "Account",
+    headerLogin: "Accedi",
   },
 
   en: {
@@ -117,6 +119,8 @@ const UI_TEXTS = {
     emailGateFooter: "No spam. Only useful updates.",
     errorSearch: "Search error. Try again soon.",
     errorNetwork: "Network problem. Check your connection.",
+    headerAccount: "Account",
+    headerLogin: "Log in",
   },
 
   fr: {
@@ -171,6 +175,8 @@ const UI_TEXTS = {
     emailGateFooter: "Pas de spam. Seulement des infos importantes.",
     errorSearch: "Erreur lors de la recherche.",
     errorNetwork: "Problème réseau.",
+    headerAccount: "Compte",
+    headerLogin: "Connexion",
   },
 
   de: {
@@ -225,9 +231,12 @@ const UI_TEXTS = {
     emailGateSubmitting: "Senden...",
     emailGateErrorInvalid: "Bitte gültige E-Mail eingeben.",
     emailGateErrorGeneric: "Fehler. Versuch es erneut.",
-    emailGateFooter: "Kein Spam. Nur wichtige Updates.",
+    emailGateFooter:
+      "Kein Spam. Nur wichtige Updates.",
     errorSearch: "Fehler bei der Suche.",
     errorNetwork: "Netzwerkproblem.",
+    headerAccount: "Konto",
+    headerLogin: "Anmelden",
   },
 } as const;
 
@@ -265,11 +274,14 @@ function InfoBlock({ title, text }: { title: string; text: string }) {
 }
 
 /* ============================================================================
-   HOME PAGE
+   HOME PAGE CLIENT
 ============================================================================ */
 
-export default function HomePageClient({ initialLang }: { initialLang: Lang }) {
-  // QUI sostituiamo il tuo vecchio useState("it"):
+type HomePageClientProps = {
+  initialLang: Lang;
+};
+
+export default function HomePageClient({ initialLang }: HomePageClientProps) {
   const [lang, setLang] = useState<Lang>(initialLang);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<ResultItem[]>([]);
@@ -282,6 +294,7 @@ export default function HomePageClient({ initialLang }: { initialLang: Lang }) {
   const [userId, setUserId] = useState<string | null>(null);
   const [recentSearches, setRecentSearches] = useState<SearchRow[]>([]);
   const [isFromSavedSearch, setIsFromSavedSearch] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const t = UI_TEXTS[lang];
 
@@ -326,15 +339,20 @@ export default function HomePageClient({ initialLang }: { initialLang: Lang }) {
     }
   }, []);
 
-  /* ----------------- SINCRONIZZA PRO DA SUPABASE ----------------- */
+  /* ----------------- SINCRONIZZA PRO E LOGIN DA SUPABASE ----------------- */
   useEffect(() => {
     async function syncPro() {
       try {
         const {
           data: { user },
         } = await supabase.auth.getUser();
-        if (!user) return;
+        if (!user) {
+          setIsLoggedIn(false);
+          setUserId(null);
+          return;
+        }
 
+        setIsLoggedIn(true);
         setUserId(user.id);
 
         const { data } = await supabase
@@ -345,7 +363,9 @@ export default function HomePageClient({ initialLang }: { initialLang: Lang }) {
 
         if (data?.is_pro) {
           setIsPro(true);
-          if (data.email) setUserEmail(data.email);
+        }
+        if (data?.email) {
+          setUserEmail(data.email);
         }
       } catch (e) {
         console.error("syncProFromSupabase error:", e);
@@ -403,8 +423,13 @@ export default function HomePageClient({ initialLang }: { initialLang: Lang }) {
     const newLang = e.target.value as Lang;
     setLang(newLang);
 
-    localStorage.setItem("ifiy_lang", newLang);
-    window.location.reload();
+    try {
+      localStorage.setItem("ifiy_lang", newLang);
+    } catch {
+      // ignore
+    }
+
+    // Manteniamo la stessa pagina, solo cambiando lingua UI
   };
 
   /* ----------------- SEARCH ----------------- */
@@ -437,7 +462,7 @@ export default function HomePageClient({ initialLang }: { initialLang: Lang }) {
 
       const data = await res.json();
       if (!res.ok) {
-        alert(t.errorSearch);
+        alert(t.errorSearch ?? "Errore nella ricerca.");
         return;
       }
 
@@ -468,7 +493,7 @@ export default function HomePageClient({ initialLang }: { initialLang: Lang }) {
         console.error("Errore nel salvataggio della ricerca:", err);
       }
     } catch (err) {
-      alert(t.errorNetwork);
+      alert(t.errorNetwork ?? "Errore di rete. Riprova.");
     } finally {
       setLoading(false);
     }
@@ -497,6 +522,14 @@ export default function HomePageClient({ initialLang }: { initialLang: Lang }) {
     window.location.href = `/pro?lang=${lang}`;
   }
 
+  /* ----------------- CLICK SU RICERCA RECENTE ----------------- */
+  const handleRecentClick = (s: SearchRow) => {
+    setQuery(s.query);
+    setIsFromSavedSearch(true);
+    // non lancio automaticamente la ricerca: l'utente può modificare e poi premere "Cerca"
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   /* ----------------- RENDER ----------------- */
 
   return (
@@ -513,22 +546,47 @@ export default function HomePageClient({ initialLang }: { initialLang: Lang }) {
       <header
         style={{
           borderBottom: "1px solid rgba(148,163,184,0.3)",
+          position: "sticky",
+          top: 0,
+          zIndex: 20,
+          background: "rgba(255,255,255,0.9)",
+          backdropFilter: "blur(10px)",
         }}
       >
         <div
           style={{
             maxWidth: 960,
             margin: "0 auto",
-            padding: "12px 16px",
+            padding: "10px 16px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             gap: 16,
           }}
         >
-          <div style={{ fontWeight: 700, fontSize: 18 }}>iFindItForYou</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ fontWeight: 700, fontSize: 18 }}>iFindItForYou</div>
+            <span
+              style={{
+                fontSize: 11,
+                padding: "2px 8px",
+                borderRadius: 999,
+                border: "1px solid rgba(148,163,184,0.6)",
+                color: "#4b5563",
+              }}
+            >
+              Io lo cerco per te
+            </span>
+          </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              fontSize: 13,
+            }}
+          >
             <span
               style={{
                 padding: "4px 8px",
@@ -537,7 +595,6 @@ export default function HomePageClient({ initialLang }: { initialLang: Lang }) {
                 background: isPro ? "#0f172a" : "#f8fafc",
                 color: isPro ? "#f9fafb" : "#0f172a",
                 fontWeight: 500,
-                fontSize: 14,
               }}
             >
               {isPro ? "PRO" : "Free"}
@@ -558,6 +615,22 @@ export default function HomePageClient({ initialLang }: { initialLang: Lang }) {
               <option value="de">🇩🇪 Deutsch</option>
               <option value="en">🇬🇧 English</option>
             </select>
+
+            <Link
+              href={isLoggedIn ? "/account" : "/login"}
+              style={{
+                padding: "6px 12px",
+                borderRadius: 999,
+                border: "1px solid rgba(148,163,184,0.7)",
+                textDecoration: "none",
+                color: "#0f172a",
+                background: "#f9fafb",
+                fontWeight: 500,
+                whiteSpace: "nowrap",
+              }}
+            >
+              {isLoggedIn ? t.headerAccount : t.headerLogin}
+            </Link>
           </div>
         </div>
       </header>
@@ -621,6 +694,7 @@ export default function HomePageClient({ initialLang }: { initialLang: Lang }) {
                   background: "#0f172a",
                   color: "#f9fafb",
                   cursor: loading ? "not-allowed" : "pointer",
+                  whiteSpace: "nowrap",
                 }}
               >
                 {loading ? "..." : t.search}
@@ -658,6 +732,7 @@ export default function HomePageClient({ initialLang }: { initialLang: Lang }) {
                 fontWeight: 700,
                 display: "inline-flex",
                 gap: 8,
+                alignItems: "center",
               }}
             >
               <span
@@ -753,16 +828,61 @@ export default function HomePageClient({ initialLang }: { initialLang: Lang }) {
                   style={{
                     fontSize: 13,
                     color: "#374151",
-                    paddingLeft: 18,
+                    paddingLeft: 0,
                     margin: 0,
+                    listStyle: "none",
                   }}
                 >
                   {recentSearches.map((s, idx) => (
-                    <li key={idx} style={{ marginBottom: 2 }}>
-                      {s.query}
+                    <li
+                      key={idx}
+                      style={{
+                        marginBottom: 4,
+                        cursor: "pointer",
+                        padding: "4px 6px",
+                        borderRadius: 6,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                      onClick={() => handleRecentClick(s)}
+                    >
+                      <span
+                        style={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          maxWidth: "80%",
+                        }}
+                        title={s.query}
+                      >
+                        {s.query}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          color: "#6b7280",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {new Date(s.created_at).toLocaleString("it-CH", {
+                          dateStyle: "short",
+                          timeStyle: "short",
+                        })}
+                      </span>
                     </li>
                   ))}
                 </ul>
+                <p
+                  style={{
+                    fontSize: 11,
+                    color: "#4b5563",
+                    marginTop: 6,
+                    opacity: 0.8,
+                  }}
+                >
+                  Clicca per riempire il campo di ricerca.
+                </p>
               </div>
             )}
 
