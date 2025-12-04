@@ -1,4 +1,3 @@
-// app/en/about/page.tsx
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -50,26 +49,6 @@ export default function AboutPageEn() {
           <li>returns a clear, concise answer</li>
         </ul>
 
-        <p style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 12 }}>
-          It is designed for people who rely on information to work: freelancers,
-          consultants, small businesses, content creators and professionals who
-          don’t have hours to spend on search engines.
-        </p>
-
-        <p style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 12 }}>
-          The technology combines AI with a structured research method, so you
-          can get:
-        </p>
-
-        <ul style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>
-          <li>more precise answers</li>
-          <li>less “noise” and fewer useless pages</li>
-          <li>
-            more time to focus on decisions rather than on searching for
-            information
-          </li>
-        </ul>
-
         <p style={{ fontSize: 15, lineHeight: 1.7 }}>
           The interface is simple, the service is multilingual and you can start
           with a Free plan, without complications.
@@ -78,3 +57,4 @@ export default function AboutPageEn() {
     </main>
   );
 }
+
