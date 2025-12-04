@@ -1,7 +1,7 @@
 // app/sitemap.ts
 import type { MetadataRoute } from "next";
 
-const baseUrl = "https://TUO-DOMINIO.com";
+const baseUrl = "https://ifinditforyou.com";
 
 const staticPaths = [
   "/",              // home IT
