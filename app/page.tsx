@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     title: "iFindItForYou – Il motore di ricerca umano potenziato dall’AI",
     description:
       "Ottieni risposte personalizzate da un assistente che cerca al posto tuo. Meno rumore, più risultati utili, in più lingue.",
-    url: "https://TUO-DOMINIO.com",
+    url: "https://ifinditforyou.com",
     siteName: "iFindItForYou",
     type: "website",
   },
