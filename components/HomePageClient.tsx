@@ -125,7 +125,7 @@ const UI_TEXTS = {
     mottoShort: "I find it for you",
   },
 
-  fr: {
+    fr: {
     tagline: "Écris ce que tu cherches, je le trouve pour toi.",
     placeholder: "Ex. iPhone 13 mini bleu sous 350 CHF en Suisse",
     examplesLabel: "Exemples :",
@@ -179,14 +179,9 @@ const UI_TEXTS = {
     errorNetwork: "Problème réseau.",
     headerAccount: "Compte",
     headerLogin: "Connexion",
-     fr: {
-  tagline: "...",
-  // ...
-  headerAccount: "Compte",
-  headerLogin: "Connexion",
-  mottoShort: "Je le trouve pour toi",
-
+    mottoShort: "Je le trouve pour toi",
   },
+
 
   de: {
     tagline: "Schreib, was du suchst – ich finde es.",
