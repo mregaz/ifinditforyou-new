@@ -1,16 +1,50 @@
-import { MetadataRoute } from "next";
+// app/sitemap.ts
+import type { MetadataRoute } from "next";
+
+const baseUrl = "https://TUO-DOMINIO.com";
+
+const staticPaths = [
+  "/",              // home IT
+  "/about",
+  "/how-it-works",
+  "/faq",
+  "/privacy",
+  "/termini",
+  "/terms",
+  "/login",
+  "/register",
+  "/account",
+  "/pro",
+  "/success",
+  "/pay",
+
+  // Home multilingua
+  "/en",
+  "/fr",
+  "/de",
+
+  // Pagine informative EN (se presenti)
+  "/en/about",
+  "/en/how-it-works",
+  "/en/faq",
+
+  // Pagine informative FR (quando le avremo)
+  "/fr/about",
+  "/fr/how-it-works",
+  "/fr/faq",
+
+  // Pagine informative DE (quando le avremo)
+  "/de/about",
+  "/de/how-it-works",
+  "/de/faq",
+];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = "https://TUO-DOMINIO.com";
+  const lastModified = new Date();
 
-  return [
-    { url: `${base}/it`, lastModified: new Date() },
-    { url: `${base}/en`, lastModified: new Date() },
-    { url: `${base}/fr`, lastModified: new Date() },
-    { url: `${base}/de`, lastModified: new Date() },
-    { url: `${base}/it/about`, lastModified: new Date() },
-    { url: `${base}/it/how-it-works`, lastModified: new Date() },
-    { url: `${base}/it/faq`, lastModified: new Date() },
-    // …tutte le lingue
-  ];
+  return staticPaths.map((path) => ({
+    url: `${baseUrl}${path}`,
+    lastModified,
+  }));
 }
+
