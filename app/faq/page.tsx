@@ -35,6 +35,20 @@ const FAQ_LIST: QA[] = [
   },
 ];
 
+// FAQ JSON-LD (rich snippets Google)
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": FAQ_LIST.map((item) => ({
+    "@type": "Question",
+    "name": item.q,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": item.a,
+    },
+  })),
+};
+
 export default function FaqPage() {
   return (
     <main
@@ -90,6 +104,14 @@ export default function FaqPage() {
           ))}
         </div>
       </div>
+
+      {/* JSON-LD per Google | Rich Snippet FAQ */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqJsonLd),
+        }}
+      />
     </main>
   );
 }
