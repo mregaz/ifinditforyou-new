@@ -185,7 +185,6 @@ const UI_TEXTS = {
   headerAccount: "Compte",
   headerLogin: "Connexion",
   mottoShort: "Je le trouve pour toi",
-},
 
   },
 
