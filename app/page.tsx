@@ -1,6 +1,6 @@
 // app/page.tsx
 import type { Metadata } from "next";
-import HomePageClient from "@/components/homepageclient";
+import HomePageClient from "@/components/HomePageClient";
 import { Lang } from "@/lib/lang";
 
 export const metadata: Metadata = {
