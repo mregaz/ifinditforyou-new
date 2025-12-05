@@ -1,13 +1,45 @@
 // app/de/how-it-works/page.tsx
+
 import type { Metadata } from "next";
+import { baseUrl, locales, localePathname } from "../../../lib/i18n-config";
+
+// DE-Version von /how-it-works
+const locale = "de" as const;
+const path = "/how-it-works";
+
+const canonicalUrl = `${baseUrl}${localePathname(locale, path)}`;
+
+const languages = locales.reduce<Record<string, string>>((acc, loc) => {
+  const href = `${baseUrl}${localePathname(loc, path)}`;
+  acc[loc] = href;
+  return acc;
+}, {});
 
 export const metadata: Metadata = {
-  title: "Wie funktioniert iFindItForYou",
+  title: "So funktioniert es – iFindItForYou",
   description:
-    "Erfahre, wie iFindItForYou funktioniert: du beschreibst deinen Bedarf, die KI sucht, filtert und liefert dir nur die relevanten Ergebnisse.",
+    "Erfahren Sie, wie iFindItForYou funktioniert: Beschreiben Sie, was Sie brauchen, ein Human+KI-Assistent filtert die Optionen und sendet Ihnen nur die besten Produkte.",
+  alternates: {
+    canonical: canonicalUrl,
+    languages,
+  },
+  openGraph: {
+    url: canonicalUrl,
+    title: "So funktioniert es – iFindItForYou",
+    description:
+      "Beschreiben Sie Ihren Bedarf, wir recherchieren und filtern Produkte und senden Ihnen nur die wirklich relevanten Optionen.",
+    siteName: "iFindItForYou",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "So funktioniert es – iFindItForYou",
+    description:
+      "Beschreiben Sie Ihren Bedarf, wir recherchieren und filtern Produkte und senden Ihnen nur die wirklich relevanten Optionen.",
+  },
 };
 
-export default function HowItWorksPageDe() {
+export default function HowItWorksPage() {
   return (
     <main
       style={{
@@ -17,85 +49,16 @@ export default function HowItWorksPageDe() {
         padding: "32px 16px",
       }}
     >
-      <div
-        style={{
-          maxWidth: 720,
-          margin: "0 auto",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: "clamp(28px, 4vw, 36px)",
-            fontWeight: 700,
-            marginBottom: 16,
-          }}
-        >
-          Wie funktioniert iFindItForYou?
-        </h1>
-
-        <p style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>
-          Der Ablauf ist bewusst einfach gehalten:
-        </p>
-
-        <ol style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>
-          <li style={{ marginBottom: 8 }}>
-            <strong>1. Du beschreibst, was du brauchst</strong>
-            <br />
-            Du kannst auf Deutsch, Italienisch, Englisch oder Französisch
-            schreiben. Stelle Fragen, beschreibe ein Problem oder bitte um
-            Ideen.
-          </li>
-          <li style={{ marginBottom: 8 }}>
-            <strong>2. Das System versteht deine Anfrage</strong>
-            <br />
-            Die Anfrage wird in Schlüsselpunkte zerlegt, um zu wissen, was
-            gesucht werden soll und was nicht.
-          </li>
-          <li style={{ marginBottom: 8 }}>
-            <strong>3. Der Assistent führt die Suche aus</strong>
-            <br />
-            Mehrere Quellen werden konsultiert, verglichen und nach Relevanz
-            und Qualität gefiltert.
-          </li>
-          <li>
-            <strong>4. Du erhältst eine verständliche Antwort</strong>
-            <br />
-            Du bekommst eine klare Zusammenfassung mit Erklärungen,
-            Vorschlägen und – falls sinnvoll – Links zum Vertiefen.
-          </li>
-        </ol>
-
-        <h2
-          style={{
-            fontSize: 20,
-            fontWeight: 600,
-            marginBottom: 10,
-            marginTop: 24,
-          }}
-        >
-          Free-Plan
-        </h2>
-        <p style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 12 }}>
-          Mit dem Free-Plan kannst du den Dienst mit einer begrenzten Anzahl
-          von Suchanfragen pro Monat testen – ideal für gelegentliche Nutzung.
-        </p>
-
-        <h2
-          style={{
-            fontSize: 20,
-            fontWeight: 600,
-            marginBottom: 10,
-            marginTop: 16,
-          }}
-        >
-          PRO-Plan
-        </h2>
-        <p style={{ fontSize: 15, lineHeight: 1.7 }}>
-          Mit dem PRO-Plan erhältst du unbegrenzte Suchanfragen, ausführlichere
-          Antworten und eine bevorzugte Verarbeitung. Die Verwaltung des
-          Abonnements erfolgt einfach und sicher über Stripe.
-        </p>
-      </div>
+      <h1 style={{ fontSize: 28, marginBottom: 16 }}>
+        So funktioniert iFindItForYou
+      </h1>
+      <p style={{ fontSize: 15, lineHeight: 1.7, maxWidth: 640 }}>
+        Mit iFindItForYou beschreiben Sie das Produkt, das Sie suchen, wie Sie
+        es verwenden möchten und welche Rahmenbedingungen wichtig sind
+        (Budget, Lieferzeiten usw.). Ein Assistent aus KI und menschlicher
+        Recherche filtert die Ergebnisse und liefert Ihnen eine kurze, klare
+        und begründete Produktauswahl.
+      </p>
     </main>
   );
 }

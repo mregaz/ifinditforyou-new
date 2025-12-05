@@ -1,10 +1,42 @@
 // app/how-it-works/page.tsx
+
 import type { Metadata } from "next";
+import { baseUrl, locales, localePathname } from "../../lib/i18n-config";
+
+// Versione IT di /how-it-works
+const locale = "it" as const;
+const path = "/how-it-works";
+
+const canonicalUrl = `${baseUrl}${localePathname(locale, path)}`;
+
+const languages = locales.reduce<Record<string, string>>((acc, loc) => {
+  const href = `${baseUrl}${localePathname(loc, path)}`;
+  acc[loc] = href;
+  return acc;
+}, {});
 
 export const metadata: Metadata = {
-  title: "Come funziona iFindItForYou",
+  title: "Come funziona – iFindItForYou",
   description:
-    "Scopri come funziona iFindItForYou: scrivi cosa ti serve, l’AI cerca, filtra e ti restituisce solo risultati utili.",
+    "Scopri come funziona iFindItForYou: descrivi cosa cerchi, un assistente umano+AI filtra i risultati e ti propone solo i prodotti migliori.",
+  alternates: {
+    canonical: canonicalUrl,
+    languages,
+  },
+  openGraph: {
+    url: canonicalUrl,
+    title: "Come funziona – iFindItForYou",
+    description:
+      "Descrivi cosa ti serve, noi cerchiamo e filtriamo i prodotti e ti inviamo solo le opzioni davvero rilevanti.",
+    siteName: "iFindItForYou",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Come funziona – iFindItForYou",
+    description:
+      "Descrivi cosa ti serve, noi cerchiamo e filtriamo i prodotti e ti inviamo solo le opzioni davvero rilevanti.",
+  },
 };
 
 export default function HowItWorksPage() {
@@ -17,84 +49,13 @@ export default function HowItWorksPage() {
         padding: "32px 16px",
       }}
     >
-      <div
-        style={{
-          maxWidth: 720,
-          margin: "0 auto",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: "clamp(28px, 4vw, 36px)",
-            fontWeight: 700,
-            marginBottom: 16,
-          }}
-        >
-          Come funziona iFindItForYou
-        </h1>
-
-        <p style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>
-          Con iFindItForYou il flusso è molto semplice:
-        </p>
-
-        <ol style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>
-          <li style={{ marginBottom: 8 }}>
-            <strong>1. Scrivi cosa ti serve</strong>
-            <br />
-            Usa frasi normali, in italiano o in altre lingue. Puoi fare
-            domande, descrivere un problema, chiedere confronti o idee.
-          </li>
-          <li style={{ marginBottom: 8 }}>
-            <strong>2. Il sistema capisce la tua richiesta</strong>
-            <br />
-            La domanda viene “spezzata” in punti chiave, così l’assistente sa
-            cosa cercare e cosa scartare.
-          </li>
-          <li style={{ marginBottom: 8 }}>
-            <strong>3. L’assistente effettua la ricerca</strong>
-            <br />
-            Vengono consultate più fonti, confrontate tra loro e filtrate per
-            qualità, coerenza e utilità.
-          </li>
-          <li>
-            <strong>4. Ricevi una risposta chiara</strong>
-            <br />
-            Ottieni una sintesi leggibile, con spiegazioni, suggerimenti e,
-            quando utile, riferimenti per approfondire.
-          </li>
-        </ol>
-
-        <h2
-          style={{
-            fontSize: 20,
-            fontWeight: 600,
-            marginBottom: 10,
-            marginTop: 24,
-          }}
-        >
-          Piano Free
-        </h2>
-        <p style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 12 }}>
-          Il piano Free ti offre un numero limitato di ricerche al mese, ideale
-          per provare il servizio e usarlo in modo occasionale.
-        </p>
-
-        <h2
-          style={{
-            fontSize: 20,
-            fontWeight: 600,
-            marginBottom: 10,
-            marginTop: 16,
-          }}
-        >
-          Piano PRO
-        </h2>
-        <p style={{ fontSize: 15, lineHeight: 1.7 }}>
-          Con il piano PRO hai ricerche illimitate, risposte più dettagliate e
-          priorità di elaborazione. La gestione dell’abbonamento avviene tramite
-          Stripe in modo semplice e sicuro.
-        </p>
-      </div>
+      <h1 style={{ fontSize: 28, marginBottom: 16 }}>Come funziona</h1>
+      <p style={{ fontSize: 15, lineHeight: 1.7, maxWidth: 640 }}>
+        Con iFindItForYou descrivi il prodotto che ti serve, come lo userai e
+        quali sono i vincoli principali (budget, tempi di consegna, ecc.).
+        Un assistente combina AI e ricerca manuale per filtrare centinaia di
+        opzioni e ti propone solo una selezione breve, chiara e argomentata.
+      </p>
     </main>
   );
 }
