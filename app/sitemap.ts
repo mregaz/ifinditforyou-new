@@ -1,50 +1,40 @@
 // app/sitemap.ts
+
 import type { MetadataRoute } from "next";
+import { baseUrl, type Locale, localePathname } from "../lib/i18n-config";
 
-const baseUrl = "https://ifinditforyou.com";
+// Lingue che vogliamo includere nella sitemap
+// (qui limitiamo a IT/EN/FR/DE per evitare URL non ancora pronti)
+const sitemapLocales: Locale[] = ["it", "en", "fr", "de"];
 
-const staticPaths = [
-  "/",              // home IT
+// Pagine "base" del sito (senza prefisso lingua)
+const basePaths = [
+  "/",          // home IT
   "/about",
-  "/how-it-works",
   "/faq",
+  "/how-it-works",
   "/privacy",
-  "/termini",
   "/terms",
-  "/login",
-  "/register",
-  "/account",
   "/pro",
-  "/success",
-  "/pay",
-
-  // Home multilingua
-  "/en",
-  "/fr",
-  "/de",
-
-  // Pagine informative EN (se presenti)
-  "/en/about",
-  "/en/how-it-works",
-  "/en/faq",
-
-  // Pagine informative FR (quando le avremo)
-  "/fr/about",
-  "/fr/how-it-works",
-  "/fr/faq",
-
-  // Pagine informative DE (quando le avremo)
-  "/de/about",
-  "/de/how-it-works",
-  "/de/faq",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date();
+  const now = new Date().toISOString();
 
-  return staticPaths.map((path) => ({
-    url: `${baseUrl}${path}`,
-    lastModified,
-  }));
+  const entries: MetadataRoute.Sitemap = [];
+
+  for (const path of basePaths) {
+    for (const locale of sitemapLocales) {
+      const url = `${baseUrl}${localePathname(locale, path)}`;
+
+      entries.push({
+        url,
+        lastModified: now,
+        changeFrequency: "weekly",
+        priority: path === "/" ? 1 : 0.7,
+      });
+    }
+  }
+
+  return entries;
 }
-
