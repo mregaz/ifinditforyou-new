@@ -1,5 +1,6 @@
 // app/about/page.tsx
-import type { Metadata } from "next";
+import type { Metadata } from "next"
+import { baseUrl, locales, localePathname, type Locale } from "@/lib/i18n-config";
 
 export const metadata: Metadata = {
   title: "Cos’è iFindItForYou",
