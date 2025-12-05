@@ -1,11 +1,11 @@
 // lib/stripe.ts
 import Stripe from "stripe";
 
-const secretKey = process.env.STRIPE_SECRET_KEYS;
+// Prendiamo la chiave Stripe da ENV, con fallback dummy per la build locale
+const secretKey =
+  process.env.STRIPE_SECRET_KEYS ||
+  process.env.STRIPE_SECRET_KEY ||
+  "sk_test_dummy_for_build";
 
-if (!secretKey) {
-  throw new Error("Missing STRIPE_SECRET_KEYS environment variable");
-}
-
-// NIENTE apiVersion: lasciamo che Stripe usi la versione di default
+// Unica export: istanza di Stripe
 export const stripe = new Stripe(secretKey);
