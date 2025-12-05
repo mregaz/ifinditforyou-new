@@ -1,10 +1,45 @@
 // app/about/page.tsx
-import type { Metadata } from "next";
 
+import type { Metadata } from "next";
+import { baseUrl, locales, localePathname } from "../../lib/i18n-config";
+
+// Questa pagina è la versione IT di /about
+const locale = "it" as const;
+const path = "/about";
+
+// URL canonico completo per questa pagina
+const canonicalUrl = `${baseUrl}${localePathname(locale, path)}`;
+
+// Mappa delle lingue per hreflang
+const languages = locales.reduce<Record<string, string>>((acc, loc) => {
+  const href = `${baseUrl}${localePathname(loc, path)}`;
+  acc[loc] = href;
+  return acc;
+}, {});
+
+// Metadata della pagina About IT
 export const metadata: Metadata = {
-  title: "Cos’è iFindItForYou",
+  title: "Chi siamo – iFindItForYou",
   description:
-    "Scopri cos’è iFindItForYou: un motore di ricerca umano potenziato dall’AI che trova informazioni mirate per te.",
+    "Scopri chi c’è dietro iFindItForYou, il motore di ricerca prodotti potenziato dall’AI.",
+  alternates: {
+    canonical: canonicalUrl,
+    languages,
+  },
+  openGraph: {
+    url: canonicalUrl,
+    title: "Chi siamo – iFindItForYou",
+    description:
+      "Scopri chi c’è dietro iFindItForYou, il motore di ricerca prodotti potenziato dall’AI.",
+    siteName: "iFindItForYou",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Chi siamo – iFindItForYou",
+    description:
+      "Scopri chi c’è dietro iFindItForYou, il motore di ricerca prodotti potenziato dall’AI.",
+  },
 };
 
 export default function AboutPage() {
@@ -17,59 +52,14 @@ export default function AboutPage() {
         padding: "32px 16px",
       }}
     >
-      <div
-        style={{
-          maxWidth: 720,
-          margin: "0 auto",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: "clamp(28px, 4vw, 36px)",
-            fontWeight: 700,
-            marginBottom: 16,
-          }}
-        >
-          Cos’è iFindItForYou
-        </h1>
-
-        <p style={{ fontSize: 16, lineHeight: 1.6, marginBottom: 16 }}>
-          iFindItForYou è un assistente che cerca informazioni al posto tuo.
-        </p>
-
-        <p style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 12 }}>
-          Invece di perdere tempo tra decine di risultati, scrivi cosa ti serve
-          in linguaggio naturale e il sistema fa tre cose:
-        </p>
-
-        <ul style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>
-          <li>analizza la tua richiesta</li>
-          <li>effettua ricerche mirate</li>
-          <li>ti restituisce una risposta chiara e sintetica</li>
-        </ul>
-
-        <p style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 12 }}>
-          È pensato per chi usa le informazioni per lavorare: freelance,
-          consulenti, piccoli business, creatori di contenuti e professionisti
-          che non hanno ore da perdere sui motori di ricerca.
-        </p>
-
-        <p style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 12 }}>
-          La tecnologia unisce AI e un metodo di ricerca strutturato, così puoi
-          ottenere:
-        </p>
-
-        <ul style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>
-          <li>risposte più precise</li>
-          <li>meno “rumore” e pagine inutili</li>
-          <li>più tempo per concentrarti sulle decisioni, non sulla ricerca</li>
-        </ul>
-
-        <p style={{ fontSize: 15, lineHeight: 1.7 }}>
-          L’interfaccia è semplice, il servizio è multilingua e puoi iniziare
-          con un piano Free, senza complicazioni.
-        </p>
-      </div>
+      <h1 style={{ fontSize: 28, marginBottom: 16 }}>
+        About iFindItForYou
+      </h1>
+      <p style={{ fontSize: 15, lineHeight: 1.7, maxWidth: 640 }}>
+        iFindItForYou è un assistente di ricerca prodotti, potenziato dall’AI
+        e supportato da persone reali. L’interfaccia è semplice, il servizio
+        è multilingua e puoi iniziare con un piano Free, senza complicazioni.
+      </p>
     </main>
   );
 }
