@@ -3,11 +3,12 @@ import type { Metadata } from "next";
 import HomePageClient from "@/components/HomePageClient";
 
 export const metadata: Metadata = {
-  title: "iFindItForYou – Die menschliche, KI-gestützte Suchmaschine",
+  title: "iFindItForYou – KI-Suchassistent mit menschlicher Kontrolle",
   description:
-    "Beschreibe, was du brauchst. Eine KI-gestützte Suchmaschine findet und filtert die besten Ergebnisse für dich.",
+    "Schreib, was du brauchst. Ein KI-gestützter Suchassistent filtert die Ergebnisse und zeigt dir nur das Relevante.",
 };
 
 export default function Page() {
   return <HomePageClient initialLang="de" />;
 }
+

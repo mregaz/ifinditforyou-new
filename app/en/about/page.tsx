@@ -1,23 +1,23 @@
 // app/en/about/page.tsx
 
 import type { Metadata } from "next";
-import { baseUrl, locales, localePathname } from "@/lib/i18n-config";
+import { baseUrl, locales, localePathname } from "../../../lib/i18n-config";
 
-// Questa pagina è la versione EN di /about
+// This page is the EN version of /about
 const locale = "en" as const;
 const path = "/about";
 
-// URL canonico completo per questa pagina
+// Canonical URL for this page
 const canonicalUrl = `${baseUrl}${localePathname(locale, path)}`;
 
-// Mappa delle lingue per hreflang
+// Languages map for hreflang
 const languages = locales.reduce<Record<string, string>>((acc, loc) => {
   const href = `${baseUrl}${localePathname(loc, path)}`;
   acc[loc] = href;
   return acc;
 }, {});
 
-// Metadata della pagina About EN
+// Metadata for About EN
 export const metadata: Metadata = {
   title: "About us – iFindItForYou",
   description:
@@ -64,3 +64,4 @@ export default function AboutPage() {
     </main>
   );
 }
+
