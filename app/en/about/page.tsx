@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Head from "next/head";
 import { baseUrl, locales, localePathname } from "../../../lib/i18n-config";
 
+
 export const metadata: Metadata = {
   title: "What is iFindItForYou",
   description:
