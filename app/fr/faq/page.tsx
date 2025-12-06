@@ -1,10 +1,10 @@
-// app/en/faq/page.tsx
+// app/fr/faq/page.tsx
 
 import type { Metadata } from "next";
 import { baseUrl, locales, localePathname } from "../../../lib/i18n-config";
 
-// EN version of /faq
-const locale = "en" as const;
+// Version FR de /faq
+const locale = "fr" as const;
 const path = "/faq";
 
 const canonicalUrl = `${baseUrl}${localePathname(locale, path)}`;
@@ -16,26 +16,26 @@ const languages = locales.reduce<Record<string, string>>((acc, loc) => {
 }, {});
 
 export const metadata: Metadata = {
-  title: "FAQ – Frequently asked questions | iFindItForYou",
+  title: "FAQ – Questions fréquentes | iFindItForYou",
   description:
-    "Answers to the most common questions about how iFindItForYou works, plans, limits and support.",
+    "Réponses aux questions les plus fréquentes sur le fonctionnement d’iFindItForYou, les offres et le support.",
   alternates: {
     canonical: canonicalUrl,
     languages,
   },
   openGraph: {
     url: canonicalUrl,
-    title: "FAQ – Frequently asked questions | iFindItForYou",
+    title: "FAQ – Questions fréquentes | iFindItForYou",
     description:
-      "Answers to the most common questions about how iFindItForYou works, plans, limits and support.",
+      "Réponses aux questions les plus fréquentes sur le fonctionnement d’iFindItForYou, les offres et le support.",
     siteName: "iFindItForYou",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "FAQ – Frequently asked questions | iFindItForYou",
+    title: "FAQ – Questions fréquentes | iFindItForYou",
     description:
-      "Answers to the most common questions about how iFindItForYou works, plans, limits and support.",
+      "Réponses aux questions les plus fréquentes sur le fonctionnement d’iFindItForYou, les offres et le support.",
   },
 };
 
@@ -49,15 +49,12 @@ export default function FaqPage() {
         padding: "32px 16px",
       }}
     >
-      <h1 style={{ fontSize: 28, marginBottom: 16 }}>
-        Frequently asked questions (FAQ)
-      </h1>
+      <h1 style={{ fontSize: 28, marginBottom: 16 }}>Questions fréquentes</h1>
       <p style={{ fontSize: 15, lineHeight: 1.7, maxWidth: 640 }}>
-        Here you can find answers to the most common questions about
-        iFindItForYou: how it works, which plans are available and how we
-        handle your product search request.
+        Ici, vous trouvez les réponses aux questions les plus fréquentes sur
+        iFindItForYou&nbsp;: comment le service fonctionne, quelles offres
+        sont disponibles et comment votre demande de recherche est traitée.
       </p>
     </main>
   );
 }
-
