@@ -1,5 +1,3 @@
-// app/fr/how-it-works/page.tsx
-
 import type { Metadata } from "next";
 import { baseUrl, locales, localePathname } from "../../../lib/i18n-config";
 
@@ -18,7 +16,7 @@ const languages = locales.reduce<Record<string, string>>((acc, loc) => {
 export const metadata: Metadata = {
   title: "Comment ça marche – iFindItForYou",
   description:
-    "Découvrez comment fonctionne iFindItForYou : décrivez ce dont vous avez besoin, un assistant humain+IA filtre les options et vous envoie seulement les meilleurs produits.",
+    "Découvrez comment fonctionne iFindItForYou : décrivez ce dont vous avez besoin, un assistant humain+IA filtre les résultats et vous envoie seulement les meilleures options.",
   alternates: {
     canonical: canonicalUrl,
     languages,
@@ -27,7 +25,7 @@ export const metadata: Metadata = {
     url: canonicalUrl,
     title: "Comment ça marche – iFindItForYou",
     description:
-      "Décrivez votre besoin, nous recherchons et filtrons les produits et nous vous envoyons uniquement les options les plus pertinentes.",
+      "Décrivez ce dont vous avez besoin, nous recherchons et filtrons les produits pour vous et vous envoyons une courte liste d’options vraiment pertinentes.",
     siteName: "iFindItForYou",
     type: "website",
   },
@@ -35,11 +33,11 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Comment ça marche – iFindItForYou",
     description:
-      "Décrivez votre besoin, nous recherchons et filtrons les produits et nous vous envoyons uniquement les options les plus pertinentes.",
+      "Décrivez ce dont vous avez besoin, nous recherchons et filtrons les produits pour vous et vous envoyons une courte liste d’options vraiment pertinentes.",
   },
 };
 
-export default function HowItWorksPage() {
+export default function HowItWorksFrPage() {
   return (
     <main
       style={{
@@ -51,11 +49,11 @@ export default function HowItWorksPage() {
     >
       <h1 style={{ fontSize: 28, marginBottom: 16 }}>Comment ça marche</h1>
       <p style={{ fontSize: 15, lineHeight: 1.7, maxWidth: 640 }}>
-        Avec iFindItForYou, vous décrivez le produit dont vous avez besoin,
-        la façon dont vous allez l’utiliser et vos contraintes principales
-        (budget, délais, etc.). Un assistant combinant IA et recherche humaine
-        filtre les résultats et vous envoie une sélection courte, claire et
-        argumentée.
+        Avec iFindItForYou, vous décrivez le produit dont vous avez besoin, la
+        façon dont vous allez l’utiliser et vos contraintes principales
+        (budget, délais de livraison, etc.). Un assistant combine IA et
+        recherche manuelle pour filtrer des centaines d’options et ne vous
+        proposer qu’une sélection courte, claire et argumentée.
       </p>
     </main>
   );
