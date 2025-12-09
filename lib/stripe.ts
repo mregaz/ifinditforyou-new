@@ -1,17 +1,17 @@
 // lib/stripe.ts
 import Stripe from "stripe";
 
-// Leggiamo SOLO STRIPE_SECRET_KEY dalle env
-const secretKey = process.env.STRIPE_SECRET_KEY;
+// Prendiamo la chiave Stripe da ENV
+const secretKey =
+  process.env.STRIPE_SECRET_KEY ||
+  process.env.STRIPE_SECRET_KEYS ||
+  "";
 
+// Piccolo controllo di sicurezza
 if (!secretKey) {
-  throw new Error(
-    "Missing STRIPE_SECRET_KEY environment variable. " +
-      "Imposta STRIPE_SECRET_KEY in .env.local (in locale) e negli env di Vercel (in produzione)."
-  );
+  throw new Error("STRIPE_SECRET_KEY is not set");
 }
 
-// Istanza unica di Stripe
-export const stripe = new Stripe(secretKey, {
-  apiVersion: "2023-10-16",
-});
+// Istanza unica di Stripe (senza apiVersion esplicito)
+export const stripe = new Stripe(secretKey);
+
