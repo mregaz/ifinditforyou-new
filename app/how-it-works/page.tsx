@@ -1,10 +1,9 @@
-// app/how-it-works/page.tsx
-
 import type { Metadata } from "next";
-import { baseUrl, locales, localePathname } from "../../lib/i18n-config";
+import { baseUrl, locales, localePathname } from "@/lib/i18n-config";
 
-// Versione IT di /how-it-works
-const locale = "it" as const;
+
+// English version of /how-it-works
+const locale = "en" as const;
 const path = "/how-it-works";
 
 const canonicalUrl = `${baseUrl}${localePathname(locale, path)}`;
@@ -16,30 +15,30 @@ const languages = locales.reduce<Record<string, string>>((acc, loc) => {
 }, {});
 
 export const metadata: Metadata = {
-  title: "Come funziona – iFindItForYou",
+  title: "How it works – iFindItForYou",
   description:
-    "Scopri come funziona iFindItForYou: descrivi cosa cerchi, un assistente umano+AI filtra i risultati e ti propone solo i prodotti migliori.",
+    "Learn how iFindItForYou works: describe what you need, a human+AI assistant filters the results and sends you only the best options.",
   alternates: {
     canonical: canonicalUrl,
     languages,
   },
   openGraph: {
     url: canonicalUrl,
-    title: "Come funziona – iFindItForYou",
+    title: "How it works – iFindItForYou",
     description:
-      "Descrivi cosa ti serve, noi cerchiamo e filtriamo i prodotti e ti inviamo solo le opzioni davvero rilevanti.",
+      "Describe what you need, we search and filter products for you and send back a short list of truly relevant options.",
     siteName: "iFindItForYou",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Come funziona – iFindItForYou",
+    title: "How it works – iFindItForYou",
     description:
-      "Descrivi cosa ti serve, noi cerchiamo e filtriamo i prodotti e ti inviamo solo le opzioni davvero rilevanti.",
+      "Describe what you need, we search and filter products for you and send back a short list of truly relevant options.",
   },
 };
 
-export default function HowItWorksPage() {
+export default function HowItWorksEnPage() {
   return (
     <main
       style={{
@@ -49,13 +48,14 @@ export default function HowItWorksPage() {
         padding: "32px 16px",
       }}
     >
-      <h1 style={{ fontSize: 28, marginBottom: 16 }}>Come funziona</h1>
+      <h1 style={{ fontSize: 28, marginBottom: 16 }}>How it works</h1>
       <p style={{ fontSize: 15, lineHeight: 1.7, maxWidth: 640 }}>
-        Con iFindItForYou descrivi il prodotto che ti serve, come lo userai e
-        quali sono i vincoli principali (budget, tempi di consegna, ecc.).
-        Un assistente combina AI e ricerca manuale per filtrare centinaia di
-        opzioni e ti propone solo una selezione breve, chiara e argomentata.
+        With iFindItForYou you describe the product you need, how you will use
+        it and your main constraints (budget, delivery time, etc.). A human
+        assistant combines AI and manual research to filter hundreds of options
+        and sends you only a short, clear and well-explained selection.
       </p>
     </main>
   );
 }
+

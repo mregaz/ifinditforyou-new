@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { baseUrl, locales, localePathname } from "../../../lib/i18n-config";
+import { baseUrl, locales, localePathname } from "@/lib/i18n-config";
+
 
 // Version FR de /how-it-works
 const locale = "fr" as const;

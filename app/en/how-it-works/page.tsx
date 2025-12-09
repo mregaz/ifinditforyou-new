@@ -1,7 +1,8 @@
 // app/en/how-it-works/page.tsx
 
 import type { Metadata } from "next";
-import { baseUrl, locales, localePathname } from "../../../lib/i18n-config";
+import { baseUrl, locales, localePathname } from "@/lib/i18n-config";
+
 
 // EN version of /how-it-works
 const locale = "en" as const;

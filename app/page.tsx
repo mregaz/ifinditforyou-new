@@ -1,4 +1,5 @@
-// app/page.tsx
+ // app/page.tsx  (home IT)
+
 import type { Metadata } from "next";
 import HomePageClient from "@/components/HomePageClient";
 import { Lang } from "@/lib/lang";
@@ -6,24 +7,11 @@ import { Lang } from "@/lib/lang";
 export const metadata: Metadata = {
   title: "iFindItForYou – Il motore di ricerca umano potenziato dall’AI",
   description:
-    "Ottieni risposte personalizzate da un assistente che cerca al posto tuo. Meno rumore, più risultati utili, in più lingue.",
-  openGraph: {
-    title: "iFindItForYou – Il motore di ricerca umano potenziato dall’AI",
-    description:
-      "Ottieni risposte personalizzate da un assistente che cerca al posto tuo. Meno rumore, più risultati utili, in più lingue.",
-    url: "https://ifinditforyou.com",
-    siteName: "iFindItForYou",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "iFindItForYou – Il motore di ricerca umano potenziato dall’AI",
-    description:
-      "Ottieni risposte personalizzate da un assistente che cerca al posto tuo. Meno rumore, più risultati utili, in più lingue.",
-  },
+    "Scrivi cosa cerchi. Un assistente intelligente trova, filtra e ti mostra solo i risultati utili. Preciso, veloce, multilingua.",
 };
 
-export default function Page() {
+export default function HomePageIt() {
   const initialLang: Lang = "it";
   return <HomePageClient initialLang={initialLang} />;
 }
+

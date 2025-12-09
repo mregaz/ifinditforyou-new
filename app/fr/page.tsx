@@ -1,13 +1,17 @@
-// app/fr/page.tsx
+ // app/fr/page.tsx  (home FR)
+
 import type { Metadata } from "next";
 import HomePageClient from "@/components/HomePageClient";
+import { Lang } from "@/lib/lang";
 
 export const metadata: Metadata = {
-  title: "iFindItForYou – Le moteur de recherche humain assisté par l’IA",
+  title: "iFindItForYou – Moteur de recherche humain + IA",
   description:
-    "Écris ce que tu cherches. L’IA analyse, recherche et filtre pour te fournir uniquement les résultats pertinents.",
+    "Décrivez ce dont vous avez besoin. Un assistant humain+IA cherche à votre place et vous renvoie seulement les résultats pertinents.",
 };
 
-export default function Page() {
-  return <HomePageClient initialLang="fr" />;
+export default function HomePageFr() {
+  const initialLang: Lang = "fr";
+  return <HomePageClient initialLang={initialLang} />;
 }
+

@@ -1,7 +1,7 @@
 // app/about/page.tsx
 
 import type { Metadata } from "next";
-import { baseUrl, locales, localePathname } from "../../lib/i18n-config";
+import { baseUrl, locales, localePathname } from "@/lib/i18n-config";
 
 // Questa pagina è la versione IT di /about
 const locale = "it" as const;
