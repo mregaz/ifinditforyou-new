@@ -18,5 +18,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <ProPageClient initialLang="fr" />;
+  return <ProPageClient lang="fr" />;
 }
