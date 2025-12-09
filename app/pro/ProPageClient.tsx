@@ -1,9 +1,8 @@
-// app/pro/ProPageClient.tsx
+ // app/pro/ProPageClient.tsx
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 
 type Lang = "it" | "en" | "fr" | "de";
 type BillingPeriod = "monthly" | "yearly";
@@ -41,8 +40,7 @@ const PRO_TEXTS: Record<Lang, ProTexts> = {
   },
   en: {
     languageLabel: "Language:",
-    heroTitle:
-      "PRO plan – unlimited searches, priority and dedicated support",
+    heroTitle: "PRO plan – unlimited searches, priority and dedicated support",
     heroSubtitle:
       "For frequent users who need faster and more in-depth answers every month.",
     toggleMonthly: "Monthly",
@@ -60,7 +58,7 @@ const PRO_TEXTS: Record<Lang, ProTexts> = {
     heroTitle:
       "Offre PRO – recherches illimitées, priorité et support dédié",
     heroSubtitle:
-      "Pour ceux qui font beaucoup de demandes chaque mois et veulent des réponses plus rapides et plus complètes.",
+      "Pour ceux qui font beaucoup de demandes chaque mois et veulent des réponses plus rapides.",
     toggleMonthly: "Mensuel",
     toggleYearly: "Annuel (Économisez plus de 25 %)",
     priceMonthly: "9,99 $ / mois",
@@ -89,35 +87,26 @@ const PRO_TEXTS: Record<Lang, ProTexts> = {
   },
 };
 
-// determina la lingua in base all'URL
-function detectLang(pathname: string): Lang {
-  if (pathname.startsWith("/en/") || pathname === "/en" || pathname === "/en/pro") {
-    return "en";
-  }
-  if (pathname.startsWith("/fr/") || pathname === "/fr" || pathname === "/fr/pro") {
-    return "fr";
-  }
-  if (pathname.startsWith("/de/") || pathname === "/de" || pathname === "/de/pro") {
-    return "de";
-  }
-  // default: italiano (/pro, /, ecc.)
-  return "it";
-}
+// <<< QUI: props del componente >>>
+type ProPageClientProps = {
+  lang: Lang; // lingua iniziale in base alla route
+};
 
-export default function ProPageClient() {
-  const router = useRouter();
-  const pathname = usePathname() || "/pro";
-
-  const lang: Lang = detectLang(pathname);
+export default function ProPageClient({ lang }: ProPageClientProps) {
+  // stato lingua basato sulla prop
+  const [currentLang, setCurrentLang] = useState<Lang>(lang);
   const [billing, setBilling] = useState<BillingPeriod>("monthly");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const t = PRO_TEXTS[lang] ?? PRO_TEXTS.it;
+  const t = PRO_TEXTS[currentLang];
 
-  const freeHref = lang === "it" ? "/" : `/${lang}`;
+  const price = billing === "monthly" ? t.priceMonthly : t.priceYearly;
 
-  async function handleCheckout() {
+  // Home corretta per lingua
+  const freeHref = currentLang === "it" ? "/" : `/${currentLang}`;
+
+  const handleCheckout = async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -125,42 +114,36 @@ export default function ProPageClient() {
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lang }),
+        body: JSON.stringify({ billingPeriod: billing }),
       });
 
       if (!res.ok) {
-        throw new Error("Errore durante la creazione del checkout.");
+        throw new Error("Errore nella creazione della sessione di pagamento.");
       }
 
       const data = await res.json();
-      if (data.url) {
+      if (data?.url) {
         window.location.href = data.url;
       } else {
         throw new Error("URL di checkout non ricevuto.");
       }
     } catch (err: any) {
+      console.error("Stripe checkout error", err);
+      setError(err.message ?? "Errore imprevisto, riprova più tardi.");
+    } finally {
       setIsLoading(false);
-      setError(err.message ?? "Si è verificato un errore.");
     }
-  }
-
-  const price = billing === "monthly" ? t.priceMonthly : t.priceYearly;
-
-  // cambio lingua: cambio pagina (URL) invece di solo il testo
-  const handleLanguageChange = (next: Lang) => {
-    const nextPath = next === "it" ? "/pro" : `/${next}/pro`;
-    router.push(nextPath);
   };
 
   return (
     <main className="min-h-screen bg-white text-slate-900 px-4 py-10">
       <div className="max-w-3xl mx-auto space-y-8">
-        {/* selettore lingua */}
+        {/* Selettore lingua */}
         <div className="flex items-center gap-3 text-sm">
           <span className="font-medium">{t.languageLabel}</span>
           <select
-            value={lang}
-            onChange={(e) => handleLanguageChange(e.target.value as Lang)}
+            value={currentLang}
+            onChange={(e) => setCurrentLang(e.target.value as Lang)}
             className="border rounded-md px-2 py-1 text-sm"
           >
             <option value="it">Italiano</option>
@@ -170,7 +153,7 @@ export default function ProPageClient() {
           </select>
         </div>
 
-        {/* hero */}
+        {/* Hero */}
         <section className="space-y-4">
           <h1 className="text-3xl font-semibold">{t.heroTitle}</h1>
           <p className="text-sm leading-relaxed text-slate-700">
@@ -178,9 +161,9 @@ export default function ProPageClient() {
           </p>
         </section>
 
-        {/* toggle mensile/annuale */}
+        {/* Toggle mensile / annuale */}
         <section className="border rounded-xl p-5 space-y-4">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4 text-sm">
             <button
               type="button"
               onClick={() => setBilling("monthly")}
@@ -193,7 +176,6 @@ export default function ProPageClient() {
             >
               {t.toggleMonthly}
             </button>
-
             <button
               type="button"
               onClick={() => setBilling("yearly")}
@@ -208,11 +190,11 @@ export default function ProPageClient() {
             </button>
           </div>
 
-          {/* prezzo */}
+          {/* Prezzo */}
           <div className="text-2xl font-semibold mt-2">{price}</div>
 
-          {/* bullet points */}
-          <ul className="list-disc pl-5 text-sm space-y-1 text-slate-700 mt-2">
+          {/* Bullet points */}
+          <ul className="list-disc pl-5 text-sm space-y-1 text-slate-700 mt-3">
             <li>{t.bullet1}</li>
             <li>{t.bullet2}</li>
             <li>{t.bullet3}</li>
@@ -220,20 +202,20 @@ export default function ProPageClient() {
 
           {/* CTA PRO + Free */}
           <div className="flex flex-wrap gap-3 pt-3">
-            {/* bottone PRO → Stripe */}
+            {/* Bottone PRO → Stripe checkout */}
             <button
               type="button"
               onClick={handleCheckout}
               disabled={isLoading}
-              className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-slate-900 text-white text-sm font-medium disabled:opacity-70"
+              className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-slate-900 text-white text-sm font-semibold disabled:opacity-70"
             >
               {isLoading ? "Reindirizzamento..." : t.primaryCta}
             </button>
 
-            {/* bottone Free → home lingua corrente */}
+            {/* Bottone Free → home corretta */}
             <Link
               href={freeHref}
-              className="inline-flex items-center justify-center px-4 py-2 rounded-full border border-slate-900 bg-white text-slate-900 text-sm font-medium"
+              className="inline-flex items-center justify-center px-4 py-2 rounded-full border text-sm font-medium text-slate-900"
             >
               {t.secondaryCta}
             </Link>
