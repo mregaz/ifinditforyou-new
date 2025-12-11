@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { Lang } from "@/lib/lang";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 /* ============================================================================
    TEXTS MULTILINGUA
@@ -243,6 +244,76 @@ const UI_TEXTS = {
     headerLogin: "Anmelden",
     mottoShort: "Ich finde es für dich",
   },
+  es: {
+  tagline: "Escribe lo que necesitas y lo encuentro por ti.",
+  placeholder: "P. ej. iPhone 13 mini azul por menos de 350 CHF en Suiza",
+  examplesLabel: "Ejemplos:",
+  examples: [
+    "iPhone 13 mini azul por menos de 350 CHF en Suiza",
+    "Hotel de 3 estrellas en Zúrich por menos de 150 CHF",
+    "Idea de regalo para un niño de 12 años fan de LEGO",
+  ],
+
+  search: "Buscar",
+  proCta: "Hazte PRO",
+
+  creditsLabel: (credits: number, isPro: boolean) =>
+    isPro
+      ? "Plan PRO activo: búsquedas ilimitadas."
+      : credits > 0
+      ? `Te quedan ${credits} búsquedas gratuitas.`
+      : "Has utilizado todas tus búsquedas gratuitas.",
+
+  outOfCredits:
+    "Has utilizado todas tus búsquedas gratuitas. Activa PRO para continuar.",
+
+  sectionHowTitle: "Cómo funciona",
+  sectionHowText:
+    "Describe lo que necesitas. La IA analiza tu solicitud, busca online y te muestra solo resultados filtrados.",
+
+  sectionWhyTitle: "¿Por qué no usar Google?",
+  sectionWhyText:
+    "Google devuelve millones de resultados. iFindItForYou te da solo los relevantes, ya filtrados.",
+
+  sectionProTitle: "Free vs PRO",
+  sectionProFree: "Búsquedas gratuitas para probar el servicio.",
+  sectionProPaid: "Con PRO tienes búsquedas ilimitadas y resultados más profundos.",
+
+  sectionFaqTitle: "Privacidad y datos",
+  sectionFaqText:
+    "Tus búsquedas solo se usan para mejorar el servicio. Nunca vendemos datos.",
+
+  resultsTitle: "Resultados",
+  resultsCount: (n: number) =>
+    n === 1 ? "He encontrado 1 opción para ti." : `He encontrado ${n} opciones para ti.`,
+
+  empty: "Haz una búsqueda para ver cómo funciona 👆",
+
+  recentTitle: "Tus últimas búsquedas",
+  recentEmpty: "Todavía no hay búsquedas guardadas.",
+
+  savedSearchBanner: "Estás repitiendo una búsqueda guardada.",
+
+  emailGateTitle: "Desbloquea tu segunda búsqueda gratuita",
+  emailGateDescription:
+    "Solo te pedimos tu email para darte acceso a la segunda búsqueda gratuita.",
+  emailGatePlaceholder: "tu-email@ejemplo.com",
+  emailGateCancel: "Cancelar",
+  emailGateSubmit: "Desbloquear búsqueda",
+  emailGateSubmitting: "Enviando...",
+  emailGateErrorInvalid: "Por favor introduce un email válido.",
+  emailGateErrorGeneric: "Error temporal, inténtalo de nuevo.",
+  emailGateFooter: "Nada de spam. Solo actualizaciones importantes sobre el servicio.",
+
+  errorSearch: "Error en la búsqueda. Inténtalo de nuevo.",
+  errorNetwork: "Problema de red. Comprueba tu conexión e inténtalo otra vez.",
+
+  headerAccount: "Cuenta",
+  headerLogin: "Iniciar sesión",
+
+  mottoShort: "Lo encuentro por ti",
+},
+
 } as const;
 
 /* ============================================================================
@@ -424,19 +495,8 @@ export default function HomePageClient({ initialLang }: HomePageClientProps) {
     }
   }, [credits, isPro, lang, userEmail]);
 
-  /* ----------------- CAMBIO LINGUA ----------------- */
-  const handleChangeLang = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newLang = e.target.value as Lang;
-    setLang(newLang);
-
-    try {
-      localStorage.setItem("ifiy_lang", newLang);
-    } catch {
-      // ignore
-    }
-
-    // Manteniamo la stessa pagina, solo cambiando lingua UI
-  };
+ 
+  
 
   /* ----------------- SEARCH ----------------- */
   async function handleSearch(e?: React.FormEvent) {
@@ -524,9 +584,11 @@ export default function HomePageClient({ initialLang }: HomePageClientProps) {
   };
 
   /* ----------------- CTA PRO ----------------- */
-  function handleGoPro() {
-    window.location.href = `/pro?lang=${lang}`;
-  }
+ function handleGoPro() {
+  const href = lang === "it" ? "/pro" : `/${lang}/pro`;
+  window.location.href = href;
+}
+
 
   /* ----------------- CLICK SU RICERCA RECENTE ----------------- */
   const handleRecentClick = (s: SearchRow) => {
@@ -548,98 +610,92 @@ export default function HomePageClient({ initialLang }: HomePageClientProps) {
         flexDirection: "column",
       }}
     >
-      {/* HEADER */}
-      <header
+    {/* HEADER */}
+<header
+  style={{
+    borderBottom: "1px solid rgba(148,163,184,0.3)",
+    position: "sticky",
+    top: 0,
+    zIndex: 20,
+    background: "rgba(255,255,255,0.9)",
+    backdropFilter: "blur(10px)",
+  }}
+>
+  <div
+    style={{
+      maxWidth: 960,
+      margin: "0 auto",
+      padding: "10px 16px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 16,
+    }}
+  >
+    {/* Logo + motto */}
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ fontWeight: 700, fontSize: 18 }}>iFindItForYou</div>
+      <span
         style={{
-          borderBottom: "1px solid rgba(148,163,184,0.3)",
-          position: "sticky",
-          top: 0,
-          zIndex: 20,
-          background: "rgba(255,255,255,0.9)",
-          backdropFilter: "blur(10px)",
+          fontSize: 11,
+          padding: "2px 8px",
+          borderRadius: 999,
+          border: "1px solid rgba(148,163,184,0.6)",
+          color: "#4b5563",
         }}
       >
-        <div
-          style={{
-            maxWidth: 960,
-            margin: "0 auto",
-            padding: "10px 16px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 16,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ fontWeight: 700, fontSize: 18 }}>iFindItForYou</div>
-            <span
-              style={{
-                fontSize: 11,
-                padding: "2px 8px",
-                borderRadius: 999,
-                border: "1px solid rgba(148,163,184,0.6)",
-                color: "#4b5563",
-              }}
-            >
-            {t.mottoShort}
-            </span>
-          </div>
+        {t.mottoShort}
+      </span>
+    </div>
 
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              fontSize: 13,
-            }}
-          >
-            <span
-              style={{
-                padding: "4px 8px",
-                borderRadius: 999,
-                border: "1px solid rgba(148,163,184,0.5)",
-                background: isPro ? "#0f172a" : "#f8fafc",
-                color: isPro ? "#f9fafb" : "#0f172a",
-                fontWeight: 500,
-              }}
-            >
-              {isPro ? "PRO" : "Free"}
-            </span>
+    {/* Free/PRO + switch lingua + login/account */}
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        fontSize: 13,
+      }}
+    >
+      {/* Badge Free/PRO */}
+      <span
+        style={{
+          padding: "4px 8px",
+          borderRadius: 999,
+          border: "1px solid rgba(148,163,184,0.5)",
+          background: isPro ? "#0f172a" : "#f8fafc",
+          color: isPro ? "#f9fafb" : "#0f172a",
+          fontWeight: 500,
+        }}
+      >
+        {isPro ? "PRO" : "Free"}
+      </span>
 
-            <select
-              value={lang}
-              onChange={handleChangeLang}
-              style={{
-                borderRadius: 999,
-                border: "1px solid rgba(148,163,184,0.7)",
-                padding: "4px 10px",
-                background: "#ffffff",
-              }}
-            >
-              <option value="it">🇮🇹 Italiano</option>
-              <option value="fr">🇫🇷 Français</option>
-              <option value="de">🇩🇪 Deutsch</option>
-              <option value="en">🇬🇧 English</option>
-            </select>
+      {/* Language switcher con bandierine */}
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <LanguageSwitcher />
+      </div>
 
-            <Link
-              href={isLoggedIn ? "/account" : "/login"}
-              style={{
-                padding: "6px 12px",
-                borderRadius: 999,
-                border: "1px solid rgba(148,163,184,0.7)",
-                textDecoration: "none",
-                color: "#0f172a",
-                background: "#f9fafb",
-                fontWeight: 500,
-                whiteSpace: "nowrap",
-              }}
-            >
-              {isLoggedIn ? t.headerAccount : t.headerLogin}
-            </Link>
-          </div>
-        </div>
-      </header>
+      {/* Login / Account */}
+      <Link
+        href={isLoggedIn ? "/account" : "/login"}
+        style={{
+          padding: "6px 12px",
+          borderRadius: 999,
+          border: "1px solid rgba(148,163,184,0.7)",
+          textDecoration: "none",
+          color: "#0f172a",
+          background: "#f9fafb",
+          fontWeight: 500,
+          whiteSpace: "nowrap",
+        }}
+      >
+        {isLoggedIn ? t.headerAccount : t.headerLogin}
+      </Link>
+    </div>
+  </div>
+</header>
+
 
       {/* HERO + SEARCH */}
       <section

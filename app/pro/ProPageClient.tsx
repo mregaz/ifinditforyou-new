@@ -1,10 +1,9 @@
- // app/pro/ProPageClient.tsx
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
+import { Lang } from "@/lib/lang";
 
-type Lang = "it" | "en" | "fr" | "de";
 type BillingPeriod = "monthly" | "yearly";
 
 type ProTexts = {
@@ -85,26 +84,42 @@ const PRO_TEXTS: Record<Lang, ProTexts> = {
     primaryCta: "PRO-Tarif aktivieren",
     secondaryCta: "Beim Free-Tarif bleiben",
   },
+  es: {
+    languageLabel: "Idioma:",
+    heroTitle: "Plan PRO – búsquedas ilimitadas, prioridad y soporte dedicado",
+    heroSubtitle:
+      "Para quienes hacen muchas solicitudes al mes y quieren respuestas más rápidas y detalladas.",
+    toggleMonthly: "Mensual",
+    toggleYearly: "Anual (Ahorra más del 25 %)",
+    priceMonthly: "9,99 $ / mes",
+    priceYearly: "89 $ / año",
+    bullet1: "Búsquedas ilimitadas cada mes",
+    bullet2: "Respuestas prioritarias frente al plan gratuito",
+    bullet3: "Soporte dedicado por correo electrónico",
+    primaryCta: "Activar plan PRO",
+    secondaryCta: "Seguir con el plan gratuito",
+  },
 };
 
-// <<< QUI: props del componente >>>
 type ProPageClientProps = {
-  lang: Lang; // lingua iniziale in base alla route
+  lang: Lang; // dalla route
 };
 
 export default function ProPageClient({ lang }: ProPageClientProps) {
-  // stato lingua basato sulla prop
-  const [currentLang, setCurrentLang] = useState<Lang>(lang);
   const [billing, setBilling] = useState<BillingPeriod>("monthly");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const t = PRO_TEXTS[currentLang];
-
+  const t = PRO_TEXTS[lang];
   const price = billing === "monthly" ? t.priceMonthly : t.priceYearly;
 
-  // Home corretta per lingua
-  const freeHref = currentLang === "it" ? "/" : `/${currentLang}`;
+  // Link alla home della lingua corrente
+  const freeHref = lang === "it" ? "/" : `/${lang}`;
+
+  const handleLangChange = (next: Lang) => {
+    const href = next === "it" ? "/pro" : `/${next}/pro`;
+    window.location.href = href;
+  };
 
   const handleCheckout = async () => {
     try {
@@ -114,7 +129,10 @@ export default function ProPageClient({ lang }: ProPageClientProps) {
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ billingPeriod: billing }),
+        body: JSON.stringify({
+          billingPeriod: billing,
+          lang, // passiamo la lingua a Stripe
+        }),
       });
 
       if (!res.ok) {
@@ -142,14 +160,15 @@ export default function ProPageClient({ lang }: ProPageClientProps) {
         <div className="flex items-center gap-3 text-sm">
           <span className="font-medium">{t.languageLabel}</span>
           <select
-            value={currentLang}
-            onChange={(e) => setCurrentLang(e.target.value as Lang)}
+            value={lang}
+            onChange={(e) => handleLangChange(e.target.value as Lang)}
             className="border rounded-md px-2 py-1 text-sm"
           >
             <option value="it">Italiano</option>
             <option value="en">English</option>
             <option value="fr">Français</option>
             <option value="de">Deutsch</option>
+            <option value="es">Español</option>
           </select>
         </div>
 
@@ -202,7 +221,6 @@ export default function ProPageClient({ lang }: ProPageClientProps) {
 
           {/* CTA PRO + Free */}
           <div className="flex flex-wrap gap-3 pt-3">
-            {/* Bottone PRO → Stripe checkout */}
             <button
               type="button"
               onClick={handleCheckout}
@@ -212,7 +230,6 @@ export default function ProPageClient({ lang }: ProPageClientProps) {
               {isLoading ? "Reindirizzamento..." : t.primaryCta}
             </button>
 
-            {/* Bottone Free → home corretta */}
             <Link
               href={freeHref}
               className="inline-flex items-center justify-center px-4 py-2 rounded-full border text-sm font-medium text-slate-900"
@@ -222,13 +239,10 @@ export default function ProPageClient({ lang }: ProPageClientProps) {
           </div>
 
           {error && (
-            <p className="mt-3 text-xs text-red-700">
-              {error}
-            </p>
+            <p className="mt-3 text-xs text-red-700">{error}</p>
           )}
         </section>
       </div>
     </main>
   );
 }
-

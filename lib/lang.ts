@@ -1,17 +1,17 @@
 // lib/lang.ts
 
-export type Lang = "it" | "fr" | "de" | "en";
+export const locales = ["it", "en", "fr", "de", "es"] as const;
 
-export const DEFAULT_LANG: Lang = "it";
+export type Locale = (typeof locales)[number];
 
-/**
- * Normalizza una stringa qualsiasi in una lingua valida.
- * Se non riconosce il valore, torna "it".
- */
-export function normalizeLang(value?: string | null): Lang {
-  if (value === "it" || value === "fr" || value === "de" || value === "en") {
-    return value;
-  }
-  return DEFAULT_LANG;
+// Alias per compatibilità con il codice esistente
+export type Lang = Locale;
+
+export const defaultLocale: Locale = "it";
+
+export function isSupportedLocale(
+  value: string | undefined | null
+): value is Locale {
+  if (!value) return false;
+  return (locales as readonly string[]).includes(value);
 }
-

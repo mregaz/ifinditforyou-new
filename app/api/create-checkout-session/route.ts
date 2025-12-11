@@ -1,88 +1,89 @@
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
-
-export const runtime = "nodejs";
+import { isSupportedLocale, type Locale } from "@/lib/lang";
 
 type BillingPeriod = "monthly" | "yearly";
 
+type RequestBody = {
+  billingPeriod: BillingPeriod;
+  lang?: string;
+};
+
+const localeMap: Record<Locale, string> = {
+  it: "it",
+  en: "en",
+  fr: "fr",
+  de: "de",
+  es: "es",
+};
+
 export async function POST(req: Request) {
   try {
-    const body = await req.json().catch(() => ({}));
-    let billingPeriod: BillingPeriod = body.billingPeriod ?? "monthly";
+    const body = (await req.json()) as RequestBody;
+    const { billingPeriod, lang } = body;
 
-    // Normalizza: se arriva qualcosa di strano, forzo "monthly"
-    if (billingPeriod !== "monthly" && billingPeriod !== "yearly") {
-      console.warn("Valore billingPeriod non valido:", billingPeriod);
-      billingPeriod = "monthly";
+    if (!billingPeriod) {
+      return NextResponse.json(
+        { error: "Missing billingPeriod" },
+        { status: 400 }
+      );
     }
+
+    if (billingPeriod !== "monthly" && billingPeriod !== "yearly") {
+      return NextResponse.json(
+        { error: "Invalid billingPeriod" },
+        { status: 400 }
+      );
+    }
+
+    const appLang: Locale = isSupportedLocale(lang) ? (lang as Locale) : "it";
+    const stripeLocale = localeMap[appLang];
+
+    // QUI usiamo ESATTAMENTE i nomi che hai in Vercel:
+    // STRIPE_PRICE_ID_MONTHLY e STRIPE_PRICE_ID_YEARLY
+    const monthlyPriceId = process.env.STRIPE_PRICE_ID_MONTHLY;
+    const yearlyPriceId = process.env.STRIPE_PRICE_ID_YEARLY;
 
     const priceId =
-      billingPeriod === "yearly"
-        ? process.env.STRIPE_PRICE_ID_YEARLY
-        : process.env.STRIPE_PRICE_ID_MONTHLY;
+      billingPeriod === "yearly" ? yearlyPriceId : monthlyPriceId;
 
     if (!priceId) {
-      console.error("Manca priceId per billingPeriod:", billingPeriod);
+      console.error("Stripe price ID non configurato", {
+        billingPeriod,
+        STRIPE_PRICE_ID_MONTHLY: monthlyPriceId ? "SET" : "MISSING",
+        STRIPE_PRICE_ID_YEARLY: yearlyPriceId ? "SET" : "MISSING",
+      });
+
       return NextResponse.json(
-        {
-          error:
-            "Configurazione prezzo Stripe mancante per il piano " +
-            billingPeriod,
-        },
+        { error: "Stripe price ID non configurato" },
         { status: 500 }
       );
     }
 
-    const rawAppUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const appUrl = rawAppUrl.trim().replace(/\/+$/, "");
-
-    try {
-      new URL(appUrl);
-    } catch {
-      console.error("NEXT_PUBLIC_APP_URL non valida:", rawAppUrl);
-      return NextResponse.json(
-        {
-          error: `Configurazione NEXT_PUBLIC_APP_URL non valida: "${rawAppUrl}"`,
-        },
-        { status: 500 }
-      );
-    }
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      success_url: `${appUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/pro`,
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${appUrl}/pay/success`,
+      cancel_url: `${appUrl}/pay/cancel`,
+      locale: stripeLocale,
+      // qui puoi reinserire eventuali customer/metadata se li avevi
+      // customer: ...,
+      // metadata: {...},
     });
 
-    if (!session.url) {
-      console.error("Sessione Stripe creata ma senza URL:", session.id);
-      return NextResponse.json(
-        {
-          error:
-            "Stripe ha creato la sessione ma non ha fornito un URL di checkout.",
-        },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ url: session.url }, { status: 200 });
+    return NextResponse.json({ url: session.url });
   } catch (err: any) {
-    console.error("Stripe error in create-checkout-session:", err);
+    console.error("Stripe checkout error route", err);
     return NextResponse.json(
       {
         error:
-          "Stripe error: " +
-          (err?.message ??
-            "Errore sconosciuto nella creazione della sessione di pagamento."),
+          err?.message ??
+          "Errore imprevisto nella creazione della sessione di pagamento",
       },
       { status: 500 }
     );
   }
 }
-

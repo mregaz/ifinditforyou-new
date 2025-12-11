@@ -11,10 +11,16 @@ type UserState = {
   loading: boolean;
 };
 
-const LABELS: Record<
-  Lang,
-  { loading: string; login: string; register: string; account: string; logout: string }
-> = {
+type HeaderLabels = {
+  loading: string;
+  login: string;
+  register: string;
+  account: string;
+  logout: string;
+};
+
+// Testi per le varie lingue dell'header (login, logout, ecc.)
+const LABELS: Record<Lang, HeaderLabels> = {
   it: {
     loading: "Caricamento...",
     login: "Login",
@@ -38,12 +44,20 @@ const LABELS: Record<
   },
   de: {
     loading: "Laden...",
-    login: "Anmelden",
+    login: "Login",
     register: "Registrieren",
     account: "Konto",
-    logout: "Abmelden",
+    logout: "Logout",
+  },
+  es: {
+    loading: "Cargando...",
+    login: "Iniciar sesión",
+    register: "Crear cuenta",
+    account: "Cuenta",
+    logout: "Cerrar sesión",
   },
 };
+
 
 export default function Header() {
   const [user, setUser] = useState<UserState>({

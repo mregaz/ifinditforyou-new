@@ -5,7 +5,7 @@ import { baseUrl, type Locale, localePathname } from "../lib/i18n-config";
 
 // Lingue che vogliamo includere nella sitemap
 // (qui limitiamo a IT/EN/FR/DE per evitare URL non ancora pronti)
-const sitemapLocales: Locale[] = ["it", "en", "fr", "de"];
+const sitemapLocales: Locale[] = ["it", "en", "fr", "de", "es"];
 
 // Pagine "base" del sito (senza prefisso lingua)
 const basePaths = [
