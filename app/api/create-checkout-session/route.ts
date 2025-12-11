@@ -63,16 +63,15 @@ export async function POST(req: Request) {
     const appUrl =
       process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${appUrl}/pay/success`,
-      cancel_url: `${appUrl}/pay/cancel`,
-      locale: stripeLocale,
-      // qui puoi reinserire eventuali customer/metadata se li avevi
-      // customer: ...,
-      // metadata: {...},
-    });
+     const session = await stripe.checkout.sessions.create({
+  mode: "subscription",
+  locale: "auto",   // ✅ nessun problema di tipo
+  line_items: [{ price: priceId, quantity: 1 }],
+  success_url: `${appUrl}/pay/success`,
+  cancel_url: `${appUrl}/pay/cancel`,
+  // ... il resto uguale
+});
+
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
