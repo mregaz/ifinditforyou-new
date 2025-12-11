@@ -493,15 +493,17 @@ export default function HomePageClient({ initialLang }: HomePageClientProps) {
 
   /* ----------------- SALVA SU LOCAL STORAGE ----------------- */
   useEffect(() => {
-    try {
-      localStorage.setItem("ifiy_credits", String(credits));
-      localStorage.setItem("ifiy_isPro", isPro ? "true" : "false");
-      localStorage.setItem("ifiy_lang", lang);
-      if (userEmail) localStorage.setItem("ifiy_email", userEmail);
-    } catch {
-      // ignore
+  try {
+    localStorage.setItem("ifiy_credits", String(credits));
+    localStorage.setItem("ifiy_isPro", isPro ? "true" : "false");
+    if (userEmail) {
+      localStorage.setItem("ifiy_email", userEmail);
     }
-  }, [credits, isPro, lang, userEmail]);
+  } catch {
+    // ignore
+  }
+}, [credits, isPro, userEmail]);
+
 
  
   

@@ -1,118 +1,134 @@
-export default function PrivacyFr() {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Politique de confidentialité | iFindItForYou",
+  description:
+    "Informations sur la manière dont iFindItForYou traite les données personnelles et les recherches des utilisateurs.",
+};
+
+export default function PrivacyPageFr() {
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        margin: 0,
-        padding: "40px 16px",
-        backgroundColor: "#020617",
-        color: "#e5e7eb",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-start",
-        fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-      }}
-    >
-      <div style={{ width: "100%", maxWidth: 800 }}>
-        <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 16 }}>
-          Politique de confidentialité
-        </h1>
-        <p style={{ fontSize: 13, color: "#9ca3af", marginBottom: 24 }}>
-          Dernière mise à jour : {new Date().getFullYear()}
+    <main className="max-w-4xl mx-auto px-6 py-16 text-slate-900">
+      <h1 className="text-3xl font-bold mb-6">Politique de confidentialité</h1>
+
+      <p className="mb-4 text-sm text-slate-600">
+        Dernière mise à jour : <strong>3 novembre 2025</strong>
+      </p>
+
+      <section className="space-y-6 text-sm leading-relaxed text-slate-800">
+        <p>
+          Cette page décrit comment <strong>iFindItForYou</strong> collecte et
+          utilise les données personnelles des utilisateurs qui accèdent au
+          service.
         </p>
 
-        <p style={{ marginBottom: 16 }}>
-          Cette politique de confidentialité explique comment nous traitons
-          tes données personnelles lorsque tu utilises IFindItForYou
-          (&quot;Service&quot;).
-        </p>
-
-        <h2 style={{ fontSize: 18, fontWeight: 600, marginTop: 24 }}>
-          1. Données que nous collectons
+        <h2 className="text-xl font-semibold mt-6">
+          1. Responsable du traitement
         </h2>
-        <ul style={{ marginTop: 8, paddingLeft: 20 }}>
+        <p>
+          Le responsable du traitement est l&apos;opérateur du service
+          iFindItForYou. Les coordonnées sont indiquées sur la page de contact
+          du site.
+        </p>
+
+        <h2 className="text-xl font-semibold mt-6">
+          2. Types de données traitées
+        </h2>
+        <p>
+          Lorsque vous utilisez le service, nous pouvons traiter les catégories
+          de données suivantes :
+        </p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>données d’identification de base (par ex. adresse e-mail) ;</li>
           <li>
-            • <strong>Informations de base</strong> : texte des requêtes que tu
-            envoies au Service.
+            contenu des demandes que vous saisissez dans le champ de recherche ;
           </li>
           <li>
-            • <strong>Données de contact</strong> : adresse email si tu choisis
-            de la fournir.
-          </li>
-          <li>
-            • <strong>Données techniques</strong> : adresse IP raccourcie,
-            informations de navigation, logs serveur.
-          </li>
-          <li>
-            • <strong>Données de paiement</strong> : gérées par Stripe. Nous
-            n&apos;accédons pas au numéro complet de ta carte.
+            données techniques de navigation (adresse IP, type de navigateur,
+            journaux d’utilisation) collectées automatiquement.
           </li>
         </ul>
 
-        <h2 style={{ fontSize: 18, fontWeight: 600, marginTop: 24 }}>
-          2. Finalités du traitement
+        <h2 className="text-xl font-semibold mt-6">
+          3. Finalités du traitement
         </h2>
-        <p style={{ marginTop: 8 }}>Nous utilisons tes données pour :</p>
-        <ul style={{ marginTop: 8, paddingLeft: 20 }}>
-          <li>• fournir le Service et te répondre;</li>
-          <li>• gérer les abonnements et les paiements PRO;</li>
-          <li>• améliorer la qualité du Service (statistiques, logs);</li>
-          <li>• respecter nos obligations légales.</li>
+        <p>Les données sont traitées pour les finalités suivantes :</p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>fournir le service de recherche demandé par l’utilisateur ;</li>
+          <li>
+            gérer les comptes, les offres Free et PRO et la facturation via
+            Stripe ;
+          </li>
+          <li>
+            améliorer le service et analyser l’utilisation de manière agrégée ;
+          </li>
+          <li>
+            respecter les obligations légales et répondre aux demandes des
+            autorités compétentes.
+          </li>
         </ul>
 
-        <h2 style={{ fontSize: 18, fontWeight: 600, marginTop: 24 }}>
-          3. Bases légales
+        <h2 className="text-xl font-semibold mt-6">
+          4. Base juridique du traitement
         </h2>
-        <p style={{ marginTop: 8 }}>
-          Selon le cas, nous traitons les données sur la base de :
+        <p>
+          Le traitement est principalement fondé sur l’exécution du contrat
+          (art. 6, §1, b RGPD) et sur l’intérêt légitime du responsable à
+          améliorer le service (art. 6, §1, f RGPD). Lorsque le consentement est
+          requis, il est demandé de manière explicite.
         </p>
-        <ul style={{ marginTop: 8, paddingLeft: 20 }}>
-          <li>• l&apos;exécution du contrat (fournir le Service PRO);</li>
-          <li>• ton consentement (par exemple inscription email);</li>
-          <li>• notre intérêt légitime à améliorer le Service;</li>
-          <li>• le respect du droit applicable (notamment droit suisse/UE).</li>
+
+        <h2 className="text-xl font-semibold mt-6">
+          5. Durée de conservation
+        </h2>
+        <p>
+          Les données sont conservées pendant la durée nécessaire à la fourniture
+          du service et au respect des obligations légales. Les recherches
+          peuvent être anonymisées ou agrégées à des fins statistiques.
+        </p>
+
+        <h2 className="text-xl font-semibold mt-6">
+          6. Partage avec des tiers
+        </h2>
+        <p>
+          Certaines données peuvent être partagées avec des prestataires tiers
+          qui nous aident à fournir le service, par exemple :
+        </p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>fournisseur de paiement (Stripe) ;</li>
+          <li>fournisseur d’infrastructure et d’hébergement ;</li>
+          <li>
+            outils d’analyse et de monitoring en forme agrégée.
+          </li>
         </ul>
-
-        <h2 style={{ fontSize: 18, fontWeight: 600, marginTop: 24 }}>
-          4. Partage des données
-        </h2>
-        <p style={{ marginTop: 8 }}>
-          Nous partageons tes données uniquement avec des prestataires
-          nécessaires au fonctionnement du Service (par exemple Stripe pour les
-          paiements, fournisseurs d’hébergement, outils d’emailing), soumis à
-          des obligations de confidentialité.
+        <p>
+          Ces prestataires agissent en tant que sous-traitants sur la base de
+          contrats conformes au RGPD.
         </p>
 
-        <h2 style={{ fontSize: 18, fontWeight: 600, marginTop: 24 }}>
-          5. Conservation des données
+        <h2 className="text-xl font-semibold mt-6">
+          7. Droits des personnes concernées
         </h2>
-        <p style={{ marginTop: 8 }}>
-          Nous conservons les données uniquement pendant la durée nécessaire
-          aux finalités décrites ci-dessus ou selon les obligations légales
-          applicables. Certaines informations peuvent être anonymisées pour
-          des statistiques.
+        <p>
+          Conformément à la législation applicable, vous pouvez exercer vos
+          droits d’accès, de rectification, d’effacement, de limitation, d’opposition
+          et de portabilité, dans les limites prévues par la loi. Pour exercer
+          ces droits, vous pouvez nous contacter à l’adresse indiquée sur la
+          page de contact.
         </p>
 
-        <h2 style={{ fontSize: 18, fontWeight: 600, marginTop: 24 }}>
-          6. Tes droits
+        <h2 className="text-xl font-semibold mt-6">
+          8. Modifications de la politique
         </h2>
-        <p style={{ marginTop: 8 }}>
-          Selon le droit applicable, tu peux notamment avoir le droit
-          d’accéder, de corriger ou de supprimer tes données personnelles.
-          Tu peux également t’opposer à certains traitements ou retirer ton
-          consentement lorsque celui-ci constitue la base du traitement.
+        <p>
+          La présente politique de confidentialité peut être mise à jour. En cas
+          de modifications importantes, nous vous informerons via le site ou par
+          e-mail.
         </p>
+      </section>
 
-        <h2 style={{ fontSize: 18, fontWeight: 600, marginTop: 24 }}>
-          7. Contact
-        </h2>
-        <p style={{ marginTop: 8 }}>
-          Pour exercer tes droits ou poser des questions sur cette politique,
-          tu peux nous contacter à:
-        </p>
-        <p style={{ marginTop: 4, color: "#6ee7b7" }}>
-          privacy@ifinditforyou.com
-        </p>
+      <div className="mt-10 text-xs text-slate-500 border-t border-slate-200 pt-4">
+        © {new Date().getFullYear()} iFindItForYou. Tous droits réservés.
       </div>
     </main>
   );
