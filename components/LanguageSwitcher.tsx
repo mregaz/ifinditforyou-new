@@ -1,100 +1,81 @@
- import { NextResponse } from "next/server";
-import { isSupportedLocale, type Locale } from "@/lib/lang";
-// ATTENZIONE: usa lo stesso import che avevi prima per Stripe.
-// Se in lib/stripe.ts hai "export const stripe = new Stripe(...)" allora:
-import { stripe } from "@/lib/stripe";
-// Se invece hai "export default stripe", usa:  import stripe from "@/lib/stripe";
+"use client";
 
-type BillingPeriod = "monthly" | "yearly";
+import { usePathname, useRouter } from "next/navigation";
+import { locales, type Locale } from "@/lib/lang";
 
-type RequestBody = {
-  billingPeriod: BillingPeriod;
-  lang?: string;
+const LANGUAGE_INFO: Record<Locale, { label: string; flag: string }> = {
+  it: { label: "Italiano", flag: "🇮🇹" },
+  en: { label: "English", flag: "🇬🇧" },
+  fr: { label: "Français", flag: "🇫🇷" },
+  de: { label: "Deutsch", flag: "🇩🇪" },
+  es: { label: "Español", flag: "🇪🇸" },
 };
 
-const localeMap: Record<Locale, string> = {
-  it: "it",
-  en: "en",
-  fr: "fr",
-  de: "de",
-  es: "es",
-};
+export default function LanguageSwitcher() {
+  const pathname = usePathname();
+  const router = useRouter();
 
-export async function POST(req: Request) {
-  try {
-    const body = (await req.json()) as RequestBody;
+  const prefixedLangs: Locale[] = ["en", "fr", "de", "es"];
 
-    if (!body.billingPeriod) {
-      return NextResponse.json(
-        { error: "Missing billingPeriod" },
-        { status: 400 }
-      );
+  const getCurrentLang = (): Locale => {
+    const segments = pathname.split("/"); // es: ["", "en", "pro"]
+    const maybe = segments[1];
+    return prefixedLangs.includes(maybe as Locale) ? (maybe as Locale) : "it";
+  };
+
+  const currentLang = getCurrentLang();
+
+  const changeLang = (nextLang: Locale) => {
+    if (nextLang === currentLang) return;
+
+    const segments = pathname.split("/");
+
+    if (nextLang === "it") {
+      // Da /en/... /fr/... /de/... /es/... -> /...
+      if (prefixedLangs.includes(segments[1] as Locale)) {
+        const withoutLang = ["", ...segments.slice(2)];
+        const path = withoutLang.join("/");
+        router.push(path === "" ? "/" : path);
+      } else {
+        router.push("/");
+      }
+    } else {
+      // Destinazione: /en /fr /de /es
+      if (!prefixedLangs.includes(segments[1] as Locale)) {
+        // Eravamo in IT (nessun prefisso): aggiungi /xx davanti
+        const base = pathname === "/" ? "" : pathname;
+        router.push(`/${nextLang}${base}`);
+      } else {
+        // Cambio tra lingue prefissate: /en/... -> /fr/...
+        segments[1] = nextLang;
+        const path = segments.join("/");
+        router.push(path === "" ? "/" : path);
+      }
     }
+  };
 
-    const billingPeriod = body.billingPeriod;
-    if (billingPeriod !== "monthly" && billingPeriod !== "yearly") {
-      return NextResponse.json(
-        { error: "Invalid billingPeriod" },
-        { status: 400 }
-      );
-    }
+  return (
+    <div className="flex gap-2">
+      {locales.map((l) => {
+        const info = LANGUAGE_INFO[l];
+        const isActive = l === currentLang;
 
-    const appLang: Locale = isSupportedLocale(body.lang)
-      ? (body.lang as Locale)
-      : "it";
-
-    const stripeLocale = localeMap[appLang];
-
-    // IMPORTANTE: usa gli stessi env var che avevi prima.
-    // Ad esempio, se prima usavi STRIPE_PRICE_PRO_MONTHLY e STRIPE_PRICE_PRO_YEARLY,
-    // sostituisci qui i nomi.
-    const priceId =
-      billingPeriod === "yearly"
-        ? process.env.STRIPE_PRICE_YEARLY_ID
-        : process.env.STRIPE_PRICE_MONTHLY_ID;
-
-    if (!priceId) {
-      console.error("Stripe price ID non configurato", {
-        billingPeriod,
-        priceIdMonthly: process.env.STRIPE_PRICE_MONTHLY_ID
-          ? "SET"
-          : "MISSING",
-        priceIdYearly: process.env.STRIPE_PRICE_YEARLY_ID ? "SET" : "MISSING",
-      });
-      return NextResponse.json(
-        { error: "Stripe price ID non configurato" },
-        { status: 500 }
-      );
-    }
-
-    const successUrl = `${process.env.NEXT_PUBLIC_APP_URL}/pay/success`;
-    const cancelUrl = `${process.env.NEXT_PUBLIC_APP_URL}/pay/cancel`;
-
-    if (!process.env.NEXT_PUBLIC_APP_URL) {
-      console.error("NEXT_PUBLIC_APP_URL non configurata");
-    }
-
-    const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      locale: stripeLocale,
-      // qui puoi rimettere eventuali metadata/customer che avevi
-      // customer: ...,
-      // metadata: {...},
-    });
-
-    return NextResponse.json({ url: session.url });
-  } catch (err: any) {
-    console.error("Stripe checkout error route", err);
-    return NextResponse.json(
-      {
-        error:
-          err?.message ??
-          "Errore imprevisto nella creazione della sessione di pagamento",
-      },
-      { status: 500 }
-    );
-  }
+        return (
+          <button
+            key={l}
+            type="button"
+            onClick={() => changeLang(l)}
+            className={
+              "flex items-center gap-1 text-xs px-3 py-1 border rounded-full " +
+              (isActive ? "bg-gray-200 font-semibold" : "bg-white")
+            }
+          >
+            <span>{info.flag}</span>
+            <span>{info.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
 }
+

@@ -1,13 +1,12 @@
-// app/es/page.tsx (home ES)
-
+// app/es/page.tsx
 import type { Metadata } from "next";
 import HomePageClient from "@/components/HomePageClient";
-import { Lang } from "@/lib/lang";
+import type { Lang } from "@/lib/lang";
 
 export const metadata: Metadata = {
-  title: "iFindItForYou – Búsqueda humana asistida por IA",
+  title: "iFindItForYou – Búsqueda humana con ayuda de IA",
   description:
-    "Describe lo que necesitas. Un asistente combina investigación humana e IA para enviarte solo resultados realmente relevantes.",
+    "Describe lo que necesitas. Un asistente combina búsqueda humana e IA y te muestra solo resultados realmente útiles.",
 };
 
 export default function HomePageEs() {

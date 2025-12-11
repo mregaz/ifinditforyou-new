@@ -1,110 +1,93 @@
 // app/en/terms/page.tsx
+import type { Metadata } from "next";
 
-export const metadata = {
-  title: "Terms and Conditions | iFindItForYou",
-  description:
-    "Read the terms and conditions for using iFindItForYou. Learn how we manage data and what your rights are as a user.",
+export const metadata: Metadata = {
+  title: "Terms of Service | iFindItForYou",
+  description: "Read the terms of service for using iFindItForYou.",
 };
 
 export default function TermsPageEn() {
   return (
-    <main className="max-w-4xl mx-auto px-6 py-16 text-gray-100">
-      <h1 className="text-3xl font-bold mb-8 text-white">Terms and Conditions</h1>
+    <main className="max-w-4xl mx-auto px-6 py-16 text-slate-900">
+      <h1 className="text-3xl font-bold mb-6">Terms of Service</h1>
 
-      <p className="mb-6 text-gray-300">
-        Last updated: <strong>November 3, 2025</strong>
+      <p className="mb-4 text-sm text-slate-600">
+        Last updated: <strong>3 November 2025</strong>
       </p>
 
-      <section className="space-y-6">
+      <section className="space-y-6 text-sm leading-relaxed text-slate-800">
         <p>
-          Welcome to <strong>iFindItForYou</strong>! By using our website and the
-          related services, you agree to the terms and conditions described below.
+          Welcome to <strong>iFindItForYou</strong>. By using this website and
+          its related services, you agree to the following Terms of Service.
           Please read them carefully before using the platform.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
-          1. Purpose of the Service
-        </h2>
+        <h2 className="text-xl font-semibold mt-6">1. Service description</h2>
         <p>
-          iFindItForYou provides a search and content optimization service. Our goal
-          is to deliver accurate and relevant results based on the user’s input and
-          preferences.
+          iFindItForYou provides an assisted search service that combines AI
+          tools and, where needed, human review to deliver filtered and
+          summarised results based on your request.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
-          2. Use of the Service
-        </h2>
+        <h2 className="text-xl font-semibold mt-6">2. Permitted use</h2>
         <p>
-          You agree to use the service lawfully and in compliance with applicable
-          regulations. You must not use the website for illegal, defamatory or
-          harmful activities.
+          You may use the service only for lawful and personal purposes. You
+          must not use iFindItForYou for illegal, misleading or harmful
+          activities, or in ways that may damage third parties or the service
+          itself.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
-          3. Accounts and Security
-        </h2>
+        <h2 className="text-xl font-semibold mt-6">3. Free plan and PRO plan</h2>
         <p>
-          If the service requires an account, you are responsible for keeping your
-          credentials confidential and for all activities carried out through your
-          account.
+          The <strong>Free</strong> plan offers a limited number of free
+          searches. The <strong>PRO</strong> plan is subscription-based and
+          allows a broader use of the service, as described on the pricing page.
+          Prices may change over time; in case of relevant changes we will
+          notify you appropriately.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
-          4. Intellectual Property
-        </h2>
+        <h2 className="text-xl font-semibold mt-6">4. Payments and billing</h2>
         <p>
-          All content on this website, including texts, images, logos and trademarks,
-          is owned by iFindItForYou or by their respective rights holders. Any
-          unauthorized reproduction is prohibited.
+          Payments for the PRO plan are processed via Stripe. Payment details
+          are not stored by iFindItForYou but by the payment provider. The
+          subscription renews automatically at each billing period until you
+          cancel it.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
-          5. Limitation of Liability
-        </h2>
+        <h2 className="text-xl font-semibold mt-6">5. No advice</h2>
         <p>
-          iFindItForYou does not guarantee that the service will always be available
-          or error-free. We shall not be liable for any damages arising from the use
-          or inability to use the website.
+          The information provided by the service is for informational purposes
+          only. iFindItForYou does not provide legal, medical, financial or
+          professional advice. You should always verify critical information
+          with official sources or qualified professionals.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
-          6. Privacy and Data Protection
-        </h2>
+        <h2 className="text-xl font-semibold mt-6">6. Limitation of liability</h2>
         <p>
-          For information on how we process your personal data, please read our{" "}
-          <a href="/en/privacy" className="text-blue-400 underline hover:text-blue-300">
-            Privacy Policy
-          </a>
-          .
+          While we strive to provide high-quality results, we cannot guarantee
+          the accuracy, completeness or timeliness of all information returned.
+          iFindItForYou is not liable for any direct or indirect damages
+          resulting from the use of the service.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
-          7. Changes to These Terms
-        </h2>
+        <h2 className="text-xl font-semibold mt-6">7. Changes to the terms</h2>
         <p>
-          iFindItForYou may update these Terms and Conditions at any time. Changes
-          will be published on this page with the date of the latest update.
+          We may update these Terms of Service at any time. In case of
+          significant changes, we will inform you via the website or by email.
+          By continuing to use the service after such changes, you accept the
+          updated terms.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-10 mb-4 text-white">
-          8. Contact
-        </h2>
+        <h2 className="text-xl font-semibold mt-6">8. Contact</h2>
         <p>
-          For any questions about these Terms and Conditions, please contact us at:{" "}
-          <a
-            href="mailto:info@ifinditforyou.com"
-            className="text-blue-400 underline hover:text-blue-300"
-          >
-            info@ifinditforyou.com
-          </a>
-          .
+          If you have any questions about these Terms of Service, you can
+          contact us using the email address provided on the contact page.
         </p>
       </section>
 
-      <div className="mt-12 text-sm text-gray-400 border-t border-gray-700 pt-6">
-        <p>© 2025 iFindItForYou. All rights reserved.</p>
+      <div className="mt-10 text-xs text-slate-500 border-t border-slate-200 pt-4">
+        © {new Date().getFullYear()} iFindItForYou. All rights reserved.
       </div>
     </main>
   );
 }
-

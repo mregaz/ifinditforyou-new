@@ -377,22 +377,30 @@ export default function HomePageClient({ initialLang }: HomePageClientProps) {
 
   /* ----------------- CARICA STATO DA LOCALSTORAGE ----------------- */
   useEffect(() => {
-    try {
-      const savedLang = localStorage.getItem("ifiy_lang") as Lang | null;
-      if (savedLang && UI_TEXTS[savedLang]) setLang(savedLang);
+  try {
+    // NON leggiamo più la lingua da localStorage:
+    // vogliamo che sia il path /es /fr /de /en o il ?lang=
+    // a decidere la lingua.
 
-      const savedCredits = localStorage.getItem("ifiy_credits");
-      if (savedCredits !== null) setCredits(parseInt(savedCredits, 10));
-
-      const savedPro = localStorage.getItem("ifiy_isPro");
-      if (savedPro === "true") setIsPro(true);
-
-      const savedEmail = localStorage.getItem("ifiy_email");
-      if (savedEmail) setUserEmail(savedEmail);
-    } catch {
-      // ignore
+    const savedCredits = localStorage.getItem("ifiy_credits");
+    if (savedCredits !== null) {
+      setCredits(parseInt(savedCredits, 10));
     }
-  }, []);
+
+    const savedPro = localStorage.getItem("ifiy_isPro");
+    if (savedPro === "true") {
+      setIsPro(true);
+    }
+
+    const savedEmail = localStorage.getItem("ifiy_email");
+    if (savedEmail) {
+      setUserEmail(savedEmail);
+    }
+  } catch {
+    // ignore
+  }
+}, []);
+
 
   /* ----------------- LEGGE PARAMETRI URL (q, lang) PER RICERCHE SALVATE ----------------- */
   useEffect(() => {

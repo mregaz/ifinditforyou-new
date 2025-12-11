@@ -1,12 +1,9 @@
 // app/api/finder/route.ts
 import { NextResponse } from "next/server";
-import { Lang, normalizeLang } from "@/lib/lang"; // 👈 AGGIUNTO
-
+import { Lang, isSupportedLocale } from "@/lib/lang";
 
 const SERPER_KEY = process.env.SERPER_API_KEY;
 const OPENAI_KEY = process.env.OPENAI_API_KEY;
-
-
 
 const TEXTS = {
   it: {
@@ -28,15 +25,13 @@ const TEXTS = {
     summaryPro: "🔍 Pro search completed with advanced AI sources.",
   },
   fr: {
-    publicTitleMain: (q: string) =>
-      `Résultat de base pour « ${q} » sur eBay`,
+    publicTitleMain: (q: string) => `Résultat de base pour « ${q} » sur eBay`,
     publicTitleAlt: "Résultat similaire sur Vinted",
     noResult: "Aucun résultat précis trouvé.",
     aiSystem:
       "Tu es un assistant qui trouve des produits rares ou équivalents utiles. Réponds en français.",
     summaryFree: "🔎 Résultats de base provenant de sources publiques.",
-    summaryPro:
-      "🔍 Recherche Pro terminée avec des sources IA avancées.",
+    summaryPro: "🔍 Recherche Pro terminée avec des sources IA avancées.",
   },
   de: {
     publicTitleMain: (q: string) => `Basis-Ergebnis für „${q}“ auf eBay`,
@@ -45,8 +40,7 @@ const TEXTS = {
     aiSystem:
       "Du bist ein Assistent, der seltene oder passende Produkte findet. Antworte auf Deutsch.",
     summaryFree: "🔎 Basis-Ergebnisse aus öffentlichen Quellen.",
-    summaryPro:
-      "🔍 Pro-Suche mit erweiterten KI-Quellen abgeschlossen.",
+    summaryPro: "🔍 Pro-Suche mit erweiterten KI-Quellen abgeschlossen.",
   },
 } as const;
 
@@ -137,10 +131,16 @@ export async function POST(req: Request) {
   };
 
   if (!query) {
-    return NextResponse.json({ error: "Nessuna query." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Nessuna query." },
+      { status: 400 }
+    );
   }
 
-  const lang = normalizeLang(rawLang);
+  // QUI sostituiamo normalizeLang con isSupportedLocale
+  const lang: Lang =
+    rawLang && isSupportedLocale(rawLang) ? (rawLang as Lang) : "it";
+
   const texts = TEXTS[lang];
 
   const base = await searchPublic(query, lang);
@@ -157,6 +157,7 @@ export async function POST(req: Request) {
     summary: plan === "pro" ? texts.summaryPro : texts.summaryFree,
   });
 }
+
 
 
 

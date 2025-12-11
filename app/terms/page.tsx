@@ -1,4 +1,4 @@
-// app/terms/page.tsx
+ // app/terms/page.tsx
 
 export const metadata = {
   title: "Termini e Condizioni | iFindItForYou",
