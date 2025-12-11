@@ -1,7 +1,7 @@
 // lib/terms.ts
 import type { Lang } from "./lang";
 
-type LegalSection = {
+export type TermsSection = {
   heading: string;
   paragraphs: string[];
 };
@@ -9,7 +9,7 @@ type LegalSection = {
 export type TermsContent = {
   title: string;
   lastUpdated: string;
-  sections: LegalSection[];
+  sections: TermsSection[];
 };
 
 export const TERMS_TEXTS: Record<Lang, TermsContent> = {
@@ -20,110 +20,165 @@ export const TERMS_TEXTS: Record<Lang, TermsContent> = {
       {
         heading: "1. Oggetto del servizio",
         paragraphs: [
-          "IFindItForYou è una piattaforma online che aiuta gli utenti a trovare informazioni, link utili e risultati pertinenti sulla base delle richieste inserite.",
-          "Il servizio viene fornito “così com’è”, senza alcuna garanzia riguardo disponibilità continua, accuratezza dei contenuti o idoneità per uno scopo specifico.",
+          "iFindItForYou è un servizio online che combina ricerca umana e strumenti di intelligenza artificiale per aiutarti a trovare prodotti, servizi o informazioni.",
+          "Il servizio viene fornito \"così com'è\", senza garanzia di disponibilità continua né di risultati perfettamente accurati.",
         ],
       },
       {
         heading: "2. Uso consentito",
         paragraphs: [
-          "L’utente si impegna a utilizzare la piattaforma nel rispetto della legge e delle presenti condizioni.",
-          "È vietato utilizzare il servizio per attività illegali, fraudolente o dannose; tentare di aggirare limiti tecnici, funzionali o di sicurezza; utilizzare il servizio per inviare spam o contenuti indesiderati; compiere azioni che possano compromettere la stabilità o la sicurezza del sistema.",
-          "IFindItForYou si riserva il diritto di sospendere gli account che violano tali obblighi.",
+          "Puoi utilizzare il servizio esclusivamente per scopi leciti e personali.",
+          "È vietato utilizzare iFindItForYou per attività illegali, abusive, moleste o che violino diritti di terzi.",
         ],
       },
       {
-        heading: "3. Piani Free e PRO, abbonamenti e pagamenti",
+        heading: "3. Account, piano Free e PRO",
         paragraphs: [
-          "Il piano Free offre un numero limitato di ricerche. Il piano PRO offre funzionalità avanzate e un utilizzo ampliato del servizio secondo quanto indicato nella pagina dedicata.",
-          "I pagamenti sono gestiti in modo sicuro tramite Stripe. IFindItForYou non memorizza né elabora i dati delle carte di pagamento.",
-          "Gli abbonamenti sono ricorrenti (mensili o annuali) e si rinnovano automaticamente, salvo annullamento da parte dell’utente prima della data di rinnovo.",
+          "Per utilizzare alcune funzionalità potresti dover creare un account.",
+          "Il piano Free può prevedere limiti di utilizzo (ad esempio numero massimo di ricerche).",
+          "Il piano PRO è a pagamento e fornisce condizioni di utilizzo più estese, come ricerche illimitate o prioritarie, secondo quanto indicato sul sito.",
         ],
       },
       {
-        heading: "4. Annullamento e rimborsi",
+        heading: "4. Pagamenti e rinnovi",
         paragraphs: [
-          "L’utente può annullare il rinnovo dell’abbonamento in qualsiasi momento tramite il proprio portale di gestione Stripe o tramite il link indicato nelle email ricevute da Stripe.",
-          "Salvo diversa disposizione di legge, i pagamenti già effettuati non sono rimborsabili. Dopo l’annullamento, l’utente mantiene l’accesso PRO fino alla fine del periodo già pagato.",
+          "I pagamenti vengono gestiti tramite fornitori terzi (es. Stripe).",
+          "Gli abbonamenti possono essere rinnovati automaticamente, salvo disdetta da parte tua prima del termine del periodo di fatturazione.",
+          "Le condizioni economiche e la valuta applicata sono indicate al momento della sottoscrizione.",
         ],
       },
       {
-        heading: "5. Limitazione di responsabilità",
+        heading: "5. Responsabilità",
         paragraphs: [
-          "Nei limiti massimi consentiti dalla legge, IFindItForYou non garantisce l’accuratezza, la completezza o l’aggiornamento dei risultati generati.",
-          "IFindItForYou non è responsabile per danni indiretti, perdita di dati, perdita di profitti o interruzioni del servizio.",
-          "IFindItForYou non è responsabile per malfunzionamenti dovuti a servizi esterni, rete internet o piattaforme di terze parti (ad esempio Stripe).",
+          "Facciamo il possibile per fornire risultati utili e aggiornati, ma non possiamo garantire la completezza o l'accuratezza di tutte le informazioni restituite.",
+          "Non siamo responsabili di eventuali danni indiretti, perdita di opportunità o altri effetti derivanti dall’uso del servizio.",
         ],
       },
       {
-        heading: "6. Modifiche alle condizioni",
+        heading: "6. Modifiche ai termini",
         paragraphs: [
-          "Le presenti condizioni possono essere aggiornate in futuro. In caso di modifiche sostanziali, gli utenti verranno informati tramite il sito o altri mezzi appropriati.",
-          "L’uso continuato del servizio implica accettazione delle nuove condizioni.",
+          "Possiamo aggiornare periodicamente questi termini per riflettere cambiamenti del servizio, requisiti legali o nuove funzionalità.",
+          "In caso di modifiche significative, ti informeremo tramite il sito o altri canali appropriati.",
         ],
       },
       {
         heading: "7. Contatti",
         paragraphs: [
-          "Per richieste o chiarimenti puoi contattarci tramite l'indirizzo email indicato sul sito.",
+          "Per qualsiasi domanda sui presenti termini o sull’utilizzo del servizio, puoi contattarci attraverso i recapiti indicati sul sito.",
+        ],
+      },
+    ],
+  },
+
+  en: {
+    title: "Terms of use",
+    lastUpdated: "Last updated: 2025",
+    sections: [
+      {
+        heading: "1. Service scope",
+        paragraphs: [
+          "iFindItForYou is an online service that combines human research and AI tools to help you find products, services or information.",
+          "The service is provided “as is”, without any guarantee of uninterrupted availability or perfect accuracy of the results.",
+        ],
+      },
+      {
+        heading: "2. Permitted use",
+        paragraphs: [
+          "You may use the service only for lawful and personal purposes.",
+          "It is forbidden to use iFindItForYou for illegal, abusive or harassing activities, or in ways that infringe the rights of third parties.",
+        ],
+      },
+      {
+        heading: "3. Account, Free and PRO plans",
+        paragraphs: [
+          "Access to some features may require creating an account.",
+          "The Free plan may include usage limits (for example a maximum number of searches).",
+          "The PRO plan is paid and offers extended usage conditions, such as unlimited or priority searches, as described on the website.",
+        ],
+      },
+      {
+        heading: "4. Payments and renewals",
+        paragraphs: [
+          "Payments are processed by third-party providers (e.g. Stripe).",
+          "Subscriptions may automatically renew unless you cancel before the end of the billing period.",
+          "Pricing and applicable currency are indicated at the time of subscription.",
+        ],
+      },
+      {
+        heading: "5. Liability",
+        paragraphs: [
+          "We do our best to provide useful and up-to-date results, but we cannot guarantee that all information returned is complete or perfectly accurate.",
+          "We are not liable for indirect damages, loss of opportunities or any other consequences arising from the use of the service.",
+        ],
+      },
+      {
+        heading: "6. Changes to these terms",
+        paragraphs: [
+          "We may update these terms from time to time to reflect changes in the service, legal requirements or new features.",
+          "If changes are significant, we will inform you via the website or other appropriate channels.",
+        ],
+      },
+      {
+        heading: "7. Contact",
+        paragraphs: [
+          "If you have any questions about these terms or about using the service, please contact us using the details provided on the website.",
         ],
       },
     ],
   },
 
   fr: {
-    title: "Conditions générales d’utilisation",
+    title: "Conditions générales d'utilisation",
     lastUpdated: "Dernière mise à jour : 2025",
     sections: [
       {
         heading: "1. Objet du service",
         paragraphs: [
-          "IFindItForYou est une plateforme en ligne qui aide les utilisateurs à trouver des informations, des liens utiles et des résultats pertinents en fonction de leurs demandes.",
-          "Le service est fourni « tel quel », sans garantie de disponibilité continue, d’exactitude des contenus ou d’adéquation à un usage spécifique.",
+          "iFindItForYou est un service en ligne qui combine recherche humaine et outils d’IA pour vous aider à trouver des produits, des services ou des informations.",
+          "Le service est fourni « tel quel », sans garantie de disponibilité continue ni d’exactitude parfaite des résultats.",
         ],
       },
       {
         heading: "2. Utilisation autorisée",
         paragraphs: [
-          "L’utilisateur s’engage à utiliser la plateforme conformément à la loi et aux présentes conditions.",
-          "Il est interdit d’utiliser le service pour des activités illégales, frauduleuses ou nuisibles, de tenter de contourner les limites techniques ou de sécurité, d’envoyer du spam ou des contenus non sollicités ou d’effectuer des actions qui compromettent la stabilité ou la sécurité du système.",
-          "IFindItForYou se réserve le droit de suspendre les comptes en cas de violation.",
+          "Vous ne pouvez utiliser le service qu’à des fins licites et personnelles.",
+          "Il est interdit d’utiliser iFindItForYou pour des activités illégales, abusives ou harcelantes, ou portant atteinte aux droits de tiers.",
         ],
       },
       {
-        heading: "3. Plans Free et PRO, abonnements et paiements",
+        heading: "3. Compte, offres gratuite et PRO",
         paragraphs: [
-          "Le plan Free offre un nombre limité de recherches. Le plan PRO offre des fonctionnalités avancées et un usage étendu du service selon la page dédiée.",
-          "Les paiements sont traités de manière sécurisée via Stripe. IFindItForYou ne stocke ni ne traite les données de carte bancaire.",
-          "Les abonnements (mensuels ou annuels) se renouvellent automatiquement, sauf annulation avant la date de renouvellement.",
+          "L’accès à certaines fonctionnalités peut nécessiter la création d’un compte.",
+          "L’offre gratuite peut inclure des limites d’utilisation (par exemple un nombre maximal de recherches).",
+          "L’offre PRO est payante et offre des conditions d’utilisation étendues, comme des recherches illimitées ou prioritaires, telles que décrites sur le site.",
         ],
       },
       {
-        heading: "4. Annulation et remboursements",
+        heading: "4. Paiements et renouvellements",
         paragraphs: [
-          "L’utilisateur peut annuler le renouvellement à tout moment depuis son espace Stripe ou via les liens contenus dans les emails de Stripe.",
-          "Sauf disposition légale contraire, les paiements déjà effectués ne sont pas remboursables. Après annulation, l’utilisateur conserve l’accès PRO jusqu’à la fin de la période déjà payée.",
+          "Les paiements sont gérés par des prestataires tiers (par ex. Stripe).",
+          "Les abonnements peuvent être renouvelés automatiquement, sauf résiliation avant la fin de la période de facturation.",
+          "Les tarifs et la devise appliquée sont indiqués au moment de la souscription.",
         ],
       },
       {
-        heading: "5. Limitation de responsabilité",
+        heading: "5. Responsabilité",
         paragraphs: [
-          "Dans les limites permises par la loi, IFindItForYou ne garantit pas l’exactitude, la complétude ou l’actualité des résultats générés.",
-          "IFindItForYou n’est pas responsable des dommages indirects, pertes de données ou interruptions de service.",
-          "IFindItForYou n’est pas responsable des défaillances dues à des services externes, à Internet ou à des plateformes tierces (par exemple Stripe).",
+          "Nous faisons notre possible pour fournir des résultats utiles et à jour, mais nous ne pouvons garantir l’exactitude ou l’exhaustivité de toutes les informations retournées.",
+          "Nous ne pourrons être tenus responsables des dommages indirects, de la perte d’opportunités ou d’autres conséquences liées à l’utilisation du service.",
         ],
       },
       {
-        heading: "6. Modifications",
+        heading: "6. Modifications des conditions",
         paragraphs: [
-          "Les présentes conditions peuvent être mises à jour. En cas de modification importante, une notification pourra être publiée sur le site ou d’autres canaux appropriés.",
-          "L’utilisation continue du service vaut acceptation des nouvelles conditions.",
+          "Nous pouvons mettre à jour ces conditions pour refléter les évolutions du service, les exigences légales ou de nouvelles fonctionnalités.",
+          "En cas de changement important, nous vous en informerons via le site ou d’autres canaux appropriés.",
         ],
       },
       {
         heading: "7. Contact",
         paragraphs: [
-          "Pour toute question, tu peux nous contacter via l’adresse email indiquée sur le site.",
+          "Pour toute question concernant ces conditions ou l’utilisation du service, vous pouvez nous contacter via les coordonnées indiquées sur le site.",
         ],
       },
     ],
@@ -136,110 +191,108 @@ export const TERMS_TEXTS: Record<Lang, TermsContent> = {
       {
         heading: "1. Gegenstand des Dienstes",
         paragraphs: [
-          "IFindItForYou ist eine Online-Plattform, die Nutzern hilft, Informationen und relevante Ergebnisse anhand ihrer Anfragen zu finden.",
-          "Der Dienst wird „wie besehen“ bereitgestellt, ohne Garantie für dauerhafte Verfügbarkeit, Genauigkeit oder Eignung für einen bestimmten Zweck.",
+          "iFindItForYou ist ein Online-Dienst, der menschliche Recherche und KI-Tools kombiniert, um dir zu helfen, Produkte, Dienstleistungen oder Informationen zu finden.",
+          "Der Dienst wird „wie gesehen“ bereitgestellt, ohne Garantie für ununterbrochene Verfügbarkeit oder vollkommen exakte Ergebnisse.",
         ],
       },
       {
         heading: "2. Zulässige Nutzung",
         paragraphs: [
-          "Der Nutzer verpflichtet sich, die Plattform gesetzeskonform und gemäß diesen Bedingungen zu nutzen.",
-          "Es ist untersagt, den Dienst für illegale, betrügerische oder schädliche Aktivitäten zu verwenden, technische oder sicherheitsrelevante Beschränkungen zu umgehen, Spam oder unerwünschte Inhalte zu versenden oder Handlungen vorzunehmen, die die Stabilität oder Sicherheit des Systems gefährden.",
-          "IFindItForYou behält sich das Recht vor, Konten bei Verstößen zu sperren.",
+          "Du darfst den Dienst nur für rechtmäßige und persönliche Zwecke nutzen.",
+          "Es ist untersagt, iFindItForYou für illegale, missbräuchliche oder belästigende Aktivitäten zu verwenden oder Rechte Dritter zu verletzen.",
         ],
       },
       {
-        heading: "3. Free- und PRO-Plan, Abonnements und Zahlungen",
+        heading: "3. Konto, Free- und PRO-Tarif",
         paragraphs: [
-          "Der Free-Plan bietet eine begrenzte Anzahl an Suchanfragen. Der PRO-Plan bietet erweiterte Funktionen und einen umfangreicheren Zugriff gemäß der entsprechenden Seite.",
-          "Zahlungen werden sicher über Stripe abgewickelt. IFindItForYou speichert oder verarbeitet keine Kreditkartendaten.",
-          "Abonnements (monatlich oder jährlich) erneuern sich automatisch, sofern sie nicht vor dem Verlängerungsdatum gekündigt werden.",
+          "Für bestimmte Funktionen ist möglicherweise die Erstellung eines Kontos erforderlich.",
+          "Der Free-Tarif kann Nutzungslimits vorsehen (z. B. maximale Anzahl von Suchanfragen).",
+          "Der PRO-Tarif ist kostenpflichtig und bietet erweiterte Nutzungsmöglichkeiten, etwa unbegrenzte oder priorisierte Suchanfragen, wie auf der Website beschrieben.",
         ],
       },
       {
-        heading: "4. Kündigung und Erstattungen",
+        heading: "4. Zahlungen und Verlängerungen",
         paragraphs: [
-          "Der Nutzer kann die automatische Verlängerung jederzeit über sein Stripe-Konto oder die in den Stripe-E-Mails enthaltenen Links deaktivieren.",
-          "Sofern gesetzlich nichts anderes vorgesehen ist, sind bereits erfolgte Zahlungen nicht erstattungsfähig. Nach der Kündigung bleibt der PRO-Zugang bis zum Ende des bereits bezahlten Zeitraums aktiv.",
+          "Zahlungen werden von Drittanbietern (z. B. Stripe) abgewickelt.",
+          "Abonnements können sich automatisch verlängern, sofern du sie nicht vor Ablauf des Abrechnungszeitraums kündigst.",
+          "Preise und verwendete Währung werden bei Abschluss des Abonnements angezeigt.",
         ],
       },
       {
-        heading: "5. Haftungsbeschränkung",
+        heading: "5. Haftung",
         paragraphs: [
-          "Im gesetzlich zulässigen Rahmen übernimmt IFindItForYou keine Garantie für Genauigkeit, Vollständigkeit oder Aktualität der Ergebnisse.",
-          "IFindItForYou haftet nicht für indirekte Schäden, Datenverlust, entgangene Gewinne oder Serviceunterbrechungen.",
-          "IFindItForYou haftet nicht für Ausfälle von Fremddiensten, Internetverbindungen oder Drittplattformen (z. B. Stripe).",
+          "Wir bemühen uns, nützliche und aktuelle Ergebnisse bereitzustellen, können jedoch nicht garantieren, dass alle Informationen vollständig oder völlig korrekt sind.",
+          "Wir haften nicht für indirekte Schäden, entgangene Chancen oder sonstige Folgen, die aus der Nutzung des Dienstes entstehen.",
         ],
       },
       {
-        heading: "6. Änderungen",
+        heading: "6. Änderungen der Bedingungen",
         paragraphs: [
-          "Diese Bedingungen können aktualisiert werden. Bei wichtigen Änderungen wird eine Mitteilung auf der Website oder über andere geeignete Kanäle veröffentlicht.",
-          "Die fortgesetzte Nutzung des Dienstes bedeutet Zustimmung zu den neuen Bedingungen.",
+          "Wir können diese Bedingungen anpassen, um Änderungen am Dienst, gesetzliche Anforderungen oder neue Funktionen zu berücksichtigen.",
+          "Bei wesentlichen Änderungen informieren wir dich über die Website oder andere geeignete Kanäle.",
         ],
       },
       {
         heading: "7. Kontakt",
         paragraphs: [
-          "Bei Fragen kannst du uns über die auf der Website angegebene E-Mail-Adresse erreichen.",
+          "Wenn du Fragen zu diesen Bedingungen oder zur Nutzung des Dienstes hast, kannst du uns über die auf der Website angegebenen Kontaktdaten erreichen.",
         ],
       },
     ],
   },
 
-  en: {
-    title: "Terms and Conditions",
-    lastUpdated: "Last updated: 2025",
+  es: {
+    title: "Términos y condiciones de uso",
+    lastUpdated: "Última actualización: 2025",
     sections: [
       {
-        heading: "1. Service description",
+        heading: "1. Objeto del servicio",
         paragraphs: [
-          "IFindItForYou is an online platform that helps users find information, useful links and relevant results based on their input.",
-          "The service is provided “as is”, without any guarantee of continuous availability, accuracy or suitability for a particular purpose.",
+          "iFindItForYou es un servicio en línea que combina búsqueda humana y herramientas de IA para ayudarte a encontrar productos, servicios o información.",
+          "El servicio se ofrece «tal cual», sin garantía de disponibilidad continua ni de precisión perfecta en los resultados.",
         ],
       },
       {
-        heading: "2. Permitted use",
+        heading: "2. Uso permitido",
         paragraphs: [
-          "Users agree to use the platform lawfully and in accordance with these terms.",
-          "It is prohibited to use the service for illegal, fraudulent or harmful activities, attempt to bypass technical or security limits, send spam or unsolicited content, or perform actions that compromise system stability or security.",
-          "IFindItForYou reserves the right to suspend accounts violating these rules.",
+          "Puedes utilizar el servicio únicamente con fines lícitos y personales.",
+          "Está prohibido utilizar iFindItForYou para actividades ilegales, abusivas, de acoso o que vulneren los derechos de terceros.",
         ],
       },
       {
-        heading: "3. Free and PRO plans, subscriptions and payments",
+        heading: "3. Cuenta, planes Free y PRO",
         paragraphs: [
-          "The Free plan offers a limited number of searches. The PRO plan offers expanded usage and advanced features as described on the dedicated page.",
-          "Payments are securely processed via Stripe. IFindItForYou does not store or process any credit card data.",
-          "Subscriptions (monthly or yearly) renew automatically unless cancelled before the renewal date.",
+          "El acceso a determinadas funciones puede requerir la creación de una cuenta.",
+          "El plan Free puede incluir límites de uso (por ejemplo, un número máximo de búsquedas).",
+          "El plan PRO es de pago y ofrece condiciones de uso ampliadas, como búsquedas ilimitadas o prioritarias, según se describe en el sitio web.",
         ],
       },
       {
-        heading: "4. Cancellation and refunds",
+        heading: "4. Pagos y renovaciones",
         paragraphs: [
-          "Users may cancel automatic renewal at any time via their Stripe customer portal or the links included in Stripe emails.",
-          "Unless required by law, payments already made are non-refundable. After cancellation, PRO access remains active until the end of the paid period.",
+          "Los pagos se gestionan a través de proveedores externos (por ejemplo, Stripe).",
+          "Las suscripciones pueden renovarse automáticamente, salvo cancelación por tu parte antes de que finalice el periodo de facturación.",
+          "Los precios y la moneda aplicable se indican en el momento de la suscripción.",
         ],
       },
       {
-        heading: "5. Limitation of liability",
+        heading: "5. Responsabilidad",
         paragraphs: [
-          "To the maximum extent permitted by law, IFindItForYou does not guarantee the accuracy, completeness or freshness of generated results.",
-          "IFindItForYou is not liable for indirect damages, data loss, loss of profits or service interruptions.",
-          "IFindItForYou is not responsible for failures caused by external services, internet providers or third-party platforms (e.g. Stripe).",
+          "Nos esforzamos por ofrecer resultados útiles y actualizados, pero no podemos garantizar que toda la información devuelta sea completa o totalmente precisa.",
+          "No seremos responsables de daños indirectos, pérdida de oportunidades u otras consecuencias derivadas del uso del servicio.",
         ],
       },
       {
-        heading: "6. Changes",
+        heading: "6. Cambios en los términos",
         paragraphs: [
-          "These terms may be updated. In case of major changes, a notice will be displayed on the website or via other appropriate channels.",
-          "Continued use of the service constitutes acceptance of the new terms.",
+          "Podemos actualizar estos términos para reflejar cambios en el servicio, requisitos legales o nuevas funcionalidades.",
+          "Si los cambios son significativos, te informaremos a través del sitio web u otros canales adecuados.",
         ],
       },
       {
-        heading: "7. Contact",
+        heading: "7. Contacto",
         paragraphs: [
-          "For questions, you can reach us through the contact email provided on the site.",
+          "Si tienes alguna pregunta sobre estos términos o sobre el uso del servicio, puedes ponerte en contacto con nosotros a través de los datos incluidos en el sitio.",
         ],
       },
     ],

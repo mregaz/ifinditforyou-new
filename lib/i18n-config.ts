@@ -1,39 +1,47 @@
 // lib/i18n-config.ts
 
-// URL base del sito in produzione
-export const baseUrl = "https://www.ifinditforyou.com";
+// URL base del sito (usato da alcune pagine e dalla sitemap)
+export const baseUrl =
+  process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-// Lingue supportate
-export const locales = ["it", "en", "fr", "de", "tr"] as const;
+// Tutte le lingue supportate nel progetto
+export const locales = ["it", "en", "fr", "de", "es"] as const;
 export type Locale = (typeof locales)[number];
 
-// Lingua di default (senza prefisso)
-export const defaultLocale: Locale = "it";
+// Oggetto i18n (se ti serve in altre parti del codice, es. sitemap)
+export const i18n = {
+  defaultLocale: "it",
+  locales,
+} as const;
 
-/**
- * Restituisce il path corretto per una pagina in una lingua specifica.
- *
- * Esempi:
- *  localePathname("it", "/about") -> "/about"
- *  localePathname("en", "/about") -> "/en/about"
- *  localePathname("fr", "/")      -> "/fr"
- */
-export function localePathname(locale: Locale, path: string): string {
-  // Normalizziamo path: se è vuoto lo trattiamo come "/"
-  const cleanPath = path && path.length > 0 ? path : "/";
-
-  // Root "/"
-  if (cleanPath === "/") {
-    if (locale === "it") {
-      return "/";
-    }
-    return "/" + locale;
-  }
-
-  // Pagine interne
-  if (locale === "it") {
-    return cleanPath;
-  }
-
-  return "/" + locale + cleanPath;
+// Utility: controlla se una stringa è una locale supportata
+export function isSupportedLocale(
+  value: string | null | undefined
+): value is Locale {
+  return !!value && (locales as readonly string[]).includes(value);
 }
+
+// Utility: costruisce l’URL locale corretto a partire da pathname
+//  - "it" (o "default") -> senza prefisso lingua
+//  - altre lingue       -> /en/..., /fr/..., /de/..., /es/...
+export function localePathname(
+  locale: Locale | "default",
+  pathname: string
+): string {
+  // normalizza il pathname ("/about", "about", ecc.)
+  let cleanPath =
+    pathname === "/"
+      ? ""
+      : pathname.startsWith("/")
+      ? pathname
+      : `/${pathname}`;
+
+  if (locale === "default" || locale === "it") {
+    // Italiano: niente prefisso lingua
+    return cleanPath || "/";
+  }
+
+  // Altre lingue con prefisso
+  return cleanPath ? `/${locale}${cleanPath}` : `/${locale}`;
+}
+

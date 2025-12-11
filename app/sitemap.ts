@@ -1,40 +1,35 @@
-// app/sitemap.ts
-
 import type { MetadataRoute } from "next";
-import { baseUrl, type Locale, localePathname } from "../lib/i18n-config";
-
-// Lingue che vogliamo includere nella sitemap
-// (qui limitiamo a IT/EN/FR/DE per evitare URL non ancora pronti)
-const sitemapLocales: Locale[] = ["it", "en", "fr", "de", "es"];
-
-// Pagine "base" del sito (senza prefisso lingua)
-const basePaths = [
-  "/",          // home IT
-  "/about",
-  "/faq",
-  "/how-it-works",
-  "/privacy",
-  "/terms",
-  "/pro",
-];
+import { i18n, type Locale, baseUrl } from "@/lib/i18n-config";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date().toISOString();
+ const sitemapLocales = i18n.locales;
+
+  const basePaths = ["/", "/about", "/faq", "/terms", "/privacy", "/pro"];
 
   const entries: MetadataRoute.Sitemap = [];
 
-  for (const path of basePaths) {
-    for (const locale of sitemapLocales) {
-      const url = `${baseUrl}${localePathname(locale, path)}`;
+  entries.push({
+    url: `${baseUrl}/`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 1,
+  });
+
+  for (const locale of sitemapLocales) {
+    const prefix = locale === "it" ? "" : `/${locale}`;
+
+    for (const path of basePaths) {
+      if (locale === "it" && path === "/") continue;
 
       entries.push({
-        url,
-        lastModified: now,
+        url: `${baseUrl}${prefix}${path}`,
+        lastModified: new Date(),
         changeFrequency: "weekly",
-        priority: path === "/" ? 1 : 0.7,
+        priority: path === "/" ? 1 : 0.8,
       });
     }
   }
 
   return entries;
 }
+

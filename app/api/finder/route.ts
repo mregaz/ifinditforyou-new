@@ -1,11 +1,20 @@
-// app/api/finder/route.ts
+ // app/api/finder/route.ts
 import { NextResponse } from "next/server";
 import { Lang, isSupportedLocale } from "@/lib/lang";
 
 const SERPER_KEY = process.env.SERPER_API_KEY;
 const OPENAI_KEY = process.env.OPENAI_API_KEY;
 
-const TEXTS = {
+type FinderTexts = {
+  publicTitleMain: (q: string) => string;
+  publicTitleAlt: string;
+  noResult: string;
+  aiSystem: string;
+  summaryFree: string;
+  summaryPro: string;
+};
+
+const TEXTS: Record<Lang, FinderTexts> = {
   it: {
     publicTitleMain: (q: string) => `Risultato base per “${q}” su eBay`,
     publicTitleAlt: "Risultato simile su Vinted",
@@ -42,10 +51,20 @@ const TEXTS = {
     summaryFree: "🔎 Basis-Ergebnisse aus öffentlichen Quellen.",
     summaryPro: "🔍 Pro-Suche mit erweiterten KI-Quellen abgeschlossen.",
   },
+  es: {
+    publicTitleMain: (q: string) => `Resultado básico para “${q}” en eBay`,
+    publicTitleAlt: "Resultado similar en Vinted",
+    noResult: "No se ha encontrado un resultado preciso.",
+    aiSystem:
+      "Eres un asistente que encuentra productos raros o equivalentes útiles. Responde en español.",
+    summaryFree: "🔎 Resultados básicos de fuentes públicas.",
+    summaryPro: "🔍 Búsqueda Pro completada con fuentes de IA avanzadas.",
+  },
 } as const;
 
 async function searchPublic(query: string, lang: Lang) {
   const t = TEXTS[lang];
+
   return [
     {
       title: t.publicTitleMain(query),
@@ -64,6 +83,7 @@ async function searchPublic(query: string, lang: Lang) {
 
 async function searchPro(query: string, lang: Lang) {
   if (!SERPER_KEY) return [];
+
   const res = await fetch("https://google.serper.dev/search", {
     method: "POST",
     headers: {
@@ -84,6 +104,8 @@ async function searchPro(query: string, lang: Lang) {
       ? "Pro-Suche"
       : lang === "en"
       ? "Pro engine"
+      : lang === "es"
+      ? "Motor Pro"
       : "Motore Pro";
 
   return data.organic.slice(0, 5).map((r: any) => ({
@@ -96,6 +118,7 @@ async function searchPro(query: string, lang: Lang) {
 
 async function aiFallback(query: string, lang: Lang) {
   const t = TEXTS[lang];
+
   if (!OPENAI_KEY) return t.noResult;
 
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -113,7 +136,7 @@ async function aiFallback(query: string, lang: Lang) {
         },
         {
           role: "user",
-          content: `Trova / trouve / find / finde questo: ${query}`,
+          content: `Trova / trouve / find / finde / encuentra questo: ${query}`,
         },
       ],
     }),
@@ -137,7 +160,7 @@ export async function POST(req: Request) {
     );
   }
 
-  // QUI sostituiamo normalizeLang con isSupportedLocale
+  // Normalizzazione lingua usando isSupportedLocale
   const lang: Lang =
     rawLang && isSupportedLocale(rawLang) ? (rawLang as Lang) : "it";
 
