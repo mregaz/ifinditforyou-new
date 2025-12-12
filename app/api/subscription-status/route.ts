@@ -51,7 +51,12 @@ export async function GET() {
       if (sub && sub.status === "active") {
         plan = "pro";
         status = sub.status;
-        renewsAt = sub.current_period_end * 1000;
+
+        // current_period_end non è tipizzato, quindi usiamo any
+        const periodEnd = (sub as any).current_period_end;
+        if (typeof periodEnd === "number") {
+          renewsAt = periodEnd * 1000;
+        }
       } else if (sub) {
         status = sub.status;
       }

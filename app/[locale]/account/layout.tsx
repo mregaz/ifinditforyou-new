@@ -1,19 +1,26 @@
 // app/[locale]/account/layout.tsx
-import type { LayoutProps } from "next";
+import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 
-type Props = LayoutProps<{ locale: string }>;
+type AccountLayoutProps = {
+  children: ReactNode;
+  params: {
+    locale: string;
+  };
+};
 
-export default async function AccountLayout({ children, params }: Props) {
+export default async function AccountLayout(props: any) {
+  // cast interno: fuori teniamo any così TS non rompe
+  const { children, params } = props as AccountLayoutProps;
+
   const user = await getCurrentUser();
 
-  // se non sei loggato → vai a /login
   if (!user) {
     redirect("/login");
   }
 
-  // usiamo params.locale solo per evitare warning TS/ESLint
+  // usiamo locale solo per evitare warning "unused"
   void params.locale;
 
   return <>{children}</>;

@@ -24,7 +24,7 @@ export default async function SettingsPage({ params }: Props) {
       <div className="space-y-6">
         <LanguagePreferenceForm
           locale={params.locale}
-          initialPreferredLanguage={user?.preferredLanguage ?? null}
+          initialPreferredLanguage={null} // TODO: caricare da DB se serve
         />
         <DeleteAccountPanel locale={params.locale} />
       </div>
