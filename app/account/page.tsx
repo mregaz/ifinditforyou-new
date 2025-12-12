@@ -1,29 +1,29 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import AccountClient from "./AccountClient";
+
 export const dynamic = "force-dynamic";
 
 export default async function AccountPage() {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = await createSupabaseServerClient();
 
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+  const { data, error: authError } = await supabase.auth.getUser();
 
-  if (authError) {
+  // Se l'errore è 400 (nessuna sessione), è il caso normale: redirect /login.
+  // Logghiamo solo errori diversi (problemi reali di backend/config).
+  if (authError && authError.status !== 400) {
     console.error("AccountPage getUser error:", authError);
   }
 
-  // se non loggato → manda a /login
+  const user = data?.user;
+
   if (!user) {
     redirect("/login");
   }
 
   const { data: userRow, error: userError } = await supabase
     .from("User")
-    .select("is_pro")
+    .select("is_pro, preferred_language")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -31,10 +31,14 @@ export default async function AccountPage() {
     console.error("AccountPage read User error:", userError);
   }
 
-  const propsUser = {
-    email: user.email ?? "",
-    isPro: !!userRow?.is_pro,
-  };
-
-  return <AccountClient user={propsUser} />;
+  return (
+    <AccountClient
+      user={{
+        email: user.email ?? "",
+        isPro: !!userRow?.is_pro,
+        preferredLanguage: userRow?.preferred_language ?? null,
+      }}
+    />
+  );
 }
+

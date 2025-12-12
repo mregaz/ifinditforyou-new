@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 type UserInfo = {
   email: string;
   isPro: boolean;
+  preferredLanguage?: string | null;
 };
 
 type Search = {
@@ -21,16 +22,34 @@ type Props = {
   user: UserInfo;
 };
 
+type SubscriptionStatus =
+  | { plan: "free" }
+  | { plan: "pro"; status?: string; renewsAt?: number };
+
 export default function AccountClient({ user }: Props) {
+  const router = useRouter();
+
   const [error, setError] = useState<string | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
-
   const [searches, setSearches] = useState<Search[]>([]);
   const [searchesLoading, setSearchesLoading] = useState(false);
 
-  const router = useRouter();
+  // nuovo: piano da Stripe
+  const [subscription, setSubscription] = useState<SubscriptionStatus | null>(
+    null
+  );
 
-  // Carica le ricerche alla prima render
+  // nuovo: lingua preferita
+  const [preferredLanguage, setPreferredLanguage] = useState<string>(
+    user.preferredLanguage ?? "auto"
+  );
+  const [savingLanguage, setSavingLanguage] = useState(false);
+
+  // nuovo: cancellazione account
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
+
+  // 1) Carica ricerche (tuo codice)
   useEffect(() => {
     const loadSearches = async () => {
       try {
@@ -57,7 +76,6 @@ export default function AccountClient({ user }: Props) {
         const json = JSON.parse(bodyText) as {
           searches?: Search[];
         };
-
         setSearches(json.searches ?? []);
       } catch (e: any) {
         console.error(e);
@@ -68,6 +86,25 @@ export default function AccountClient({ user }: Props) {
     };
 
     loadSearches();
+  }, []);
+
+  // 2) Carica stato abbonamento da /api/subscription-status
+  useEffect(() => {
+    const loadSubscription = async () => {
+      try {
+        const res = await fetch("/api/subscription-status");
+        if (!res.ok) {
+          console.error("Errore nel caricamento del piano");
+          return;
+        }
+        const data = (await res.json()) as SubscriptionStatus;
+        setSubscription(data);
+      } catch (e) {
+        console.error("Errore subscription-status", e);
+      }
+    };
+
+    loadSubscription();
   }, []);
 
   const handleOpenPortal = async () => {
@@ -103,7 +140,6 @@ export default function AccountClient({ user }: Props) {
         setError("URL portale Stripe mancante nella risposta del server.");
         return;
       }
-
       window.location.href = data.url;
     } catch (e: any) {
       console.error(e);
@@ -127,15 +163,12 @@ export default function AccountClient({ user }: Props) {
   const handleDeleteSearch = async (id: string) => {
     try {
       setError(null);
-
       const res = await fetch("/api/my-searches/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
-
       const bodyText = await res.text();
-
       if (!res.ok) {
         let msg = "Errore nella cancellazione della ricerca.";
         try {
@@ -149,8 +182,6 @@ export default function AccountClient({ user }: Props) {
         setError(msg);
         return;
       }
-
-      // aggiorna lista lato client
       setSearches((prev) => prev.filter((s) => s.id !== id));
     } catch (e: any) {
       console.error(e);
@@ -160,6 +191,7 @@ export default function AccountClient({ user }: Props) {
     }
   };
 
+  // download JSON/CSV (tuo codice)
   const downloadBlob = (blob: Blob, filename: string) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -185,7 +217,7 @@ export default function AccountClient({ user }: Props) {
       ...searches.map((s) =>
         [
           s.id,
-          JSON.stringify(s.query), // per gestire virgole/virgolette
+          JSON.stringify(s.query),
           s.lang,
           s.plan,
           s.created_at,
@@ -193,10 +225,71 @@ export default function AccountClient({ user }: Props) {
       ),
     ];
     const csv = lines.join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([csv], {
+      type: "text/csv;charset=utf-8;",
+    });
     downloadBlob(blob, "my-searches.csv");
   };
 
+  // lingua preferita
+  const handleChangeLanguage = async (newValue: string) => {
+    try {
+      setSavingLanguage(true);
+      setError(null);
+
+      const res = await fetch("/api/user/update-preferences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          preferredLanguage: newValue === "auto" ? null : newValue,
+        }),
+      });
+
+      if (!res.ok) {
+        setError("Errore nel salvataggio della lingua preferita.");
+        return;
+      }
+
+      setPreferredLanguage(newValue);
+    } catch (e) {
+      console.error(e);
+      setError("Errore nel salvataggio della lingua preferita.");
+    } finally {
+      setSavingLanguage(false);
+    }
+  };
+
+  // cancellazione account
+  const handleDeleteAccount = async () => {
+    if (deleteConfirm !== "DELETE") {
+      setError('Per confermare devi scrivere "DELETE" nel campo di testo.');
+      return;
+    }
+
+    try {
+      setDeletingAccount(true);
+      setError(null);
+
+      const res = await fetch("/api/account/delete", {
+        method: "POST",
+      });
+
+      if (!res.ok) {
+        setError("Errore nella cancellazione definitiva dell'account.");
+        return;
+      }
+
+      // dopo la cancellazione, torna alla home
+      window.location.href = "/";
+    } catch (e) {
+      console.error(e);
+      setError("Errore imprevisto nella cancellazione dell'account.");
+    } finally {
+      setDeletingAccount(false);
+    }
+  };
+
+  // stili originali
   const cardStyle: React.CSSProperties = {
     maxWidth: 800,
     margin: "40px auto",
@@ -205,7 +298,8 @@ export default function AccountClient({ user }: Props) {
     border: "1px solid #1f2937",
     backgroundColor: "#020617",
     color: "#e5e7eb",
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily:
+      "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
   };
 
   const buttonStyle: React.CSSProperties = {
@@ -245,22 +339,42 @@ export default function AccountClient({ user }: Props) {
     cursor: "not-allowed",
   };
 
+  const isProEffective =
+    (subscription && subscription.plan === "pro") || user.isPro;
+
+  const renewDate =
+    subscription &&
+    subscription.plan === "pro" &&
+    subscription.renewsAt
+      ? new Date(subscription.renewsAt).toLocaleDateString("it-CH", {
+          dateStyle: "short",
+        })
+      : null;
+
   return (
     <div style={cardStyle}>
       <h1 style={{ fontSize: 20, marginBottom: 12 }}>Il tuo account</h1>
+
       <p style={{ marginBottom: 8 }}>
         <strong>Email:</strong> {user.email}
       </p>
+
       <p style={{ marginBottom: 8 }}>
         <strong>Stato piano:</strong>{" "}
-        {user.isPro ? "IFindItForYou PRO" : "Free"}
+        {isProEffective ? "IFindItForYou PRO" : "Free"}
       </p>
 
-      {user.isPro ? (
+      {renewDate && (
+        <p style={{ fontSize: 13, color: "#9ca3af", marginTop: 4 }}>
+          Rinnovo: {renewDate}
+        </p>
+      )}
+
+      {isProEffective ? (
         <>
           <p style={{ fontSize: 13, color: "#9ca3af", marginTop: 8 }}>
-            Puoi gestire l&apos;abbonamento (carta, fatture, annullamento) dal
-            portale sicuro di Stripe.
+            Puoi gestire l&apos;abbonamento (carta, fatture, annullamento)
+            dal portale sicuro di Stripe.
           </p>
           <button
             type="button"
@@ -279,7 +393,10 @@ export default function AccountClient({ user }: Props) {
             Attualmente sei sul piano Free. Puoi passare a PRO dalla pagina
             dedicata.
           </p>
-          <a href="/pro" style={{ ...buttonStyle, textAlign: "center" }}>
+          <a
+            href="/pro"
+            style={{ ...buttonStyle, textAlign: "center" }}
+          >
             Vai alla pagina PRO
           </a>
         </>
@@ -292,6 +409,7 @@ export default function AccountClient({ user }: Props) {
         }}
       />
 
+      {/* Ricerche */}
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <h2 style={{ fontSize: 16, marginBottom: 8 }}>Le tue ricerche</h2>
         {searches.length > 0 && (
@@ -369,7 +487,6 @@ export default function AccountClient({ user }: Props) {
                   })}
                 </div>
               </div>
-
               <div
                 style={{
                   display: "flex",
@@ -398,6 +515,93 @@ export default function AccountClient({ user }: Props) {
         </ul>
       )}
 
+      {/* LINGUA PREFERITA */}
+      <hr
+        style={{
+          borderColor: "#111827",
+          margin: "24px 0 16px",
+        }}
+      />
+
+      <h2 style={{ fontSize: 16, marginBottom: 8 }}>Lingua preferita</h2>
+      <p style={{ fontSize: 13, color: "#9ca3af", marginBottom: 8 }}>
+        Puoi forzare una lingua per l&apos;interfaccia. Se lasci
+        &quot;Automatica&quot; useremo le impostazioni del browser.
+      </p>
+
+      <select
+        value={preferredLanguage}
+        onChange={(e) => handleChangeLanguage(e.target.value)}
+        style={{
+          padding: "8px",
+          borderRadius: 8,
+          border: "1px solid #374151",
+          backgroundColor: "#020617",
+          color: "#e5e7eb",
+        }}
+      >
+        <option value="auto">Automatica</option>
+        <option value="it">Italiano</option>
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+        <option value="de">Deutsch</option>
+        <option value="es">Español</option>
+      </select>
+
+      {savingLanguage && (
+        <p style={{ fontSize: 13, color: "#9ca3af", marginTop: 4 }}>
+          Salvataggio della lingua in corso...
+        </p>
+      )}
+
+      {/* ELIMINAZIONE ACCOUNT */}
+      <hr
+        style={{
+          borderColor: "#111827",
+          margin: "24px 0 16px",
+        }}
+      />
+
+      <h2 style={{ fontSize: 16, marginBottom: 8, color: "#fecaca" }}>
+        Elimina account
+      </h2>
+      <p style={{ fontSize: 13, color: "#fca5a5", marginBottom: 8 }}>
+        Questa azione è definitiva. Verranno cancellate tutte le tue ricerche
+        e i dati associati.
+      </p>
+
+      <input
+        type="text"
+        placeholder='Scrivi "DELETE" per confermare'
+        value={deleteConfirm}
+        onChange={(e) => setDeleteConfirm(e.target.value)}
+        style={{
+          marginTop: 4,
+          padding: "8px",
+          borderRadius: 8,
+          border: "1px solid #374151",
+          backgroundColor: "#020617",
+          color: "#e5e7eb",
+          width: "100%",
+        }}
+      />
+
+      <button
+        type="button"
+        onClick={handleDeleteAccount}
+        disabled={deletingAccount}
+        style={{
+          ...dangerButtonStyle,
+          marginTop: 12,
+          width: "100%",
+          opacity: deletingAccount ? 0.6 : 1,
+        }}
+      >
+        {deletingAccount
+          ? "Eliminazione in corso..."
+          : "Elimina definitivamente"}
+      </button>
+
       {error && (
         <p style={{ marginTop: 12, color: "#f87171", fontSize: 13 }}>
           {error}
@@ -406,3 +610,4 @@ export default function AccountClient({ user }: Props) {
     </div>
   );
 }
+
