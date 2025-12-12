@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
-
 import { stripe } from "@/lib/stripe";
 
 export async function GET() {
@@ -14,7 +12,6 @@ export async function GET() {
     } = await supabase.auth.getUser();
 
     if (!user || authError) {
-      // Utente non loggato → per sicurezza consideriamo Free
       return NextResponse.json({ plan: "free" });
     }
 
@@ -24,17 +21,48 @@ export async function GET() {
       .eq("id", user.id)
       .maybeSingle();
 
-    if (userError) {
-      console.error("subscription-status user error:", userError);
-    }
-
-    if (!userRow) {
+    if (userError || !userRow) {
+      if (userError) {
+        console.error("subscription-status user error:", userError);
+      }
       return NextResponse.json({ plan: "free" });
     }
 
-    // Piano di base da DB (fallback)
+    // Piano base da DB
     let plan: "free" | "pro" = userRow.is_pro ? "pro" : "free";
+    let status: string | undefined;
+    let renewsAt: number | undefined;
 
-    // Se non abbiamo customer Stripe → andiamo solo a is_pro
+    // Se non abbiamo customer Stripe → usiamo solo is_pro
     if (!userRow.stripe_customer_id) {
-      return
+      return NextResponse.json({ plan });
+    }
+
+    // Se abbiamo Stripe, proviamo a leggere la subscription
+    try {
+      const subs = await stripe.subscriptions.list({
+        customer: userRow.stripe_customer_id,
+        status: "all",
+        limit: 1,
+      });
+
+      const sub = subs.data[0];
+
+      if (sub && sub.status === "active") {
+        plan = "pro";
+        status = sub.status;
+        renewsAt = sub.current_period_end * 1000;
+      } else if (sub) {
+        status = sub.status;
+      }
+    } catch (stripeError) {
+      console.error("subscription-status stripe error:", stripeError);
+      // In caso di errore Stripe, restiamo sul piano da DB
+    }
+
+    return NextResponse.json({ plan, status, renewsAt });
+  } catch (error) {
+    console.error("subscription-status fatal error:", error);
+    return NextResponse.json({ plan: "free" });
+  }
+}

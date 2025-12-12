@@ -1,13 +1,9 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
-
 
 export async function POST() {
   try {
-    cconst supabase = await createSupabaseServerClient();
-    
-
+    const supabase = await createSupabaseServerClient();
 
     const {
       data: { user },
@@ -49,9 +45,6 @@ export async function POST() {
         { status: 500 }
       );
     }
-
-    // Nota: questo NON rimuove l'utente dalla Auth di Supabase.
-    // Lo lasciamo così perché ora è sufficiente per la dashboard.
 
     return NextResponse.json({ deleted: true });
   } catch (error) {
