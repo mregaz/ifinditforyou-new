@@ -1,79 +1,71 @@
 // app/[locale]/account/overview/PlanCard.tsx
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { getDashboardCopy } from '@/lib/i18n/dashboard'
+import { getDashboardCopy } from "@/lib/i18n/dashboard";
 
 type Props = {
-  locale: string
-}
+  locale: string;
+  isPro: boolean;
+};
 
-type SubscriptionStatus =
-  | { plan: 'free' }
-  | { plan: 'pro'; status: string; renewsAt: number }
+export function PlanCard({ locale, isPro }: Props) {
+  const t = getDashboardCopy(locale);
 
-export function PlanCard({ locale }: Props) {
-  const t = getDashboardCopy(locale)
-  const [status, setStatus] = useState<SubscriptionStatus | null>(null)
-  const [loading, setLoading] = useState(true)
+  const handleUpgrade = async () => {
+    const res = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch('/api/subscription-status')
-        if (!res.ok) throw new Error('Failed to fetch')
-        const data = await res.json()
-        setStatus(data)
-      } catch (e) {
-        console.error(e)
-      } finally {
-        setLoading(false)
-      }
+    const data = await res.json();
+    if (data?.url) {
+      window.location.href = data.url;
     }
-    load()
-  }, [])
-
-  const renewDate =
-    status && 'renewsAt' in status
-      ? new Date(status.renewsAt).toLocaleDateString(locale)
-      : null
+  };
 
   return (
-    <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-      <h2 className="text-lg font-semibold mb-4">{t.planTitle}</h2>
+    <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/40 p-4">
+      {!isPro ? (
+        <>
+          <p className="text-sm text-slate-200">
+            {locale === "it"
+              ? "Sblocca ricerche illimitate, storico completo e priorità."
+              : "Unlock unlimited searches, full history and priority."}
+          </p>
 
-      {loading && <p className="text-sm text-slate-500">Loading...</p>}
+          <button
+  type="button"
+  onClick={async () => {
+    const res = await fetch("/api/create-customer-portal", {
+      method: "POST",
+    });
+    const data = await res.json();
+    if (data?.url) window.location.href = data.url;
+  }}
+  className="mt-4 inline-flex items-center justify-center rounded-full border border-slate-700 px-5 py-2 text-sm text-slate-200 hover:bg-slate-800"
+>
+  {locale === "it" ? "Gestisci abbonamento" : "Manage subscription"}
+</button>
 
-      {!loading && status?.plan === 'free' && (
-        <div className="space-y-4">
-          <p className="text-sm">{t.currentPlanFree}</p>
+        </>
+      ) : (
+        <>
+          <p className="text-sm text-slate-200">
+            {locale === "it"
+              ? "Il tuo piano attuale è PRO."
+              : "Your current plan is PRO."}
+          </p>
+
           <a
-            href={`/${locale}/pro`}
-            className="inline-flex items-center px-4 py-2 rounded-md bg-slate-900 text-white text-sm font-medium hover:bg-slate-800"
+            href={`/${locale}/account/billing`}
+            className="mt-4 inline-block text-sm text-emerald-400 underline underline-offset-4 hover:text-emerald-300"
           >
-            {t.upgradeToPro}
+            {locale === "it"
+              ? "Gestisci abbonamento"
+              : "Manage subscription"}
           </a>
-        </div>
+        </>
       )}
-
-      {!loading && status?.plan === 'pro' && (
-        <div className="space-y-4">
-          <p className="text-sm">{t.currentPlanPro}</p>
-          {renewDate && (
-            <p className="text-xs text-slate-500">
-              {t.renewsAt} {renewDate}
-            </p>
-          )}
-          <form action="/api/create-portal-session" method="POST">
-            <button
-              type="submit"
-              className="inline-flex items-center px-4 py-2 rounded-md bg-slate-900 text-white text-sm font-medium hover:bg-slate-800"
-            >
-              {t.manageInPortal}
-            </button>
-          </form>
-        </div>
-      )}
-    </section>
-  )
+    </div>
+  );
 }
