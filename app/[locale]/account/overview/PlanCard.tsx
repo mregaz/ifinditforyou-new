@@ -1,6 +1,6 @@
-// app/[locale]/account/overview/PlanCard.tsx
 "use client";
 
+import { useState } from "react";
 import { getDashboardCopy } from "@/lib/i18n/dashboard";
 
 type Props = {
@@ -10,16 +10,27 @@ type Props = {
 
 export function PlanCard({ locale, isPro }: Props) {
   const t = getDashboardCopy(locale);
+  const [loading, setLoading] = useState(false);
 
-  const handleUpgrade = async () => {
-    const res = await fetch("/api/create-checkout-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    });
+  const goCheckout = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/create-checkout-session", { method: "POST" });
+      const data = await res.json();
+      if (data?.url) window.location.href = data.url;
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const data = await res.json();
-    if (data?.url) {
-      window.location.href = data.url;
+  const goPortal = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/create-customer-portal", { method: "POST" });
+      const data = await res.json();
+      if (data?.url) window.location.href = data.url;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -34,38 +45,31 @@ export function PlanCard({ locale, isPro }: Props) {
           </p>
 
           <button
-  type="button"
-  onClick={async () => {
-    const res = await fetch("/api/create-customer-portal", {
-      method: "POST",
-    });
-    const data = await res.json();
-    if (data?.url) window.location.href = data.url;
-  }}
-  className="mt-4 inline-flex items-center justify-center rounded-full border border-slate-700 px-5 py-2 text-sm text-slate-200 hover:bg-slate-800"
->
-  {locale === "it" ? "Gestisci abbonamento" : "Manage subscription"}
-</button>
-
+            type="button"
+            onClick={goCheckout}
+            disabled={loading}
+            className="mt-4 inline-flex items-center justify-center rounded-full bg-emerald-400 px-5 py-2 text-sm font-semibold text-slate-950 hover:bg-emerald-300 disabled:opacity-60"
+          >
+            {loading ? (locale === "it" ? "Caricamento..." : "Loading...") : (locale === "it" ? "Passa a PRO" : "Upgrade to PRO")}
+          </button>
         </>
       ) : (
         <>
           <p className="text-sm text-slate-200">
-            {locale === "it"
-              ? "Il tuo piano attuale è PRO."
-              : "Your current plan is PRO."}
+            {locale === "it" ? "Il tuo piano attuale è PRO." : "Your current plan is PRO."}
           </p>
 
-          <a
-            href={`/${locale}/account/billing`}
-            className="mt-4 inline-block text-sm text-emerald-400 underline underline-offset-4 hover:text-emerald-300"
+          <button
+            type="button"
+            onClick={goPortal}
+            disabled={loading}
+            className="mt-4 inline-flex items-center justify-center rounded-full border border-slate-700 px-5 py-2 text-sm text-slate-200 hover:bg-slate-800 disabled:opacity-60"
           >
-            {locale === "it"
-              ? "Gestisci abbonamento"
-              : "Manage subscription"}
-          </a>
+            {loading ? (locale === "it" ? "Apro il portale..." : "Opening portal...") : (locale === "it" ? "Gestisci abbonamento" : "Manage subscription")}
+          </button>
         </>
       )}
     </div>
   );
 }
+

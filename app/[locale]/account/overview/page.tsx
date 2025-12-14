@@ -1,16 +1,14 @@
-// app/[locale]/account/overview/page.tsx
 import { redirect } from "next/navigation";
 import { PlanCard } from "./PlanCard";
 import { getDashboardCopy } from "@/lib/i18n/dashboard";
-import { createClient} from "@/lib/supabaseServer";
-
+import { createClient } from "@/lib/supabase/server"; // oppure "@/lib/supabaseServer" se fai la “pezza”
 
 type Props = { params: { locale: string } };
 
 export default async function OverviewPage({ params }: Props) {
   const t = getDashboardCopy(params.locale);
 
-  const supabase = createClient();
+  const supabase = await createClient(); // <-- QUESTO è il fix chiave
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/${params.locale}/login`);
@@ -34,5 +32,7 @@ export default async function OverviewPage({ params }: Props) {
     </div>
   );
 }
+
+
 
 

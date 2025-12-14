@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
-import { ccreateClient } from "@/lib/supabaseServer";
+import { createClient } from "@/lib/supabase/server";
 import AccountClient from "./AccountClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function AccountPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
+
 
   const { data, error: authError } = await supabase.auth.getUser();
 

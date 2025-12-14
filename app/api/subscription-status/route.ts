@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabaseServer";
+import { createClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe";
 
 export async function GET() {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
+
 
     const {
       data: { user },

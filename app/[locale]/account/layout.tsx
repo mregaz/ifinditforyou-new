@@ -1,27 +1,22 @@
 // app/[locale]/account/layout.tsx
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 
 type AccountLayoutProps = {
   children: ReactNode;
-  params: {
-    locale: string;
-  };
+  params: { locale: string };
 };
 
 export default async function AccountLayout(props: any) {
-  // cast interno: fuori teniamo any così TS non rompe
   const { children, params } = props as AccountLayoutProps;
 
-  const user = await getCurrentUser();
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  // usiamo locale solo per evitare warning "unused"
-  void params.locale;
+  if (!user) redirect(`/${params.locale}/login`);
 
   return <>{children}</>;
 }
