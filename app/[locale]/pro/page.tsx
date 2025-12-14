@@ -1,5 +1,5 @@
 import ProPageClient from "./ProPageClient";
-import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { createClient } from "@/lib/supabaseServer";
 
 type ProPageProps = {
   params: Promise<{
@@ -10,7 +10,7 @@ type ProPageProps = {
 export default async function ProPage({ params }: ProPageProps) {
   const { locale } = await params;
 
-  const supabase = await createSupabaseServerClient();
+  const supabase = createClient();
 
   const {
     data: { user },

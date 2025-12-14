@@ -16,10 +16,10 @@ export async function getUserFromRequest(req: Request) {
     where: { id: userId },
   });
 }
-import { createSupabaseServerClient } from "./supabaseServer";
+import { createClient } from "./supabaseServer";
 
 export async function getCurrentUser() {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createClient();
   const { data, error } = await supabase.auth.getUser();
 
   if (error || !data?.user) {

@@ -2,14 +2,15 @@
 import { redirect } from "next/navigation";
 import { PlanCard } from "./PlanCard";
 import { getDashboardCopy } from "@/lib/i18n/dashboard";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createClient} from "@/lib/supabaseServer";
+
 
 type Props = { params: { locale: string } };
 
 export default async function OverviewPage({ params }: Props) {
   const t = getDashboardCopy(params.locale);
 
-  const supabase = await createSupabaseServerClient();
+  const supabase = createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/${params.locale}/login`);

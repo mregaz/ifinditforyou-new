@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { createClient } from "@/lib/supabaseServer";
 
 
 const SUPPORTED_LANGUAGES = ["it", "en", "fr", "de", "es"] as const;
@@ -8,7 +8,7 @@ type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
 export async function POST(req: Request) {
   try {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createClient();
 
 
     const {

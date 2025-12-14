@@ -1,11 +1,11 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { createClient } from "@/lib/supabaseServer";
 
 
 export async function GET(req: NextRequest) {
   try {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createClient();
   
 
 
