@@ -1,32 +1,24 @@
-// app/api/webhooks/stripe/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { stripe } from "@/lib/stripe";
 
+function toIsoOrNull(unixSeconds?: number | null) {
+  if (!unixSeconds || typeof unixSeconds !== "number") return null;
+  return new Date(unixSeconds * 1000).toISOString();
+}
+
 export async function POST(req: NextRequest) {
-  // 1) Leggi env SOLO qui dentro (evita crash in build)
   const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-  if (!supabaseUrl) {
-    console.error("Missing env: SUPABASE_URL (or NEXT_PUBLIC_SUPABASE_URL)");
-    return new NextResponse("Server misconfigured: missing SUPABASE_URL", { status: 500 });
-  }
-  if (!serviceRoleKey) {
-    console.error("Missing env: SUPABASE_SERVICE_ROLE_KEY");
-    return new NextResponse("Server misconfigured: missing SUPABASE_SERVICE_ROLE_KEY", { status: 500 });
-  }
-  if (!webhookSecret) {
-    console.error("Missing env: STRIPE_WEBHOOK_SECRET");
-    return new NextResponse("Server misconfigured: missing STRIPE_WEBHOOK_SECRET", { status: 500 });
-  }
+  if (!supabaseUrl) return new NextResponse("Missing SUPABASE_URL", { status: 500 });
+  if (!serviceRoleKey) return new NextResponse("Missing SUPABASE_SERVICE_ROLE_KEY", { status: 500 });
+  if (!webhookSecret) return new NextResponse("Missing STRIPE_WEBHOOK_SECRET", { status: 500 });
 
-  // 2) Supabase admin client (SERVICE ROLE)
   const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-  // 3) Firma Stripe
   const signature = req.headers.get("stripe-signature");
   if (!signature) return new NextResponse("Missing signature", { status: 400 });
 
@@ -36,72 +28,97 @@ export async function POST(req: NextRequest) {
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err: any) {
-    console.error("❌ Stripe signature verification failed:", err?.message || err);
+    console.error("Stripe signature verification failed:", err?.message || err);
     return new NextResponse(`Webhook Error: ${err?.message ?? "Invalid signature"}`, { status: 400 });
   }
 
   try {
     switch (event.type) {
-      // 1) UTENTE DIVENTA PRO
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
 
-        const email =
-          session.customer_details?.email ??
-          session.customer_email ??
-          null;
+        const userId =
+          (typeof session.client_reference_id === "string" && session.client_reference_id) ||
+          (session.metadata?.user_id ?? null);
 
-        if (!email) {
-          console.error("❌ checkout.session.completed without email");
+        if (!userId) {
+          console.warn("checkout.session.completed without userId (client_reference_id/metadata.user_id)");
           break;
         }
 
+        const customerId = typeof session.customer === "string" ? session.customer : null;
+        const subscriptionId = typeof session.subscription === "string" ? session.subscription : null;
+
+        // Aggiorniamo almeno is_pro e stripe_customer_id.
         const { error } = await supabase
           .from("User")
-          .update({ is_pro: true })
-          .eq("email", email);
+          .update({
+            is_pro: true,
+            stripe_customer_id: customerId ?? undefined,
+            stripe_subscription_id: subscriptionId ?? undefined,
+            stripe_status: "active",
+          })
+          .eq("id", userId);
 
-        if (error) console.error("❌ Supabase update is_pro=true error:", error);
+        if (error) console.error("Supabase update on checkout.session.completed error:", error);
         break;
       }
 
-      // 2) ABBONAMENTO CANCELLATO
+      case "customer.subscription.created":
+      case "customer.subscription.updated":
       case "customer.subscription.deleted": {
-        const subscription = event.data.object as Stripe.Subscription;
+        const sub = event.data.object as Stripe.Subscription;
 
-        const customerId = subscription.customer;
+        const customerId = typeof sub.customer === "string" ? sub.customer : null;
         if (!customerId) {
-          console.warn("⚠️ subscription.deleted without customer id");
+          console.warn("subscription event without customer id");
           break;
         }
 
-        const customer = await stripe.customers.retrieve(customerId as string);
-
-        const email =
-          (customer as any)?.email ??
-          (customer as any)?.metadata?.email ??
-          null;
-
-        if (!email) {
-          console.warn("⚠️ could not resolve email for subscription.deleted");
-          break;
-        }
-
-        const { error } = await supabase
+        // Recuperiamo l'user dalla tabella "User" tramite stripe_customer_id
+        const { data: userRow, error: userErr } = await supabase
           .from("User")
-          .update({ is_pro: false })
-          .eq("email", email);
+          .select("id")
+          .eq("stripe_customer_id", customerId)
+          .maybeSingle();
 
-        if (error) console.error("❌ Supabase update is_pro=false error:", error);
+        if (userErr || !userRow?.id) {
+          console.warn("Could not resolve user for stripe_customer_id", { customerId, userErr });
+          break;
+        }
+
+        const status = sub.status; // active, trialing, past_due, canceled, unpaid, incomplete...
+        const isPro = status === "active" || status === "trialing";
+
+        const currentPeriodEndIso = toIsoOrNull((sub as any).current_period_end);
+        const cancelAtPeriodEnd = !!sub.cancel_at_period_end;
+
+        const firstItem = sub.items?.data?.[0];
+        const priceId = firstItem?.price?.id ?? null;
+
+        const { error: updateErr } = await supabase
+          .from("User")
+          .update({
+            is_pro: isPro,
+            stripe_subscription_id: sub.id,
+            stripe_status: status,
+            stripe_current_period_end: currentPeriodEndIso,
+            cancel_at_period_end: cancelAtPeriodEnd,
+            stripe_price_id: priceId ?? undefined,
+          })
+          .eq("id", userRow.id);
+
+        if (updateErr) console.error("Supabase update from subscription event error:", updateErr);
         break;
       }
 
       default:
-        console.log("ℹ️ Ignored Stripe event:", event.type);
+        // ignoriamo il resto
+        break;
     }
   } catch (err) {
-    console.error("❌ Webhook handler error:", err);
-    // non falliamo il webhook per evitare retry infiniti
+    console.error("Webhook handler error:", err);
+    // rispondiamo 200 per evitare retry infiniti se hai un errore temporaneo lato DB
   }
 
   return NextResponse.json({ received: true });
