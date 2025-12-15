@@ -25,12 +25,28 @@ const STRIPE_LOCALE_MAP: Record<Locale, any> = {
 
 function normalizeBillingPeriod(x: unknown): BillingPeriod | null {
   if (x === "monthly" || x === "yearly") return x;
-
-  // accettiamo anche input comuni dal client
   if (x === "month" || x === "mensile") return "monthly";
   if (x === "year" || x === "annuale" || x === "annual") return "yearly";
-
   return null;
+}
+
+function getBaseUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (envUrl) {
+    // se manca schema, lo aggiungiamo
+    if (envUrl.startsWith("http://") || envUrl.startsWith("https://")) {
+      return envUrl.replace(/\/+$/, "");
+    }
+    return `https://${envUrl.replace(/\/+$/, "")}`;
+  }
+
+  const vercelUrl = process.env.VERCEL_URL?.trim();
+  if (vercelUrl) {
+    return `https://${vercelUrl.replace(/\/+$/, "")}`;
+  }
+
+  // fallback locale
+  return "http://localhost:3000";
 }
 
 export async function POST(req: Request) {
@@ -68,9 +84,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Stripe price ID missing" }, { status: 500 });
     }
 
-    const rawAppUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const appUrl = rawAppUrl.trim().replace(/\/+$/, "");
-
     // User row dalla tabella "User"
     const { data: userRow, error: userRowError } = await supabase
       .from("User")
@@ -85,7 +98,6 @@ export async function POST(req: Request) {
 
     let stripeCustomerId = (userRow as any).stripe_customer_id as string | null;
 
-    // Se manca, crea customer (così in futuro usi sempre customer)
     if (!stripeCustomerId) {
       const customer = await stripe.customers.create({
         email: (userRow as any).email ?? user.email ?? undefined,
@@ -99,17 +111,15 @@ export async function POST(req: Request) {
         .update({ stripe_customer_id: stripeCustomerId })
         .eq("id", user.id);
 
-      if (updateErr) {
-        console.error("Failed to persist stripe_customer_id", updateErr);
-        // non blocchiamo: checkout funziona comunque
-      }
+      if (updateErr) console.error("Failed to persist stripe_customer_id", updateErr);
     }
 
-    // URL localized (se le pagine esistono così nel tuo app router)
-    const successUrl = `${appUrl}/${appLang}/pay/success`;
-    const cancelUrl = `${appUrl}/${appLang}/pay/cancel`;
+    const baseUrl = getBaseUrl();
 
-    // IMPORTANTISSIMO: se passi customer, NON passare customer_email
+    // URL assolute valide per Stripe
+    const successUrl = new URL(`/${appLang}/pay/success`, baseUrl).toString();
+    const cancelUrl = new URL(`/${appLang}/pay/cancel`, baseUrl).toString();
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer: stripeCustomerId!,
@@ -128,11 +138,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ url: session.url });
   } catch (err) {
     const e = err as any;
-    console.error("create-checkout-session error", e);
+    console.error("Stripe checkout error route", e);
     return NextResponse.json(
-      { error: e?.message ?? "Unexpected error creating checkout session" },
+      { error: e?.message ?? "Errore nella creazione della sessione di pagamento." },
       { status: 500 }
     );
   }
 }
+
 
