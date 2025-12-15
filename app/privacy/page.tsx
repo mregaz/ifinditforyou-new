@@ -2,8 +2,10 @@ import LegalPageShell from "@/components/LegalPageShell";
 
 export default function PrivacyPage() {
   return (
+console.log
     <LegalPageShell
-      title="Privacy Policy"
+      title="Privacy Policy (MARKER-12345)"
+
       updatedAt="14 dicembre 2025"
       sections={[
         {
