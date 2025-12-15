@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 
 type BillingPeriod = "monthly" | "yearly";
 type RequestBody = {
-  billingPeriod: BillingPeriod;
+  billingPeriod?: BillingPeriod | string;
   lang?: string;
 };
 
@@ -23,6 +23,16 @@ const STRIPE_LOCALE_MAP: Record<Locale, any> = {
   es: "es",
 };
 
+function normalizeBillingPeriod(x: unknown): BillingPeriod | null {
+  if (x === "monthly" || x === "yearly") return x;
+
+  // accettiamo anche input comuni dal client
+  if (x === "month" || x === "mensile") return "monthly";
+  if (x === "year" || x === "annuale" || x === "annual") return "yearly";
+
+  return null;
+}
+
 export async function POST(req: Request) {
   try {
     const supabase = await createClient();
@@ -37,14 +47,13 @@ export async function POST(req: Request) {
     }
 
     const body = (await req.json()) as RequestBody;
-    const billingPeriod = body.billingPeriod;
-    const lang = body.lang;
 
-    if (billingPeriod !== "monthly" && billingPeriod !== "yearly") {
+    const billingPeriod = normalizeBillingPeriod(body.billingPeriod);
+    if (!billingPeriod) {
       return NextResponse.json({ error: "Invalid billingPeriod" }, { status: 400 });
     }
 
-    const appLang: Locale = isSupportedLocale(lang) ? lang : "it";
+    const appLang: Locale = isSupportedLocale(body.lang) ? (body.lang as Locale) : "it";
     const stripeLocale = STRIPE_LOCALE_MAP[appLang];
 
     const monthlyPriceId = process.env.STRIPE_PRICE_ID_MONTHLY;
@@ -62,49 +71,21 @@ export async function POST(req: Request) {
     const rawAppUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const appUrl = rawAppUrl.trim().replace(/\/+$/, "");
 
-    // 1) Prova a leggere la riga "User"
-    let { data: userRow, error: userRowError } = await supabase
+    // User row dalla tabella "User"
+    const { data: userRow, error: userRowError } = await supabase
       .from("User")
       .select("id, email, stripe_customer_id")
       .eq("id", user.id)
       .maybeSingle();
 
-    if (userRowError) {
-      console.error("DB error reading User row:", userRowError);
-      return NextResponse.json({ error: "DB error reading user" }, { status: 500 });
+    if (userRowError || !userRow) {
+      console.error("User row missing in DB", userRowError);
+      return NextResponse.json({ error: "User profile missing" }, { status: 500 });
     }
 
-    // 2) Se manca, creala (UPSERT)
-    if (!userRow) {
-      const insertPayload = {
-        id: user.id,
-        email: user.email ?? null,
-        is_pro: false,
-      };
-
-      const { error: insertErr } = await supabase.from("User").insert(insertPayload);
-
-      if (insertErr) {
-        console.error("Failed to create User row:", insertErr);
-        return NextResponse.json({ error: "User profile missing" }, { status: 500 });
-      }
-
-      const retry = await supabase
-        .from("User")
-        .select("id, email, stripe_customer_id")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      userRow = retry.data ?? null;
-
-      if (!userRow) {
-        return NextResponse.json({ error: "User profile missing (after create)" }, { status: 500 });
-      }
-    }
-
-    // 3) Customer Stripe: crea se manca
     let stripeCustomerId = (userRow as any).stripe_customer_id as string | null;
 
+    // Se manca, crea customer (così in futuro usi sempre customer)
     if (!stripeCustomerId) {
       const customer = await stripe.customers.create({
         email: (userRow as any).email ?? user.email ?? undefined,
@@ -120,12 +101,15 @@ export async function POST(req: Request) {
 
       if (updateErr) {
         console.error("Failed to persist stripe_customer_id", updateErr);
+        // non blocchiamo: checkout funziona comunque
       }
     }
 
+    // URL localized (se le pagine esistono così nel tuo app router)
     const successUrl = `${appUrl}/${appLang}/pay/success`;
     const cancelUrl = `${appUrl}/${appLang}/pay/cancel`;
 
+    // IMPORTANTISSIMO: se passi customer, NON passare customer_email
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer: stripeCustomerId!,
@@ -139,7 +123,6 @@ export async function POST(req: Request) {
         billing_period: billingPeriod,
         price_id: priceId,
       },
-      customer_email: (userRow as any).email ?? user.email ?? undefined,
     });
 
     return NextResponse.json({ url: session.url });
