@@ -1,3 +1,4 @@
+// app/layout.tsx
 import "./globals.css";
 
 export default function RootLayout({
@@ -7,7 +8,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="min-h-screen bg-slate-950 text-slate-50">
+        {children}
+      </body>
     </html>
   );
 }
+
