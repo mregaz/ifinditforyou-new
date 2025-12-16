@@ -1,13 +1,11 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabaseServer";
+import { createClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    const supabase = createClient();
-    
-
+    const supabase = await createClient(); // FIX: await
 
     const {
       data: { user },
@@ -16,47 +14,41 @@ export async function POST(req: Request) {
 
     if (userError) {
       console.error("delete my-searches getUser error:", userError);
-      return NextResponse.json(
-        { error: "Errore nel recupero utente." },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     if (!user) {
-      return NextResponse.json({ error: "Non autorizzato." }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = (await req.json().catch(() => null)) as
-      | { id?: string }
-      | null;
+    const body = await req.json().catch(() => ({}));
+    const searchId = body?.id ?? body?.searchId ?? null;
 
-    const id = body?.id;
-    if (!id) {
-      return NextResponse.json(
-        { error: "ID ricerca mancante." },
-        { status: 400 }
-      );
+    if (!searchId) {
+      return NextResponse.json({ error: "Missing search id" }, { status: 400 });
     }
 
-    const { error } = await supabase
-      .from("Search")
+    // TODO: se la tua tabella non si chiama "searches" o la colonna non è "user_id",
+    // dimmelo e la adatto. Questo è lo schema più comune.
+    const { error: deleteError } = await supabase
+      .from("searches")
       .delete()
-      .eq("id", id)
+      .eq("id", searchId)
       .eq("user_id", user.id);
 
-    if (error) {
-      console.error("delete my-searches error:", error);
+    if (deleteError) {
+      console.error("delete my-searches DB error:", deleteError);
       return NextResponse.json(
-        { error: "Errore nella cancellazione della ricerca." },
+        { error: "Failed to delete search" },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ success: true });
-  } catch (err) {
+    return NextResponse.json({ ok: true });
+  } catch (err: any) {
     console.error("delete my-searches unexpected error:", err);
     return NextResponse.json(
-      { error: "Errore interno del server." },
+      { error: err?.message ?? "Unexpected error" },
       { status: 500 }
     );
   }
