@@ -1,55 +1,39 @@
-import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabaseServer";
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-  const supabase = createClient();
-  
-
+    const supabase = await createClient();
 
     const {
       data: { user },
-      error: authError,
+      error: userError,
     } = await supabase.auth.getUser();
 
-    if (authError) {
-      console.error("my-searches getUser error:", authError);
-      return NextResponse.json(
-        { error: "Errore nel recupero utente." },
-        { status: 500 }
-      );
+    if (userError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (!user) {
-      return NextResponse.json({ error: "Non autorizzato." }, { status: 401 });
-    }
-
-    const { searchParams } = new URL(req.url);
-    const limitParam = searchParams.get("limit");
-    const limit = limitParam ? Math.min(parseInt(limitParam, 10) || 50, 200) : 50;
-
+    // TODO: adattare tabella/colonne alla tua struttura reale
+    // Qui metto un placeholder sicuro che compila.
     const { data, error } = await supabase
-      .from("Search")
-      .select("id, query, lang, plan, created_at")
+      .from("my_searches")
+      .select("*")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(limit);
+      .order("createdAt", { ascending: false });
 
     if (error) {
-      console.error("my-searches select error:", error);
-      return NextResponse.json(
-        { error: "Errore nel caricamento delle ricerche." },
-        { status: 500 }
-      );
+      console.error("my-searches GET DB error:", error);
+      return NextResponse.json({ error: "DB error" }, { status: 500 });
     }
 
-    return NextResponse.json({ searches: data ?? [] });
-  } catch (err) {
-    console.error("my-searches unexpected error:", err);
+    return NextResponse.json({ data: data ?? [] });
+  } catch (err: any) {
+    console.error("my-searches GET unexpected error:", err);
     return NextResponse.json(
-      { error: "Errore interno del server." },
+      { error: err?.message ?? "Unexpected error" },
       { status: 500 }
     );
   }

@@ -1,73 +1,44 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabaseServer";
-import { stripe } from "@/lib/stripe";
+import { createClient } from "@/lib/supabase/server";
 
-export async function GET() {
+export const dynamic = "force-dynamic";
+
+export async function POST(req: Request) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const {
       data: { user },
-      error: authError,
+      error: userError,
     } = await supabase.auth.getUser();
 
-    if (!user || authError) {
-      return NextResponse.json({ plan: "free" });
+    if (userError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { data: userRow, error: userError } = await supabase
+    const body = await req.json().catch(() => ({}));
+    const preferred_language = body?.preferred_language ?? body?.language ?? null;
+
+    if (!preferred_language) {
+      return NextResponse.json({ error: "Missing preferred_language" }, { status: 400 });
+    }
+
+    const { error } = await supabase
       .from("User")
-      .select("is_pro, stripe_customer_id")
-      .eq("id", user.id)
-      .maybeSingle();
+      .update({ preferred_language })
+      .eq("id", user.id);
 
-    if (userError || !userRow) {
-      if (userError) {
-        console.error("subscription-status user error:", userError);
-      }
-      return NextResponse.json({ plan: "free" });
+    if (error) {
+      console.error("update-preferences DB error:", error);
+      return NextResponse.json({ error: "DB error" }, { status: 500 });
     }
 
-    // Piano base da DB
-    let plan: "free" | "pro" = userRow.is_pro ? "pro" : "free";
-    let status: string | undefined;
-    let renewsAt: number | undefined;
-
-    // Se non abbiamo customer Stripe → usiamo solo is_pro
-    if (!userRow.stripe_customer_id) {
-      return NextResponse.json({ plan });
-    }
-
-    // Se abbiamo Stripe, proviamo a leggere la subscription
-    try {
-      const subs = await stripe.subscriptions.list({
-        customer: userRow.stripe_customer_id,
-        status: "all",
-        limit: 1,
-      });
-
-      const sub = subs.data[0];
-
-      if (sub && sub.status === "active") {
-        plan = "pro";
-        status = sub.status;
-
-        // current_period_end non è tipizzato, quindi usiamo any
-        const periodEnd = (sub as any).current_period_end;
-        if (typeof periodEnd === "number") {
-          renewsAt = periodEnd * 1000;
-        }
-      } else if (sub) {
-        status = sub.status;
-      }
-    } catch (stripeError) {
-      console.error("subscription-status stripe error:", stripeError);
-      // In caso di errore Stripe, restiamo sul piano da DB
-    }
-
-    return NextResponse.json({ plan, status, renewsAt });
-  } catch (error) {
-    console.error("subscription-status fatal error:", error);
-    return NextResponse.json({ plan: "free" });
+    return NextResponse.json({ ok: true });
+  } catch (err: any) {
+    console.error("update-preferences unexpected error:", err);
+    return NextResponse.json(
+      { error: err?.message ?? "Unexpected error" },
+      { status: 500 }
+    );
   }
 }

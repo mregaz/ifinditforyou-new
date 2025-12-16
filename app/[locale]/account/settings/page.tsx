@@ -1,33 +1,47 @@
-// app/[locale]/account/settings/page.tsx
-import { getCurrentUser } from '@/lib/auth'
-import { getDashboardCopy } from '@/lib/i18n/dashboard'
-import { LanguagePreferenceForm } from './LanguagePreferenceForm'
-import { DeleteAccountPanel } from './DeleteAccountPanel'
+import { createClient } from "@/lib/supabase/server";
+import { getDashboardCopy } from "@/lib/i18n/dashboard";
+import { redirect } from "next/navigation";
+import { LanguagePreferenceForm } from "./LanguagePreferenceForm";
+import { DeleteAccountPanel } from "./DeleteAccountPanel";
 
-type Props = { params: { locale: string } }
+export default async function SettingsPage({
+  params,
+}: {
+  params: { locale: string };
+}) {
+  const supabase = await createClient();
 
-export default async function SettingsPage({ params }: Props) {
-  const t = getDashboardCopy(params.locale)
-  const user = await getCurrentUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(`/${params.locale}/login`);
+  }
+
+  // Leggo la preferenza lingua dal tuo DB (tabella "User")
+  const { data: row } = await supabase
+    .from("User")
+    .select("preferred_language")
+    .eq("id", user.id)
+    .single();
+
+  const initialPreferredLanguage =
+    (row?.preferred_language as string | null) ?? null;
+
+  // Copia dashboard (server-side)
+  const copy = await getDashboardCopy(params.locale);
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold mb-2">
-          {t.settings}
-        </h1>
-        <p className="text-sm text-slate-500">
-          {t.settingsTitle}
-        </p>
-      </header>
+    <main className="mx-auto w-full max-w-3xl px-4 py-10 space-y-8">
+      <LanguagePreferenceForm
+        locale={params.locale}
+        initialPreferredLanguage={initialPreferredLanguage}
+        copy={copy}
+      />
 
-      <div className="space-y-6">
-        <LanguagePreferenceForm
-          locale={params.locale}
-          initialPreferredLanguage={null} // TODO: caricare da DB se serve
-        />
-        <DeleteAccountPanel locale={params.locale} />
-      </div>
-    </div>
-  )
+      <DeleteAccountPanel locale={params.locale} />
+
+    </main>
+  );
 }
