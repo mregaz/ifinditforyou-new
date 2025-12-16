@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabaseServer";
+import { createClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
 
 export async function POST() {
   try {
-    const supabase = createClient();
+    const supabase = await createClient(); // FIX: await
 
     const {
       data: { user },
@@ -12,45 +14,34 @@ export async function POST() {
 
     if (authError) {
       console.error("account/delete auth error:", authError);
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 1) Cancella le ricerche
-    const { error: searchError } = await supabase
-      .from("Search")
-      .delete()
-      .eq("user_id", user.id);
+    // Se nel tuo progetto hai una tabella "User" con id = user.id
+    // puoi opzionalmente pulire dati applicativi prima di eliminare l'utente.
+    // Esempio (se serve):
+    // await supabase.from("User").delete().eq("id", user.id);
 
-    if (searchError) {
-      console.error("Search deletion error:", searchError);
+    // Elimina l’utente in Supabase Auth (richiede service role lato server)
+    const { error: deleteError } = await supabase.auth.admin.deleteUser(user.id);
+
+    if (deleteError) {
+      console.error("account/delete deleteUser error:", deleteError);
       return NextResponse.json(
-        { error: "Error deleting user searches" },
+        { error: "Failed to delete user" },
         { status: 500 }
       );
     }
 
-    // 2) Cancella la riga nella tabella User
-    const { error: userError } = await supabase
-      .from("User")
-      .delete()
-      .eq("id", user.id);
-
-    if (userError) {
-      console.error("User deletion error:", userError);
-      return NextResponse.json(
-        { error: "Error deleting user record" },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ deleted: true });
-  } catch (error) {
-    console.error("account/delete error:", error);
+    return NextResponse.json({ ok: true });
+  } catch (err: any) {
+    console.error("account/delete unexpected error:", err);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: err?.message ?? "Unexpected error" },
       { status: 500 }
     );
   }
