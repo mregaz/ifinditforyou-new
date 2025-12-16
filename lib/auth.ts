@@ -1,30 +1,26 @@
-import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase/server";
 
-// Qui devi usare il meccanismo di auth che hai già.
-// Se usi Supabase auth, me lo dici e te lo adatto.
-// Per ora versione minimale basata su cookie "userId"
-
-export async function getUserFromRequest(req: Request) {
-  const cookie = req.headers.get("cookie") || "";
-  const match = cookie.match(/userId=([^;]+)/);
-
-  if (!match) return null;
-
-  const userId = match[1];
-
-  return prisma.user.findUnique({
-    where: { id: userId },
-  });
-}
-import { createClient } from "./supabaseServer";
-
+/**
+ * Ritorna l'utente Supabase corrente (oppure null).
+ * Server-side only.
+ */
 export async function getCurrentUser() {
-  const supabase = createClient();
-  const { data, error } = await supabase.auth.getUser();
+  const supabase = await createClient(); // FIX: await
 
-  if (error || !data?.user) {
-    return null;
-  }
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
 
-  return data.user;
+  if (error || !user) return null;
+
+  return user;
+}
+
+/**
+ * Helper: user id (oppure null).
+ */
+export async function getCurrentUserId() {
+  const user = await getCurrentUser();
+  return user?.id ?? null;
 }
