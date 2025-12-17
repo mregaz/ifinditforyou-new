@@ -1,21 +1,26 @@
 // app/[locale]/account/layout.tsx
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 
-type Props = {
+export default async function AccountLayout({
+  children,
+  params,
+}: {
   children: ReactNode;
-  params: { locale: string };
-};
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
 
-export default async function AccountLayout({ children, params }: Props) {
-  const user = await getCurrentUser();
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect(`/${params.locale}/login`);
+    redirect(`/${locale}/login`);
   }
 
-  return <div className="min-h-screen bg-slate-950 text-slate-50">{children}</div>;
+  return <>{children}</>;
 }
-
 
