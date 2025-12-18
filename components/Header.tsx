@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { Lang } from "@/lib/lang";
 
@@ -19,65 +20,45 @@ type HeaderLabels = {
   logout: string;
 };
 
-// Testi per le varie lingue dell'header (login, logout, ecc.)
 const LABELS: Record<Lang, HeaderLabels> = {
-  it: {
-    loading: "Caricamento...",
-    login: "Login",
-    register: "Registrati",
-    account: "Account",
-    logout: "Logout",
-  },
-  fr: {
-    loading: "Chargement...",
-    login: "Connexion",
-    register: "Créer un compte",
-    account: "Compte",
-    logout: "Se déconnecter",
-  },
-  en: {
-    loading: "Loading...",
-    login: "Login",
-    register: "Sign up",
-    account: "Account",
-    logout: "Logout",
-  },
-  de: {
-    loading: "Laden...",
-    login: "Login",
-    register: "Registrieren",
-    account: "Konto",
-    logout: "Logout",
-  },
-  es: {
-    loading: "Cargando...",
-    login: "Iniciar sesión",
-    register: "Crear cuenta",
-    account: "Cuenta",
-    logout: "Cerrar sesión",
-  },
+  it: { loading: "Caricamento...", login: "Login", register: "Registrati", account: "Account", logout: "Logout" },
+  fr: { loading: "Chargement...", login: "Connexion", register: "Créer un compte", account: "Compte", logout: "Se déconnecter" },
+  en: { loading: "Loading...", login: "Login", register: "Sign up", account: "Account", logout: "Logout" },
+  de: { loading: "Laden...", login: "Login", register: "Registrieren", account: "Konto", logout: "Logout" },
+  es: { loading: "Cargando...", login: "Iniciar sesión", register: "Crear cuenta", account: "Cuenta", logout: "Cerrar sesión" },
 };
 
+const SUPPORTED: Lang[] = ["it", "fr", "en", "de", "es"];
+const DEFAULT_LANG: Lang = "it";
+
+function localePath(locale: string, path: string) {
+  const cleanLocale = (locale || "").replace(/^\/+|\/+$/g, "");
+  const cleanPath = (path || "").startsWith("/") ? path : `/${path}`;
+  return `/${cleanLocale}${cleanPath}`.replace(/\/{2,}/g, "/");
+}
 
 export default function Header() {
-  const [user, setUser] = useState<UserState>({
-    email: null,
-    isPro: false,
-    loading: true,
-  });
+  const router = useRouter();
+  const pathname = usePathname();
 
-  // lingua di default
-  const [lang, setLang] = useState<Lang>("it");
+  const [user, setUser] = useState<UserState>({ email: null, isPro: false, loading: true });
 
-  // Legge la lingua salvata dalla Home (ifiy_lang)
-  useEffect(() => {
-    if (typeof window === "undefined") return;
+  // 1) locale dall'URL (prima scelta)
+  // 2) fallback da localStorage (ifiy_lang)
+  // 3) default
+  const locale = useMemo<Lang>(() => {
+    const firstSeg = pathname?.split("/").filter(Boolean)[0] as Lang | undefined;
+    if (firstSeg && SUPPORTED.includes(firstSeg)) return firstSeg;
 
-    const stored = window.localStorage.getItem("ifiy_lang") as Lang | null;
-    if (stored && (["it", "fr", "en", "de"] as Lang[]).includes(stored)) {
-      setLang(stored);
+    if (typeof window !== "undefined") {
+      const stored = window.localStorage.getItem("ifiy_lang") as Lang | null;
+      if (stored && SUPPORTED.includes(stored)) return stored;
     }
-  }, []);
+
+    return DEFAULT_LANG;
+  }, [pathname]);
+
+  const t = LABELS[locale];
 
   useEffect(() => {
     const loadUser = async () => {
@@ -108,60 +89,44 @@ export default function Header() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    window.location.href = "/login";
+    router.replace(localePath(locale, "/login"));
   };
-
-  const t = LABELS[lang];
 
   return (
     <header className="w-full border-b bg-white">
       <div className="max-w-5xl mx-auto flex items-center justify-between py-4 px-4">
-        <Link href="/" className="text-xl font-semibold">
+        <Link href={localePath(locale, "/")} className="text-xl font-semibold">
           IFindItForYou
         </Link>
 
         {user.loading ? (
           <span className="text-gray-500 text-sm">{t.loading}</span>
         ) : user.email ? (
-          <div className="flex items-center gap-20">
+          <div className="flex items-center gap-6">
             <span className="text-sm text-gray-700">{user.email}</span>
 
             <span
               className={`text-xs px-2 py-1 rounded ${
-                user.isPro
-                  ? "bg-green-600 text-white"
-                  : "bg-gray-300 text-gray-800"
+                user.isPro ? "bg-green-600 text-white" : "bg-gray-300 text-gray-800"
               }`}
             >
               {user.isPro ? "PRO" : "FREE"}
             </span>
 
-            <Link
-              href="/account"
-              className="text-sm underline text-blue-600 hover:text-blue-800"
-            >
+            <Link href={localePath(locale, "/account")} className="text-sm underline text-blue-600 hover:text-blue-800">
               {t.account}
             </Link>
 
-            <button
-              onClick={handleLogout}
-              className="text-sm text-red-600 underline hover:text-red-800"
-            >
+            <button onClick={handleLogout} className="text-sm text-red-600 underline hover:text-red-800">
               {t.logout}
             </button>
           </div>
         ) : (
           <div className="flex items-center gap-6">
-            <Link
-              href="/login"
-              className="text-sm underline text-blue-600 hover:text-blue-800"
-            >
+            <Link href={localePath(locale, "/login")} className="text-sm underline text-blue-600 hover:text-blue-800">
               {t.login}
             </Link>
-            <Link
-              href="/register"
-              className="text-sm underline text-blue-600 hover:text-blue-800"
-            >
+            <Link href={localePath(locale, "/register")} className="text-sm underline text-blue-600 hover:text-blue-800">
               {t.register}
             </Link>
           </div>
@@ -170,4 +135,5 @@ export default function Header() {
     </header>
   );
 }
+
 

@@ -18,7 +18,7 @@ export async function createClient() {
               cookieStore.set(name, value, options);
             });
           } catch {
-            // In Server Components, set può fallire. OK: lo gestisce middleware/route.
+            // ok in server components/layouts
           }
         },
       },
