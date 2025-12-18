@@ -2,20 +2,31 @@ import type { Metadata } from "next";
 import LegalPageShell from "@/components/LegalPageShell";
 import { baseUrl, locales, localePathname } from "@/lib/i18n-config";
 
+type AppLocale = (typeof locales)[number];
+const DEFAULT_LOCALE: AppLocale = "it";
+
+function toAppLocale(v: string): AppLocale {
+  return (locales as readonly string[]).includes(v) ? (v as AppLocale) : DEFAULT_LOCALE;
+}
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  const { locale } = await params;
-  const path = "/faq";
+  const { locale: rawLocale } = await params;
+  const locale = toAppLocale(rawLocale);
 
+  const path = "/faq";
   const canonicalUrl = `${baseUrl}${localePathname(locale, path)}`;
 
-  const languages = locales.reduce<Record<string, string>>((acc, loc) => {
-    acc[loc] = `${baseUrl}${localePathname(loc, path)}`;
-    return acc;
-  }, {});
+  const languages = (locales as readonly AppLocale[]).reduce<Record<string, string>>(
+    (acc, loc) => {
+      acc[loc] = `${baseUrl}${localePathname(loc, path)}`;
+      return acc;
+    },
+    {}
+  );
 
   return {
     title: "Domande frequenti – iFindItForYou",
@@ -41,6 +52,7 @@ export async function generateMetadata({
     },
   };
 }
+
 
 export default function FaqPage() {
   return (
