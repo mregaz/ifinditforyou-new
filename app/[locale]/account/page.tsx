@@ -1,8 +1,12 @@
 // app/[locale]/account/page.tsx
-import { redirect } from 'next/navigation'
+import { redirect } from "next/navigation";
 
-type Props = { params: { locale: string } }
-
-export default function AccountIndexPage({ params }: Props) {
-  redirect(`/${params.locale}/account/overview`)
+export default async function AccountIndexPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  redirect(`/${locale}/account/overview`);
 }
+
