@@ -1,81 +1,66 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { locales, type Locale } from "@/lib/lang";
 
-const LANGUAGE_INFO: Record<Locale, { label: string; flag: string }> = {
-  it: { label: "Italiano", flag: "🇮🇹" },
-  en: { label: "English", flag: "🇬🇧" },
-  fr: { label: "Français", flag: "🇫🇷" },
-  de: { label: "Deutsch", flag: "🇩🇪" },
-  es: { label: "Español", flag: "🇪🇸" },
-};
+const LOCALES = ["it", "en", "fr", "de", "es"] as const;
+type Locale = (typeof LOCALES)[number];
+
+function isLocale(v: string | undefined): v is Locale {
+  return !!v && (LOCALES as readonly string[]).includes(v);
+}
+
+function setLocaleCookies(locale: Locale) {
+  // 1 anno
+  const maxAge = 60 * 60 * 24 * 365;
+
+  document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=${maxAge}; samesite=lax`;
+  document.cookie = `ifiy_lang=${locale}; path=/; max-age=${maxAge}; samesite=lax`;
+
+  // compatibilità con ciò che già usavi
+  localStorage.setItem("ifiy_lang", locale);
+}
 
 export default function LanguageSwitcher() {
-  const pathname = usePathname();
   const router = useRouter();
+  const pathname = usePathname();
 
-  const prefixedLangs: Locale[] = ["en", "fr", "de", "es"];
+  const segments = pathname.split("/").filter(Boolean);
+  const current = isLocale(segments[0]) ? segments[0] : "it";
 
-  const getCurrentLang = (): Locale => {
-    const segments = pathname.split("/"); // es: ["", "en", "pro"]
-    const maybe = segments[1];
-    return prefixedLangs.includes(maybe as Locale) ? (maybe as Locale) : "it";
-  };
+  function go(to: Locale) {
+    if (to === current) return;
 
-  const currentLang = getCurrentLang();
+    setLocaleCookies(to);
 
-  const changeLang = (nextLang: Locale) => {
-    if (nextLang === currentLang) return;
+    let nextPath = pathname;
 
-    const segments = pathname.split("/");
-
-    if (nextLang === "it") {
-      // Da /en/... /fr/... /de/... /es/... -> /...
-      if (prefixedLangs.includes(segments[1] as Locale)) {
-        const withoutLang = ["", ...segments.slice(2)];
-        const path = withoutLang.join("/");
-        router.push(path === "" ? "/" : path);
-      } else {
-        router.push("/");
-      }
+    if (isLocale(segments[0])) {
+      // sostituisce il primo segmento locale mantenendo il resto del path
+      const rest = segments.slice(1).join("/");
+      nextPath = `/${to}${rest ? `/${rest}` : ""}`;
     } else {
-      // Destinazione: /en /fr /de /es
-      if (!prefixedLangs.includes(segments[1] as Locale)) {
-        // Eravamo in IT (nessun prefisso): aggiungi /xx davanti
-        const base = pathname === "/" ? "" : pathname;
-        router.push(`/${nextLang}${base}`);
-      } else {
-        // Cambio tra lingue prefissate: /en/... -> /fr/...
-        segments[1] = nextLang;
-        const path = segments.join("/");
-        router.push(path === "" ? "/" : path);
-      }
+      // se non c'era locale, lo prefissa
+      nextPath = `/${to}${pathname.startsWith("/") ? pathname : `/${pathname}`}`;
     }
-  };
+
+    router.push(nextPath);
+    router.refresh();
+  }
 
   return (
-    <div className="flex gap-2">
-      {locales.map((l) => {
-        const info = LANGUAGE_INFO[l];
-        const isActive = l === currentLang;
-
-        return (
-          <button
-            key={l}
-            type="button"
-            onClick={() => changeLang(l)}
-            className={
-              "flex items-center gap-1 text-xs px-3 py-1 border rounded-full " +
-              (isActive ? "bg-gray-200 font-semibold" : "bg-white")
-            }
-          >
-            <span>{info.flag}</span>
-            <span>{info.label}</span>
-          </button>
-        );
-      })}
+    <div className="flex items-center gap-2">
+      {LOCALES.map((l) => (
+        <button
+          key={l}
+          onClick={() => go(l)}
+          className={`rounded px-2 py-1 text-sm ${
+            l === current ? "font-semibold underline" : "opacity-80 hover:opacity-100"
+          }`}
+          type="button"
+        >
+          {l.toUpperCase()}
+        </button>
+      ))}
     </div>
   );
 }
-

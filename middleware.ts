@@ -47,7 +47,16 @@ export function middleware(req: NextRequest) {
   const first = segments[0];
 
   // Se già locale (es. /en/..., /it/...) -> ok
-  if (isSupportedLocale(first)) return NextResponse.next();
+  if (isSupportedLocale(first)) {
+  const res = NextResponse.next();
+
+  const maxAge = 60 * 60 * 24 * 365; // 1 anno
+  res.cookies.set("NEXT_LOCALE", first, { path: "/", maxAge, sameSite: "lax" });
+  res.cookies.set("ifiy_lang", first, { path: "/", maxAge, sameSite: "lax" });
+
+  return res;
+}
+
 
   // Evita di interferire con eventuali cartelle "backup" sotto app/
   if (first === "en_disabled" || first === "login_old" || first === "register_old") {
