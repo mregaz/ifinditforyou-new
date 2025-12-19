@@ -3,38 +3,58 @@ import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
+type SearchRow = {
+  id: string;
+  user_id: string;
+  query: string;
+  lang: string | null;
+  plan: string | null;
+  created_at: string;
+};
+
 export async function GET() {
-  try {
-    const supabase = await createClient();
+  const supabase = await createClient();
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-    if (userError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  if (userError || !user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-    // TODO: adattare tabella/colonne alla tua struttura reale
-    // Qui metto un placeholder sicuro che compila.
-    const { data, error } = await supabase
-      .from("my_searches")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("createdAt", { ascending: false });
+  const { data, error } = await supabase
+    .from("Search")
+    .select("id, user_id, query, lang, plan, created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("my-searches GET DB error:", error);
-      return NextResponse.json({ error: "DB error" }, { status: 500 });
-    }
-
-    return NextResponse.json({ data: data ?? [] });
-  } catch (err: any) {
-    console.error("my-searches GET unexpected error:", err);
+  if (error) {
+    console.error("my-searches GET DB error:", {
+      message: error.message,
+      code: (error as any).code,
+      details: (error as any).details,
+      hint: (error as any).hint,
+    });
     return NextResponse.json(
-      { error: err?.message ?? "Unexpected error" },
+      { error: "DB error", message: error.message },
       { status: 500 }
     );
   }
+
+  const rows = (data ?? []) as SearchRow[];
+
+  // Normalizziamo per la UI (createdAt camelCase)
+  const items = rows.map((r) => ({
+    id: r.id,
+    query: r.query,
+    status: r.plan ?? "FREE",   // se non hai "status", usiamo plan come fallback utile
+    createdAt: r.created_at,
+    lang: r.lang ?? null,
+    plan: r.plan ?? null,
+  }));
+
+  return NextResponse.json({ items });
 }
+

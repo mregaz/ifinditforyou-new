@@ -1,13 +1,16 @@
+// app/[locale]/account/settings/LanguagePreferenceForm.tsx
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-type DashboardCopy = Awaited<ReturnType<any>>; // fallback typing semplice
+type DashboardCopy = ReturnType<
+  typeof import("@/lib/i18n/dashboard").getDashboardCopy
+>;
 
 type Props = {
   locale: string;
   initialPreferredLanguage: string | null;
-  copy: any; // usiamo any per evitare altri errori TS adesso
+  copy: DashboardCopy;
 };
 
 const OPTIONS = [
@@ -15,66 +18,21 @@ const OPTIONS = [
     value: "auto",
     labelByLocale: {
       it: "Automatica (browser)",
-      en: "Automatic",
-      fr: "Automatique",
-      de: "Automatisch",
-      es: "Automático",
+      en: "Automatic (browser)",
+      fr: "Automatique (navigateur)",
+      de: "Automatisch (Browser)",
+      es: "Automático (navegador)",
     },
   },
-  {
-    value: "it",
-    labelByLocale: {
-      it: "Italiano",
-      en: "Italian",
-      fr: "Italien",
-      de: "Italienisch",
-      es: "Italiano",
-    },
-  },
-  {
-    value: "en",
-    labelByLocale: {
-      it: "Inglese",
-      en: "English",
-      fr: "Anglais",
-      de: "Englisch",
-      es: "Inglés",
-    },
-  },
-  {
-    value: "fr",
-    labelByLocale: {
-      it: "Francese",
-      en: "French",
-      fr: "Français",
-      de: "Französisch",
-      es: "Francés",
-    },
-  },
-  {
-    value: "de",
-    labelByLocale: {
-      it: "Tedesco",
-      en: "German",
-      fr: "Allemand",
-      de: "Deutsch",
-      es: "Alemán",
-    },
-  },
-  {
-    value: "es",
-    labelByLocale: {
-      it: "Spagnolo",
-      en: "Spanish",
-      fr: "Espagnol",
-      de: "Spanisch",
-      es: "Español",
-    },
-  },
+  { value: "it", labelByLocale: { it: "Italiano", en: "Italian", fr: "Italien", de: "Italienisch", es: "Italiano" } },
+  { value: "en", labelByLocale: { it: "Inglese", en: "English", fr: "Anglais", de: "Englisch", es: "Inglés" } },
+  { value: "fr", labelByLocale: { it: "Francese", en: "French", fr: "Français", de: "Französisch", es: "Francés" } },
+  { value: "de", labelByLocale: { it: "Tedesco", en: "German", fr: "Allemand", de: "Deutsch", es: "Alemán" } },
+  { value: "es", labelByLocale: { it: "Spagnolo", en: "Spanish", fr: "Espagnol", de: "Spanisch", es: "Español" } },
 ];
 
-function getLabel(opt: (typeof OPTIONS)[number], locale: string) {
-  const key = locale.split("-")[0] as "it" | "en" | "fr" | "de" | "es";
+function labelForLocale(opt: (typeof OPTIONS)[number], locale: string) {
+  const key = (locale || "en").split("-")[0] as "it" | "en" | "fr" | "de" | "es";
   return opt.labelByLocale[key] ?? opt.labelByLocale.en;
 }
 
@@ -84,6 +42,23 @@ export function LanguagePreferenceForm({
   copy,
 }: Props) {
   const t = copy;
+
+  const ui = useMemo(() => {
+    const l = (locale || "en").split("-")[0];
+    switch (l) {
+      case "it":
+        return { saving: "Salvataggio..." };
+      case "fr":
+        return { saving: "Enregistrement..." };
+      case "de":
+        return { saving: "Wird gespeichert..." };
+      case "es":
+        return { saving: "Guardando..." };
+      default:
+        return { saving: "Saving..." };
+    }
+  }, [locale]);
+
   const [value, setValue] = useState(initialPreferredLanguage ?? "auto");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -92,6 +67,7 @@ export function LanguagePreferenceForm({
     setValue(newValue);
     setSaving(true);
     setSaved(false);
+
     try {
       const res = await fetch("/api/user/update-preferences", {
         method: "POST",
@@ -110,25 +86,25 @@ export function LanguagePreferenceForm({
   }
 
   return (
-    <section className="border border-slate-200 rounded-xl p-6 shadow-sm bg-white">
-      <h2 className="text-lg font-semibold mb-4">{t.languageLabel}</h2>
+    <section className="rounded-xl border border-slate-800 bg-slate-900/40 p-6 shadow-sm">
+      <h2 className="text-lg font-semibold mb-4 text-slate-50">{t.languageLabel}</h2>
 
       <div className="space-y-2">
         <select
-          className="w-full max-w-xs rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="w-full max-w-xs rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-50"
           value={value}
           onChange={(e) => handleChange(e.target.value)}
         >
           {OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
-              {opt.value === "auto" ? t.languageAuto : getLabel(opt, locale)}
+              {opt.value === "auto" ? t.languageAuto : labelForLocale(opt, locale)}
             </option>
           ))}
         </select>
 
-        <div className="text-xs text-slate-500 h-4">
-          {saving && "Saving..."}
-          {saved && t.languageSaved}
+        <div className="text-xs text-slate-400 h-4">
+          {saving && ui.saving}
+          {!saving && saved && t.languageSaved}
         </div>
       </div>
     </section>

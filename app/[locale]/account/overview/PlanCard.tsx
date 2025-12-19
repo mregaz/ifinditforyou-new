@@ -1,15 +1,20 @@
-// app/[locale]/account/overview/PlanCard.tsx
 "use client";
 
 import { getDashboardCopy } from "@/lib/i18n/dashboard";
+import { ACCOUNT_COPY, toLocale, type Locale } from "@/lib/ui-copy";
 
 type Props = {
-  locale: string;
+  locale: string; // arriva dalla page server
   isPro: boolean;
 };
 
-export function PlanCard({ locale, isPro }: Props) {
-  const t = getDashboardCopy(locale);
+export default function PlanCard({ locale: rawLocale, isPro }: Props) {
+  const locale = toLocale(rawLocale);
+  const t = ACCOUNT_COPY[locale];
+
+  // Se vuoi usare ancora getDashboardCopy per altri testi “lunghi”, tienilo:
+  // (lo lascio perché nel tuo codice sotto lo usi già)
+  const d = getDashboardCopy(locale);
 
   const handleUpgrade = async () => {
     const res = await fetch("/api/create-checkout-session", {
@@ -33,38 +38,30 @@ export function PlanCard({ locale, isPro }: Props) {
               : "Unlock unlimited searches, full history and priority."}
           </p>
 
-          <button
-  type="button"
-  onClick={async () => {
-    const res = await fetch("/api/create-customer-portal", {
-      method: "POST",
-    });
-    const data = await res.json();
-    if (data?.url) window.location.href = data.url;
-  }}
-  className="mt-4 inline-flex items-center justify-center rounded-full border border-slate-700 px-5 py-2 text-sm text-slate-200 hover:bg-slate-800"
->
-  {locale === "it" ? "Gestisci abbonamento" : "Manage subscription"}
-</button>
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <div className="text-sm text-slate-200">
+              <span className="mr-2 font-semibold">{t.planLabel}:</span>
+              <span className="rounded bg-slate-800 px-2 py-1 text-xs">
+                {t.freeLabel}
+              </span>
+            </div>
 
+            <button
+              onClick={handleUpgrade}
+              className="rounded bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+              type="button"
+            >
+              {locale === "it" ? "Passa a PRO" : "Upgrade to PRO"}
+            </button>
+          </div>
         </>
       ) : (
-        <>
-          <p className="text-sm text-slate-200">
-            {locale === "it"
-              ? "Il tuo piano attuale è PRO."
-              : "Your current plan is PRO."}
-          </p>
-
-          <a
-            href={`/${locale}/account/billing`}
-            className="mt-4 inline-block text-sm text-emerald-400 underline underline-offset-4 hover:text-emerald-300"
-          >
-            {locale === "it"
-              ? "Gestisci abbonamento"
-              : "Manage subscription"}
-          </a>
-        </>
+        <div className="text-sm text-slate-200">
+          <span className="mr-2 font-semibold">{t.planLabel}:</span>
+          <span className="rounded bg-emerald-700 px-2 py-1 text-xs text-white">
+            {t.proLabel}
+          </span>
+        </div>
       )}
     </div>
   );

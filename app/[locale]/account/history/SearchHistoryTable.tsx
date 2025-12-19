@@ -9,11 +9,12 @@ type Props = {
 }
 
 type SearchItem = {
-  id: string
-  query: string
-  createdAt: string
-  status?: string
-}
+  id: string;
+  query: string;
+  createdAt: string;
+  status: string;
+};
+
 
 export function SearchHistoryTable({ locale }: Props) {
   const t = getDashboardCopy(locale)
@@ -22,10 +23,11 @@ export function SearchHistoryTable({ locale }: Props) {
 
   async function load() {
     try {
-      const res = await fetch('/api/my-searches')
-      if (!res.ok) throw new Error('Failed to fetch history')
-      const data = await res.json()
-      setItems(data || [])
+      const res = await fetch("/api/my-searches");
+if (!res.ok) throw new Error("Failed to fetch searches");
+const json = await res.json();
+setItems(json.items ?? []);
+
     } catch (e) {
       console.error(e)
     } finally {

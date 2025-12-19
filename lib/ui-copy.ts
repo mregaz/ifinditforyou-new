@@ -124,3 +124,55 @@ export const LOGIN_COPY: Record<
     register: "Crear cuenta",
   },
 };
+export const ACCOUNT_COPY: Record<
+  Locale,
+  {
+    planLabel: string;
+    freeLabel: string;
+    proLabel: string;
+    overviewTitle: string;
+    settingsLabel: string;
+    historyLabel: string;
+  }
+> = {
+  it: {
+    planLabel: "Piano",
+    freeLabel: "Gratis",
+    proLabel: "PRO",
+    overviewTitle: "Panoramica",
+    settingsLabel: "Impostazioni",
+    historyLabel: "Cronologia",
+  },
+  en: {
+    planLabel: "Plan",
+    freeLabel: "Free",
+    proLabel: "PRO",
+    overviewTitle: "Overview",
+    settingsLabel: "Settings",
+    historyLabel: "History",
+  },
+  fr: {
+    planLabel: "Forfait",
+    freeLabel: "Gratuit",
+    proLabel: "PRO",
+    overviewTitle: "Aperçu",
+    settingsLabel: "Paramètres",
+    historyLabel: "Historique",
+  },
+  de: {
+    planLabel: "Tarif",
+    freeLabel: "Kostenlos",
+    proLabel: "PRO",
+    overviewTitle: "Übersicht",
+    settingsLabel: "Einstellungen",
+    historyLabel: "Verlauf",
+  },
+  es: {
+    planLabel: "Plan",
+    freeLabel: "Gratis",
+    proLabel: "PRO",
+    overviewTitle: "Resumen",
+    settingsLabel: "Ajustes",
+    historyLabel: "Historial",
+  },
+};
