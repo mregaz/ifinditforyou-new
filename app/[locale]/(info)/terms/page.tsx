@@ -1,13 +1,7 @@
 import type { Metadata } from "next";
-import {
-  baseUrl,
-  i18n,
-  isSupportedLocale,
-  locales,
-  localePathname,
-  type Locale,
-} from "@/lib/i18n-config";
+import { i18n, isSupportedLocale, type Locale } from "@/lib/i18n-config";
 import { getTermsCopy } from "@/lib/i18n/info";
+import { buildInfoMetadata } from "@/lib/seo/info-metadata";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -20,21 +14,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? rawLocale
     : i18n.defaultLocale;
 
-  const path = "/terms";
-  const canonicalUrl = `${baseUrl}${localePathname(locale, path)}`;
-
-  const languages = locales.reduce<Record<string, string>>((acc, loc) => {
-    acc[loc] = `${baseUrl}${localePathname(loc, path)}`;
-    return acc;
-  }, {});
-
   const t = getTermsCopy(locale);
 
-  return {
-    title: `${t.title} – iFindItForYou`,
+  return buildInfoMetadata({
+    locale,
+    path: "/terms",
+    title: t.title,
     description: t.body,
-    alternates: { canonical: canonicalUrl, languages },
-  };
+  });
 }
 
 export default async function TermsPage({ params }: Props) {
