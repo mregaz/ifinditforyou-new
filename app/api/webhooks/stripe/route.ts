@@ -1,22 +1,48 @@
-// app/api/webhooks/stripe/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@supabase/supabase-js";
 import type Stripe from "stripe";
 
-// Supabase admin client (service role key → NECESSARIA)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export const runtime = "nodejs";
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+const supabaseUrl =
+  process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+if (!supabaseUrl) throw new Error("Missing SUPABASE_URL / NEXT_PUBLIC_SUPABASE_URL");
+if (!supabaseServiceRoleKey) throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
+if (!webhookSecret) throw new Error("Missing STRIPE_WEBHOOK_SECRET");
+
+// Supabase admin client (service role key)
+const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+
+async function setProByUserId(userId: string, isPro: boolean) {
+  const { error } = await supabase.from("User").update({ is_pro: isPro }).eq("id", userId);
+  if (error) throw error;
+}
+
+async function setProByEmail(email: string, isPro: boolean) {
+  const { error } = await supabase.from("User").update({ is_pro: isPro }).eq("email", email);
+  if (error) throw error;
+}
+
+async function saveStripeCustomerId(userId: string, stripeCustomerId: string) {
+  const { error } = await supabase
+    .from("profiles")
+    .update({ stripe_customer_id: stripeCustomerId })
+    .eq("id", userId);
+
+  if (error) {
+    console.error("❌ Error saving stripe_customer_id:", error);
+  } else {
+    console.log("✅ Saved stripe_customer_id for user:", userId);
+  }
+}
 
 export async function POST(req: NextRequest) {
   const signature = req.headers.get("stripe-signature");
-  if (!signature) {
-    return new NextResponse("Missing signature", { status: 400 });
-  }
+  if (!signature) return new NextResponse("Missing stripe-signature", { status: 400 });
 
   const body = await req.text();
 
@@ -24,94 +50,112 @@ export async function POST(req: NextRequest) {
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err: any) {
-    console.error("❌ Errore verifica firma Stripe:", err.message);
-    return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
+    console.error("❌ Stripe signature verification failed:", err?.message || err);
+    return new NextResponse("Invalid signature", { status: 400 });
   }
 
   try {
     switch (event.type) {
-      /**************************************************
-       * 1) UTENTE DIVENTA PRO  → checkout.session.completed
-       **************************************************/
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
 
-        // Email dell'acquirente
-        const email =
-          session.customer_details?.email ??
-          session.customer_email ??
-          null;
-
-        if (!email) {
-          console.error("❌ checkout.session.completed SENZA EMAIL");
+        // Extra safety: if payment is not settled yet, don’t upgrade here.
+        if (session.payment_status && session.payment_status !== "paid") {
+          console.log(
+            "ℹ️ checkout.session.completed but payment_status != paid:",
+            session.payment_status
+          );
           break;
         }
 
-        console.log("✅ Imposto is_pro = TRUE per utente:", email);
+        // Prefer stable user id coming from your app
+        const userId =
+          session.client_reference_id ||
+          session.metadata?.user_id ||
+          session.metadata?.userId ||
+          null;
 
-        const { error } = await supabase
-          .from("User")
-          .update({ is_pro: true })
-          .eq("email", email);
+        // Save stripe_customer_id to profiles if possible
+        const stripeCustomerId =
+          typeof session.customer === "string" ? session.customer : null;
 
-        if (error) {
-          console.error("❌ Errore aggiornando is_pro = true:", error);
+        if (userId && stripeCustomerId) {
+          await saveStripeCustomerId(userId, stripeCustomerId);
         }
 
+        if (userId) {
+          console.log("✅ Set is_pro = TRUE for user id:", userId);
+          await setProByUserId(userId, true);
+          break;
+        }
+
+        // Fallback to email (less reliable)
+        const email =
+          session.customer_details?.email ?? session.customer_email ?? null;
+
+        if (!email) {
+          console.warn("⚠️ checkout.session.completed without userId and without email");
+          break;
+        }
+
+        console.log("✅ Set is_pro = TRUE for email:", email);
+        await setProByEmail(email, true);
         break;
       }
 
-      /**************************************************
-       * 2) ABBONAMENTO CANCELLATO → customer.subscription.deleted
-       **************************************************/
+      case "customer.subscription.updated": {
+        const sub = event.data.object as Stripe.Subscription;
+
+        // Consider “active” and “trialing” as pro
+        const isActive = sub.status === "active" || sub.status === "trialing";
+
+        const customerId =
+          typeof sub.customer === "string" ? sub.customer : sub.customer.id;
+
+        // If you store stripe_customer_id in DB, this is the best key.
+        // Here we fallback via customer -> email (extra API call).
+        const customer = await stripe.customers.retrieve(customerId);
+        const email =
+          (customer as any).email ?? (customer as any).metadata?.email ?? null;
+
+        if (!email) {
+          console.warn("⚠️ subscription.updated: cannot resolve email");
+          break;
+        }
+
+        console.log(`✅ subscription.updated → set is_pro = ${isActive} for email:`, email);
+        await setProByEmail(email, isActive);
+        break;
+      }
+
       case "customer.subscription.deleted": {
-        const subscription = event.data.object as Stripe.Subscription;
+        const sub = event.data.object as Stripe.Subscription;
 
-        // Stripe NON include l'email qui in automatico.
-        // Recuperiamo l'email dal customer → chiamata API extra.
-        const customerId = subscription.customer;
+        const customerId =
+          typeof sub.customer === "string" ? sub.customer : sub.customer.id;
 
-        if (!customerId) {
-          console.warn("⚠️ subscription.deleted senza customerId");
-          break;
-        }
-
-        // Recupero oggetto customer da Stripe
-        const customer = await stripe.customers.retrieve(customerId as string);
-
+        const customer = await stripe.customers.retrieve(customerId);
         const email =
-          (customer as any).email ??
-          (customer as any).metadata?.email ??
-          null;
+          (customer as any).email ?? (customer as any).metadata?.email ?? null;
 
         if (!email) {
-          console.warn("⚠️ impossibile ottenere email per subscription.deleted");
+          console.warn("⚠️ subscription.deleted: cannot resolve email");
           break;
         }
 
-        console.log("⚠️ Imposto is_pro = FALSE per utente:", email);
-
-        const { error } = await supabase
-          .from("User")
-          .update({ is_pro: false })
-          .eq("email", email);
-
-        if (error) {
-          console.error("❌ Errore aggiornando is_pro = false:", error);
-        }
-
+        console.log("⚠️ subscription.deleted → set is_pro = FALSE for email:", email);
+        await setProByEmail(email, false);
         break;
       }
 
-      /**************************************************
-       * 3) Eventi ignorati
-       **************************************************/
       default:
-        console.log("ℹ️ Evento Stripe ignorato:", event.type);
+        console.log("ℹ️ Stripe event ignored:", event.type);
     }
-  } catch (err) {
-    console.error("❌ Errore interno webhook Stripe:", err);
-  }
 
-  return NextResponse.json({ received: true });
+    return NextResponse.json({ received: true });
+  } catch (err: any) {
+    // Return 500 so Stripe retries (useful if DB was temporarily down).
+    console.error("❌ Webhook handler error:", err?.message || err);
+    return new NextResponse("Webhook handler error", { status: 500 });
+  }
 }
