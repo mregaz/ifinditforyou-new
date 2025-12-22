@@ -1,86 +1,66 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import { isSupportedLocale, type Locale } from "@/lib/lang";
-import { createClient } from "@/lib/supabaseServer";
-import { ProCheckoutButtons } from "./ProCheckoutButtons";
+"use client";
+const PRO_COPY = {
+  it: {
+    title: "Pro",
+    subtitle: "Attiva Pro per sbloccare funzionalità avanzate e gestire il tuo abbonamento.",
+    choose: "Scegli un piano",
+    redirectHint: "Verrai reindirizzato al checkout Stripe.",
+  },
+  en: {
+    title: "Pro",
+    subtitle: "Activate Pro to unlock advanced features and manage your subscription.",
+    choose: "Choose a plan",
+    redirectHint: "You will be redirected to Stripe Checkout.",
+  },
+  fr: {
+    title: "Pro",
+    subtitle: "Activez Pro pour débloquer des fonctionnalités avancées et gérer votre abonnement.",
+    choose: "Choisir une offre",
+    redirectHint: "Vous serez redirigé vers Stripe Checkout.",
+  },
+  de: {
+    title: "Pro",
+    subtitle: "Aktiviere Pro, um erweiterte Funktionen freizuschalten und dein Abo zu verwalten.",
+    choose: "Plan wählen",
+    redirectHint: "Du wirst zu Stripe Checkout weitergeleitet.",
+  },
+  es: {
+    title: "Pro",
+    subtitle: "Activa Pro para desbloquear funciones avanzadas y gestionar tu suscripción.",
+    choose: "Elige un plan",
+    redirectHint: "Serás redirigido a Stripe Checkout.",
+  },
+} as const;
 
-export const dynamic = "force-dynamic";
-
-type Props = {
-  params: Promise<{ locale: string }>;
+const labels: Record<string, { monthly: string; yearly: string }> = {
+  it: { monthly: "Attiva Mensile", yearly: "Attiva Annuale" },
+  en: { monthly: "Start Monthly", yearly: "Start Yearly" },
+  fr: { monthly: "Mensuel", yearly: "Annuel" },
+  de: { monthly: "Monatlich", yearly: "Jährlich" },
+  es: { monthly: "Mensual", yearly: "Anual" },
 };
 
-export default async function ProPage({ params }: Props) {
-  const { locale: rawLocale } = await params;
-  const locale: Locale = isSupportedLocale(rawLocale) ? (rawLocale as Locale) : "it";
+export function ProCheckoutButtons({ locale }: { locale: string }) {
+  const t = labels[locale] ?? labels.it;
 
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect(`/${locale}/login`);
+  async function startCheckout(billingPeriod: "monthly" | "yearly") {
+    const res = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ billingPeriod, lang: locale }),
+    });
+    const data = await res.json();
+    if (data?.url) window.location.href = data.url;
   }
 
-  // Stato PRO dal DB (adatta se la tua tabella/colonna differisce)
-  const { data: dbUser } = await supabase
-    .from("User")
-    .select("is_pro")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  const isPro = Boolean(dbUser?.is_pro);
-
   return (
-    <main className="min-h-screen bg-white text-slate-900 px-4 py-10">
-      <div className="mx-auto max-w-2xl">
-        <h1 className="text-3xl font-semibold">Pro</h1>
-        <p className="mt-3 text-sm leading-relaxed text-slate-700">
-          Attiva Pro per sbloccare funzionalità avanzate e gestire il tuo abbonamento.
-        </p>
-
-        <div className="mt-6 rounded-2xl border border-slate-200 p-6 shadow-sm">
-          {isPro ? (
-            <>
-              <div className="text-sm font-medium text-emerald-700">
-                ✅ Il tuo account è già Pro.
-              </div>
-
-              <div className="mt-4 flex flex-wrap gap-3">
-                <Link
-                  href={`/${locale}/account`}
-                  className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
-                >
-                  Vai al tuo account
-                </Link>
-
-                <Link
-                  href={`/${locale}/account/settings`}
-                  className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-slate-50"
-                >
-                  Gestisci abbonamento
-                </Link>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="text-sm font-medium">Scegli un piano</div>
-
-              <ProCheckoutButtons locale={locale} />
-
-              <p className="mt-4 text-xs text-slate-500">
-                Verrai reindirizzato al checkout Stripe.
-              </p>
-
-              <p className="mt-2 text-xs text-slate-500">
-                Dopo il pagamento verrai riportato su <code>/{locale}/pay/success</code>.
-              </p>
-            </>
-          )}
-        </div>
-      </div>
-    </main>
+    <div className="mt-4 flex flex-wrap gap-3">
+      <button onClick={() => startCheckout("monthly")} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+        {t.monthly}
+      </button>
+      <button onClick={() => startCheckout("yearly")} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-slate-50">
+        {t.yearly}
+      </button>
+    </div>
   );
 }

@@ -25,6 +25,7 @@ const UI_TEXTS = {
     errorNetwork: "Problema di rete. Controlla la connessione e riprova.",
     search: "Cerca",
     proCta: "Diventa PRO",
+
     creditsLabel: (credits: number, isPro: boolean) =>
       isPro
         ? "Piano PRO attivo: ricerche illimitate."
@@ -80,7 +81,8 @@ const UI_TEXTS = {
       "Gift idea for a 12-year-old who loves LEGO",
     ],
     search: "Search",
-    proCta: "Go PRO",
+  proCta: "Go PRO",
+
     creditsLabel: (credits: number, isPro: boolean) =>
       isPro
         ? "PRO plan active: unlimited searches."
@@ -136,7 +138,8 @@ const UI_TEXTS = {
       "Idée cadeau pour un fan de LEGO de 12 ans",
     ],
     search: "Rechercher",
-    proCta: "Passer PRO",
+   proCta: "Passer PRO",
+
     creditsLabel: (c: number, isPro: boolean) =>
       isPro
         ? "Abonnement PRO actif : recherches illimitées."
@@ -194,7 +197,8 @@ const UI_TEXTS = {
       "Geschenkidee für LEGO-Fan (12 Jahre)",
     ],
     search: "Suchen",
-    proCta: "PRO werden",
+   proCta: "PRO werden",
+
     creditsLabel: (c: number, isPro: boolean) =>
       isPro
         ? "PRO aktiv: unbegrenzte Suchen."
@@ -255,7 +259,7 @@ const UI_TEXTS = {
   ],
 
   search: "Buscar",
-  proCta: "Hazte PRO",
+proCta: "Hazte PRO",
 
   creditsLabel: (credits: number, isPro: boolean) =>
     isPro
