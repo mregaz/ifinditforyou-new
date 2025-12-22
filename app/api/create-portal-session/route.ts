@@ -1,85 +1,57 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { createClient } from "@/lib/supabase/server";
 
-const secretKey =
-  process.env.STRIPE_SECRET_KEYS || process.env.STRIPE_SECRET_KEY || "";
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-if (!secretKey) {
-  console.error("Manca STRIPE_SECRET_KEYS / STRIPE_SECRET_KEY");
-}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-const stripe = new Stripe(secretKey || "sk_test_dummy" as string);
-
-export async function POST(req: Request) {
+export async function POST() {
   try {
-    const body = await req.json().catch(() => ({}));
-    const email = (body.email as string | undefined)?.trim();
+    const supabase = await createClient();
 
-    if (!email) {
-      return NextResponse.json(
-        { error: "Email utente non fornita." },
-        { status: 400 }
-      );
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 1) Troviamo il cliente Stripe con questa email
-    const customers = await stripe.customers.list({
-      email,
-      limit: 1,
-    });
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("stripe_customer_id")
+      .eq("id", user.id)
+      .single();
 
-    const customer = customers.data[0];
-
-    if (!customer) {
-      return NextResponse.json(
-        {
-          error:
-            "Nessun cliente Stripe trovato per questa email. Verifica di avere un abbonamento attivo.",
-        },
-        { status: 404 }
-      );
+    if (profileError) {
+      console.error("portal profile error:", profileError);
+      return NextResponse.json({ error: "Failed to load profile" }, { status: 500 });
     }
 
-    // 2) Calcoliamo l'URL di ritorno (pagina account)
-    const rawAppUrl =
-      process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const appUrl = rawAppUrl.trim().replace(/\/+$/, "");
-
-    try {
-      new URL(appUrl);
-    } catch {
-      return NextResponse.json(
-        {
-          error: `Configurazione NEXT_PUBLIC_APP_URL non valida: "${rawAppUrl}"`,
-        },
-        { status: 500 }
-      );
+    if (!profile?.stripe_customer_id) {
+      return NextResponse.json({ error: "Stripe customer not found" }, { status: 400 });
     }
 
-    // 3) Creiamo la sessione del Customer Portal
+    const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+    const baseUrl = rawBaseUrl.trim().replace(/\/+$/, "");
+
+    if (!baseUrl) {
+      return NextResponse.json({ error: "Missing NEXT_PUBLIC_APP_URL" }, { status: 500 });
+    }
+
+    // Locale: se non lo hai, fallback it. (Va benissimo così per ora)
+    const locale = (user.user_metadata?.locale as string | undefined) ?? "it";
+
     const session = await stripe.billingPortal.sessions.create({
-      customer: customer.id,
-      return_url: `${appUrl}/account`,
+      customer: profile.stripe_customer_id,
+      return_url: `${baseUrl}/${locale}/account`,
     });
 
-    return NextResponse.json({ url: session.url }, { status: 200 });
+    return NextResponse.json({ url: session.url });
   } catch (err: any) {
-    console.error("Stripe error in create-portal-session:", err);
-    return NextResponse.json(
-      {
-        error:
-          "Stripe error: " +
-          (err?.message ??
-            "Errore sconosciuto nella creazione della sessione del portale."),
-      },
-      { status: 500 }
-    );
+    console.error("create-portal-session error:", err);
+    return NextResponse.json({ error: err?.message ?? "Unexpected error" }, { status: 500 });
   }
-}
-
-export function GET() {
-  return NextResponse.json(
-    { error: "Usa il metodo POST per creare una sessione del portale Stripe." },
-    { status: 405 }
-  );
 }
