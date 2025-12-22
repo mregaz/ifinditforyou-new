@@ -9,14 +9,6 @@ type RequestBody = {
   lang?: string;
 };
 
-const localeMap: Record<Locale, string> = {
-  it: "it",
-  en: "en",
-  fr: "fr",
-  de: "de",
-  es: "es",
-};
-
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as RequestBody;
@@ -37,15 +29,11 @@ export async function POST(req: Request) {
     }
 
     const appLang: Locale = isSupportedLocale(lang) ? (lang as Locale) : "it";
-    const stripeLocale = localeMap[appLang];
 
-    // QUI usiamo ESATTAMENTE i nomi che hai in Vercel:
-    // STRIPE_PRICE_ID_MONTHLY e STRIPE_PRICE_ID_YEARLY
     const monthlyPriceId = process.env.STRIPE_PRICE_ID_MONTHLY;
     const yearlyPriceId = process.env.STRIPE_PRICE_ID_YEARLY;
 
-    const priceId =
-      billingPeriod === "yearly" ? yearlyPriceId : monthlyPriceId;
+    const priceId = billingPeriod === "yearly" ? yearlyPriceId : monthlyPriceId;
 
     if (!priceId) {
       console.error("Stripe price ID non configurato", {
@@ -60,18 +48,20 @@ export async function POST(req: Request) {
       );
     }
 
-    const appUrl =
-      process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000")
+      .trim()
+      .replace(/\/+$/, "");
 
-     const session = await stripe.checkout.sessions.create({
-  mode: "subscription",
-  locale: "auto",   // ✅ nessun problema di tipo
-  line_items: [{ price: priceId, quantity: 1 }],
-  success_url: `${appUrl}/pay/success`,
-  cancel_url: `${appUrl}/pay/cancel`,
-  // ... il resto uguale
-});
+    const successUrl = `${appUrl}/${appLang}/pay/success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${appUrl}/${appLang}/pay/cancel`;
 
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      locale: "auto",
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+    });
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
