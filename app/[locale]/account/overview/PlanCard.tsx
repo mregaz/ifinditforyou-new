@@ -17,16 +17,26 @@ export default function PlanCard({ locale: rawLocale, isPro }: Props) {
   const d = getDashboardCopy(locale);
 
   const handleUpgrade = async () => {
-    const res = await fetch("/api/create-checkout-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    });
+  const res = await fetch("/api/create-checkout-session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      billingPeriod: "monthly", // oppure "yearly" se vuoi
+      lang: locale,
+    }),
+  });
 
-    const data = await res.json();
-    if (data?.url) {
-      window.location.href = data.url;
-    }
-  };
+  if (!res.ok) {
+    console.error("Errore checkout", await res.text());
+    return;
+  }
+
+  const data = await res.json();
+  if (data?.url) {
+    window.location.href = data.url;
+  }
+};
+
 
   return (
     <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/40 p-4">
