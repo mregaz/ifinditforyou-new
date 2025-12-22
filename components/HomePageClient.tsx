@@ -6,6 +6,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { Lang } from "@/lib/lang";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { usePathname, useRouter } from "next/navigation";
 
 /* ============================================================================
    TEXTS MULTILINGUA
@@ -375,6 +376,8 @@ export default function HomePageClient({ initialLang }: HomePageClientProps) {
   const [recentSearches, setRecentSearches] = useState<SearchRow[]>([]);
   const [isFromSavedSearch, setIsFromSavedSearch] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
   const t = UI_TEXTS[lang] as any;
 
@@ -599,9 +602,10 @@ export default function HomePageClient({ initialLang }: HomePageClientProps) {
 
   /* ----------------- CTA PRO ----------------- */
  function handleGoPro() {
-  const href = lang === "it" ? "/pro" : `/${lang}/pro`;
-  window.location.href = href;
+  const safeLang = UI_TEXTS[lang] ? lang : "it";
+  window.location.href = `/${safeLang}/pro`;
 }
+
 
 
   /* ----------------- CLICK SU RICERCA RECENTE ----------------- */
