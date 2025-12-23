@@ -28,25 +28,26 @@ export default function PlanCard({ locale: rawLocale, isPro }: Props) {
   const t = ACCOUNT_COPY[locale];
 
   const handleUpgrade = async () => {
-    const res = await fetch("/api/create-checkout-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        billingPeriod: "monthly", // cambia in "yearly" dove serve
-        lang: locale,
-      }),
-    });
+  const res = await fetch("/api/create-checkout-session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      billingPeriod: "monthly", // cambia in "yearly" dove serve
+      lang: locale,
+    }),
+  });
 
-    if (!res.ok) {
-      console.error("Errore checkout", await res.text());
-      return;
-    }
+  if (!res.ok) {
+    console.error("Errore checkout", await res.text());
+    return;
+  }
 
-    const data = await res.json();
-    if (data?.url) {
-      window.location.href = data.url;
-    }
-  };
+  const data = await res.json();
+  if (data?.url) {
+    window.location.href = data.url;
+  }
+};
+
 
   return (
     <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/40 p-4">
