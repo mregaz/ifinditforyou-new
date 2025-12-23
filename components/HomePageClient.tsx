@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { Lang } from "@/lib/lang";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { usePathname, useRouter } from "next/navigation";
+import { isSupportedLocale, i18n, type Locale } from "@/lib/i18n-config";
 
 /* ============================================================================
    TEXTS MULTILINGUA
@@ -601,8 +602,8 @@ export default function HomePageClient({ initialLang }: HomePageClientProps) {
   };
 
   /* ----------------- CTA PRO ----------------- */
- function handleGoPro() {
-  const safeLang = UI_TEXTS[lang] ? lang : "it";
+function handleGoPro() {
+  const safeLang: Locale = isSupportedLocale(lang) ? lang : i18n.defaultLocale;
   window.location.href = `/${safeLang}/pro`;
 }
 

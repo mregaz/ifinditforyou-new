@@ -62,6 +62,22 @@ if (!webhookSecret) {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
+        const userId = session.client_reference_id;
+        const stripeCustomerId =
+        typeof session.customer === "string" ? session.customer : null;
+
+if (userId && stripeCustomerId) {
+  console.log("💾 Save stripe_customer_id:", stripeCustomerId, "for user:", userId);
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ stripe_customer_id: stripeCustomerId })
+    .eq("id", userId);
+
+  if (error) {
+    console.error("❌ Failed saving stripe_customer_id", error);
+  }
+}
 
         // Extra safety: if payment is not settled yet, don’t upgrade here.
         if (session.payment_status && session.payment_status !== "paid") {
