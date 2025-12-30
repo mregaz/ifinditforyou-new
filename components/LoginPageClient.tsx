@@ -18,26 +18,28 @@ export default function LoginPageClient() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
+async function handleSubmit(e: React.FormEvent) {
+  e.preventDefault();
+  setError(null);
+  setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
+  if (error) {
+    setError(error.message);
     setLoading(false);
-
-    if (error) {
-      setError(error.message);
-      return;
-    }
-
-    router.replace(`/${locale}/account`);
-    router.refresh();
+    return;
   }
+await fetch("/api/user/ensure", { method: "POST" });
+  // QUI ORA FAI redirect
+  router.replace(`/${locale}/account/overview`);
+  router.refresh();
+}
+
+ 
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-900 px-4">

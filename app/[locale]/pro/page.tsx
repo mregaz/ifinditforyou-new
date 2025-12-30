@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { i18n, isSupportedLocale, type Locale } from "@/lib/i18n-config";
 import { buildInfoMetadata } from "@/lib/seo/info-metadata";
-import { ProCheckoutButtons } from "./ProCheckoutButtons";
+import ProCheckoutButtons from "./ProCheckoutButtons";
+
 
 type Props = {
   params: Promise<{ locale: string }>;

@@ -1,47 +1,51 @@
 "use client";
 
-type Props = { locale: "it" | "en" | "fr" | "de" | "es" };
+type Props = { locale: string };
 
-const UI = {
-  it: { monthly: "Attiva Mensile", yearly: "Attiva Annuale" },
-  en: { monthly: "Start Monthly", yearly: "Start Yearly" },
-  fr: { monthly: "Mensuel", yearly: "Annuel" },
-  de: { monthly: "Monatlich", yearly: "Jährlich" },
-  es: { monthly: "Mensual", yearly: "Anual" },
-} as const;
-
-export function ProCheckoutButtons({ locale }: Props) {
-  const t = UI[locale] ?? UI.it;
-
-  async function start(billingPeriod: "monthly" | "yearly") {
+export default function ProCheckoutButtons({ locale }: Props) {
+  async function startCheckout(billingPeriod: "monthly" | "yearly") {
     const res = await fetch("/api/create-checkout-session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ billingPeriod, lang: locale }),
     });
 
-    const data = await res.json();
-    if (data?.url) window.location.href = data.url;
+    // Se non sei loggato, manda al login e ritorna qui
+    if (res.status === 401) {
+      window.location.href = `/login?redirectTo=${encodeURIComponent(`/${locale}/pro`)}`;
+      return;
+    }
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      console.error("create-checkout-session error:", res.status, data);
+      alert(data?.error || "Errore checkout");
+      return;
+    }
+
+    if (data?.url) {
+      window.location.href = data.url;
+    } else {
+      alert("Checkout URL mancante");
+    }
   }
 
   return (
-    <div className="mt-4 flex flex-wrap gap-3">
+    <div className="flex gap-3">
       <button
-        type="button"
-        onClick={() => start("monthly")}
-        className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+        className="rounded-md bg-emerald-600 px-4 py-2 text-white"
+        onClick={() => startCheckout("monthly")}
       >
-        {t.monthly}
+        Mensile
       </button>
 
       <button
-        type="button"
-        onClick={() => start("yearly")}
-        className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-slate-50"
+        className="rounded-md bg-emerald-600 px-4 py-2 text-white"
+        onClick={() => startCheckout("yearly")}
       >
-        {t.yearly}
+        Annuale
       </button>
     </div>
   );
 }
-

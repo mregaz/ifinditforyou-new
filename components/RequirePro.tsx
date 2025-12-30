@@ -1,57 +1,69 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { usePathname, useRouter } from "next/navigation";
 
 type RequireProProps = {
   children: React.ReactNode;
 };
 
+function getLocaleFromPathname(pathname: string | null) {
+  if (!pathname) return null;
+  const seg = pathname.split("/").filter(Boolean)[0]; // "fr" da "/fr/account/overview"
+  // se vuoi essere più stretto, limita ai tuoi locali: it/en/fr/de/es
+  if (!seg) return null;
+  return seg;
+}
+
 export function RequirePro({ children }: RequireProProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [status, setStatus] = useState<"checking" | "allowed">("checking");
 
   useEffect(() => {
-    const checkProStatus = async () => {
-      // 1) Controllo se l'utente è loggato
-      const {
-        data: { user },
-        error: authError,
-      } = await supabase.auth.getUser();
+    let cancelled = false;
 
-      if (authError || !user) {
-        // Non loggato → mando alla login, con redirect di ritorno alla pagina PRO
-        router.replace("/login?redirectTo=/pro");
-        return;
+    const locale = getLocaleFromPathname(pathname);
+    const loginPath = locale ? `/${locale}/login` : `/login`;
+    const proPath = locale ? `/${locale}/pro` : `/pro`;
+    const redirectTo = pathname || proPath;
+
+    async function check() {
+      try {
+        const res = await fetch("/api/subscription-status", {
+          method: "GET",
+          cache: "no-store",
+        });
+
+        if (res.status === 401) {
+          router.replace(`${loginPath}?redirectTo=${encodeURIComponent(redirectTo)}`);
+          return;
+        }
+
+        if (!res.ok) {
+          router.replace(proPath);
+          return;
+        }
+
+        const data = (await res.json()) as { isPro?: boolean };
+
+        if (!data?.isPro) {
+          router.replace(proPath);
+          return;
+        }
+
+        if (!cancelled) setStatus("allowed");
+      } catch {
+        router.replace(proPath);
       }
+    }
 
-      // 2) Leggo il flag is_pro dalla tabella User
-      const { data, error: profileError } = await supabase
-        .from("User")
-        .select("is_pro")
-        .eq("id", user.id)
-        .single();
+    check();
 
-      if (profileError) {
-        console.error("Errore caricando User.is_pro:", profileError);
-        // In caso di errore, lo mando alla pagina /pro (free) o a una pagina di errore
-        router.replace("/pro"); // oppure "/pricing"
-        return;
-      }
-
-      if (!data?.is_pro) {
-        // Utente non PRO → lo rimando alla pagina dove può fare l'upgrade
-        router.replace("/pro"); // oppure "/pricing"
-        return;
-      }
-
-      // Se arriviamo qui → utente PRO
-      setStatus("allowed");
+    return () => {
+      cancelled = true;
     };
-
-    checkProStatus();
-  }, [router]);
+  }, [router, pathname]);
 
   if (status === "checking") {
     return (
@@ -63,6 +75,7 @@ export function RequirePro({ children }: RequireProProps) {
     );
   }
 
-  // Utente PRO → mostro il contenuto
   return <>{children}</>;
 }
+
+
