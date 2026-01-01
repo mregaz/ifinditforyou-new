@@ -7,28 +7,54 @@ import { createClient } from "@supabase/supabase-js";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// ---------- Supabase admin client (bypass RLS) ----------
+const supabaseUrl =
+  process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-function toIsoFromUnixSeconds(sec?: number | null) {
-  if (!sec) return null;
+if (!supabaseUrl) throw new Error("Missing SUPABASE_URL / NEXT_PUBLIC_SUPABASE_URL");
+if (!supabaseServiceRoleKey) throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
+
+const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
+  auth: { persistSession: false },
+});
+
+// ---------- Helpers ----------
+function toIsoFromUnixSeconds(sec: number | null | undefined) {
+  if (!sec || typeof sec !== "number") return null;
   return new Date(sec * 1000).toISOString();
 }
 
-async function updateUserById(userId: string, patch: Record<string, any>) {
-  return supabase.from("User").update(patch).eq("id", userId).select("id, email, is_pro, plan, stripe_status");
+function isProFromStripeStatus(status: Stripe.Subscription.Status) {
+  // STANDARD: PRO true solo se active o trialing
+  return status === "active" || status === "trialing";
 }
 
-async function updateUserBySubscriptionId(subscriptionId: string, patch: Record<string, any>) {
-  return supabase
-    .from("User")
-    .update(patch)
-    .eq("stripe_subscription_id", subscriptionId)
-    .select("id, email, is_pro, plan, stripe_status");
+async function safeInsertPayment(payload: {
+  userId: string;
+  stripeSessionId: string;
+  amount?: number | null;
+  creditsGranted?: number | null;
+}) {
+  // Inserimento "best effort": se la tabella/colonne non matchano, non blocchiamo il webhook.
+  try {
+    const { error } = await supabase.from("Payment").insert({
+      userId: payload.userId,
+      stripeSessionId: payload.stripeSessionId,
+      amount: payload.amount ?? null,
+      creditsGranted: payload.creditsGranted ?? 0,
+      createdAt: new Date().toISOString(),
+    });
+    if (error) {
+      // niente log dettagliato (potrebbe includere schema info), ma utile per debug leggero
+      console.warn("Payment insert skipped");
+    }
+  } catch {
+    // ignore
+  }
 }
 
+// ---------- Handler ----------
 export async function POST(req: Request) {
   const signature = req.headers.get("stripe-signature");
   if (!signature) return new NextResponse("Missing stripe-signature", { status: 400 });
@@ -41,144 +67,122 @@ export async function POST(req: Request) {
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-  } catch (err: any) {
-    console.error("Stripe signature verification failed:", err?.message ?? err);
+  } catch {
     return new NextResponse("Invalid signature", { status: 400 });
   }
 
   try {
-    // --- A) checkout.session.completed -> upgrade immediato ---
+    // -------------------------
+    // 1) Checkout completed
+    // -------------------------
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
 
-      const userId = session.client_reference_id;
-      if (!userId) {
-        console.error("Missing client_reference_id. Ensure create-checkout-session sets it.");
-        return NextResponse.json({ received: true });
-      }
+      // user id: prefer client_reference_id (messo da create-checkout-session)
+      const userId = session.client_reference_id ?? undefined;
+      if (!userId) return NextResponse.json({ received: true });
 
       const customerId =
-        typeof session.customer === "string" ? session.customer : (session.customer as any)?.id ?? null;
-
+        typeof session.customer === "string" ? session.customer : null;
       const subscriptionId =
-        typeof session.subscription === "string" ? session.subscription : (session.subscription as any)?.id ?? null;
+        typeof session.subscription === "string" ? session.subscription : null;
 
-      // Upgrade user
-      const patch = {
-        is_pro: true,
-        plan: "pro",
-        stripe_customer_id: customerId,
-        stripe_subscription_id: subscriptionId,
-        stripe_status: "active",
-        cancel_at_period_end: false,
-        // NB: current_period_end arriverà con customer.subscription.updated
-        updatedAt: new Date().toISOString(),
-      };
+      // Se abbiamo subscriptionId, prendiamo lo stato reale + cancel_at_period_end + current_period_end
+      let stripeStatus: Stripe.Subscription.Status | null = null;
+      let cancelAtPeriodEnd: boolean | null = null;
+      let currentPeriodEndIso: string | null = null;
 
-      const { data: updated, error: updErr } = await updateUserById(userId, patch);
+      if (subscriptionId) {
+        const sub = await stripe.subscriptions.retrieve(subscriptionId);
 
-      if (updErr) {
-        console.error("Supabase UPDATE error (checkout.session.completed):", updErr);
-      } else if (!updated || updated.length === 0) {
-        // Fallback UPSERT se la riga non esiste ancora
-        const { error: upsErr } = await supabase.from("User").upsert({ id: userId, ...patch }, { onConflict: "id" });
-        if (upsErr) console.error("Supabase UPSERT error (checkout.session.completed):", upsErr);
+        stripeStatus = sub.status;
+        cancelAtPeriodEnd = !!sub.cancel_at_period_end;
+
+        // TS può non tipizzare current_period_end in alcune combinazioni: runtime c’è.
+        const cpe = (sub as any).current_period_end as number | undefined;
+        currentPeriodEndIso = toIsoFromUnixSeconds(cpe);
+
+        // Con metadata definitivi, qui avrai anche sub.metadata.user_id.
+        // Ma non lo usiamo per decidere userId (già robusto via client_reference_id).
       }
 
-      // Best-effort Payment insert (non blocca webhook se schema diverso)
-      try {
-        const amountTotal = (session as any).amount_total ?? null; // centesimi
-        const stripeSessionId = session.id;
+      const isPro = stripeStatus ? isProFromStripeStatus(stripeStatus) : true;
 
-        const { error: payErr } = await supabase.from("Payment").insert({
+      const { error } = await supabase
+        .from("User")
+        .upsert(
+          {
+            id: userId,
+            is_pro: isPro,
+            plan: isPro ? "pro" : "free",
+            stripe_customer_id: customerId,
+            stripe_subscription_id: subscriptionId,
+            stripe_status: stripeStatus ?? "active",
+            cancel_at_period_end: cancelAtPeriodEnd ?? false,
+            current_period_end: currentPeriodEndIso,
+          },
+          { onConflict: "id" }
+        );
+
+      if (!error && session.id) {
+        const amount = typeof session.amount_total === "number" ? session.amount_total : null;
+        await safeInsertPayment({
           userId,
-          stripeSessionId,
-          amount: amountTotal,
+          stripeSessionId: session.id,
+          amount,
           creditsGranted: 0,
-          createdAt: new Date().toISOString(),
         });
-
-        // Ignora errori di duplicato (se hai unique su stripeSessionId)
-        if (payErr && payErr.code !== "23505") {
-          console.warn("Payment insert warning:", payErr);
-        }
-      } catch (e: any) {
-        // ignoriamo per evitare di rompere
-        console.warn("Payment insert skipped:", e?.message ?? e);
       }
+
+      return NextResponse.json({ received: true });
     }
 
-    // --- B) customer.subscription.updated -> STANDARD (status + cancel + end date) ---
-    if (event.type === "customer.subscription.updated") {
+    // -------------------------
+    // 2) Subscription lifecycle
+    // -------------------------
+    if (
+      event.type === "customer.subscription.updated" ||
+      event.type === "customer.subscription.deleted"
+    ) {
       const sub = event.data.object as Stripe.Subscription;
 
-      const subscriptionId = sub.id;
-      const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
-
-      const status = sub.status; // active, trialing, past_due, canceled...
+      const status = sub.status;
       const cancelAtPeriodEnd = !!sub.cancel_at_period_end;
-      const currentPeriodEndIso = toIsoFromUnixSeconds(sub.current_period_end);
 
-      // STANDARD: PRO true solo se active o trialing
-      const isPro = status === "active" || status === "trialing";
+      const cpe = (sub as any).current_period_end as number | undefined;
+      const currentPeriodEndIso = toIsoFromUnixSeconds(cpe);
 
-      const patch = {
-        is_pro: isPro,
-        plan: isPro ? "pro" : "free",
-        stripe_customer_id: customerId,
-        stripe_subscription_id: subscriptionId,
-        stripe_status: status,
-        cancel_at_period_end: cancelAtPeriodEnd,
-        current_period_end: currentPeriodEndIso,
-        updatedAt: new Date().toISOString(),
-      };
+      const isPro = isProFromStripeStatus(status);
 
-      // 1) prova con metadata.user_id (se lo imposti in create-checkout-session)
-      const metaUserId = (sub.metadata && (sub.metadata as any).user_id) ? String((sub.metadata as any).user_id) : null;
+      // Definitivo: user_id viene da metadata (messo in create-checkout-session)
+      const userId = sub.metadata?.user_id;
+      if (!userId) return NextResponse.json({ received: true });
 
-      if (metaUserId) {
-        const { data, error } = await updateUserById(metaUserId, patch);
-        if (error) console.error("Supabase subscription.updated error (by user_id):", error);
-        else if (!data || data.length === 0) console.warn("No User matched by id (subscription.updated):", metaUserId);
-      } else {
-        // 2) fallback by stripe_subscription_id
-        const { data, error } = await updateUserBySubscriptionId(subscriptionId, patch);
-        if (error) console.error("Supabase subscription.updated error (by subscription_id):", error);
-        else if (!data || data.length === 0) console.warn("No User matched by stripe_subscription_id:", subscriptionId);
+      const { error } = await supabase
+        .from("User")
+        .update({
+          is_pro: isPro,
+          plan: isPro ? "pro" : "free",
+          stripe_status: status,
+          cancel_at_period_end: cancelAtPeriodEnd,
+          current_period_end: currentPeriodEndIso,
+          stripe_subscription_id: sub.id,
+          stripe_customer_id: typeof sub.customer === "string" ? sub.customer : null,
+        })
+        .eq("id", userId);
+
+      if (error) {
+        // log minimale, niente dettagli
+        console.warn("Supabase update failed for subscription lifecycle");
       }
+
+      return NextResponse.json({ received: true });
     }
 
-    // --- C) customer.subscription.deleted -> downgrade finale ---
-    if (event.type === "customer.subscription.deleted") {
-      const sub = event.data.object as Stripe.Subscription;
-
-      const subscriptionId = sub.id;
-
-      const patch = {
-        is_pro: false,
-        plan: "free",
-        stripe_status: "canceled",
-        cancel_at_period_end: false,
-        current_period_end: null,
-        updatedAt: new Date().toISOString(),
-      };
-
-      const metaUserId = (sub.metadata && (sub.metadata as any).user_id) ? String((sub.metadata as any).user_id) : null;
-
-      if (metaUserId) {
-        const { data, error } = await updateUserById(metaUserId, patch);
-        if (error) console.error("Supabase subscription.deleted error (by user_id):", error);
-        else if (!data || data.length === 0) console.warn("No User matched by id (subscription.deleted):", metaUserId);
-      } else {
-        const { data, error } = await updateUserBySubscriptionId(subscriptionId, patch);
-        if (error) console.error("Supabase subscription.deleted error (by subscription_id):", error);
-        else if (!data || data.length === 0) console.warn("No User matched by stripe_subscription_id:", subscriptionId);
-      }
-    }
-  } catch (err: any) {
-    console.error("Webhook handler error:", err?.message ?? err);
+    // altri eventi: ack
+    return NextResponse.json({ received: true });
+  } catch {
+    // Importante: Stripe vuole 2xx per non ritentare in loop. Qui puoi scegliere 500 se preferisci.
+    return NextResponse.json({ received: true });
   }
-
-  // Rispondi sempre 200 a Stripe
-  return NextResponse.json({ received: true });
 }
