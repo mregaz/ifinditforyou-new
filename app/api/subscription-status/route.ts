@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: Request) {
+export async function GET() {
   try {
     const supabase = await createClient();
 
@@ -16,26 +16,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await req.json().catch(() => ({}));
-    const preferred_language = body?.preferred_language ?? body?.language ?? null;
-
-    if (!preferred_language) {
-      return NextResponse.json({ error: "Missing preferred_language" }, { status: 400 });
-    }
-
-    const { error } = await supabase
+    const { data: profile, error } = await supabase
       .from("User")
-      .update({ preferred_language })
-      .eq("id", user.id);
+      .select("is_pro, stripe_status, cancel_at_period_end, current_period_end, plan")
+      .eq("id", user.id)
+      .maybeSingle();
 
     if (error) {
-      console.error("update-preferences DB error:", error);
+      console.error("subscription-status DB error:", error);
       return NextResponse.json({ error: "DB error" }, { status: 500 });
     }
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({
+      isPro: !!profile?.is_pro,
+      plan: profile?.plan ?? "free",
+      stripeStatus: profile?.stripe_status ?? null,
+      cancelAtPeriodEnd: !!profile?.cancel_at_period_end,
+      currentPeriodEnd: profile?.current_period_end ?? null,
+    });
   } catch (err: any) {
-    console.error("update-preferences unexpected error:", err);
+    console.error("subscription-status unexpected:", err);
     return NextResponse.json(
       { error: err?.message ?? "Unexpected error" },
       { status: 500 }

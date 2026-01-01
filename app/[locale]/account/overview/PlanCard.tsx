@@ -1,85 +1,69 @@
-"use client";
+// app/[locale]/account/overview/PlanCard.tsx
+import Link from "next/link";
 
-import { ACCOUNT_COPY, toLocale, type Locale } from "@/lib/ui-copy";
-
-type Props = {
-  locale: string; // arriva dalla page server
+type PlanCardProps = {
+  locale: string;
   isPro: boolean;
+  cancelAtPeriodEnd?: boolean;
+  currentPeriodEnd?: string | null; // ISO string o timestamptz
 };
 
-const PLAN_TEXT: Record<Locale, string> = {
-  it: "Sblocca ricerche illimitate, storico completo e priorità.",
-  en: "Unlock unlimited searches, full history and priority.",
-  fr: "Débloquez des recherches illimitées, l’historique complet et la priorité.",
-  de: "Schalte unbegrenzte Suchen, vollständigen Verlauf und Priorität frei.",
-  es: "Desbloquea búsquedas ilimitadas, historial completo y prioridad.",
-};
+function formatDate(locale: string, iso: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return new Intl.DateTimeFormat(locale, {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
+}
 
-const UPGRADE_LABEL: Record<Locale, string> = {
-  it: "Passa a PRO",
-  en: "Upgrade to PRO",
-  fr: "Passer à PRO",
-  de: "Auf PRO upgraden",
-  es: "Pasar a PRO",
-};
-
-export default function PlanCard({ locale: rawLocale, isPro }: Props) {
-  const locale = toLocale(rawLocale);
-  const t = ACCOUNT_COPY[locale];
-
-  const handleUpgrade = async () => {
-  const res = await fetch("/api/create-checkout-session", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      billingPeriod: "monthly", // cambia in "yearly" dove serve
-      lang: locale,
-    }),
-  });
-
-  if (!res.ok) {
-    console.error("Errore checkout", await res.text());
-    return;
-  }
-
-  const data = await res.json();
-  if (data?.url) {
-    window.location.href = data.url;
-  }
-};
-
+export default function PlanCard({
+  locale,
+  isPro,
+  cancelAtPeriodEnd = false,
+  currentPeriodEnd = null,
+}: PlanCardProps) {
+  const planLabel = isPro ? "PRO" : "Gratis";
+  const endDate = currentPeriodEnd ? formatDate(locale, currentPeriodEnd) : null;
 
   return (
-    <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/40 p-4">
-      {!isPro ? (
-        <>
-          <p className="text-sm text-slate-200">{PLAN_TEXT[locale]}</p>
+    <div className="rounded-2xl border border-slate-700/60 bg-slate-950/40 p-6">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <p className="text-slate-300">Sblocca ricerche illimitate, storico completo e priorità.</p>
 
-          <div className="mt-4 flex items-center justify-between gap-3">
-            <div className="text-sm text-slate-200">
-              <span className="mr-2 font-semibold">{t.planLabel}:</span>
-              <span className="rounded bg-slate-800 px-2 py-1 text-xs">
-                {t.freeLabel}
-              </span>
-            </div>
-
-            <button
-              onClick={handleUpgrade}
-              className="rounded bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-              type="button"
-            >
-              {UPGRADE_LABEL[locale]}
-            </button>
+          <div className="mt-4 flex items-center gap-3">
+            <span className="text-slate-300">Piano:</span>
+            <span className="rounded-md bg-slate-800 px-3 py-1 text-sm text-slate-100">
+              {planLabel}
+            </span>
           </div>
-        </>
-      ) : (
-        <div className="text-sm text-slate-200">
-          <span className="mr-2 font-semibold">{t.planLabel}:</span>
-          <span className="rounded bg-emerald-700 px-2 py-1 text-xs text-white">
-            {t.proLabel}
-          </span>
+
+          {isPro && cancelAtPeriodEnd && endDate ? (
+            <p className="mt-2 text-sm text-slate-300">
+              Abbonamento PRO attivo fino al{" "}
+              <span className="font-medium text-slate-100">{endDate}</span>
+            </p>
+          ) : null}
         </div>
-      )}
+
+        {!isPro ? (
+          <Link
+            href={`/${locale}/pro`}
+            className="rounded-lg bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-500"
+          >
+            Passa a PRO
+          </Link>
+        ) : (
+          <Link
+            href={`/${locale}/account/settings`}
+            className="rounded-lg border border-slate-600 px-5 py-3 text-sm font-semibold text-slate-100 hover:bg-slate-900"
+          >
+            Gestisci abbonamento
+          </Link>
+        )}
+      </div>
     </div>
   );
 }
