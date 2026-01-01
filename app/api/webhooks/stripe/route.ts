@@ -70,16 +70,17 @@ export async function POST(req: Request) {
 
       // 1) Provo UPDATE: dovrebbe colpire 1 riga se la riga User esiste
       const { data: updated, error: updErr } = await supabase
-        .from("User")
-        .update({
-          is_pro: true,
-          plan: "pro",
-          stripe_customer_id: customerId,
-          stripe_subscription_id: subscriptionId,
-          stripe_status: "active",
-        })
-        .eq("id", userId)
-        .select("id, is_pro, plan, stripe_status");
+    .from("User")
+  .update({
+    is_pro: true,
+    plan: "pro",
+    stripe_customer_id: customerId,
+    stripe_subscription_id: subscriptionId,
+    stripe_status: "active",
+    })
+  .eq("id", userId)
+  .select("id, is_pro, plan, stripe_status");
+
 
       if (updErr) {
         console.error("❌ Supabase UPDATE error:", updErr);
