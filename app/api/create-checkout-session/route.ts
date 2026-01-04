@@ -7,9 +7,44 @@ export const dynamic = "force-dynamic";
 
 type BillingPeriod = "monthly" | "yearly";
 
+function getBaseUrl() {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (appUrl) return appUrl.replace(/\/+$/, "");
+
+  // Preview/Deploy Vercel
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`.replace(/\/+$/, "");
+  }
+
+  // Local
+  return "http://localhost:3000";
+}
+
 export async function POST(req: Request) {
   try {
-    // 1) Auth user (fondamentale per collegare Stripe ↔ Supabase User.id)
+    // 0) Env guard (non permettere LIVE su Preview)
+    const vercelEnv = process.env.VERCEL_ENV; // "production" | "preview" | "development"
+    const secretKey = process.env.STRIPE_SECRET_KEY || "";
+    const secretPrefix = secretKey.slice(0, 7);
+
+    // Log minimale (utile per debug)
+    console.log("CHECKOUT_ENV", {
+      vercelEnv,
+      vercelUrl: process.env.VERCEL_URL,
+      secretPrefix,
+      monthlyPricePrefix: process.env.STRIPE_PRICE_ID_MONTHLY?.slice(0, 10),
+      yearlyPricePrefix: process.env.STRIPE_PRICE_ID_YEARLY?.slice(0, 10),
+    });
+
+    if (vercelEnv === "preview" && secretPrefix === "sk_live_") {
+      console.error("BLOCKED: Preview is using LIVE Stripe key (sk_live_)");
+      return NextResponse.json(
+        { error: "Preview misconfigured: LIVE Stripe key detected" },
+        { status: 500 }
+      );
+    }
+
+    // 1) Auth user (collega Stripe ↔ Supabase User.id)
     const supabase = await createClient();
     const {
       data: { user },
@@ -20,11 +55,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 2) Body
+    // 2) Body (opzionale)
     const body = await req.json().catch(() => ({}));
-    const billingPeriod = body?.billingPeriod as BillingPeriod | undefined;
-    const langRaw = body?.lang ?? "it";
-    const locale = String(langRaw || "it").toLowerCase();
+    const billingPeriod = (body?.billingPeriod as BillingPeriod | undefined) ?? "monthly";
+    const locale = String(body?.lang ?? "it").toLowerCase();
 
     if (billingPeriod !== "monthly" && billingPeriod !== "yearly") {
       return NextResponse.json({ error: "Invalid billingPeriod" }, { status: 400 });
@@ -36,7 +70,7 @@ export async function POST(req: Request) {
     const priceId = billingPeriod === "yearly" ? yearlyPriceId : monthlyPriceId;
 
     if (!priceId) {
-      console.error("Missing Stripe price ID", {
+      console.error("Missing Stripe priceId", {
         billingPeriod,
         hasMonthly: !!monthlyPriceId,
         hasYearly: !!yearlyPriceId,
@@ -44,42 +78,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing Stripe priceId" }, { status: 500 });
     }
 
-    // 4) App URL + redirect URL (NO variabili non definite)
-    const appUrl =
-  (process.env.NEXT_PUBLIC_APP_URL ??
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"))
-    .trim()
-    .replace(/\/+$/, "");
-console.log("create-checkout-session env", {
-  appUrl,
-  vercelUrl: process.env.VERCEL_URL,
-  hasNextPublicAppUrl: !!process.env.NEXT_PUBLIC_APP_URL,
-  stripeKeyMode: process.env.STRIPE_SECRET_KEY?.startsWith("sk_test") ? "test" : "live",
-});
-
-
-    // Se vuoi forzare solo lingue supportate, fallo dopo. Qui minimal.
-    const successUrl = `${appUrl}/${locale}/pay/success?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${appUrl}/${locale}/pay/cancel`;
-console.log("ENV CHECK create-checkout-session", {
-  vercelEnv: process.env.VERCEL_ENV,
-  vercelUrl: process.env.VERCEL_URL,
-  appUrl: process.env.NEXT_PUBLIC_APP_URL,
-  stripeKeyPrefix: process.env.STRIPE_SECRET_KEY?.slice(0, 7),
-  priceMonthly: process.env.STRIPE_PRICE_ID_MONTHLY?.slice(0, 10),
-});
+    // 4) Redirect URLs
+    const baseUrl = getBaseUrl();
+    const successUrl = `${baseUrl}/${locale}/pay/success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${baseUrl}/${locale}/pay/cancel`;
 
     // 5) Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-
-      // collegamento robusto per webhook:
       client_reference_id: user.id,
-      subscription_data: {
-        metadata: { user_id: user.id },
-      },
-
+      subscription_data: { metadata: { user_id: user.id } },
       success_url: successUrl,
       cancel_url: cancelUrl,
     });
