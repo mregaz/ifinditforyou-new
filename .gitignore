@@ -11,3 +11,4 @@ build/
 # local backups / archives
 app__backup_*/
 archive/
+.DS_Store
