@@ -61,6 +61,13 @@ console.log("create-checkout-session env", {
     // Se vuoi forzare solo lingue supportate, fallo dopo. Qui minimal.
     const successUrl = `${appUrl}/${locale}/pay/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${appUrl}/${locale}/pay/cancel`;
+console.log("ENV CHECK create-checkout-session", {
+  vercelEnv: process.env.VERCEL_ENV,
+  vercelUrl: process.env.VERCEL_URL,
+  appUrl: process.env.NEXT_PUBLIC_APP_URL,
+  stripeKeyPrefix: process.env.STRIPE_SECRET_KEY?.slice(0, 7),
+  priceMonthly: process.env.STRIPE_PRICE_ID_MONTHLY?.slice(0, 10),
+});
 
     // 5) Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
