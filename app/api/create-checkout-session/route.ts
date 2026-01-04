@@ -45,9 +45,18 @@ export async function POST(req: Request) {
     }
 
     // 4) App URL + redirect URL (NO variabili non definite)
-    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://ifinditforyou.com")
-      .trim()
-      .replace(/\/+$/, "");
+    const appUrl =
+  (process.env.NEXT_PUBLIC_APP_URL ??
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"))
+    .trim()
+    .replace(/\/+$/, "");
+console.log("create-checkout-session env", {
+  appUrl,
+  vercelUrl: process.env.VERCEL_URL,
+  hasNextPublicAppUrl: !!process.env.NEXT_PUBLIC_APP_URL,
+  stripeKeyMode: process.env.STRIPE_SECRET_KEY?.startsWith("sk_test") ? "test" : "live",
+});
+
 
     // Se vuoi forzare solo lingue supportate, fallo dopo. Qui minimal.
     const successUrl = `${appUrl}/${locale}/pay/success?session_id={CHECKOUT_SESSION_ID}`;
