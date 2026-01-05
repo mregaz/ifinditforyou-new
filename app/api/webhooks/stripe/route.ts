@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
+import type StripeType from "stripe";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@supabase/supabase-js";
+
 
 export const runtime = "nodejs";
 
@@ -29,11 +30,16 @@ console.log("WEBHOOK_ENV", {
 
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-  } catch (err) {
-    console.error("❌ Invalid Stripe signature", err);
-    return new NextResponse("Invalid signature", { status: 400 });
-  }
+  event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+} catch (err: any) {
+  console.error("❌ Invalid Stripe signature", {
+    message: err?.message,
+    whsecPrefix: webhookSecret.slice(0, 10),
+    sigPrefix: signature.slice(0, 20),
+    bodyLen: body.length,
+  });
+  return new NextResponse("Unauthorized", { status: 401 });
+}
 
   const supabase = createClient(supabaseUrl, serviceRoleKey);
 
