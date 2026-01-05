@@ -28,7 +28,8 @@ console.log("WEBHOOK_ENV", {
 
   const body = await req.text();
 
-  let event: Stripe.Event;
+  let event: StripeType.Event;
+
   try {
   event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
 } catch (err: any) {
