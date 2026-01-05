@@ -9,6 +9,11 @@ export async function POST(req: Request) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   const supabaseUrl = process.env.SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+console.log("WEBHOOK_ENV", {
+  vercelEnv: process.env.VERCEL_ENV,
+  vercelUrl: process.env.VERCEL_URL,
+  whsecPrefix: process.env.STRIPE_WEBHOOK_SECRET?.slice(0, 10),
+});
 
   if (!webhookSecret || !supabaseUrl || !serviceRoleKey) {
     console.error("❌ Missing env vars");
