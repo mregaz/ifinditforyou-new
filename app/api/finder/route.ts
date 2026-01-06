@@ -30,6 +30,8 @@ async function searchPro(query: string, lang: Lang) {
 
 export async function POST(req: Request) {
   const supabase = await createClient();
+const { data: { user } } = await supabase.auth.getUser();
+console.log("FINDER USER:", user?.id ?? null);
 
   // Auth user (se non loggato, può fare solo public search)
   const {

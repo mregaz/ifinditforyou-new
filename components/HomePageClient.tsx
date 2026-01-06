@@ -555,6 +555,7 @@ export default function HomePageClient({ initialLang }: HomePageClientProps) {
       setSummary(data.summary || "");
 
       if (!isPro) setCredits((c) => (c > 0 ? c - 1 : 0));
+       alert("Sto chiamando /api/finder");
 
       // Salva la ricerca su Supabase se l’utente è loggato
       try {
