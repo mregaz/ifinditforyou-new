@@ -30,21 +30,21 @@ async function searchPro(query: string, lang: Lang) {
 
 export async function POST(req: Request) {
   const supabase = await createClient();
-const { data: { user } } = await supabase.auth.getUser();
-console.log("FINDER USER:", user?.id ?? null);
 
-  // Auth user (se non loggato, può fare solo public search)
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const userRes = await supabase.auth.getUser();
+  const user = userRes.data?.user ?? null;
 
   const body = await req.json().catch(() => ({}));
   const query = String(body?.query ?? "").trim();
-  const lang = normalizeLang(body?.lang);
+  const lang = String(body?.lang ?? "it").toLowerCase();
 
   if (!query) {
     return NextResponse.json({ error: "Missing query" }, { status: 400 });
   }
+
+  // ... continua la tua logica
+}
+
 
   // Leggiamo lo user row se loggato
   let userRow: any = null;
