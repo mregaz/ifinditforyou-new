@@ -536,6 +536,7 @@ export default function HomePageClient({ initialLang }: HomePageClientProps) {
     setIsFromSavedSearch(false); // dopo che lanci una nuova ricerca, tolgo il banner
 
     const plan = isPro ? "pro" : "free";
+    console.log("CLIENT: calling /api/finder", { query, lang });
 
     try {
       const res = await fetch("/api/finder", {
@@ -558,12 +559,19 @@ export default function HomePageClient({ initialLang }: HomePageClientProps) {
       // Salva la ricerca su Supabase se l’utente è loggato
       try {
         if (userId) {
-          await supabase.from("Search").insert({
-            user_id: userId,
-            query: q,
-            lang,
-            plan,
-          });
+        const res = await fetch("/api/finder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, lang }),
+       });
+
+         const data = await res.json();
+
+        // poi usi:
+        data.results
+        data.creditsRemaining
+        data.isPro
+
           // ricarica le recenti
           const { data: recentData } = await supabase
             .from("Search")
