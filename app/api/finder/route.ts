@@ -13,52 +13,52 @@ function normalizeLang(x: any): Lang {
 }
 
 /**
- * QUI: incolla il tuo searchPublic attuale (quello che già hai nel file)
+ * TODO: sostituisci con la tua logica reale già esistente
  */
 async function searchPublic(query: string, lang: Lang) {
-  // TODO: sostituisci con la tua logica reale già esistente
   return [];
 }
 
 /**
- * QUI: incolla il tuo searchPro attuale (quello che già hai nel file)
+ * TODO: sostituisci con la tua logica reale già esistente
  */
 async function searchPro(query: string, lang: Lang) {
-  // TODO: sostituisci con la tua logica reale già esistente
   return [];
 }
 
 export async function POST(req: Request) {
   const supabase = await createClient();
 
+  // Auth user (se non loggato, può fare solo public search)
   const userRes = await supabase.auth.getUser();
   const user = userRes.data?.user ?? null;
 
   const body = await req.json().catch(() => ({}));
   const query = String(body?.query ?? "").trim();
-  const lang = String(body?.lang ?? "it").toLowerCase();
+  const lang = normalizeLang(body?.lang);
 
   if (!query) {
     return NextResponse.json({ error: "Missing query" }, { status: 400 });
   }
 
-  // ... continua la tua logica
-}
-
-
   // Leggiamo lo user row se loggato
   let userRow: any = null;
+
   if (user?.id) {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("User")
       .select("id, is_pro, credits, plan")
       .eq("id", user.id)
       .maybeSingle();
 
+    if (error) {
+      return NextResponse.json({ error: "Failed to load user" }, { status: 500 });
+    }
+
     userRow = data ?? null;
   }
 
-  // Decide modalità
+  // Decide modalità: PRO solo se DB dice PRO (mai fidarsi del client)
   const isPro = !!userRow?.is_pro;
 
   // 1) Se PRO: consuma 1 credito in modo atomico (RPC)
@@ -73,7 +73,6 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "No credits left" }, { status: 402 });
       }
       if (msg.includes("pro required")) {
-        // caso raro: stato incoerente
         return NextResponse.json({ error: "PRO required" }, { status: 403 });
       }
       return NextResponse.json({ error: "Credit consumption failed" }, { status: 500 });
@@ -86,8 +85,6 @@ export async function POST(req: Request) {
   const results = isPro ? await searchPro(query, lang) : await searchPublic(query, lang);
 
   // 3) Log ricerca (server-side)
-  // Anche se non loggato, puoi scegliere se loggare o no.
-  // Io loggo solo se abbiamo user_id (più pulito).
   if (userRow?.id) {
     const { error: logErr } = await supabase.from("Search").insert({
       user_id: userRow.id,
@@ -97,8 +94,8 @@ export async function POST(req: Request) {
     });
 
     if (logErr) {
-      // Non blocco il risultato, ma loggo
-      console.warn("⚠️ Failed to log search", logErr);
+      // non blocchiamo la risposta, ma logghiamo
+      console.warn("Failed to log search", logErr);
     }
   }
 
@@ -109,4 +106,3 @@ export async function POST(req: Request) {
     results,
   });
 }
-
