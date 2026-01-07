@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,24 +13,31 @@ function normalizeLang(x: any): Lang {
   return "it";
 }
 
-/**
- * TODO: sostituisci con la tua logica reale già esistente
- */
 async function searchPublic(query: string, lang: Lang) {
+  // TODO: sostituisci con la tua logica reale già esistente
   return [];
 }
 
-/**
- * TODO: sostituisci con la tua logica reale già esistente
- */
 async function searchPro(query: string, lang: Lang) {
+  // TODO: sostituisci con la tua logica reale già esistente
   return [];
 }
 
 export async function POST(req: Request) {
   const supabase = await createClient();
 
-  // Auth user (se non loggato, può fare solo public search)
+  // ✅ 1) CLIENT ADMIN (SERVICE ROLE) per bypassare RLS lato server
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
+    return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
+  }
+
+  const supabaseAdmin = createAdminClient(supabaseUrl, serviceRoleKey);
+
+  // ✅ 2) Auth user (cookie-based)
   const userRes = await supabase.auth.getUser();
   const user = userRes.data?.user ?? null;
 
@@ -41,7 +49,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing query" }, { status: 400 });
   }
 
-  // Leggiamo lo user row se loggato
+  // ✅ 3) Carica userRow (DB) se loggato
   let userRow: any = null;
 
   if (user?.id) {
@@ -52,16 +60,17 @@ export async function POST(req: Request) {
       .maybeSingle();
 
     if (error) {
+      console.error("Failed to load user", error);
       return NextResponse.json({ error: "Failed to load user" }, { status: 500 });
     }
 
     userRow = data ?? null;
   }
 
-  // Decide modalità: PRO solo se DB dice PRO (mai fidarsi del client)
+  // ✅ 4) PRO deciso SOLO dal DB
   const isPro = !!userRow?.is_pro;
 
-  // 1) Se PRO: consuma 1 credito in modo atomico (RPC)
+  // ✅ 5) Consumo crediti SOLO se PRO
   let creditsRemaining: number | null = null;
 
   if (isPro) {
@@ -75,18 +84,19 @@ export async function POST(req: Request) {
       if (msg.includes("pro required")) {
         return NextResponse.json({ error: "PRO required" }, { status: 403 });
       }
+      console.error("consume_credit failed", error);
       return NextResponse.json({ error: "Credit consumption failed" }, { status: 500 });
     }
 
     creditsRemaining = data?.[0]?.new_credits ?? null;
   }
 
-  // 2) Esegui ricerca (public o pro)
+  // ✅ 6) Esegui ricerca
   const results = isPro ? await searchPro(query, lang) : await searchPublic(query, lang);
 
-  // 3) Log ricerca (server-side)
+  // ✅ 7) Log Search con ADMIN (bypassa RLS)
   if (userRow?.id) {
-    const { error: logErr } = await supabase.from("Search").insert({
+    const { error: logErr } = await supabaseAdmin.from("Search").insert({
       user_id: userRow.id,
       query,
       lang,
@@ -94,8 +104,8 @@ export async function POST(req: Request) {
     });
 
     if (logErr) {
-      // non blocchiamo la risposta, ma logghiamo
-      console.warn("Failed to log search", logErr);
+      console.warn("Failed to log search (admin)", logErr);
+      // non blocco la risposta
     }
   }
 
