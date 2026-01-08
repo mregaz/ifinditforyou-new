@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -21,6 +21,8 @@ export async function POST(req: Request) {
     }
 
     // 2) Body
+    const stripe = getStripe();
+
     const body = await req.json().catch(() => ({}));
     const billingPeriod = body?.billingPeriod as BillingPeriod | undefined;
     const langRaw = body?.lang ?? "it";

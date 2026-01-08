@@ -1,6 +1,4 @@
 import Link from "next/link";
-import type Stripe from "stripe";
-import { stripe } from "@/lib/stripe";
 import { i18n, isSupportedLocale, type Locale } from "@/lib/i18n-config";
 
 export const runtime = "nodejs";
@@ -15,90 +13,77 @@ function uiCopy(locale: Locale) {
   const copy = {
     it: {
       title: "Pagamento completato",
-      subtitlePaid: "Grazie. Il pagamento risulta completato.",
-      subtitleUnpaid:
-        "Abbiamo ricevuto la sessione, ma il pagamento non risulta completato (ancora).",
+      subtitlePaid:
+        "Grazie. Il pagamento risulta completato. Se non vedi subito i benefici, ricarica la pagina o vai al tuo account.",
       subtitleMissing:
         "Pagamento completato. Se non vedi subito i benefici, ricarica la pagina o vai al tuo account.",
       ctaAccount: "Vai al tuo account",
       ctaPortal: "Gestisci abbonamento",
+      backHome: "Torna alla Home",
       detailLabel: "Dettagli",
       status: "Stato",
-      amount: "Importo",
-      email: "Email",
-      backHome: "Torna alla Home",
+      statusPaid: "paid",
+      statusMissing: "missing",
     },
     en: {
       title: "Payment successful",
-      subtitlePaid: "Thank you. Your payment is confirmed.",
-      subtitleUnpaid:
-        "We received the session, but payment is not confirmed (yet).",
+      subtitlePaid:
+        "Thank you. Your payment is confirmed. If you don’t see updates, refresh the page or go to your account.",
       subtitleMissing:
         "Payment completed. If you don’t see updates, refresh the page or go to your account.",
       ctaAccount: "Go to your account",
       ctaPortal: "Manage subscription",
+      backHome: "Back to Home",
       detailLabel: "Details",
       status: "Status",
-      amount: "Amount",
-      email: "Email",
-      backHome: "Back to Home",
+      statusPaid: "paid",
+      statusMissing: "missing",
     },
     fr: {
       title: "Paiement réussi",
-      subtitlePaid: "Merci. Votre paiement est confirmé.",
-      subtitleUnpaid:
-        "Nous avons reçu la session, mais le paiement n’est pas confirmé (pour le moment).",
+      subtitlePaid:
+        "Merci. Votre paiement est confirmé. Si rien ne change, actualisez la page ou allez sur votre compte.",
       subtitleMissing:
         "Paiement terminé. Si rien ne change, actualisez la page ou allez sur votre compte.",
       ctaAccount: "Aller à mon compte",
       ctaPortal: "Gérer l’abonnement",
+      backHome: "Retour à l’accueil",
       detailLabel: "Détails",
       status: "Statut",
-      amount: "Montant",
-      email: "Email",
-      backHome: "Retour à l’accueil",
+      statusPaid: "paid",
+      statusMissing: "missing",
     },
     de: {
       title: "Zahlung erfolgreich",
-      subtitlePaid: "Danke. Deine Zahlung ist bestätigt.",
-      subtitleUnpaid:
-        "Wir haben die Session erhalten, aber die Zahlung ist (noch) nicht bestätigt.",
+      subtitlePaid:
+        "Danke. Deine Zahlung ist bestätigt. Wenn du keine Änderungen siehst, lade die Seite neu oder gehe zu deinem Konto.",
       subtitleMissing:
         "Zahlung abgeschlossen. Wenn du keine Änderungen siehst, lade die Seite neu oder gehe zu deinem Konto.",
       ctaAccount: "Zum Konto",
       ctaPortal: "Abo verwalten",
+      backHome: "Zur Startseite",
       detailLabel: "Details",
       status: "Status",
-      amount: "Betrag",
-      email: "E-Mail",
-      backHome: "Zur Startseite",
+      statusPaid: "paid",
+      statusMissing: "missing",
     },
     es: {
       title: "Pago completado",
-      subtitlePaid: "Gracias. Tu pago está confirmado.",
-      subtitleUnpaid:
-        "Hemos recibido la sesión, pero el pago aún no está confirmado.",
+      subtitlePaid:
+        "Gracias. Tu pago está confirmado. Si no ves cambios, recarga la página o ve a tu cuenta.",
       subtitleMissing:
         "Pago completado. Si no ves cambios, recarga la página o ve a tu cuenta.",
       ctaAccount: "Ir a tu cuenta",
       ctaPortal: "Gestionar suscripción",
+      backHome: "Volver al inicio",
       detailLabel: "Detalles",
       status: "Estado",
-      amount: "Importe",
-      email: "Email",
-      backHome: "Volver al inicio",
+      statusPaid: "paid",
+      statusMissing: "missing",
     },
   } as const;
 
   return copy[locale] ?? copy.it;
-}
-
-function formatAmount(session: Stripe.Checkout.Session) {
-  const total = session.amount_total;
-  const currency = session.currency?.toUpperCase();
-  if (!total || !currency) return null;
-  const value = (total / 100).toFixed(2);
-  return `${value} ${currency}`;
 }
 
 export default async function PaySuccessPage({ params, searchParams }: Props) {
@@ -112,31 +97,11 @@ export default async function PaySuccessPage({ params, searchParams }: Props) {
 
   const t = uiCopy(locale);
 
-  let session: Stripe.Checkout.Session | null = null;
-  let status: "paid" | "unpaid" | "missing" = "missing";
-
-  if (sessionId) {
-    try {
-      session = await stripe.checkout.sessions.retrieve(sessionId);
-      // payment_status: 'paid' | 'unpaid' | 'no_payment_required'
-      status = session.payment_status === "paid" ? "paid" : "unpaid";
-    } catch {
-      // Se retrieve fallisce (id errato / permessi), non blocchiamo UX.
-      status = "missing";
-      session = null;
-    }
-  }
-
-  const subtitle =
-    status === "paid"
-      ? t.subtitlePaid
-      : status === "unpaid"
-      ? t.subtitleUnpaid
-      : t.subtitleMissing;
-
-  const amount = session ? formatAmount(session) : null;
-  const email =
-    session?.customer_details?.email ?? session?.customer_email ?? null;
+  // IMPORTANT:
+  // - Non facciamo retrieve Stripe qui (evita env/build issues)
+  // - La fonte di verità è il webhook Stripe -> Supabase (is_pro / plan)
+  const status = sessionId ? "paid" : "missing";
+  const subtitle = sessionId ? t.subtitlePaid : t.subtitleMissing;
 
   return (
     <main className="min-h-screen bg-white text-slate-900 px-4 py-10">
@@ -152,40 +117,30 @@ export default async function PaySuccessPage({ params, searchParams }: Props) {
             </div>
           </div>
 
-          {(amount || email || session?.payment_status) && (
-            <div className="mt-6 rounded-xl bg-slate-50 p-4">
-              <div className="mb-2 text-sm font-medium">{t.detailLabel}</div>
+          <div className="mt-6 rounded-xl bg-slate-50 p-4">
+            <div className="mb-2 text-sm font-medium">{t.detailLabel}</div>
 
-              <div className="space-y-2 text-sm text-slate-800">
-                {session?.payment_status && (
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="text-slate-600">{t.status}</span>
-                    <span className="font-medium">{session.payment_status}</span>
-                  </div>
-                )}
-
-                {amount && (
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="text-slate-600">{t.amount}</span>
-                    <span className="font-medium">{amount}</span>
-                  </div>
-                )}
-
-                {email && (
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="text-slate-600">{t.email}</span>
-                    <span className="font-medium">{email}</span>
-                  </div>
-                )}
+            <div className="space-y-2 text-sm text-slate-800">
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-slate-600">{t.status}</span>
+                <span className="font-medium">
+                  {status === "paid" ? t.statusPaid : t.statusMissing}
+                </span>
               </div>
+
+              {sessionId && (
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-slate-600">session_id</span>
+                  <span className="font-medium">{sessionId}</span>
+                </div>
+              )}
             </div>
-          )}
+          </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               href={`/${locale}/account`}
               className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
-
             >
               {t.ctaAccount}
             </Link>
