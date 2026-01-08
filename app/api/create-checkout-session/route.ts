@@ -1,80 +1,95 @@
 import { NextResponse } from "next/server";
-import { getStripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
+import { getStripe } from "@/lib/stripe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type BillingPeriod = "monthly" | "yearly";
+function getAppUrl(req: Request) {
+  // Preferisci variabile, fallback su host reale
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (envUrl) return envUrl.replace(/\/$/, "");
+  const host = req.headers.get("host");
+  const proto = req.headers.get("x-forwarded-proto") ?? "https";
+  return `${proto}://${host}`;
+}
+
+function isPreview() {
+  return process.env.VERCEL_ENV !== "production";
+}
+
+function pickPriceId() {
+  // Strategia anti-caos:
+  // - Production: usa STRIPE_PRICE_ID_MONTHLY (live)
+  // - Preview/Dev: usa STRIPE_PRICE_ID_MONTHLY_TEST (test)
+  const prod = process.env.STRIPE_PRICE_ID_MONTHLY;
+  const test = process.env.STRIPE_PRICE_ID_MONTHLY_TEST;
+
+  if (isPreview()) return test ?? prod; // se manca test, usa prod (meglio di rompere)
+  return prod ?? test;
+}
 
 export async function POST(req: Request) {
   try {
-    // 1) Auth user: serve per collegare Stripe ↔ Supabase User.id
     const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
 
-    if (userError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Utente deve essere loggato per creare session pro (altrimenti non abbiamo user.id)
+    const userRes = await supabase.auth.getUser();
+    const user = userRes.data?.user;
+
+    if (!user?.id) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
-
-    // 2) Body
-    const stripe = getStripe();
 
     const body = await req.json().catch(() => ({}));
-    const billingPeriod = body?.billingPeriod as BillingPeriod | undefined;
-    const langRaw = body?.lang ?? "it";
-    const locale = String(langRaw || "it").toLowerCase();
+    const locale = String(body?.locale ?? "it");
 
-    if (billingPeriod !== "monthly" && billingPeriod !== "yearly") {
-      return NextResponse.json({ error: "Invalid billingPeriod" }, { status: 400 });
-    }
-
-    // 3) PriceId
-    const monthlyPriceId = process.env.STRIPE_PRICE_ID_MONTHLY;
-    const yearlyPriceId = process.env.STRIPE_PRICE_ID_YEARLY;
-    const priceId = billingPeriod === "yearly" ? yearlyPriceId : monthlyPriceId;
-
+    const priceId = pickPriceId();
     if (!priceId) {
-      console.error("Missing Stripe price ID", {
-        billingPeriod,
-        hasMonthly: !!monthlyPriceId,
-        hasYearly: !!yearlyPriceId,
+      console.error("Missing priceId env", {
+        vercelEnv: process.env.VERCEL_ENV,
+        hasProd: !!process.env.STRIPE_PRICE_ID_MONTHLY,
+        hasTest: !!process.env.STRIPE_PRICE_ID_MONTHLY_TEST,
       });
-      return NextResponse.json({ error: "Missing Stripe priceId" }, { status: 500 });
+      return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
     }
 
-    // 4) App URL
-    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://ifinditforyou.com")
-      .trim()
-      .replace(/\/+$/, "");
+    const appUrl = getAppUrl(req);
 
-    const successUrl = `${appUrl}/${locale}/pay/success?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${appUrl}/${locale}/pay/cancel`;
+    const stripe = getStripe();
 
-    // 5) Stripe Checkout Session
+    // (Opzionale ma utile) email customer
+    const email = user.email ?? undefined;
+
+    // ✅ Checkout subscription con riferimento utente robusto
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
+      client_reference_id: user.id, // ✅ fondamentale
+      customer_email: email,
       line_items: [{ price: priceId, quantity: 1 }],
-
-      // collegamento robusto per webhook:
-      client_reference_id: user.id,
+      success_url: `${appUrl}/${locale}/pay/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appUrl}/${locale}/pay/cancel`,
       subscription_data: {
-        metadata: { user_id: user.id },
+        metadata: {
+          user_id: user.id, // ✅ fallback per subscription.updated/deleted
+        },
       },
+      // Se vuoi evitare che Stripe crei più customer per la stessa email:
+      // customer_creation: "always",
+    });
 
-      success_url: successUrl,
-      cancel_url: cancelUrl,
+    console.log("checkout created", {
+      sessionId: session.id,
+      userId: user.id,
+      vercelEnv: process.env.VERCEL_ENV,
+      priceIdPrefix: priceId.slice(0, 8),
+      modeGuess: process.env.STRIPE_SECRET_KEY?.startsWith("sk_test") ? "TEST" : "LIVE",
     });
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
-    console.error("create-checkout-session error:", err);
-    return NextResponse.json(
-      { error: err?.message ?? "Unexpected error" },
-      { status: 500 }
-    );
+    console.error("create-checkout-session error", err?.message ?? err);
+    return NextResponse.json({ error: "Checkout creation failed" }, { status: 500 });
   }
 }
+
