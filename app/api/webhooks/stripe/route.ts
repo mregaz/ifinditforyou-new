@@ -1,192 +1,155 @@
-import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { getStripe } from "@/lib/stripe";
-import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { headers } from "next/headers";
+import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic"; // evita tentativi di pre-render
+
+function getEnv(name: string): string {
+  const v = process.env[name];
+  if (!v) throw new Error(`Missing env var: ${name}`);
+  return v;
+}
+
+function getStripe(): Stripe {
+  return new Stripe(getEnv("STRIPE_SECRET_KEY"), {
+    apiVersion: "2025-12-15.clover",
+  });
+}
+
+function getSupabaseAdmin() {
+  return createClient(getEnv("SUPABASE_URL"), getEnv("SUPABASE_SERVICE_ROLE_KEY"), {
+    auth: { persistSession: false },
+  });
+}
+
+function getUserIdFromSession(session: Stripe.Checkout.Session): string | null {
+  return session.metadata?.user_id || session.client_reference_id || null;
+}
 
 export async function POST(req: Request) {
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const sig = (await headers()).get("stripe-signature");
+  if (!sig) return new Response("Missing stripe-signature", { status: 400 });
 
-  if (!webhookSecret || !supabaseUrl || !serviceRoleKey) {
-    console.error("Missing env vars", {
-      hasWebhookSecret: !!webhookSecret,
-      hasSupabaseUrl: !!supabaseUrl,
-      hasServiceRoleKey: !!serviceRoleKey,
-      vercelEnv: process.env.VERCEL_ENV,
-      vercelUrl: process.env.VERCEL_URL,
-    });
-    return new NextResponse("Server misconfigured", { status: 500 });
-  }
+  const rawBody = await req.text();
 
-  const signature = req.headers.get("stripe-signature");
-  if (!signature) return new NextResponse("Missing stripe-signature", { status: 400 });
-
-  const body = await req.text();
+  const stripe = getStripe();
+  const supabaseAdmin = getSupabaseAdmin();
 
   let event: Stripe.Event;
   try {
-    const stripe = getStripe();
-    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    event = stripe.webhooks.constructEvent(
+      rawBody,
+      sig,
+      getEnv("STRIPE_WEBHOOK_SECRET")
+    );
   } catch (err: any) {
-    console.error("Invalid Stripe signature", { message: err?.message });
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
-
-  // ✅ Admin client (service role) per bypass RLS lato server
-  const supabaseAdmin = createAdminClient(supabaseUrl, serviceRoleKey);
-
-  // ✅ Idempotenza: salva event_id una sola volta
-  // Tabella: StripeWebhookEvent (id int8, event_id text, created_at timestamptz)
-  try {
-    const { error: insertErr } = await supabaseAdmin
-      .from("StripeWebhookEvent")
-      .insert({ event_id: event.id });
-
-    // Se event_id già presente, non rifare nulla
-    if (insertErr) {
-      const msg = String(insertErr.message || "").toLowerCase();
-      if (msg.includes("duplicate") || msg.includes("unique")) {
-        return NextResponse.json({ received: true, duplicate: true });
-      }
-      // Se la tabella non ha vincolo unique su event_id, aggiungilo (consigliato),
-      // ma intanto non blocchiamo: continuiamo.
-      console.warn("StripeWebhookEvent insert warn:", insertErr);
-    }
-  } catch (e) {
-    console.warn("StripeWebhookEvent insert exception:", e);
+    return new Response(`Webhook signature verification failed: ${err.message}`, {
+      status: 400,
+    });
   }
 
   try {
-    // 1) checkout.session.completed -> attiva PRO sull'utente
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object as Stripe.Checkout.Session;
+    switch (event.type) {
+      case "checkout.session.completed": {
+        const session = event.data.object as Stripe.Checkout.Session;
 
-      // noi usiamo client_reference_id = user.id
-      const userId = session.client_reference_id;
+        const userId = getUserIdFromSession(session);
+        if (!userId) throw new Error("Missing user_id in metadata/client_reference_id");
 
-      if (!userId) {
-        console.error("Missing client_reference_id", { sessionId: session.id });
-        return NextResponse.json({ received: true });
-      }
+        const stripeCustomerId =
+          typeof session.customer === "string" ? session.customer : session.customer?.id;
+        if (!stripeCustomerId) throw new Error("Missing session.customer");
 
-      const stripeCustomerId = (session.customer as string) || null;
-      const stripeSubscriptionId = (session.subscription as string) || null;
-
-      const { error } = await supabaseAdmin
-        .from("User")
-        .update({
-          is_pro: true,
-          plan: "pro",
-          stripe_customer_id: stripeCustomerId,
-          stripe_subscription_id: stripeSubscriptionId,
-          stripe_status: "active",
-          cancel_at_period_end: false,
-        })
-        .eq("id", userId);
-
-      if (error) {
-        console.error("Supabase update failed (checkout.session.completed)", error);
-        return new NextResponse("DB error", { status: 500 });
-      }
-
-      return NextResponse.json({ received: true });
-    }
-
-    // 2) customer.subscription.updated -> aggiorna status/cancel_at_period_end/period_end
-    if (event.type === "customer.subscription.updated") {
-      const sub = event.data.object as Stripe.Subscription;
-
-      const userId =
-        (sub.metadata?.user_id as string | undefined) ??
-        null;
-
-      // se non hai metadata user_id, puoi fare lookup da stripe_subscription_id
-      if (!userId) {
-        const { error } = await supabaseAdmin
+        // salva mapping su public."User"
+        const { error: mapErr } = await supabaseAdmin
           .from("User")
-          .update({
-            stripe_status: sub.status,
-            cancel_at_period_end: sub.cancel_at_period_end,
-            current_period_end: sub.current_period_end
-              ? new Date(sub.current_period_end * 1000).toISOString()
-              : null,
-          })
-          .eq("stripe_subscription_id", sub.id);
+          .update({ stripe_customer_id: stripeCustomerId })
+          .eq("id", userId);
 
-        if (error) console.warn("Sub update by sub.id failed:", error);
-        return NextResponse.json({ received: true });
+        if (mapErr) throw mapErr;
+
+        // aggiorna entitlements
+        const { error: entErr } = await supabaseAdmin
+          .from("entitlements")
+          .upsert({
+            user_id: userId,
+            plan: "pro",
+            is_pro: true,
+            credits_balance: 100,
+            updated_at: new Date().toISOString(),
+          });
+
+        if (entErr) throw entErr;
+
+        break;
       }
 
-      const { error } = await supabaseAdmin
-        .from("User")
-        .update({
-          stripe_status: sub.status,
-          cancel_at_period_end: sub.cancel_at_period_end,
-          current_period_end: sub.current_period_end
-            ? new Date(sub.current_period_end * 1000).toISOString()
-            : null,
-        })
-        .eq("id", userId);
+      case "invoice.payment_succeeded": {
+        const invoice = event.data.object as Stripe.Invoice;
+        const customerId =
+          typeof invoice.customer === "string" ? invoice.customer : invoice.customer?.id;
+        if (!customerId) throw new Error("Missing invoice.customer");
 
-      if (error) {
-        console.error("Supabase update failed (customer.subscription.updated)", error);
-        return new NextResponse("DB error", { status: 500 });
-      }
-
-      return NextResponse.json({ received: true });
-    }
-
-    // 3) customer.subscription.deleted -> disattiva PRO
-    if (event.type === "customer.subscription.deleted") {
-      const sub = event.data.object as Stripe.Subscription;
-
-      const userId =
-        (sub.metadata?.user_id as string | undefined) ??
-        null;
-
-      if (!userId) {
-        // fallback: trova user per subscription_id
-        const { error } = await supabaseAdmin
+        const { data: userRow, error: userErr } = await supabaseAdmin
           .from("User")
-          .update({
-            is_pro: false,
+          .select("id")
+          .eq("stripe_customer_id", customerId)
+          .maybeSingle();
+
+        if (userErr) throw userErr;
+        if (!userRow?.id) break;
+
+        const { error: entErr } = await supabaseAdmin
+          .from("entitlements")
+          .upsert({
+            user_id: userRow.id,
+            plan: "pro",
+            is_pro: true,
+            credits_balance: 100, // reset mensile
+            updated_at: new Date().toISOString(),
+          });
+
+        if (entErr) throw entErr;
+
+        break;
+      }
+
+      case "customer.subscription.deleted": {
+        const sub = event.data.object as Stripe.Subscription;
+        const customerId =
+          typeof sub.customer === "string" ? sub.customer : sub.customer?.id;
+        if (!customerId) break;
+
+        const { data: userRow, error: userErr } = await supabaseAdmin
+          .from("User")
+          .select("id")
+          .eq("stripe_customer_id", customerId)
+          .maybeSingle();
+
+        if (userErr) throw userErr;
+        if (!userRow?.id) break;
+
+        const { error: entErr } = await supabaseAdmin
+          .from("entitlements")
+          .upsert({
+            user_id: userRow.id,
             plan: "free",
-            stripe_status: "canceled",
-            cancel_at_period_end: false,
-            current_period_end: null,
-          })
-          .eq("stripe_subscription_id", sub.id);
+            is_pro: false,
+            updated_at: new Date().toISOString(),
+          });
 
-        if (error) console.warn("Sub delete update by sub.id failed:", error);
-        return NextResponse.json({ received: true });
+        if (entErr) throw entErr;
+
+        break;
       }
 
-      const { error } = await supabaseAdmin
-        .from("User")
-        .update({
-          is_pro: false,
-          plan: "free",
-          stripe_status: "canceled",
-          cancel_at_period_end: false,
-          current_period_end: null,
-        })
-        .eq("id", userId);
-
-      if (error) {
-        console.error("Supabase update failed (customer.subscription.deleted)", error);
-        return new NextResponse("DB error", { status: 500 });
-      }
-
-      return NextResponse.json({ received: true });
+      default:
+        break;
     }
 
-    // Event non gestiti: OK
-    return NextResponse.json({ received: true });
-  } catch (err) {
-    console.error("Webhook handler error", err);
-    return new NextResponse("Webhook error", { status: 500 });
+    return new Response("ok", { status: 200 });
+  } catch (err: any) {
+    return new Response(`Webhook handler error: ${err.message}`, { status: 500 });
   }
 }
