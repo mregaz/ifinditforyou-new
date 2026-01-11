@@ -8,6 +8,8 @@ import { Lang } from "@/lib/lang";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { usePathname, useRouter } from "next/navigation";
 import { isSupportedLocale, i18n, type Locale } from "@/lib/i18n-config";
+import { toLocale } from "@/lib/lang";
+
 
 /*
 ====================================
@@ -111,6 +113,182 @@ const UI_TEXTS = {
     headerLogin: "Log in",
     mottoShort: "I find it for you",
   },
+  fr: {
+  tagline: "Écris ce que tu cherches, je le trouve pour toi.",
+  placeholder: "Ex. iPhone 13 mini bleu sous 350 CHF en Suisse",
+  examplesLabel: "Exemples :",
+  examples: [
+    "iPhone 13 mini bleu sous 350 CHF en Suisse",
+    "Hôtel 3 étoiles à Zurich sous 150 CHF",
+    "Idée cadeau pour un enfant de 12 ans passionné de LEGO",
+  ],
+  errorSearch: "Erreur lors de la recherche. Réessaie plus tard.",
+  errorNetwork: "Problème de réseau. Vérifie ta connexion.",
+  search: "Rechercher",
+  proCta: "Passer en PRO",
+  creditsLabel: (credits: number, isPro: boolean) =>
+    isPro
+      ? "Plan PRO actif : recherches illimitées."
+      : credits > 0
+      ? `Il te reste ${credits} recherches gratuites.`
+      : "Tu as utilisé toutes tes recherches gratuites.",
+  outOfCredits:
+    "Tu as épuisé tes recherches gratuites. Active le plan PRO pour continuer.",
+  sectionHowTitle: "Comment ça fonctionne",
+  sectionHowText:
+    "Décris ce dont tu as besoin. L’IA analyse ta demande, cherche sur le web et te montre uniquement des résultats filtrés.",
+  sectionWhyTitle: "Pourquoi ne pas utiliser Google ?",
+  sectionWhyText:
+    "Google donne des millions de résultats. iFindItForYou t’en montre seulement quelques-uns, déjà filtrés et pertinents.",
+  sectionProTitle: "Free vs PRO",
+  sectionProFree: "Des recherches gratuites pour tester le service.",
+  sectionProPaid:
+    "Avec PRO, tu as des recherches illimitées et des résultats plus approfondis.",
+  sectionFaqTitle: "Confidentialité & données",
+  sectionFaqText:
+    "Tes recherches servent uniquement à améliorer le service. Nous ne vendons jamais tes données.",
+  resultsTitle: "Résultats",
+  resultsCount: (n: number) =>
+    n === 1
+      ? "J’ai trouvé 1 option pour toi."
+      : `J’ai trouvé ${n} options pour toi.`,
+  empty: "Lance une recherche pour voir comment ça fonctionne 👆",
+  recentTitle: "Tes recherches récentes",
+  recentEmpty: "Aucune recherche enregistrée pour le moment.",
+  savedSearchBanner: "Tu relances une recherche sauvegardée.",
+  emailGateTitle: "Débloque ta deuxième recherche gratuite",
+  emailGateDescription:
+    "Nous te demandons simplement ton email pour t’offrir la deuxième recherche gratuite.",
+  emailGatePlaceholder: "ton-email@exemple.com",
+  emailGateCancel: "Annuler",
+  emailGateSubmit: "Débloquer la recherche",
+  emailGateSubmitting: "Envoi en cours...",
+  emailGateErrorInvalid: "Merci d’entrer une adresse email valide.",
+  emailGateErrorGeneric: "Erreur temporaire, réessaie.",
+  emailGateFooter:
+    "Aucun spam. Seulement des informations utiles sur le service.",
+  headerAccount: "Compte",
+  headerLogin: "Se connecter",
+  mottoShort: "Je cherche pour toi",
+},
+de: {
+  tagline: "Sag mir, was du suchst – ich finde es für dich.",
+  placeholder: "Z. B. iPhone 13 mini blau unter 350 CHF in der Schweiz",
+  examplesLabel: "Beispiele:",
+  examples: [
+    "iPhone 13 mini blau unter 350 CHF in der Schweiz",
+    "3-Sterne-Hotel in Zürich unter 150 CHF",
+    "Geschenkidee für einen 12-jährigen LEGO-Fan",
+  ],
+  errorSearch: "Fehler bei der Suche. Bitte versuche es später erneut.",
+  errorNetwork: "Netzwerkproblem. Bitte überprüfe deine Verbindung.",
+  search: "Suchen",
+  proCta: "PRO werden",
+  creditsLabel: (credits: number, isPro: boolean) =>
+    isPro
+      ? "PRO-Plan aktiv: unbegrenzte Suchen."
+      : credits > 0
+      ? `Du hast noch ${credits} kostenlose Suchen.`
+      : "Du hast alle kostenlosen Suchen verbraucht.",
+  outOfCredits:
+    "Du hast keine kostenlosen Suchen mehr. Aktiviere PRO, um fortzufahren.",
+  sectionHowTitle: "So funktioniert es",
+  sectionHowText:
+    "Beschreibe, was du brauchst. Die KI analysiert deine Anfrage, sucht im Web und zeigt dir gefilterte Ergebnisse.",
+  sectionWhyTitle: "Warum nicht einfach Google?",
+  sectionWhyText:
+    "Google liefert Millionen Ergebnisse. iFindItForYou zeigt dir nur wenige, relevante und gefilterte Optionen.",
+  sectionProTitle: "Free vs PRO",
+  sectionProFree: "Kostenlose Suchen zum Ausprobieren des Dienstes.",
+  sectionProPaid:
+    "Mit PRO erhältst du unbegrenzte Suchen und detailliertere Ergebnisse.",
+  sectionFaqTitle: "Datenschutz & Daten",
+  sectionFaqText:
+    "Deine Suchanfragen dienen nur zur Verbesserung des Dienstes. Wir verkaufen niemals Daten.",
+  resultsTitle: "Ergebnisse",
+  resultsCount: (n: number) =>
+    n === 1
+      ? "Ich habe 1 Option für dich gefunden."
+      : `Ich habe ${n} Optionen für dich gefunden.`,
+  empty: "Starte eine Suche, um zu sehen, wie es funktioniert 👆",
+  recentTitle: "Deine letzten Suchanfragen",
+  recentEmpty: "Noch keine gespeicherten Suchanfragen.",
+  savedSearchBanner: "Du wiederholst eine gespeicherte Suche.",
+  emailGateTitle: "Schalte deine zweite kostenlose Suche frei",
+  emailGateDescription:
+    "Wir benötigen nur deine E-Mail-Adresse, um dir die zweite kostenlose Suche zu ermöglichen.",
+  emailGatePlaceholder: "deine-email@beispiel.com",
+  emailGateCancel: "Abbrechen",
+  emailGateSubmit: "Suche freischalten",
+  emailGateSubmitting: "Wird gesendet...",
+  emailGateErrorInvalid: "Bitte gib eine gültige E-Mail-Adresse ein.",
+  emailGateErrorGeneric: "Temporärer Fehler, bitte erneut versuchen.",
+  emailGateFooter:
+    "Kein Spam. Nur wichtige Informationen zum Service.",
+  headerAccount: "Konto",
+  headerLogin: "Anmelden",
+  mottoShort: "Ich suche für dich",
+},
+es: {
+  tagline: "Escribe lo que buscas, yo lo encuentro por ti.",
+  placeholder: "Ej. iPhone 13 mini azul por menos de 350 CHF en Suiza",
+  examplesLabel: "Ejemplos:",
+  examples: [
+    "iPhone 13 mini azul por menos de 350 CHF en Suiza",
+    "Hotel de 3 estrellas en Zúrich por menos de 150 CHF",
+    "Idea de regalo para un niño de 12 años fan de LEGO",
+  ],
+  errorSearch: "Error en la búsqueda. Inténtalo de nuevo más tarde.",
+  errorNetwork:
+    "Problema de red. Revisa tu conexión e inténtalo de nuevo.",
+  search: "Buscar",
+  proCta: "Hazte PRO",
+  creditsLabel: (credits: number, isPro: boolean) =>
+    isPro
+      ? "Plan PRO activo: búsquedas ilimitadas."
+      : credits > 0
+      ? `Te quedan ${credits} búsquedas gratuitas.`
+      : "Has agotado tus búsquedas gratuitas.",
+  outOfCredits:
+    "Has agotado tus búsquedas gratuitas. Activa el plan PRO para continuar.",
+  sectionHowTitle: "Cómo funciona",
+  sectionHowText:
+    "Describe lo que necesitas. La IA analiza tu solicitud, busca en la web y te muestra resultados filtrados.",
+  sectionWhyTitle: "¿Por qué no usar solo Google?",
+  sectionWhyText:
+    "Google ofrece millones de resultados. iFindItForYou te muestra solo unos pocos, relevantes y filtrados.",
+  sectionProTitle: "Free vs PRO",
+  sectionProFree: "Búsquedas gratuitas para probar el servicio.",
+  sectionProPaid:
+    "Con PRO tienes búsquedas ilimitadas y resultados más completos.",
+  sectionFaqTitle: "Privacidad y datos",
+  sectionFaqText:
+    "Tus búsquedas solo se usan para mejorar el servicio. Nunca vendemos datos.",
+  resultsTitle: "Resultados",
+  resultsCount: (n: number) =>
+    n === 1
+      ? "He encontrado 1 opción para ti."
+      : `He encontrado ${n} opciones para ti.`,
+  empty: "Haz una búsqueda para ver cómo funciona 👆",
+  recentTitle: "Tus búsquedas recientes",
+  recentEmpty: "Aún no hay búsquedas guardadas.",
+  savedSearchBanner: "Estás repitiendo una búsqueda guardada.",
+  emailGateTitle: "Desbloquea tu segunda búsqueda gratuita",
+  emailGateDescription:
+    "Solo te pedimos tu email para concederte la segunda búsqueda gratuita.",
+  emailGatePlaceholder: "tu-email@ejemplo.com",
+  emailGateCancel: "Cancelar",
+  emailGateSubmit: "Desbloquear búsqueda",
+  emailGateSubmitting: "Enviando...",
+  emailGateErrorInvalid:
+    "Por favor, introduce una dirección de email válida.",
+  emailGateErrorGeneric: "Error temporal, inténtalo de nuevo.",
+  emailGateFooter:
+    "Sin spam. Solo actualizaciones importantes del servicio.",
+  headerAccount: "Cuenta",
+  headerLogin: "Iniciar sesión",
+  mottoShort: "Yo lo busco por ti",
+},
 } as const;
 
 type ResultItem = {
@@ -286,7 +464,9 @@ export default function HomePageClient({ initialLang }: HomePageClientProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const t = (UI_TEXTS as any)[lang] ?? (UI_TEXTS as any).it;
+  const safeLang = toLocale(lang);
+const t = (UI_TEXTS as any)[safeLang] ?? (UI_TEXTS as any).en;
+
 
   // Local storage: credits/pro/email (MVP)
   useEffect(() => {
@@ -557,22 +737,23 @@ export default function HomePageClient({ initialLang }: HomePageClientProps) {
             <div style={{ display: "flex", alignItems: "center" }}>
               <LanguageSwitcher />
             </div>
-
             <Link
-              href={isLoggedIn ? "/account" : "/login"}
-              style={{
-                padding: "6px 12px",
-                borderRadius: 999,
-                border: "1px solid rgba(148,163,184,0.7)",
-                textDecoration: "none",
-                color: "#0f172a",
-                background: "#f9fafb",
-                fontWeight: 500,
-                whiteSpace: "nowrap",
-              }}
-            >
-              {isLoggedIn ? t.headerAccount : t.headerLogin}
-            </Link>
+  href={isLoggedIn ? `/${safeLang}/account` : `/${safeLang}/login`}
+  style={{
+    padding: "6px 12px",
+    borderRadius: 999,
+    border: "1px solid rgba(148,163,184,0.7)",
+    textDecoration: "none",
+    color: "#0f172a",
+    background: "#f9fafb",
+    fontWeight: 500,
+    whiteSpace: "nowrap",
+  }}
+>
+  {isLoggedIn ? t.headerAccount : t.headerLogin}
+</Link>
+
+             
           </div>
         </div>
       </header>

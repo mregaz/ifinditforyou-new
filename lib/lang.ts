@@ -1,17 +1,24 @@
 // lib/lang.ts
 
-export const locales = ["it", "en", "fr", "de", "es"] as const;
+export const LOCALES = ["it", "en", "fr", "de", "es"] as const;
+export type Locale = (typeof LOCALES)[number];
 
-export type Locale = (typeof locales)[number];
-
-// Alias per compatibilità con il codice esistente
+// Alias per compatibilità
 export type Lang = Locale;
 
 export const defaultLocale: Locale = "it";
 
-export function isSupportedLocale(
-  value: string | undefined | null
-): value is Locale {
-  if (!value) return false;
-  return (locales as readonly string[]).includes(value);
+export function isSupportedLocale(v?: string | null): v is Locale {
+  return !!v && (LOCALES as readonly string[]).includes(v);
+}
+
+export function toLocale(v?: string | null): Locale {
+  if (!v) return defaultLocale;
+
+  const normalized = v.toLowerCase().replace("_", "-");
+  const short = normalized.split("-")[0];
+
+  return (LOCALES as readonly string[]).includes(short)
+    ? (short as Locale)
+    : defaultLocale;
 }

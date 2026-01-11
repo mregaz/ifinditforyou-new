@@ -1,11 +1,16 @@
 export const SUPPORTED_LOCALES = ["it", "en", "fr", "de", "es"] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
-
 export function toLocale(v?: string | null): Locale {
-  return (SUPPORTED_LOCALES as readonly string[]).includes(v ?? "")
-    ? (v as Locale)
+  if (!v) return "it";
+
+  const normalized = v.toLowerCase().replace("_", "-");
+  const short = normalized.split("-")[0];
+
+  return (SUPPORTED_LOCALES as readonly string[]).includes(short)
+    ? (short as Locale)
     : "it";
 }
+
 
 export const REGISTER_COPY: Record<
   Locale,
@@ -176,3 +181,34 @@ export const ACCOUNT_COPY: Record<
     historyLabel: "Historial",
   },
 };
+export const HOME_COPY: Record<
+  Locale,
+  {
+    heroTitle: string;
+    heroSubtitle: string;
+    ctaPrimary: string;
+    ctaSecondary: string;
+  }
+> = {
+  it: {
+    heroTitle: "…",
+    heroSubtitle: "…",
+    ctaPrimary: "…",
+    ctaSecondary: "…",
+  },
+  en: {
+    heroTitle: "…",
+    heroSubtitle: "…",
+    ctaPrimary: "…",
+    ctaSecondary: "…",
+  },
+
+  // fallback temporaneo: fr/de/es = en
+  fr: {} as any,
+  de: {} as any,
+  es: {} as any,
+};
+
+HOME_COPY.fr = HOME_COPY.en;
+HOME_COPY.de = HOME_COPY.en;
+HOME_COPY.es = HOME_COPY.en;
