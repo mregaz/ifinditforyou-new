@@ -1,7 +1,8 @@
 "use client";
 
+import { supabase } from "@/lib/supabaseClient";
 import { toLocale } from "@/lib/lang";
-import { PRO_COPY } from "@/lib/pro-copy"; // assicurati che esista davvero
+import { PRO_COPY } from "@/lib/pro-copy";
 
 type Props = { locale: string };
 
@@ -10,10 +11,26 @@ export default function ProCheckoutButtons({ locale }: Props) {
   const t = PRO_COPY[safeLang];
 
   async function startCheckout(billingPeriod: "monthly" | "yearly") {
+    // 1) Leggiamo la sessione Supabase
+    const { data: sessionData, error } = await supabase.auth.getSession();
+
+    const accessToken = sessionData?.session?.access_token;
+
+    // 2) Se non loggato → login
+    if (!accessToken || error) {
+      window.location.href = `/${safeLang}/login?next=/${safeLang}/pro`;
+      return;
+    }
+
+    // 3) Chiamiamo il server PASSANDO accessToken
     const res = await fetch("/api/create-checkout-session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ billingPeriod, lang: safeLang }),
+      body: JSON.stringify({
+        billingPeriod,
+        lang: safeLang,
+        accessToken,
+      }),
     });
 
     const data = await res.json().catch(() => null);
@@ -28,6 +45,7 @@ export default function ProCheckoutButtons({ locale }: Props) {
       return;
     }
 
+    // 4) Redirect a Stripe Checkout
     window.location.href = data.url;
   }
 

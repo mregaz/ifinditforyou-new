@@ -1,155 +1,154 @@
+// app/api/webhooks/stripe/route.ts
 import Stripe from "stripe";
-import { headers } from "next/headers";
+import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic"; // evita tentativi di pre-render
 
-function getEnv(name: string): string {
-  const v = process.env[name];
-  if (!v) throw new Error(`Missing env var: ${name}`);
-  return v;
-}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+  apiVersion: "2025-12-15.clover",
+});
 
-function getStripe(): Stripe {
-  return new Stripe(getEnv("STRIPE_SECRET_KEY"), {
-    apiVersion: "2025-12-15.clover",
-  });
-}
-
-function getSupabaseAdmin() {
-  return createClient(getEnv("SUPABASE_URL"), getEnv("SUPABASE_SERVICE_ROLE_KEY"), {
-    auth: { persistSession: false },
-  });
-}
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+  process.env.SUPABASE_SERVICE_ROLE_KEY as string
+);
 
 function getUserIdFromSession(session: Stripe.Checkout.Session): string | null {
-  return session.metadata?.user_id || session.client_reference_id || null;
+  const fromRef =
+    typeof session.client_reference_id === "string" && session.client_reference_id
+      ? session.client_reference_id
+      : null;
+
+  const fromMeta =
+    typeof session.metadata?.supabase_user_id === "string" && session.metadata.supabase_user_id
+      ? session.metadata.supabase_user_id
+      : null;
+
+  return fromRef || fromMeta || null;
 }
 
 export async function POST(req: Request) {
-  const sig = (await headers()).get("stripe-signature");
-  if (!sig) return new Response("Missing stripe-signature", { status: 400 });
+  // 1) headers + secret
+  const sig = req.headers.get("stripe-signature");
+  const webhookSecret = (process.env.STRIPE_WEBHOOK_SECRET ?? "").trim();
 
-  const rawBody = await req.text();
-
-  const stripe = getStripe();
-  const supabaseAdmin = getSupabaseAdmin();
-
-  let event: Stripe.Event;
-  try {
-    event = stripe.webhooks.constructEvent(
-      rawBody,
-      sig,
-      getEnv("STRIPE_WEBHOOK_SECRET")
-    );
-  } catch (err: any) {
-    return new Response(`Webhook signature verification failed: ${err.message}`, {
-      status: 400,
-    });
+  if (!sig) {
+    return NextResponse.json({ error: "Missing stripe-signature" }, { status: 400 });
+  }
+  if (!webhookSecret) {
+    return NextResponse.json({ error: "Missing STRIPE_WEBHOOK_SECRET" }, { status: 500 });
   }
 
+  // 2) RAW body (Byte-perfect)
+  const buf = Buffer.from(await req.arrayBuffer());
+
+  // 3) verify signature
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(buf, sig, webhookSecret) as Stripe.Event;
+  } catch (err: any) {
+    console.error("Invalid Stripe signature:", err?.message ?? err);
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+  }
+
+  // 4) handle events
   try {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
 
+        console.log("WS checkout.session.completed", {
+          sessionId: session.id,
+          client_reference_id: session.client_reference_id,
+          metadata: session.metadata,
+          customer: session.customer,
+        });
+
         const userId = getUserIdFromSession(session);
-        if (!userId) throw new Error("Missing user_id in metadata/client_reference_id");
+        if (!userId) {
+          console.error("WS: missing userId in session");
+          break;
+        }
 
         const stripeCustomerId =
-          typeof session.customer === "string" ? session.customer : session.customer?.id;
-        if (!stripeCustomerId) throw new Error("Missing session.customer");
+          typeof session.customer === "string" ? session.customer : null;
+        if (!stripeCustomerId) {
+          console.error("WS: missing stripe customer id on session");
+          break;
+        }
 
-        // salva mapping su public."User"
-        const { error: mapErr } = await supabaseAdmin
+        const billingPeriod =
+          (typeof session.metadata?.billing_period === "string" &&
+            session.metadata.billing_period) ||
+          "monthly";
+
+        // A) update mapping in "User"
+        const map = await supabaseAdmin
           .from("User")
           .update({ stripe_customer_id: stripeCustomerId })
           .eq("id", userId);
 
-        if (mapErr) throw mapErr;
+        if (map.error) {
+          console.error("WS update User error:", map.error);
+          throw map.error;
+        }
 
-        // aggiorna entitlements
-        const { error: entErr } = await supabaseAdmin
-          .from("entitlements")
-          .upsert({
-            user_id: userId,
-            plan: "pro",
-            is_pro: true,
-            credits_balance: 100,
-            updated_at: new Date().toISOString(),
-          });
+        // B) upsert entitlements
+        const up = await supabaseAdmin.from("entitlements").upsert({
+          user_id: userId,
+          plan: billingPeriod === "yearly" ? "pro_yearly" : "pro_monthly",
+          is_pro: true,
+          credits_balance: 100,
+          updated_at: new Date().toISOString(),
+        });
 
-        if (entErr) throw entErr;
+        if (up.error) {
+          console.error("WS upsert entitlements error:", up.error);
+          throw up.error;
+        }
 
-        break;
-      }
-
-      case "invoice.payment_succeeded": {
-        const invoice = event.data.object as Stripe.Invoice;
-        const customerId =
-          typeof invoice.customer === "string" ? invoice.customer : invoice.customer?.id;
-        if (!customerId) throw new Error("Missing invoice.customer");
-
-        const { data: userRow, error: userErr } = await supabaseAdmin
-          .from("User")
-          .select("id")
-          .eq("stripe_customer_id", customerId)
-          .maybeSingle();
-
-        if (userErr) throw userErr;
-        if (!userRow?.id) break;
-
-        const { error: entErr } = await supabaseAdmin
-          .from("entitlements")
-          .upsert({
-            user_id: userRow.id,
-            plan: "pro",
-            is_pro: true,
-            credits_balance: 100, // reset mensile
-            updated_at: new Date().toISOString(),
-          });
-
-        if (entErr) throw entErr;
-
+        console.log("✅ WS: entitlements updated", { userId, billingPeriod });
         break;
       }
 
       case "customer.subscription.deleted": {
         const sub = event.data.object as Stripe.Subscription;
-        const customerId =
-          typeof sub.customer === "string" ? sub.customer : sub.customer?.id;
-        if (!customerId) break;
-
-        const { data: userRow, error: userErr } = await supabaseAdmin
-          .from("User")
-          .select("id")
-          .eq("stripe_customer_id", customerId)
-          .maybeSingle();
-
-        if (userErr) throw userErr;
-        if (!userRow?.id) break;
-
-        const { error: entErr } = await supabaseAdmin
-          .from("entitlements")
-          .upsert({
-            user_id: userRow.id,
-            plan: "free",
-            is_pro: false,
-            updated_at: new Date().toISOString(),
-          });
-
-        if (entErr) throw entErr;
-
+        console.log("WS customer.subscription.deleted", {
+          id: sub.id,
+          customer: sub.customer,
+          status: sub.status,
+        });
+        // downgrade (lo facciamo dopo)
         break;
       }
 
-      default:
+      case "invoice.payment_succeeded": {
+        const invoice = event.data.object as Stripe.Invoice;
+        console.log("WS invoice.payment_succeeded", {
+          id: invoice.id,
+          customer: invoice.customer,
+          subscription: invoice.subscription,
+          billing_reason: invoice.billing_reason,
+          paid: invoice.paid,
+          total: invoice.total,
+        });
+        // refill crediti (lo facciamo dopo)
         break;
+      }
+
+      default: {
+        console.log("WS event received:", event.type);
+        break;
+      }
     }
 
-    return new Response("ok", { status: 200 });
+    return NextResponse.json({ received: true });
   } catch (err: any) {
-    return new Response(`Webhook handler error: ${err.message}`, { status: 500 });
+    console.error("Webhook handler error:", err?.message ?? err);
+    return NextResponse.json(
+      { error: err?.message ?? "Webhook handler error" },
+      { status: 500 }
+    );
   }
 }
