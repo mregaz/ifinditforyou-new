@@ -123,19 +123,20 @@ export async function POST(req: Request) {
         break;
       }
 
-      case "invoice.payment_succeeded": {
-        const invoice = event.data.object as Stripe.Invoice;
-        console.log("WS invoice.payment_succeeded", {
-          id: invoice.id,
-          customer: invoice.customer,
-          subscription: invoice.subscription,
-          billing_reason: invoice.billing_reason,
-          paid: invoice.paid,
-          total: invoice.total,
-        });
-        // refill crediti (lo facciamo dopo)
-        break;
-      }
+    case "invoice.payment_succeeded": {
+  const invoice = event.data.object as Stripe.Invoice;
+
+  console.log("WS invoice.payment_succeeded", {
+    id: invoice.id,
+    customer: invoice.customer,
+    billing_reason: (invoice as any).billing_reason,
+    paid: (invoice as any).paid,
+    total: (invoice as any).total,
+  });
+
+  break;
+}
+
 
       default: {
         console.log("WS event received:", event.type);
