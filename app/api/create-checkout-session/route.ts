@@ -68,8 +68,8 @@ export async function POST(req: Request) {
     const user = data.user;
 
     // Price IDs
-const priceYearly = process.env.STRIPE_PRICE_ID_YEARLY;
-
+    const priceMonthly = process.env.STRIPE_PRICE_ID_MONTHLY;
+    const priceYearly = process.env.STRIPE_PRICE_ID_YEARLY;
 const priceId = billingPeriod === "yearly" ? priceYearly : priceMonthly;
 if (!priceId) {
   return NextResponse.json(
