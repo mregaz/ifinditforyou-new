@@ -72,10 +72,14 @@ export async function POST(req: Request) {
     const priceYearly = process.env.STRIPE_PRICE_ID_YEARLY;
   const priceId = billingPeriod === "yearly" ? priceYearly : priceMonthly;
   if (!priceId) {
-  return NextResponse.json(
-    { error: "Missing STRIPE_PRICE_ID_MONTHLY / STRIPE_PRICE_ID_YEARLY" },
-    { status: 500 }
-  );
+      return NextResponse.json({ url: session.url });
+  } catch (err: any) {
+    console.error("create-checkout-session error:", err);
+    return NextResponse.json(
+      { error: err?.message ?? "Unknown error", type: err?.type, code: err?.code },
+      { status: 500 }
+    );
+  }
 }
-}
+
 
