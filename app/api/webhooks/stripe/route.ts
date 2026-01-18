@@ -29,7 +29,53 @@ export async function POST(req: Request) {
     if (!sig) return NextResponse.json({ error: "Missing stripe-signature" }, { status: 400 });
 
     const rawBody = Buffer.from(await req.arrayBuffer());
-    const event = stripe.webhooks.constructEvent(rawBody, sig, whsec);
+    const event = stripe.webhooks.constructEvent(rawBody, sig, whsec);const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+console.log("SUPABASE url host:", url?.split("/")[2]);
+console.log("SUPABASE service prefix:", service?.slice(0, 9)); // deve essere "sb_secret"
+
+const supabase = createClient(url!, service!);
+
+// Scrittura forzata: se questa non compare, NON stai scrivendo su Supabase (o stai fallendo)
+const debugId = "DEBUG-" + Date.now().toString();
+
+const { error: dbgErr } = await supabase
+  .from("StripeWebhookEvent")
+  .insert({ event_id: debugId });
+
+if (dbgErr) {
+  console.error("DEBUG INSERT FAILED:", dbgErr);
+  // IMPORTANTISSIMO: non restituire 200, altrimenti Stripe dice ok ma tu non vedi nulla
+  return NextResponse.json({ error: "debug insert failed", details: dbgErr }, { status: 500 });
+}
+
+console.log("DEBUG INSERT OK:", debugId);
+
+
+    const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+console.log("SUPABASE url host:", url?.split("/")[2]);
+console.log("SUPABASE service prefix:", service?.slice(0, 9)); // deve essere "sb_secret"
+
+const supabase = createClient(url!, service!);
+
+// Scrittura forzata: se questa non compare, NON stai scrivendo su Supabase (o stai fallendo)
+const debugId = "DEBUG-" + Date.now().toString();
+
+const { error: dbgErr } = await supabase
+  .from("StripeWebhookEvent")
+  .insert({ event_id: debugId });
+
+if (dbgErr) {
+  console.error("DEBUG INSERT FAILED:", dbgErr);
+  // IMPORTANTISSIMO: non restituire 200, altrimenti Stripe dice ok ma tu non vedi nulla
+  return NextResponse.json({ error: "debug insert failed", details: dbgErr }, { status: 500 });
+}
+
+console.log("DEBUG INSERT OK:", debugId);
+
 
     const supabase = getSupabaseAdmin();
 
