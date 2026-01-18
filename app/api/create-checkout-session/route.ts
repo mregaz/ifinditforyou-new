@@ -17,10 +17,10 @@ function toLocale(v?: string | null): Locale {
 function getStripe(): Stripe {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) throw new Error("Missing STRIPE_SECRET_KEY");
-  return new Stripe(key, {
+  return new Stripe(key);
+
     // Metti una versione stabile; se vuoi, la cambiamo dopo
-    apiVersion: "2024-06-20",
-  });
+ 
 }
 
 // Supabase: prende prima env server (consigliato), poi fallback su NEXT_PUBLIC_*
