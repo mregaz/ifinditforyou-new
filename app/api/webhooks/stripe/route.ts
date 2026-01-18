@@ -4,100 +4,64 @@ import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
 
-function env(name: string): string | undefined {
-  return process.env[name];
-}
-
-function getStripe() {
-  const sk = env("STRIPE_SECRET_KEY");
-  if (!sk) throw new Error("Missing STRIPE_SECRET_KEY (sk_...)");
-  // Non forzo apiVersion: evita errori di typings
-  return new Stripe(sk);
-}
-
-function getSupabaseAdmin() {
-  const url = env("SUPABASE_URL") || env("NEXT_PUBLIC_SUPABASE_URL");
-  const service = env("SUPABASE_SERVICE_ROLE_KEY");
-  if (!url) throw new Error("Missing SUPABASE_URL (or NEXT_PUBLIC_SUPABASE_URL)");
-  if (!service) throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
-  return { supabase: createClient(url, service), url, service };
-}
-
-async function insertWebhookEvent(supabase: ReturnType<typeof createClient>, eventId: string) {
-  // tabella: StripeWebhookEvent (case sensitive se creata con quotes)
-  // se dovesse fallire per nome tabella, lo vedrai nei log e lo sistemiamo subito.
-  return await supabase.from("StripeWebhookEvent").insert({ event_id: eventId });
-}
-
-async function isDuplicateEvent(supabase: ReturnType<typeof createClient>, eventId: string) {
-  const { data, error } = await supabase
-    .from("StripeWebhookEvent")
-    .select("event_id")
-    .eq("event_id", eventId)
-    .maybeSingle();
-
-  if (error) {
-    console.error("StripeWebhookEvent select error:", error);
-    // non blocco: ma segnalo
-  }
-  return !!data;
-}
-
 export async function POST(req: Request) {
   try {
-    const stripe = getStripe();
-    const whsec = env("STRIPE_WEBHOOK_SECRET");
-    if (!whsec) throw new Error("Missing STRIPE_WEBHOOK_SECRET (whsec_...)");
+    const sk = process.env.STRIPE_SECRET_KEY;
+    const whsec = process.env.STRIPE_WEBHOOK_SECRET;
+
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!sk) throw new Error("Missing STRIPE_SECRET_KEY");
+    if (!whsec) throw new Error("Missing STRIPE_WEBHOOK_SECRET");
+    if (!supabaseUrl) throw new Error("Missing SUPABASE_URL");
+    if (!serviceKey) throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
 
     const sig = req.headers.get("stripe-signature");
     if (!sig) return NextResponse.json({ error: "Missing stripe-signature" }, { status: 400 });
 
+    const stripe = new Stripe(sk);
     const rawBody = Buffer.from(await req.arrayBuffer());
     const event = stripe.webhooks.constructEvent(rawBody, sig, whsec);
 
-    const { supabase, url, service } = getSupabaseAdmin();
+    const supabase = createClient(supabaseUrl, serviceKey) as any;
 
-    // LOG DIAGNOSTICI (non stampano segreti)
-    console.log("WEBHOOK received:", event.type, event.id);
-    console.log("Stripe SK prefix:", env("STRIPE_SECRET_KEY")?.slice(0, 7)); // sk_test / sk_live
-    console.log("Supabase host:", url.split("/")[2]);
-    console.log("Supabase service prefix:", service.slice(0, 9)); // deve essere sb_secret
+    console.log("WEBHOOK:", event.type, event.id);
+    console.log("Stripe prefix:", sk.slice(0, 7));
+    console.log("Supabase host:", supabaseUrl.split("/")[2]);
+    console.log("Service prefix:", serviceKey.slice(0, 9));
 
-    // DEBUG INSERT: deve creare SEMPRE una riga visibile
+    // Debug insert: deve comparire in Supabase
     const debugId = `DEBUG-${Date.now()}`;
     const { error: dbgErr } = await supabase.from("StripeWebhookEvent").insert({ event_id: debugId });
     if (dbgErr) {
-      console.error("DEBUG INSERT FAILED (StripeWebhookEvent):", dbgErr);
-      return NextResponse.json(
-        { error: "debug insert failed", details: dbgErr },
-        { status: 500 }
-      );
+      console.error("DEBUG INSERT FAILED:", dbgErr);
+      return NextResponse.json({ error: "debug insert failed", details: dbgErr }, { status: 500 });
     }
     console.log("DEBUG INSERT OK:", debugId);
 
-    // Idempotenza sul vero event.id
-    const duplicate = await isDuplicateEvent(supabase, event.id);
-    if (duplicate) {
-      console.log("Duplicate event:", event.id);
-      return NextResponse.json({ received: true, duplicate: true });
+    // Evento reale: registra id (idempotenza semplice)
+    const { data: already } = await supabase
+      .from("StripeWebhookEvent")
+      .select("event_id")
+      .eq("event_id", event.id)
+      .maybeSingle();
+
+    if (!already) {
+      const { error: insErr } = await supabase.from("StripeWebhookEvent").insert({ event_id: event.id });
+      if (insErr) {
+        console.error("Event insert failed:", insErr);
+        return NextResponse.json({ error: "event insert failed", details: insErr }, { status: 500 });
+      }
     }
 
-    const { error: insErr } = await insertWebhookEvent(supabase, event.id);
-    if (insErr) {
-      console.error("StripeWebhookEvent insert error:", insErr);
-      return NextResponse.json({ error: "failed to record event", details: insErr }, { status: 500 });
-    }
-
-    // Gestione evento principale
+    // Scrittura entitlements (solo se checkout completed)
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
-
       const userId = session.client_reference_id || session.metadata?.supabase_user_id;
+
       if (!userId) {
-        console.error("Missing userId in session:", {
-          hasClientRef: !!session.client_reference_id,
-          hasMeta: !!session.metadata,
-        });
+        console.error("Missing userId in session");
         return NextResponse.json({ error: "Missing userId" }, { status: 400 });
       }
 
@@ -106,7 +70,7 @@ export async function POST(req: Request) {
       const credits = billing === "yearly" ? 1200 : 100;
 
       const payload = {
-        user_id: userId, // uuid
+        user_id: userId,
         is_pro: true,
         plan,
         credits,
@@ -119,19 +83,16 @@ export async function POST(req: Request) {
         .upsert(payload, { onConflict: "user_id" });
 
       if (upsertErr) {
-        console.error("user_entitlements upsert error:", upsertErr, payload);
-        return NextResponse.json(
-          { error: "upsert failed", details: upsertErr },
-          { status: 500 }
-        );
+        console.error("Upsert failed:", upsertErr);
+        return NextResponse.json({ error: "upsert failed", details: upsertErr }, { status: 500 });
       }
 
-      console.log("user_entitlements upsert OK for:", userId);
+      console.log("Upsert OK for user:", userId);
     }
 
     return NextResponse.json({ received: true });
   } catch (err: any) {
-    console.error("stripe webhook fatal error:", err?.message ?? err);
+    console.error("WEBHOOK ERROR:", err?.message ?? err);
     return NextResponse.json({ error: err?.message ?? "Webhook error" }, { status: 400 });
   }
 }
