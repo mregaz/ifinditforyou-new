@@ -1,155 +1,99 @@
-// app/api/webhooks/stripe/route.ts
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2025-12-15.clover",
-});
+function getStripe() {
+  const sk = process.env.STRIPE_SECRET_KEY;
+  if (!sk) throw new Error("Missing STRIPE_SECRET_KEY (sk_...)");
+  return new Stripe(sk);
+}
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-  process.env.SUPABASE_SERVICE_ROLE_KEY as string
-);
-
-function getUserIdFromSession(session: Stripe.Checkout.Session): string | null {
-  const fromRef =
-    typeof session.client_reference_id === "string" && session.client_reference_id
-      ? session.client_reference_id
-      : null;
-
-  const fromMeta =
-    typeof session.metadata?.supabase_user_id === "string" && session.metadata.supabase_user_id
-      ? session.metadata.supabase_user_id
-      : null;
-
-  return fromRef || fromMeta || null;
+function getSupabaseAdmin() {
+  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url) throw new Error("Missing SUPABASE_URL");
+  if (!service) throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
+  return createClient(url, service);
 }
 
 export async function POST(req: Request) {
-  // 1) headers + secret
-  const sig = req.headers.get("stripe-signature");
-  const webhookSecret = (process.env.STRIPE_WEBHOOK_SECRET ?? "").trim();
-
-  if (!sig) {
-    return NextResponse.json({ error: "Missing stripe-signature" }, { status: 400 });
-  }
-  if (!webhookSecret) {
-    return NextResponse.json({ error: "Missing STRIPE_WEBHOOK_SECRET" }, { status: 500 });
-  }
-
-  // 2) RAW body (Byte-perfect)
-  const buf = Buffer.from(await req.arrayBuffer());
-
-  // 3) verify signature
-  let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(buf, sig, webhookSecret) as Stripe.Event;
-  } catch (err: any) {
-    console.error("Invalid Stripe signature:", err?.message ?? err);
-    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
-  }
+    const stripe = getStripe();
 
-  // 4) handle events
-  try {
-    switch (event.type) {
-      case "checkout.session.completed": {
-        const session = event.data.object as Stripe.Checkout.Session;
+    const whsec = process.env.STRIPE_WEBHOOK_SECRET;
+    if (!whsec) throw new Error("Missing STRIPE_WEBHOOK_SECRET (whsec_...)");
 
-        console.log("WS checkout.session.completed", {
-          sessionId: session.id,
-          client_reference_id: session.client_reference_id,
-          metadata: session.metadata,
-          customer: session.customer,
+    const sig = req.headers.get("stripe-signature");
+    if (!sig) return NextResponse.json({ error: "Missing stripe-signature" }, { status: 400 });
+
+    const rawBody = Buffer.from(await req.arrayBuffer());
+    const event = stripe.webhooks.constructEvent(rawBody, sig, whsec);
+
+    const supabase = getSupabaseAdmin();
+
+    console.log("stripe webhook:", event.type, event.id);
+
+    // Idempotenza: registra event.id una sola volta
+    const { data: already } = await supabase
+      .from("StripeWebhookEvent")
+      .select("event_id")
+      .eq("event_id", event.id)
+      .maybeSingle();
+
+    if (already) return NextResponse.json({ received: true, duplicate: true });
+
+    const { error: insErr } = await supabase
+      .from("StripeWebhookEvent")
+      .insert({ event_id: event.id });
+
+    if (insErr) console.error("StripeWebhookEvent insert error:", insErr);
+
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object as Stripe.Checkout.Session;
+
+      // user_id arriva dal tuo create-checkout-session
+      const userId = session.client_reference_id || session.metadata?.supabase_user_id;
+      if (!userId) {
+        console.error("Missing userId in session", {
+          hasClientRef: !!session.client_reference_id,
+          hasMeta: !!session.metadata,
         });
-
-        const userId = getUserIdFromSession(session);
-        if (!userId) {
-          console.error("WS: missing userId in session");
-          break;
-        }
-
-        const stripeCustomerId =
-          typeof session.customer === "string" ? session.customer : null;
-        if (!stripeCustomerId) {
-          console.error("WS: missing stripe customer id on session");
-          break;
-        }
-
-        const billingPeriod =
-          (typeof session.metadata?.billing_period === "string" &&
-            session.metadata.billing_period) ||
-          "monthly";
-
-        // A) update mapping in "User"
-        const map = await supabaseAdmin
-          .from("User")
-          .update({ stripe_customer_id: stripeCustomerId })
-          .eq("id", userId);
-
-        if (map.error) {
-          console.error("WS update User error:", map.error);
-          throw map.error;
-        }
-
-        // B) upsert entitlements
-        const up = await supabaseAdmin.from("entitlements").upsert({
-          user_id: userId,
-          plan: billingPeriod === "yearly" ? "pro_yearly" : "pro_monthly",
-          is_pro: true,
-          credits_balance: 100,
-          updated_at: new Date().toISOString(),
-        });
-
-        if (up.error) {
-          console.error("WS upsert entitlements error:", up.error);
-          throw up.error;
-        }
-
-        console.log("✅ WS: entitlements updated", { userId, billingPeriod });
-        break;
+        return NextResponse.json({ error: "Missing userId" }, { status: 400 });
       }
 
-      case "customer.subscription.deleted": {
-        const sub = event.data.object as Stripe.Subscription;
-        console.log("WS customer.subscription.deleted", {
-          id: sub.id,
-          customer: sub.customer,
-          status: sub.status,
-        });
-        // downgrade (lo facciamo dopo)
-        break;
+      // Mapping plan
+      const billing = session.metadata?.billing_period;
+      const plan = billing === "yearly" ? "pro_yearly" : "pro_monthly";
+
+      // Credits: scegli un valore iniziale (modificabile)
+      const credits = billing === "yearly" ? 1200 : 100;
+
+      const payload = {
+        user_id: userId, // uuid string
+        is_pro: true,
+        plan,
+        credits,
+        stripe_customer_id: session.customer?.toString() ?? null,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error: upsertErr } = await supabase
+        .from("user_entitlements")
+        .upsert(payload, { onConflict: "user_id" });
+
+      if (upsertErr) {
+        console.error("Supabase upsert error:", upsertErr, payload);
+        return NextResponse.json({ error: "Supabase upsert failed" }, { status: 500 });
       }
 
-    case "invoice.payment_succeeded": {
-  const invoice = event.data.object as Stripe.Invoice;
-
-  console.log("WS invoice.payment_succeeded", {
-    id: invoice.id,
-    customer: invoice.customer,
-    billing_reason: (invoice as any).billing_reason,
-    paid: (invoice as any).paid,
-    total: (invoice as any).total,
-  });
-
-  break;
-}
-
-
-      default: {
-        console.log("WS event received:", event.type);
-        break;
-      }
+      console.log("Supabase upsert OK user_entitlements:", userId);
     }
 
     return NextResponse.json({ received: true });
   } catch (err: any) {
-    console.error("Webhook handler error:", err?.message ?? err);
-    return NextResponse.json(
-      { error: err?.message ?? "Webhook handler error" },
-      { status: 500 }
-    );
+    console.error("stripe webhook error:", err?.message ?? err);
+    return NextResponse.json({ error: err?.message ?? "Webhook error" }, { status: 400 });
   }
 }
