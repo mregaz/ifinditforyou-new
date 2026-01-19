@@ -102,7 +102,10 @@ export async function POST(req: Request) {
       }
 
       console.log("Upsert OK for user:", userId);
+    console.log("UPSERT DONE FOR USER:", userId);
+
     }
+
 
     return NextResponse.json({ received: true });
   } catch (err: any) {
