@@ -6,23 +6,19 @@ export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
-    // ENV
+    // ===== ENV =====
     const sk = process.env.STRIPE_SECRET_KEY;
     const whsec = process.env.STRIPE_WEBHOOK_SECRET;
 
     const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    if (!sk) throw new Error("Missing STRIPE_SECRET_KEY");
-    if (!whsec) throw new Error("Missing STRIPE_WEBHOOK_SECRET");
-    if (!supabaseUrl) throw new Error("Missing SUPABASE_URL");
-    if (!serviceKey) throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
+    if (!sk) return NextResponse.json({ error: "Missing STRIPE_SECRET_KEY" }, { status: 500 });
+    if (!whsec) return NextResponse.json({ error: "Missing STRIPE_WEBHOOK_SECRET" }, { status: 500 });
+    if (!supabaseUrl) return NextResponse.json({ error: "Missing SUPABASE_URL" }, { status: 500 });
+    if (!serviceKey) return NextResponse.json({ error: "Missing SUPABASE_SERVICE_ROLE_KEY" }, { status: 500 });
 
-    console.log("Stripe key prefix:", sk.slice(0, 7)); // sk_test / sk_live
-    console.log("Supabase host:", supabaseUrl.split("/")[2]);
-    console.log("Service prefix:", serviceKey.slice(0, 9)); // sb_secret
-
-    // Stripe event (raw body + signature)
+    // ===== Stripe signature =====
     const sig = req.headers.get("stripe-signature");
     if (!sig) return NextResponse.json({ error: "Missing stripe-signature" }, { status: 400 });
 
@@ -30,87 +26,38 @@ export async function POST(req: Request) {
     const rawBody = Buffer.from(await req.arrayBuffer());
     const event = stripe.webhooks.constructEvent(rawBody, sig, whsec);
 
-    console.log("WEBHOOK event:", event.type, event.id);
-
-    // Supabase admin client (SERVICE ROLE)
+    // ===== Supabase admin client =====
     const supabase = createClient(supabaseUrl, serviceKey) as any;
 
-    // DEBUG INSERT (una sola volta, sempre)
-    const debugId = `DEBUG-${Date.now()}`;
-    const { error: debugInsertError } = await supabase
-      .from("StripeWebhookEvent")
-      .insert({ event_id: debugId });
+    // ===== Logs (non segreti) =====
+    console.log("WEBHOOK VERSION: 2026-01-20-FORCE");
+    console.log("Event:", event.type, event.id);
+    console.log("Stripe prefix:", sk.slice(0, 7)); // sk_test / sk_live
+    console.log("Supabase host:", supabaseUrl.split("/")[2]);
+    console.log("Service prefix:", serviceKey.slice(0, 9)); // sb_secret
 
-    if (debugInsertError) {
-      console.error("DEBUG INSERT FAILED:", debugInsertError);
+    // ===== FORCE INSERT (deve creare SEMPRE una nuova riga) =====
+    const unique = `FORCE-${Date.now()}-${Math.random()}`;
+
+    const { data, error } = await supabase
+      .from("StripeWebhookEvent")
+      .insert({ event_id: unique })
+      .select();
+
+    if (error) {
+      console.error("FORCE INSERT ERROR:", error);
       return NextResponse.json(
-        { error: "debug insert failed", details: debugInsertError },
+        { ok: false, where: "force-insert", error },
         { status: 500 }
       );
     }
 
-    console.log("DEBUG INSERT OK:", debugId);
-
-    // (Opzionale) registra il vero event.id per idempotenza semplice
-    const { data: already } = await supabase
-      .from("StripeWebhookEvent")
-      .select("event_id")
-      .eq("event_id", event.id)
-      .maybeSingle();
-
-    if (!already) {
-      const { error: evtErr } = await supabase
-        .from("StripeWebhookEvent")
-        .insert({ event_id: event.id });
-
-      if (evtErr) {
-        console.error("Event insert failed:", evtErr);
-        return NextResponse.json({ error: "event insert failed", details: evtErr }, { status: 500 });
-      }
-    }
-
-    // Entitlements write (solo su checkout completed)
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object as Stripe.Checkout.Session;
-
-      const userId = session.client_reference_id || session.metadata?.supabase_user_id;
-      if (!userId) {
-        console.error("Missing userId in session");
-        return NextResponse.json({ error: "Missing userId" }, { status: 400 });
-      }
-
-      const billing = session.metadata?.billing_period;
-      const plan = billing === "yearly" ? "pro_yearly" : "pro_monthly";
-      const credits = billing === "yearly" ? 1200 : 100;
-
-      const payload = {
-        user_id: userId,
-        is_pro: true,
-        plan,
-        credits,
-        stripe_customer_id: session.customer?.toString() ?? null,
-        updated_at: new Date().toISOString(),
-      };
-
-      const { error: upsertErr } = await supabase
-        .from("user_entitlements")
-        .upsert(payload, { onConflict: "user_id" });
-
-      if (upsertErr) {
-        console.error("Upsert failed:", upsertErr);
-        return NextResponse.json({ error: "upsert failed", details: upsertErr }, { status: 500 });
-      }
-
-      console.log("Upsert OK for user:", userId);
-    console.log("UPSERT DONE FOR USER:", userId);
-
-    }
-
-
-    return NextResponse.json({ received: true });
+    console.log("FORCE INSERT OK:", unique);
+    return NextResponse.json({ ok: true, inserted: unique, data });
   } catch (err: any) {
-    console.error("WEBHOOK ERROR:", err?.message ?? err);
-    // 400 così Stripe lo mostra come failed e lo vedi subito
-    return NextResponse.json({ error: err?.message ?? "Webhook error" }, { status: 400 });
+    console.error("WEBHOOK FATAL:", err?.message ?? err);
+    // 400 così Stripe lo marca come failed e lo vedi chiaramente
+    return NextResponse.json({ ok: false, error: err?.message ?? "Webhook error" }, { status: 400 });
   }
 }
+
