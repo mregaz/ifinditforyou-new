@@ -10,8 +10,7 @@ export async function POST(req: Request) {
     const sk = process.env.STRIPE_SECRET_KEY;
     const whsec = process.env.STRIPE_WEBHOOK_SECRET;
 
-    const supabaseUrl =
-      process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!sk) return NextResponse.json({ error: "Missing STRIPE_SECRET_KEY" }, { status: 500 });
@@ -33,13 +32,13 @@ export async function POST(req: Request) {
 
     const unique = `FORCE-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-    const ins = await supabase
+    const { error: insErr } = await supabase
       .from("StripeWebhookEvent")
       .insert({ event_id: unique });
 
-    if (ins.error) {
-      console.error("FORCE INSERT ERROR:", ins.error);
-      return NextResponse.json({ ok: false, error: ins.error }, { status: 500 });
+    if (insErr) {
+      console.error("FORCE INSERT ERROR:", insErr);
+      return NextResponse.json({ ok: false, where: "force-insert", error: insErr }, { status: 500 });
     }
 
     console.log("FORCE INSERT OK:", unique);
