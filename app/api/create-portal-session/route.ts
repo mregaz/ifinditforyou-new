@@ -1,57 +1,65 @@
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
+import { getStripe } from "@/lib/stripe";
 
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+function getSupabaseServerClient() {
+  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anon = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-export async function POST() {
+  if (!url || !anon) throw new Error("Missing Supabase URL/ANON env vars");
+  return createClient(url, anon);
+}
+
+export async function POST(req: Request) {
   try {
-    const supabase = await createClient();
+    const body = await req.json().catch(() => ({}));
+    const accessToken = body?.accessToken as string | undefined;
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!accessToken) {
+      return NextResponse.json({ error: "Missing accessToken" }, { status: 401 });
     }
 
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
+    const supabase = getSupabaseServerClient();
+
+    const { data, error: userErr } = await supabase.auth.getUser(accessToken);
+    if (userErr || !data?.user) {
+      return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
+    }
+
+    // Leggi customer id dal tuo DB (tabella User o entitlements, dipende da dove lo salvi)
+    // Qui assumo tabella "User" con colonna "stripe_customer_id" come nei tuoi screenshot.
+    const { data: row, error: dbErr } = await supabase
+      .from("User")
       .select("stripe_customer_id")
-      .eq("id", user.id)
-      .single();
+      .eq("id", data.user.id)
+      .maybeSingle();
 
-    if (profileError) {
-      console.error("portal profile error:", profileError);
-      return NextResponse.json({ error: "Failed to load profile" }, { status: 500 });
+    if (dbErr) {
+      return NextResponse.json({ error: "DB error reading stripe_customer_id" }, { status: 500 });
     }
 
-    if (!profile?.stripe_customer_id) {
-      return NextResponse.json({ error: "Stripe customer not found" }, { status: 400 });
+    const stripeCustomerId = row?.stripe_customer_id;
+    if (!stripeCustomerId) {
+      return NextResponse.json({ error: "Missing stripe_customer_id for user" }, { status: 400 });
     }
 
-    const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
-    const baseUrl = rawBaseUrl.trim().replace(/\/+$/, "");
+    const baseUrl =
+      process.env.APP_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      "http://localhost:3000";
 
-    if (!baseUrl) {
-      return NextResponse.json({ error: "Missing NEXT_PUBLIC_APP_URL" }, { status: 500 });
-    }
+    const stripe = getStripe();
 
-    // Locale: se non lo hai, fallback it. (Va benissimo così per ora)
-    const locale = (user.user_metadata?.locale as string | undefined) ?? "it";
-
-    const session = await stripe.billingPortal.sessions.create({
-      customer: profile.stripe_customer_id,
-      return_url: `${baseUrl}/${locale}/account`,
+    const portal = await stripe.billingPortal.sessions.create({
+      customer: stripeCustomerId,
+      return_url: `${baseUrl}/account/overview`,
     });
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({ url: portal.url });
   } catch (err: any) {
     console.error("create-portal-session error:", err);
-    return NextResponse.json({ error: err?.message ?? "Unexpected error" }, { status: 500 });
+    return NextResponse.json({ error: err?.message ?? "Unknown error" }, { status: 500 });
   }
 }
