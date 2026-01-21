@@ -7,6 +7,14 @@ import ProCheckoutButtons from "./ProCheckoutButtons";
 type Props = {
   params: Promise<{ locale: string }>;
 };
+const PRO_COPY = {
+  it: { monthly: "Mensile", yearly: "Annuale", cta: "Attiva PRO", note: "Sarai reindirizzato a Stripe Checkout." },
+  en: { monthly: "Monthly", yearly: "Yearly", cta: "Activate PRO", note: "You’ll be redirected to Stripe Checkout." },
+  fr: { monthly: "Mensuel", yearly: "Annuel", cta: "Activer PRO", note: "Vous serez redirigé vers Stripe Checkout." },
+  de: { monthly: "Monatlich", yearly: "Jährlich", cta: "PRO aktivieren", note: "Du wirst zu Stripe Checkout weitergeleitet." },
+  es: { monthly: "Mensual", yearly: "Anual", cta: "Activar PRO", note: "Serás redirigido a Stripe Checkout." },
+
+} as const;
 
 const COPY: Record<Locale, { title: string; subtitle: string; choose: string; hint: string }> = {
   it: {

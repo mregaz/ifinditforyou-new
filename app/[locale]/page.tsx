@@ -1,9 +1,7 @@
 // app/[locale]/page.tsx
 import HomePageClient from "@/components/HomePageClient";
-import type { Lang } from "@/lib/lang";
-
-const SUPPORTED: Lang[] = ["it", "en", "fr", "de", "es"];
-const DEFAULT_LANG: Lang = "it";
+import { toLocale } from "@/lib/ui-copy"; // o il path corretto dove hai toLocale
+// se preferisci: sposta toLocale in lib/locale.ts e importa da lì
 
 export default async function Page({
   params,
@@ -12,9 +10,7 @@ export default async function Page({
 }) {
   const { locale } = await params;
 
-  const initialLang = (SUPPORTED as string[]).includes(locale)
-    ? (locale as Lang)
-    : DEFAULT_LANG;
+  const initialLang = toLocale(locale);
 
   return <HomePageClient initialLang={initialLang} />;
 }
