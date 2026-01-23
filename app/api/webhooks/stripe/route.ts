@@ -29,7 +29,6 @@ export async function POST(req: Request) {
     if (!supabaseUrl) throw new Error("Missing SUPABASE_URL (or NEXT_PUBLIC_SUPABASE_URL)");
 
     const serviceKey = mustEnv("SUPABASE_SERVICE_ROLE_KEY");
-     return new Response("WEBHOOK ROUTE OK", { status: 200 });
 
     // ===== Stripe signature =====
     const sig = req.headers.get("stripe-signature");
