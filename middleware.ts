@@ -31,17 +31,19 @@ function pickLocale(req: NextRequest) {
 export function middleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
 
-  // Ignora asset/Next internals/API
-  if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/api") ||
-    pathname.startsWith("/favicon") ||
-    pathname.startsWith("/robots") ||
-    pathname.startsWith("/sitemap") ||
-    pathname.startsWith("/assets")
-  ) {
-    return NextResponse.next();
-  }
+ // Ignora asset/Next internals/API
+if (
+  pathname.startsWith("/_next") ||
+  pathname.startsWith("/api") ||                       // /api/*
+  /^\/(it|en|fr|de|es)\/api(\/|$)/.test(pathname) ||    // /{locale}/api/*
+  pathname.startsWith("/favicon") ||
+  pathname.startsWith("/robots") ||
+  pathname.startsWith("/sitemap") ||
+  pathname.startsWith("/assets")
+) {
+  return NextResponse.next();
+}
+
 
   const segments = pathname.split("/").filter(Boolean);
   const first = segments[0];
@@ -74,5 +76,8 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|api|favicon.ico).*)"],
+  matcher: [
+    "/((?!_next|api|favicon.ico|it/api|en/api|fr/api|de/api|es/api).*)",
+  ],
 };
+
