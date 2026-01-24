@@ -14,6 +14,8 @@ function mustEnv(name: string): string {
 
 export async function POST(req: Request) {
   try {
+   return new Response("WEBHOOK_VERSION_DEBUG_2026-01-24", { status: 200 });
+
     // ===== ENV (Supabase prima, per poter debuggare) =====
     const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
     if (!supabaseUrl) throw new Error("Missing SUPABASE_URL (or NEXT_PUBLIC_SUPABASE_URL)");
