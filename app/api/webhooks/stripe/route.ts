@@ -33,7 +33,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: "Missing stripe-signature" }, { status: 400 });
     }
 
-    const stripe = new Stripe(sk, { apiVersion: "2024-06-20" });
+    const stripe = new Stripe(sk);
+
     const rawBody = Buffer.from(await req.arrayBuffer());
     const event = stripe.webhooks.constructEvent(rawBody, sig, whsec);
 
