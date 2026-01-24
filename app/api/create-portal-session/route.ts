@@ -1,65 +1,61 @@
+import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { getStripe } from "@/lib/stripe";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-function getSupabaseServerClient() {
-  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anon = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+function mustEnv(name: string): string {
+  const v = process.env[name];
+  if (!v) throw new Error(`Missing ${name}`);
+  return v;
+}
 
-  if (!url || !anon) throw new Error("Missing Supabase URL/ANON env vars");
-  return createClient(url, anon);
+function mustEnvAny(names: string[]): string {
+  for (const n of names) {
+    const v = process.env[n];
+    if (v) return v;
+  }
+  throw new Error(`Missing one of: ${names.join(", ")}`);
 }
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json().catch(() => ({}));
-    const accessToken = body?.accessToken as string | undefined;
+    const sk = mustEnv("STRIPE_SECRET_KEY");
+    const whsec = mustEnv("STRIPE_WEBHOOK_SECRET");
+    const supabaseUrl = mustEnvAny(["SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_URL"]);
+    const serviceKey = mustEnv("SUPABASE_SERVICE_ROLE_KEY");
 
-    if (!accessToken) {
-      return NextResponse.json({ error: "Missing accessToken" }, { status: 401 });
+    const sig = req.headers.get("stripe-signature");
+    if (!sig) {
+      return NextResponse.json({ ok: false, error: "Missing stripe-signature" }, { status: 400 });
     }
 
-    const supabase = getSupabaseServerClient();
+    // ✅ niente apiVersion: evita mismatch TS
+    const stripe = new Stripe(sk);
 
-    const { data, error: userErr } = await supabase.auth.getUser(accessToken);
-    if (userErr || !data?.user) {
-      return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
-    }
+    const rawBody = Buffer.from(await req.arrayBuffer());
+    const event = stripe.webhooks.constructEvent(rawBody, sig, whsec);
 
-    // Leggi customer id dal tuo DB (tabella User o entitlements, dipende da dove lo salvi)
-    // Qui assumo tabella "User" con colonna "stripe_customer_id" come nei tuoi screenshot.
-    const { data: row, error: dbErr } = await supabase
-      .from("User")
-      .select("stripe_customer_id")
-      .eq("id", data.user.id)
-      .maybeSingle();
+    const supabase = createClient(supabaseUrl, serviceKey);
+
+    const insertId = `${event.id}::${event.type}`;
+
+    const { error: dbErr } = await supabase
+      .from("StripeWebhookEvent")
+      .insert({ event_id: insertId });
 
     if (dbErr) {
-      return NextResponse.json({ error: "DB error reading stripe_customer_id" }, { status: 500 });
+      console.error("Supabase insert failed:", dbErr);
+      return NextResponse.json(
+        { ok: false, where: "supabase-insert", message: dbErr.message },
+        { status: 500 }
+      );
     }
 
-    const stripeCustomerId = row?.stripe_customer_id;
-    if (!stripeCustomerId) {
-      return NextResponse.json({ error: "Missing stripe_customer_id for user" }, { status: 400 });
-    }
-
-    const baseUrl =
-      process.env.APP_URL ||
-      process.env.NEXT_PUBLIC_APP_URL ||
-      "http://localhost:3000";
-
-    const stripe = getStripe();
-
-    const portal = await stripe.billingPortal.sessions.create({
-      customer: stripeCustomerId,
-      return_url: `${baseUrl}/account/overview`,
-    });
-
-    return NextResponse.json({ url: portal.url });
+    return NextResponse.json({ ok: true, received: event.id, type: event.type });
   } catch (err: any) {
-    console.error("create-portal-session error:", err);
-    return NextResponse.json({ error: err?.message ?? "Unknown error" }, { status: 500 });
+    console.error("Webhook fatal:", err);
+    return NextResponse.json({ ok: false, error: err?.message ?? "Webhook error" }, { status: 400 });
   }
 }
