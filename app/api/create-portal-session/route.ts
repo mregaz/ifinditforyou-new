@@ -31,7 +31,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: "Missing stripe-signature" }, { status: 400 });
     }
 
-    // ✅ niente apiVersion: evita mismatch TS
     const stripe = new Stripe(sk);
 
     const rawBody = Buffer.from(await req.arrayBuffer());
