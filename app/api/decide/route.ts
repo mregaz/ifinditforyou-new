@@ -1,51 +1,44 @@
-import { NextResponse } from "next/server";
+export async function POST(request: Request) {
+  const body = await request.json();
+  const query = String(body?.query ?? "").trim();
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-export async function GET() {
-  return NextResponse.json({ ok: true, hint: "POST /api/decide" });
-}
-
-export async function POST(req: Request) {
-  const body = await req.json().catch(() => ({}));
-  const query = String(body?.query ?? "");
-
-  if (!query.trim()) {
-    return NextResponse.json({ status: "error", error: "Missing query" }, { status: 400 });
+  if (!query) {
+    return Response.json(
+      { status: "error", message: "Missing query" },
+      { status: 400 }
+    );
   }
 
-  return NextResponse.json({
+  // Risposta minima (per testare che tutto funzioni)
+  const response = {
     status: "ok",
-    vertical: "watches",
-    understanding: {
-      summary: "Cerchi un orologio automatico affidabile, sotto i 2.000€, adatto all’uso quotidiano.",
-      hard_constraints: { budget_max: 2000, currency: "EUR", type: "automatic", use_case: "daily" },
-      assumptions: ["Preferisci affidabilità e versatilità rispetto al collezionismo."]
-    },
+    vertical: "generic",
+    understanding: `Ho capito che stai cercando: ${query}`,
     recommendations: [
       {
         slot: "primary",
-        title: "Hamilton Khaki Field",
-        price_range: "800–1.100€",
-        why: "È robusto, leggibile e facile da mantenere: ideale per l’uso quotidiano.",
-        tradeoff: "Design più funzionale che elegante."
+        title: "Scelta migliore (esempio)",
+        why: "Buon equilibrio tra qualità e prezzo.",
+        tradeoff: "Non è la più economica."
       },
       {
         slot: "budget",
-        title: "Seiko Presage",
-        price_range: "450–700€",
-        why: "Ottimo rapporto qualità/prezzo con uno stile più raffinato.",
-        tradeoff: "Movimento meno evoluto e finiture più semplici."
+        title: "Più economica (esempio)",
+        why: "Costa meno mantenendo caratteristiche accettabili.",
+        tradeoff: "Qualità e durata inferiori."
       },
       {
         slot: "premium",
-        title: "Tissot Gentleman Powermatic 80",
-        price_range: "900–1.200€",
-        why: "Maggiore riserva di carica e finiture più curate.",
-        tradeoff: "Prezzo vicino al limite del budget."
+        title: "Premium (esempio)",
+        why: "Massima qualità e migliori caratteristiche.",
+        tradeoff: "Costo più alto."
       }
     ],
-    decision: "Se dovessi scegliere io, prenderei Hamilton Khaki Field per affidabilità e versatilità.",
-    disclaimer: ["Prezzi e disponibilità possono variare in base al mercato."]
-  });
+    decision: "Se vuoi il miglior rapporto qualità/prezzo, scegli la 'Scelta migliore'.",
+    disclaimer: [
+      "Queste sono scelte di esempio: nei prossimi step aggiungiamo dati e regole."
+    ]
+  };
+
+  return Response.json(response, { status: 200 });
 }
