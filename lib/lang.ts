@@ -22,3 +22,4 @@ export function toLocale(v?: string | null): Locale {
     ? (short as Locale)
     : defaultLocale;
 }
+
