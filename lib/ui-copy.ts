@@ -209,29 +209,33 @@ export const HOME_COPY: Record<
   es: {} as any,
 };
   
-> = {
+ {
   it: {
-    disclaimer:
-      "Queste sono scelte di esempio: non cito modelli o prezzi reali finché non colleghiamo dati affidabili.",
+  disclaimer:
+    "Queste sono scelte di esempio: non cito modelli o prezzi reali finché non colleghiamo dati affidabili.",
 
-    evGateDiagnosis:
-      "Per scegliere un’auto elettrica da famiglia senza sparare consigli a caso, mi manca un’informazione critica sulla ricarica e/o sull’uso.",
-    evGateCompA_Title: "Compromesso A: ottimizza per ricarica facile",
-    evGateCompA_Why:
-      "Se puoi caricare a casa, puoi scegliere in modo più libero e ridurre lo stress (soprattutto con famiglia).",
-    evGateCompA_Tradeoff:
-      "Se non puoi caricare a casa, devi dare più peso a rete/velocità di ricarica e pianificazione.",
-    evGateCompB_Title: "Compromesso B: ottimizza per autonomia reale",
-    evGateCompB_Why:
-      "Se fai tanta autostrada o vivi in zone fredde, l’autonomia reale conta più della scheda tecnica.",
-    evGateCompB_Tradeoff:
-      "Per aumentare autonomia reale spesso paghi peso/costo o rinunci a qualche optional.",
-    evGateQuestion: "Domanda secca: puoi caricare a casa (wallbox/garage) oppure no?",
-    evGateDecisionWithBudget: (budget) =>
-      `Con budget massimo ${budget}, posso darti 3 scelte sensate appena chiarisci ricarica e uso principale.`,
-    evGateDecisionNoBudget:
-      "Posso darti 3 scelte sensate appena chiarisci ricarica e uso principale.",
-  },
+  evGateDiagnosis:
+    "Per scegliere un’auto elettrica da famiglia senza sparare consigli a caso, mi manca un’informazione critica sulla ricarica e/o sull’uso.",
+
+  evGateCompA_Title: "Compromesso A: ottimizza per ricarica facile",
+  evGateCompA_Why:
+    "Se puoi caricare a casa, puoi scegliere in modo più libero e ridurre lo stress (soprattutto con famiglia).",
+  evGateCompA_Tradeoff:
+    "Se non puoi caricare a casa, devi dare più peso a rete/velocità di ricarica e pianificazione.",
+
+  evGateCompB_Title: "Compromesso B: ottimizza per autonomia reale",
+  evGateCompB_Why:
+    "Se fai tanta autostrada o vivi in zone fredde, l’autonomia reale conta più della scheda tecnica.",
+  evGateCompB_Tradeoff:
+    "Per aumentare autonomia reale spesso paghi peso/costo o rinunci a qualche optional.",
+
+  evGateQuestion: "Domanda secca: puoi caricare a casa (wallbox/garage) oppure no?",
+  evGateDecisionWithBudget: (budget) =>
+    `Con budget massimo ${budget}, posso darti 3 scelte sensate appena chiarisci ricarica e uso principale.`,
+  evGateDecisionNoBudget:
+    "Posso darti 3 scelte sensate appena chiarisci ricarica e uso principale.",
+},
+
 
   en: {
     disclaimer:
@@ -345,26 +349,6 @@ export type DecideCopy = {
   evGateDecisionNoBudget: string;
 };
 
-import type { Locale } from "@/lib/lang";
-
-export type DecideCopy = {
-  disclaimer: string;
-
-  evGateDiagnosis: string;
-
-  evGateCompA_Title: string;
-  evGateCompA_Why: string;
-  evGateCompA_Tradeoff: string;
-
-  evGateCompB_Title: string;
-  evGateCompB_Why: string;
-  evGateCompB_Tradeoff: string;
-
-  evGateQuestion: string;
-  evGateDecisionWithBudget: (budget: string) => string;
-  evGateDecisionNoBudget: string;
-};
-
 export const DECIDE_COPY: Record<Locale, DecideCopy> = {
   it: {
     disclaimer:
@@ -387,7 +371,7 @@ export const DECIDE_COPY: Record<Locale, DecideCopy> = {
 
     evGateQuestion: "Domanda secca: puoi caricare a casa (wallbox/garage) oppure no?",
     evGateDecisionWithBudget: (budget) =>
-      `Con budget massimo ${budget}, posso darti 3 scelte sensate appena chiarisci ricarica e uso principale.`,
+      "Con budget massimo " + budget + ", posso darti 3 scelte sensate appena chiarisci ricarica e uso principale.",
     evGateDecisionNoBudget:
       "Posso darti 3 scelte sensate appena chiarisci ricarica e uso principale.",
   },
@@ -413,11 +397,12 @@ export const DECIDE_COPY: Record<Locale, DecideCopy> = {
 
     evGateQuestion: "Quick question: can you charge at home (wallbox/garage), yes or no?",
     evGateDecisionWithBudget: (budget) =>
-      `With a max budget of ${budget}, I can give you 3 solid options as soon as you confirm charging and primary usage.`,
+      "With a max budget of " + budget + ", I can give you 3 solid options as soon as you confirm charging and primary usage.",
     evGateDecisionNoBudget:
       "I can give you 3 solid options as soon as you confirm charging and primary usage.",
   },
 
+  // fallback temporaneo (stile tuo)
   fr: {} as any,
   de: {} as any,
   es: {} as any,
