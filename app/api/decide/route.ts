@@ -1,6 +1,5 @@
-import { toLocale } from "@/lib/ui-copy"; // o il path reale dove stanno toLocale + DECIDE_COPY
+import { toLocale } from "@/lib/lang";
 import { DECIDE_COPY } from "@/lib/ui-copy";
-
 
 type Vertical = "watches" | "ev" | "generic";
 

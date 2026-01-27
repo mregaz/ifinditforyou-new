@@ -4,7 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter, useParams } from "next/navigation";
-import { LOGIN_COPY, toLocale } from "@/lib/ui-copy";
+import { LOGIN_COPY } from "@/lib/ui-copy";
+import { toLocale } from "@/lib/lang";
+
 
 export default function LoginPageClient() {
   const router = useRouter();

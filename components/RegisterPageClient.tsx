@@ -4,7 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter, useParams } from "next/navigation";
-import { REGISTER_COPY, toLocale } from "@/lib/ui-copy";
+import { REGISTER_COPY } from "@/lib/ui-copy";
+import { toLocale } from "@/lib/lang";
+
 
 export default function RegisterPageClient() {
   const router = useRouter();

@@ -1,7 +1,8 @@
 // app/[locale]/account/overview/page.tsx
 import PlanCard from "./PlanCard";
 import { createClient } from "@/lib/supabase/server";
-import { toLocale } from "@/lib/ui-copy";
+import { toLocale } from "@/lib/lang";
+
 
 export default async function Page({
   params,

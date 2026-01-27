@@ -197,8 +197,6 @@ export const HOME_COPY: Record<
   es: {} as any,
 };
    
-import type { Locale } from "@/lib/lang";
-
 export type DecideCopy = {
   disclaimer: string;
 

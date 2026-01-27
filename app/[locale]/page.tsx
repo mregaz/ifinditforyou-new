@@ -1,6 +1,6 @@
 // app/[locale]/page.tsx
 import HomePageClient from "@/components/HomePageClient";
-import { toLocale } from "@/lib/ui-copy"; // o il path corretto dove hai toLocale
+import { toLocale } from "@/lib/lang";
 // se preferisci: sposta toLocale in lib/locale.ts e importa da lì
 
 export default async function Page({
