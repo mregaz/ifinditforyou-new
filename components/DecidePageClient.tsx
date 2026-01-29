@@ -130,7 +130,8 @@ export default function DecidePageClient({ locale }: Props) {
             onClick={onDecide}
             disabled={loading}
           >
-           {loading ? UI.decidingBtn : UI.decideBtn}
+          {loading ? UI.loading : UI.button}
+
           </button>
 
           <button
