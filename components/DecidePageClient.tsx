@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { toLocale } from "@/lib/lang";
 
 type Props = { locale: string };
@@ -38,8 +39,7 @@ type ApiError = { status: "error"; message: string; debug?: any };
 type ApiResp = ApiOk | ApiNoResults | ApiError;
 
 function prettyBudget(b: any): string | null {
-  if (!b) return null;
-  if (typeof b !== "object") return null;
+  if (!b || typeof b !== "object") return null;
   if (b.kind !== "max") return null;
   const amount = b.amount;
   const cur = b.currency && b.currency !== "UNKNOWN" ? ` ${b.currency}` : "";
@@ -54,6 +54,9 @@ function slotLabel(slot: "primary" | "budget" | "premium", lang: string) {
 }
 
 export default function DecidePageClient({ locale }: Props) {
+  const sp = useSearchParams();
+  const resultsRef = useRef<HTMLDivElement | null>(null);
+
   const lang = toLocale(locale);
   const isIT = lang === "it";
 
@@ -61,25 +64,40 @@ export default function DecidePageClient({ locale }: Props) {
     return {
       title: isIT ? "iFindEV — Decisione" : "iFindEV — Decision",
       subtitle: isIT
-        ? "Scegliamo 3 opzioni ragionate (migliore / più economica / premium)."
+        ? "3 scelte ragionate (migliore / più economica / premium)."
         : "3 reasoned picks (best / cheaper / premium).",
+
       queryLabel: isIT ? "Cosa stai cercando?" : "What are you looking for?",
       placeholder: isIT
         ? "Esempio: auto elettrica per famiglia sotto 60000 CHF, ho wallbox a casa"
         : "Example: family EV under 60000 CHF, I have a wallbox at home",
+
       decideBtn: isIT ? "Decidi" : "Decide",
       decidingBtn: isIT ? "Sto decidendo…" : "Deciding…",
       clearBtn: isIT ? "Pulisci" : "Clear",
+
       showJson: isIT ? "Mostra JSON" : "Show JSON",
       hideJson: isIT ? "Nascondi JSON" : "Hide JSON",
+
+      copyLink: isIT ? "Copia link" : "Copy link",
+      copied: isIT ? "Copiato ✓" : "Copied ✓",
+
       errEmpty: isIT ? "Scrivi prima una query." : "Write a query first.",
       errGeneric: isIT ? "Errore richiesta" : "Request error",
-      gateTitle: isIT ? "Mi manca un dato critico" : "I’m missing a critical detail",
-      gateHint: isIT
-        ? "Rispondi e poi ti do 3 scelte sensate."
-        : "Answer this and I’ll give you 3 solid options.",
+
       decisionTitle: isIT ? "Decisione" : "Decision",
       disclaimerTitle: isIT ? "Nota" : "Note",
+
+      gateTitle: isIT ? "Mi manca un dato critico" : "I’m missing a critical detail",
+      gateHint: isIT ? "Rispondi e poi ti do 3 scelte sensate." : "Answer this and I’ll give you 3 solid options.",
+
+      gateYes: isIT ? "Sì, posso caricare a casa" : "Yes, I can charge at home",
+      gateNo: isIT ? "No, non posso caricare a casa" : "No, I can’t charge at home",
+
+      whyLabel: isIT ? "Perché" : "Why",
+      tradeoffLabel: isIT ? "Compromesso" : "Tradeoff",
+      debugTitle: isIT ? "Debug JSON" : "Debug JSON",
+      understandingLabel: isIT ? "Ho capito:" : "Understanding:",
     };
   }, [isIT]);
 
@@ -88,37 +106,51 @@ export default function DecidePageClient({ locale }: Props) {
       { label: "EV (family) — needs charging answer (gate)", value: "family EV under 60000 CHF" },
       { label: "EV (family) — with home charging (ok)", value: "family EV under 60000 CHF, I have a wallbox at home" },
       { label: "EV (CH) — IT example", value: "auto elettrica per famiglia sotto 60000 CHF, ho wallbox a casa" },
-      { label: "Watches — budget mid", value: "watch under 2000 CHF for everyday use, not flashy" },
-      { label: "Generic — laptop", value: "best laptop for studying under 1200 CHF" },
     ],
     []
   );
 
   const [query, setQuery] = useState("");
+  const [lastQuery, setLastQuery] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(false);
+  const [gateBusy, setGateBusy] = useState(false);
+
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [resp, setResp] = useState<ApiResp | null>(null);
-  const [showJson, setShowJson] = useState(false);
 
-  async function onDecide() {
+  const [showJson, setShowJson] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  async function callDecide(q: string) {
     setErrorMsg(null);
     setResp(null);
 
-    const q = query.trim();
-    if (!q) {
+    const cleaned = q.trim();
+    if (!cleaned) {
       setErrorMsg(UI.errEmpty);
       return;
     }
 
     setLoading(true);
     try {
-      const r = await fetch("/api/decide", {
+      const apiUrl = `${window.location.origin}/api/decide`;
+      const r = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: q, lang, debug: true }),
+        body: JSON.stringify({ query: cleaned, lang, debug: true }),
+        redirect: "manual",
       });
 
-      const data = (await r.json().catch(() => null)) as ApiResp | null;
+      const text = await r.text();
+      let data: ApiResp | null = null;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        setErrorMsg(`Expected JSON but got non-JSON (HTTP ${r.status}).`);
+        return;
+      }
+
       if (!r.ok || !data) {
         setErrorMsg(`${UI.errGeneric} (${r.status})`);
         return;
@@ -131,10 +163,54 @@ export default function DecidePageClient({ locale }: Props) {
       }
 
       setResp(data);
+      setLastQuery(cleaned);
+
+      // scroll ai risultati
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 50);
     } catch (e: any) {
       setErrorMsg(e?.message ?? "Network error");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function onDecide() {
+    await callDecide(query);
+  }
+
+  // Prefill da URL + auto-run solo se auto=1
+  useEffect(() => {
+    const q = sp.get("q");
+    const auto = sp.get("auto");
+    if (q && q.trim()) {
+      setQuery(q);
+      // auto decide solo se auto=1
+      if (auto === "1") {
+        // evita doppio run in dev strict mode: controlliamo se lastQuery è già uguale
+        if (lastQuery !== q.trim()) {
+          callDecide(q);
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sp]);
+
+  function makeShareUrl() {
+    const base = `${window.location.origin}/${lang}/decide`;
+    const q = query.trim();
+    if (!q) return base;
+    return `${base}?q=${encodeURIComponent(q)}`;
+  }
+
+  async function onCopyLink() {
+    try {
+      await navigator.clipboard.writeText(makeShareUrl());
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    } catch {
+      // fallback: niente
     }
   }
 
@@ -176,7 +252,7 @@ export default function DecidePageClient({ locale }: Props) {
           onChange={(e) => setQuery(e.target.value)}
         />
 
-        <div className="mt-3 flex items-center gap-3">
+        <div className="mt-3 flex flex-wrap items-center gap-3">
           <button
             className="rounded-xl border px-4 py-2 font-medium shadow-sm disabled:opacity-50"
             onClick={onDecide}
@@ -189,18 +265,31 @@ export default function DecidePageClient({ locale }: Props) {
             className="rounded-xl border px-4 py-2 text-sm opacity-80 disabled:opacity-50"
             onClick={() => {
               setQuery("");
+              setLastQuery(null);
               setErrorMsg(null);
               setResp(null);
+              setShowJson(false);
+              setCopied(false);
             }}
             disabled={loading}
           >
             {UI.clearBtn}
           </button>
 
-          {resp ? (
+          <button
+            className="rounded-xl border px-4 py-2 text-sm opacity-80 disabled:opacity-50"
+            type="button"
+            onClick={onCopyLink}
+            disabled={!query.trim()}
+          >
+            {copied ? UI.copied : UI.copyLink}
+          </button>
+
+          {resp && resp.status !== "error" ? (
             <button
-              className="ml-auto rounded-xl border px-4 py-2 text-sm opacity-80"
+              className="ml-auto rounded-xl border px-4 py-2 text-sm opacity-80 disabled:opacity-50"
               type="button"
+              disabled={loading}
               onClick={() => setShowJson((v) => !v)}
             >
               {showJson ? UI.hideJson : UI.showJson}
@@ -216,7 +305,8 @@ export default function DecidePageClient({ locale }: Props) {
         ) : null}
       </section>
 
-      {/* RESULTS */}
+      <div ref={resultsRef} />
+
       {resp && resp.status !== "error" ? (
         <section className="mt-6 space-y-4">
           <div className="rounded-2xl border p-4">
@@ -229,13 +319,13 @@ export default function DecidePageClient({ locale }: Props) {
                 </>
               ) : null}
             </div>
+
             <div className="mt-2 text-sm">
-              <span className="opacity-70">understanding:</span>{" "}
+              <span className="opacity-70">{UI.understandingLabel}</span>{" "}
               <span className="font-medium">{resp.understanding}</span>
             </div>
           </div>
 
-          {/* OK */}
           {resp.status === "ok" ? (
             <>
               <div className="grid gap-3">
@@ -249,12 +339,12 @@ export default function DecidePageClient({ locale }: Props) {
                     <div className="text-base font-semibold">{r.title}</div>
 
                     <div className="mt-2 text-sm">
-                      <div className="font-medium opacity-80">Why</div>
+                      <div className="font-medium opacity-80">{UI.whyLabel}</div>
                       <div className="opacity-90">{r.why}</div>
                     </div>
 
                     <div className="mt-2 text-sm">
-                      <div className="font-medium opacity-80">Tradeoff</div>
+                      <div className="font-medium opacity-80">{UI.tradeoffLabel}</div>
                       <div className="opacity-90">{r.tradeoff}</div>
                     </div>
                   </div>
@@ -279,37 +369,57 @@ export default function DecidePageClient({ locale }: Props) {
             </>
           ) : null}
 
-          {/* NO RESULTS (GATE) */}
           {resp.status === "no_results" ? (
             <>
               <div className="rounded-2xl border p-4">
                 <div className="text-sm font-semibold">{UI.gateTitle}</div>
                 <div className="mt-2 text-sm opacity-90 whitespace-pre-wrap">{resp.diagnosis}</div>
+
                 <div className="mt-3 rounded-xl border p-3">
                   <div className="text-sm font-semibold">{resp.question}</div>
                   <div className="mt-1 text-xs opacity-70">{UI.gateHint}</div>
-                </div>
-              </div>
 
-              <div className="grid gap-3">
-                {resp.compromises.map((c, i) => (
-                  <div key={i} className="rounded-2xl border p-4">
-                    <div className="text-base font-semibold">{c.title}</div>
-                    <div className="mt-2 text-sm">
-                      <div className="font-medium opacity-80">Why</div>
-                      <div className="opacity-90">{c.why}</div>
-                    </div>
-                    <div className="mt-2 text-sm">
-                      <div className="font-medium opacity-80">Tradeoff</div>
-                      <div className="opacity-90">{c.tradeoff}</div>
-                    </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      className="rounded-xl border px-4 py-2 text-sm font-medium disabled:opacity-50"
+                      disabled={loading || gateBusy}
+                      onClick={async () => {
+                        if (!lastQuery) return;
+                        setGateBusy(true);
+                        try {
+                          const q2 =
+                            lastQuery + (isIT ? ", ho wallbox a casa" : ", I can charge at home (wallbox/garage)");
+                          setQuery(q2);
+                          await callDecide(q2);
+                        } finally {
+                          setGateBusy(false);
+                        }
+                      }}
+                    >
+                      {UI.gateYes}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="rounded-xl border px-4 py-2 text-sm font-medium opacity-90 disabled:opacity-50"
+                      disabled={loading || gateBusy}
+                      onClick={async () => {
+                        if (!lastQuery) return;
+                        setGateBusy(true);
+                        try {
+                          const q2 = lastQuery + (isIT ? ", non posso caricare a casa" : ", I can’t charge at home");
+                          setQuery(q2);
+                          await callDecide(q2);
+                        } finally {
+                          setGateBusy(false);
+                        }
+                      }}
+                    >
+                      {UI.gateNo}
+                    </button>
                   </div>
-                ))}
-              </div>
-
-              <div className="rounded-2xl border p-4">
-                <div className="text-sm font-semibold">{UI.decisionTitle}</div>
-                <div className="mt-2 text-sm opacity-90 whitespace-pre-wrap">{resp.decision}</div>
+                </div>
               </div>
 
               {resp.disclaimer?.length ? (
@@ -325,10 +435,9 @@ export default function DecidePageClient({ locale }: Props) {
             </>
           ) : null}
 
-          {/* DEBUG JSON */}
           {showJson ? (
             <div className="rounded-2xl border p-4">
-              <div className="mb-2 text-sm font-semibold">Debug JSON</div>
+              <div className="mb-2 text-sm font-semibold">{UI.debugTitle}</div>
               <pre className="overflow-auto rounded-lg bg-black/5 p-3 text-xs">
                 {JSON.stringify(resp, null, 2)}
               </pre>
