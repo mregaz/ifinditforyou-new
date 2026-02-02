@@ -107,7 +107,10 @@ function detectVertical(query: string): Vertical {
   return "generic";
 }
 
-function detectCurrency(text: string): Budget["currency"] {
+function detectCurrency(
+  text: string
+): "CHF" | "EUR" | "USD" | "UNKNOWN" {
+
   const t = text.toLowerCase();
   if (t.includes("chf")) return "CHF";
   if (t.includes("eur") || t.includes("€")) return "EUR";
