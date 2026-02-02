@@ -135,10 +135,14 @@ export default function DecidePageClient({ locale }: Props) {
     setLoading(true);
     try {
       const apiUrl = `${window.location.origin}/api/decide`;
+
+      const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      const debug = isLocalhost; // ✅ debug solo in locale
+
       const r = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: cleaned, lang, debug: true }),
+        body: JSON.stringify({ query: cleaned, lang, debug }),
         redirect: "manual",
       });
 
@@ -165,7 +169,6 @@ export default function DecidePageClient({ locale }: Props) {
       setResp(data);
       setLastQuery(cleaned);
 
-      // scroll ai risultati
       setTimeout(() => {
         resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 50);
@@ -180,15 +183,12 @@ export default function DecidePageClient({ locale }: Props) {
     await callDecide(query);
   }
 
-  // Prefill da URL + auto-run solo se auto=1
   useEffect(() => {
     const q = sp.get("q");
     const auto = sp.get("auto");
     if (q && q.trim()) {
       setQuery(q);
-      // auto decide solo se auto=1
       if (auto === "1") {
-        // evita doppio run in dev strict mode: controlliamo se lastQuery è già uguale
         if (lastQuery !== q.trim()) {
           callDecide(q);
         }
@@ -209,9 +209,7 @@ export default function DecidePageClient({ locale }: Props) {
       await navigator.clipboard.writeText(makeShareUrl());
       setCopied(true);
       setTimeout(() => setCopied(false), 1200);
-    } catch {
-      // fallback: niente
-    }
+    } catch {}
   }
 
   const budgetStr = resp && resp.status !== "error" ? prettyBudget(resp.budget) : null;
@@ -226,6 +224,12 @@ export default function DecidePageClient({ locale }: Props) {
             (lang: <span className="font-mono">{lang}</span>)
           </span>
         </p>
+
+        <div className="mt-3 text-xs opacity-70">
+          <a className="underline" href={`/${lang}/trust`}>
+            {isIT ? "Come ragiono (Trust)" : "How I reason (Trust)"}
+          </a>
+        </div>
       </header>
 
       <section className="rounded-2xl border p-4 shadow-sm">
@@ -253,11 +257,7 @@ export default function DecidePageClient({ locale }: Props) {
         />
 
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          <button
-            className="rounded-xl border px-4 py-2 font-medium shadow-sm disabled:opacity-50"
-            onClick={onDecide}
-            disabled={loading}
-          >
+          <button className="rounded-xl border px-4 py-2 font-medium shadow-sm disabled:opacity-50" onClick={onDecide} disabled={loading}>
             {loading ? UI.decidingBtn : UI.decideBtn}
           </button>
 
@@ -276,12 +276,7 @@ export default function DecidePageClient({ locale }: Props) {
             {UI.clearBtn}
           </button>
 
-          <button
-            className="rounded-xl border px-4 py-2 text-sm opacity-80 disabled:opacity-50"
-            type="button"
-            onClick={onCopyLink}
-            disabled={!query.trim()}
-          >
+          <button className="rounded-xl border px-4 py-2 text-sm opacity-80 disabled:opacity-50" type="button" onClick={onCopyLink} disabled={!query.trim()}>
             {copied ? UI.copied : UI.copyLink}
           </button>
 
@@ -388,8 +383,7 @@ export default function DecidePageClient({ locale }: Props) {
                         if (!lastQuery) return;
                         setGateBusy(true);
                         try {
-                          const q2 =
-                            lastQuery + (isIT ? ", ho wallbox a casa" : ", I can charge at home (wallbox/garage)");
+                          const q2 = lastQuery + (isIT ? ", ho wallbox a casa" : ", I can charge at home (wallbox/garage)");
                           setQuery(q2);
                           await callDecide(q2);
                         } finally {

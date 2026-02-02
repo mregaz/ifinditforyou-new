@@ -10,12 +10,13 @@ export default function HomeLandingClient({ locale }: Props) {
   const isIT = lang === "it";
 
   const T = {
-    brandLine: isIT ? "iFindEV — by iFindItForYou" : "iFindEV — by iFindItForYou",
+    brandLine: "iFindEV — by iFindItForYou",
     title: isIT ? "Scegli l’auto elettrica giusta" : "Choose the right EV",
     subtitle: isIT
       ? "3 scelte ragionate: migliore, più economica, premium. Niente hype."
       : "3 reasoned picks: best, cheaper, premium. No hype.",
     cta: isIT ? "Inizia la decisione" : "Start decision",
+    trust: isIT ? "Come ragiono (Trust)" : "How I reason (Trust)",
     howTitle: isIT ? "Come funziona" : "How it works",
     bullets: isIT
       ? [
@@ -68,9 +69,13 @@ export default function HomeLandingClient({ locale }: Props) {
         <h1 className="text-4xl font-semibold leading-tight">{T.title}</h1>
         <p className="text-base opacity-80">{T.subtitle}</p>
 
-        <div className="flex flex-wrap gap-3 pt-2">
+        <div className="flex flex-wrap items-center gap-4 pt-2">
           <Link className="rounded-xl border px-4 py-2 font-medium shadow-sm" href={`/${lang}/decide`}>
             {T.cta}
+          </Link>
+
+          <Link className="text-sm underline opacity-80 hover:opacity-100" href={`/${lang}/trust`}>
+            {T.trust}
           </Link>
         </div>
       </header>
@@ -111,3 +116,4 @@ export default function HomeLandingClient({ locale }: Props) {
     </main>
   );
 }
+
