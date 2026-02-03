@@ -29,16 +29,18 @@ function pickLocale(req: NextRequest) {
 }
 
 export function middleware(req: NextRequest) {
-   const { pathname } = req.nextUrl;
+  const { pathname, search } = req.nextUrl;
 
-  // 🔁 Redirect root "/" to "/{locale}" (iFindEV homepage)
+  // 🔁 Redirect root "/" → "/{locale}"
   if (pathname === "/") {
     const locale = pickLocale(req);
     const url = req.nextUrl.clone();
     url.pathname = `/${locale}`;
+    url.search = search; // 🔴 ORA search ESISTE
     return NextResponse.redirect(url);
   }
 
+  // resto del middleware...
 
 
  // Ignora asset/Next internals/API
