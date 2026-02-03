@@ -29,16 +29,19 @@ function pickLocale(req: NextRequest) {
 }
 
 export function middleware(req: NextRequest) {
-  const { pathname, search } = req.nextUrl;
+    const { pathname, search } = req.nextUrl;
+  const host = req.headers.get("host") ?? "";
+  const isIFindEV = host.includes("ifindev.com");
 
-  // 🔁 Redirect root "/" → "/{locale}"
-  if (pathname === "/") {
+  // ✅ Solo per ifindev.com: "/" -> "/{locale}"
+  if (pathname === "/" && isIFindEV) {
     const locale = pickLocale(req);
     const url = req.nextUrl.clone();
     url.pathname = `/${locale}`;
-    url.search = search; // 🔴 ORA search ESISTE
+    url.search = search;
     return NextResponse.redirect(url);
   }
+
 
   // resto del middleware...
 
