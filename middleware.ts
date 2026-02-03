@@ -29,7 +29,17 @@ function pickLocale(req: NextRequest) {
 }
 
 export function middleware(req: NextRequest) {
-  const { pathname, search } = req.nextUrl;
+   const { pathname } = req.nextUrl;
+
+  // 🔁 Redirect root "/" to "/{locale}" (iFindEV homepage)
+  if (pathname === "/") {
+    const locale = pickLocale(req);
+    const url = req.nextUrl.clone();
+    url.pathname = `/${locale}`;
+    return NextResponse.redirect(url);
+  }
+
+
 
  // Ignora asset/Next internals/API
 if (
