@@ -1,4 +1,6 @@
+import { headers } from "next/headers";
 import HomeLandingClient from "@/components/HomeLandingClient";
+import HomePageClient from "@/components/HomePageClient";
 
 export default async function Page({
   params,
@@ -6,5 +8,16 @@ export default async function Page({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  return <HomeLandingClient locale={locale} />;
+
+  const h = await headers();
+  const host = h.get("host") ?? "";
+  const isIFindEV = host.includes("ifindev.com");
+
+  // ✅ ifindev.com -> homepage iFindEV
+  if (isIFindEV) {
+    return <HomeLandingClient locale={locale} />;
+  }
+
+  // ✅ altri domini -> homepage ombrello (iFindItForYou)
+  return <HomePageClient locale={locale} />;
 }
