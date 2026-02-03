@@ -13,11 +13,11 @@ export default async function Page({
   const host = h.get("host") ?? "";
   const isIFindEV = host.includes("ifindev.com");
 
-  // ✅ ifindev.com -> homepage iFindEV
+  // ✅ ifindev.com -> homepage iFindEV (ha bisogno di locale)
   if (isIFindEV) {
     return <HomeLandingClient locale={locale} />;
   }
 
-  // ✅ altri domini -> homepage ombrello (iFindItForYou)
-  return <HomePageClient locale={locale} />;
+  // ✅ altri domini -> homepage ombrello (NON accetta locale)
+  return <HomePageClient />;
 }
