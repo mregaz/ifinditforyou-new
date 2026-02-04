@@ -65,10 +65,6 @@ export default function HomeLandingClient({ locale }: Props) {
           {T.brandLine} <span className="opacity-40">·</span>{" "}
           <span className="font-mono">{lang}</span>
         </div>
-<h1 className="text-4xl font-semibold leading-tight">
-  IFINDEV ✅ (TEST MARKER)
-</h1>
-
         <h1 className="text-4xl font-semibold leading-tight">{T.title}</h1>
         <p className="text-base opacity-80">{T.subtitle}</p>
 
