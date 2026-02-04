@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+import HomeLandingClient from "@/components/HomeLandingClient";
 
 export default async function Page({
   params,
@@ -6,14 +6,5 @@ export default async function Page({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-
-  return (
-    <main style={{ padding: 24, fontFamily: "system-ui" }}>
-      <h1 style={{ fontSize: 32, fontWeight: 700 }}>
-        IFINDEV PAGE HIT ✅
-      </h1>
-      <p>locale: {locale}</p>
-      <p>timestamp: {new Date().toISOString()}</p>
-    </main>
-  );
+  return <HomeLandingClient locale={locale} />;
 }
