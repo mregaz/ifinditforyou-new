@@ -101,14 +101,39 @@ export default function DecidePageClient({ locale }: Props) {
     };
   }, [isIT]);
 
-  const templates = useMemo(
-    () => [
-      { label: "EV (family) — needs charging answer (gate)", value: "family EV under 60000 CHF" },
-      { label: "EV (family) — with home charging (ok)", value: "family EV under 60000 CHF, I have a wallbox at home" },
-      { label: "EV (CH) — IT example", value: "auto elettrica per famiglia sotto 60000 CHF, ho wallbox a casa" },
-    ],
-    []
-  );
+  const templates = useMemo(() => {
+  if (isIT) {
+    return [
+      {
+        label: "EV (famiglia) — serve risposta ricarica (gate)",
+        value: "auto elettrica per famiglia sotto 60000 CHF",
+      },
+      {
+        label: "EV (famiglia) — con ricarica a casa (ok)",
+        value: "auto elettrica per famiglia sotto 60000 CHF, ho wallbox a casa",
+      },
+      {
+        label: "EV (CH) — esempio IT",
+        value: "auto elettrica per famiglia sotto 60000 CHF, ho wallbox a casa",
+      },
+    ];
+  }
+
+  return [
+    {
+      label: "EV (family) — needs charging answer (gate)",
+      value: "family EV under 60000 CHF",
+    },
+    {
+      label: "EV (family) — with home charging (ok)",
+      value: "family EV under 60000 CHF, I have a wallbox at home",
+    },
+    {
+      label: "EV (CH) — EN example",
+      value: "family EV under 60000 CHF, I have a wallbox at home",
+    },
+  ];
+}, [isIT]);
 
   const [query, setQuery] = useState("");
   const [lastQuery, setLastQuery] = useState<string | null>(null);
