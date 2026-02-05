@@ -752,10 +752,28 @@ const t = (UI_TEXTS as any)[safeLang] ?? (UI_TEXTS as any).en;
 >
   {isLoggedIn ? t.headerAccount : t.headerLogin}
 </Link>
-
-             
+ <a
+                href="https://forms.gle/IFINDEV-FEEDBACK"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex items-center justify-center rounded-xl border px-5 py-3 text-sm font-medium hover:bg-neutral-100"
+                style={{
+                  marginLeft: 8,
+                  padding: "6px 10px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(148,163,184,0.7)",
+                  textDecoration: "none",
+                  color: "#0f172a",
+                  background: "#fff",
+                  fontWeight: 500,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Give feedback / Lascia feedback
+              </a>
+            </div>  
           </div>
-        </div>
+      
       </header>
 
       {/* HERO + SEARCH */}
