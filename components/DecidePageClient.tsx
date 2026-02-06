@@ -370,7 +370,18 @@ export default function DecidePageClient({ locale }: Props) {
                   </div>
                 ))}
               </div>
-
+<div className="mt-6 text-center">
+  <a
+    href="https://forms.gle/IFINDEV-FEEDBACK"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-sm underline opacity-70 hover:opacity-100"
+  >
+    {isIT
+      ? "Ti fidi di questa decisione? Lascia feedback (60s)"
+      : "Would you trust this decision? Leave feedback (60s)"}
+  </a>
+</div>
               <div className="rounded-2xl border p-4">
                 <div className="text-sm font-semibold">{UI.decisionTitle}</div>
                 <div className="mt-2 text-sm opacity-90 whitespace-pre-wrap">{resp.decision}</div>
