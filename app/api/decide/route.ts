@@ -209,6 +209,16 @@ const COPY: Record<
     gateDecisionNoBudget:
       "I can give you 3 solid options once charging is clear.",
   },
+  <div className="mt-8 text-center">
+  <a
+    href="https://forms.gle/IFINDEV-FEEDBACK"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-sm underline opacity-70 hover:opacity-100"
+  >
+    Was this decision useful? Tell us (60s)
+  </a>
+</div>
 };
 
 /* =========================

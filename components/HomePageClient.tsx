@@ -892,7 +892,7 @@ const t = (UI_TEXTS as any)[safeLang] ?? (UI_TEXTS as any).en;
 
       {/* RISULTATI + INFO */}
       <section
-        style={{
+        style={{  
           borderTop: "1px solid rgba(148,163,184,0.25)",
           background: "#f8fafc",
           padding: "24px 16px 32px",
