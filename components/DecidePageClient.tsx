@@ -372,7 +372,7 @@ export default function DecidePageClient({ locale }: Props) {
               </div>
 <div className="mt-6 text-center">
   <a
-    href="https://forms.gle/IFINDEV-FEEDBACK"
+    href="https://forms.gle/kEsmuQzV1WCdu9Zc7"
     target="_blank"
     rel="noopener noreferrer"
     className="text-sm underline opacity-70 hover:opacity-100"
