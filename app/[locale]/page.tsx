@@ -1,4 +1,5 @@
-import HomeLandingClient from "@/components/HomeLandingClient";
+import HomePageClient from "@/components/HomePageClient";
+import { toLocale } from "@/lib/lang";
 
 export default async function Page({
   params,
@@ -6,5 +7,6 @@ export default async function Page({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  return <HomeLandingClient locale={locale} />;
+
+  return <HomePageClient initialLang={toLocale(locale)} />;
 }

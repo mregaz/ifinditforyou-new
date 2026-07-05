@@ -1,0 +1,129 @@
+app/[locale]/account/settings/LanguagePreferenceForm.tsx:      fr: "Automatique (navigateur)",
+app/api/decide/route.ts:  vertical: Vertical;
+app/api/decide/route.ts:  recommendations: Array<{
+app/api/decide/route.ts:    tradeoff: string;
+app/api/decide/route.ts:  vertical: Vertical;
+app/api/decide/route.ts:    tradeoff: string;
+app/api/decide/route.ts:function shouldGateEVFamily(query: string) {
+app/api/decide/route.ts:function extractEVSignals(query: string) {
+app/api/decide/route.ts:    hasAny(q, ["wallbox", "charge at home", "caricare a casa"])
+app/api/decide/route.ts:      : hasAny(q, ["no wallbox", "can't charge at home", "non posso caricare a casa"])
+app/api/decide/route.ts:    gateDiagnosis: string;
+app/api/decide/route.ts:    gateQuestion: string;
+app/api/decide/route.ts:    gateYes: string;
+app/api/decide/route.ts:    gateNo: string;
+app/api/decide/route.ts:    gateDecisionWithBudget: (b: string) => string;
+app/api/decide/route.ts:    gateDecisionNoBudget: string;
+app/api/decide/route.ts:    gateDiagnosis:
+app/api/decide/route.ts:      "Per scegliere un’auto elettrica da famiglia senza sparare consigli a caso, mi manca un’informazione critica.",
+app/api/decide/route.ts:    gateQuestion: "Puoi caricare a casa (wallbox/garage)?",
+app/api/decide/route.ts:    gateYes: "Sì, posso caricare a casa",
+app/api/decide/route.ts:    gateNo: "No, non posso caricare a casa",
+app/api/decide/route.ts:    gateDecisionWithBudget: (b) =>
+app/api/decide/route.ts:    gateDecisionNoBudget:
+app/api/decide/route.ts:    gateDiagnosis:
+app/api/decide/route.ts:      "To recommend a family EV without guessing, I’m missing a critical detail.",
+app/api/decide/route.ts:    gateQuestion: "Can you charge at home (wallbox/garage)?",
+app/api/decide/route.ts:    gateYes: "Yes, I can charge at home",
+app/api/decide/route.ts:    gateNo: "No, I can’t charge at home",
+app/api/decide/route.ts:    gateDecisionWithBudget: (b) =>
+app/api/decide/route.ts:    gateDecisionNoBudget:
+app/api/decide/route.ts:  return Response.json({ ok: true, route: "/api/decide" }, { status: 200 });
+app/api/decide/route.ts:   POST /api/decide
+app/api/decide/route.ts:  const rl = rateLimitHit(`decide:${ip}`);
+app/api/decide/route.ts:  const vertical = detectVertical(query);
+app/api/decide/route.ts:  console.log("[decide]", { requestId, locale, vertical });
+app/api/decide/route.ts:  // QUALITY GATE EV
+app/api/decide/route.ts:  if (vertical === "ev" && shouldGateEVFamily(query)) {
+app/api/decide/route.ts:    const s = extractEVSignals(query);
+app/api/decide/route.ts:        vertical,
+app/api/decide/route.ts:        diagnosis: COPY[L].gateDiagnosis,
+app/api/decide/route.ts:        question: COPY[L].gateQuestion,
+app/api/decide/route.ts:          ? COPY[L].gateDecisionWithBudget(b)
+app/api/decide/route.ts:          : COPY[L].gateDecisionNoBudget,
+app/api/decide/route.ts:  // OK (placeholder recommendations)
+app/api/decide/route.ts:    vertical,
+app/api/decide/route.ts:    recommendations: [
+app/api/decide/route.ts:        tradeoff:
+app/api/decide/route.ts:        tradeoff:
+app/api/decide/route.ts:        tradeoff:
+components/HomePageClient.tsx:                href="https://forms.gle/IFINDEV-FEEDBACK"
+components/TrustPageClient.tsx:    title: isIT ? "Come ragiona iFindEV" : "How iFindEV reasons",
+components/TrustPageClient.tsx:      ? "Un assistente decisionale: prima chiarisce i vincoli critici, poi dà 3 opzioni con tradeoff."
+components/TrustPageClient.tsx:      : "A decision assistant: clarify critical constraints first, then give 3 options with tradeoffs.",
+components/TrustPageClient.tsx:    section4: isIT ? "Perché a volte faccio una domanda (gate)" : "Why I sometimes ask a question (gate)",
+components/TrustPageClient.tsx:          "Ti spiego perché e cosa stai sacrificando (tradeoff).",
+components/TrustPageClient.tsx:          { k: "Ricarica", v: "Casa (wallbox/garage) vs no: cambia tutto." },
+components/TrustPageClient.tsx:          { k: "Charging", v: "Home (wallbox/garage) vs none: it changes everything." },
+components/TrustPageClient.tsx:    gateText: isIT
+components/TrustPageClient.tsx:          iFindEV <span className="opacity-40">·</span> <span className="font-mono">{lang}</span>
+components/TrustPageClient.tsx:          <Link className="rounded-xl border px-4 py-2 text-sm font-medium shadow-sm" href={`/${lang}/decide`}>
+components/TrustPageClient.tsx:        <p className="mt-3 text-sm opacity-90">{T.gateText}</p>
+components/DecidePageClient.tsx:  vertical: string;
+components/DecidePageClient.tsx:  recommendations: Array<{
+components/DecidePageClient.tsx:    tradeoff: string;
+components/DecidePageClient.tsx:  vertical: string;
+components/DecidePageClient.tsx:  compromises: Array<{ title: string; why: string; tradeoff: string }>;
+components/DecidePageClient.tsx:      title: isIT ? "iFindEV — Decisione" : "iFindEV — Decision",
+components/DecidePageClient.tsx:        ? "Esempio: auto elettrica per famiglia sotto 60000 CHF, ho wallbox a casa"
+components/DecidePageClient.tsx:        : "Example: family EV under 60000 CHF, I have a wallbox at home",
+components/DecidePageClient.tsx:      decideBtn: isIT ? "Decidi" : "Decide",
+components/DecidePageClient.tsx:      decidingBtn: isIT ? "Sto decidendo…" : "Deciding…",
+components/DecidePageClient.tsx:      gateTitle: isIT ? "Mi manca un dato critico" : "I’m missing a critical detail",
+components/DecidePageClient.tsx:      gateHint: isIT ? "Rispondi e poi ti do 3 scelte sensate." : "Answer this and I’ll give you 3 solid options.",
+components/DecidePageClient.tsx:      gateYes: isIT ? "Sì, posso caricare a casa" : "Yes, I can charge at home",
+components/DecidePageClient.tsx:      gateNo: isIT ? "No, non posso caricare a casa" : "No, I can’t charge at home",
+components/DecidePageClient.tsx:      tradeoffLabel: isIT ? "Compromesso" : "Tradeoff",
+components/DecidePageClient.tsx:        label: "EV (famiglia) — serve risposta ricarica (gate)",
+components/DecidePageClient.tsx:        value: "auto elettrica per famiglia sotto 60000 CHF",
+components/DecidePageClient.tsx:        label: "EV (famiglia) — con ricarica a casa (ok)",
+components/DecidePageClient.tsx:        value: "auto elettrica per famiglia sotto 60000 CHF, ho wallbox a casa",
+components/DecidePageClient.tsx:        label: "EV (CH) — esempio IT",
+components/DecidePageClient.tsx:        value: "auto elettrica per famiglia sotto 60000 CHF, ho wallbox a casa",
+components/DecidePageClient.tsx:      label: "EV (family) — needs charging answer (gate)",
+components/DecidePageClient.tsx:      value: "family EV under 60000 CHF",
+components/DecidePageClient.tsx:      label: "EV (family) — with home charging (ok)",
+components/DecidePageClient.tsx:      value: "family EV under 60000 CHF, I have a wallbox at home",
+components/DecidePageClient.tsx:      label: "EV (CH) — EN example",
+components/DecidePageClient.tsx:      value: "family EV under 60000 CHF, I have a wallbox at home",
+components/DecidePageClient.tsx:  const [gateBusy, setGateBusy] = useState(false);
+components/DecidePageClient.tsx:      const apiUrl = `${window.location.origin}/api/decide`;
+components/DecidePageClient.tsx:    const base = `${window.location.origin}/${lang}/decide`;
+components/DecidePageClient.tsx:            {loading ? UI.decidingBtn : UI.decideBtn}
+components/DecidePageClient.tsx:              vertical: <span className="font-mono">{resp.vertical}</span>
+components/DecidePageClient.tsx:                {resp.recommendations.map((r) => (
+components/DecidePageClient.tsx:                      <div className="font-medium opacity-80">{UI.tradeoffLabel}</div>
+components/DecidePageClient.tsx:                      <div className="opacity-90">{r.tradeoff}</div>
+components/DecidePageClient.tsx:                <div className="text-sm font-semibold">{UI.gateTitle}</div>
+components/DecidePageClient.tsx:                  <div className="mt-1 text-xs opacity-70">{UI.gateHint}</div>
+components/DecidePageClient.tsx:                      disabled={loading || gateBusy}
+components/DecidePageClient.tsx:                          const q2 = lastQuery + (isIT ? ", ho wallbox a casa" : ", I can charge at home (wallbox/garage)");
+components/DecidePageClient.tsx:                      {UI.gateYes}
+components/DecidePageClient.tsx:                      disabled={loading || gateBusy}
+components/DecidePageClient.tsx:                      {UI.gateNo}
+components/HomeLandingClient.tsx:    brandLine: "iFindEV — by iFindItForYou",
+components/HomeLandingClient.tsx:    title: isIT ? "Scegli l’auto elettrica giusta" : "Choose the right EV",
+components/HomeLandingClient.tsx:          "Risultato leggibile (3 scelte + tradeoff).",
+components/HomeLandingClient.tsx:          "Readable output (3 picks + tradeoffs).",
+components/HomeLandingClient.tsx:      ? "Apri /decide con la query precompilata e avvia automaticamente."
+components/HomeLandingClient.tsx:      : "Opens /decide prefilled and runs automatically.",
+components/HomeLandingClient.tsx:            label: "Famiglia · < 60k CHF · wallbox",
+components/HomeLandingClient.tsx:            q: "auto elettrica per famiglia sotto 60000 CHF, ho wallbox a casa",
+components/HomeLandingClient.tsx:            label: "Famiglia · < 60k CHF · no wallbox",
+components/HomeLandingClient.tsx:            q: "auto elettrica per famiglia sotto 60000 CHF, non posso caricare a casa",
+components/HomeLandingClient.tsx:            q: "auto elettrica per commuting quotidiano sotto 45000 CHF, vivo in Svizzera",
+components/HomeLandingClient.tsx:          { label: "Family · < 60k CHF · wallbox", q: "family EV under 60000 CHF, I have a wallbox at home" },
+components/HomeLandingClient.tsx:          { label: "Family · < 60k CHF · no home charging", q: "family EV under 60000 CHF, I can’t charge at home" },
+components/HomeLandingClient.tsx:          { label: "Commuting · < 45k CHF", q: "EV for daily commuting under 45000 CHF, Switzerland" },
+components/HomeLandingClient.tsx:          <Link className="rounded-xl border px-4 py-2 font-medium shadow-sm" href={`/${lang}/decide`}>
+components/HomeLandingClient.tsx:              href={`/${lang}/decide?q=${encodeURIComponent(ex.q)}&auto=1`}
+lib/privacy.ts:          "- improve the service in an aggregated and anonymised way where possible;",
+lib/privacy.ts:          "- informations techniques de base (adresse IP, type de navigateur, etc.) pour la sécurité et les statistiques.",
+lib/ui-copy.ts:      "Per scegliere un’auto elettrica da famiglia senza sparare consigli a caso, mi manca un’informazione critica sulla ricarica e/o sull’uso.",
+lib/ui-copy.ts:    evGateQuestion: "Domanda secca: puoi caricare a casa (wallbox/garage) oppure no?",
+lib/ui-copy.ts:      "To recommend a family EV without guessing, I’m missing a critical detail about charging and/or usage.",
+lib/ui-copy.ts:    evGateQuestion: "Quick question: can you charge at home (wallbox/garage), yes or no?",
+lib/i18n/info.ts:Ricevi solo una selezione ristretta di proposte davvero adatte alle tue esigenze, spiegate in modo chiaro e comprensibile.
+lib/i18n/info.ts:Così risparmi tempo e puoi decidere con maggiore chiarezza.`,
+lib/i18n/info.ts:Riceverai una selezione breve e mirata: poche alternative davvero rilevanti, spiegate in modo chiaro.
+lib/i18n/dashboard.ts:    languageAuto: 'Automatique (selon le navigateur)',
