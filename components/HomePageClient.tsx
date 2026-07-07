@@ -9,7 +9,7 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { usePathname, useRouter } from "next/navigation";
 import { isSupportedLocale, i18n, type Locale } from "@/lib/i18n-config";
 import { toLocale } from "@/lib/lang";
-
+import FinderForm from "@/components/FinderForm";
 
 /*
 ====================================
@@ -454,7 +454,7 @@ export default function HomePageClient({ initialLang }: HomePageClientProps) {
   const [credits, setCredits] = useState(2);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [showEmailGate, setShowEmailGate] = useState(false);
-
+  const [showFinderForm, setShowFinderForm] = useState(false);
   const [isPro, setIsPro] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [recentSearches, setRecentSearches] = useState<SearchRow[]>([]);
@@ -584,19 +584,20 @@ const t = (UI_TEXTS as any)[safeLang] ?? (UI_TEXTS as any).en;
     const q = query.trim();
     if (!q) return;
 
-    // gating free
-    if (!isPro) {
-      if (credits <= 0) {
-        alert(t.outOfCredits);
-        return;
-      }
-      if (credits === 1 && !userEmail) {
-        setShowEmailGate(true);
-        return;
-      }
-    }
+   // gating free
+if (!isPro) {
+  if (credits <= 0) {
+    setShowFinderForm(true);
+    return;
+  }
 
-    setLoading(true);
+  if (credits === 1 && !userEmail) {
+    setShowEmailGate(true);
+    return;
+  }
+}
+
+setLoading(true);
     setResults([]);
     setSummary("");
     setIsFromSavedSearch(false);
@@ -1003,7 +1004,18 @@ const t = (UI_TEXTS as any)[safeLang] ?? (UI_TEXTS as any).en;
         </div>
       </section>
 
-      <EmailGateModal isOpen={showEmailGate} onClose={() => setShowEmailGate(false)} onConfirm={handleEmailCollected} t={t} />
+    
+
+{showFinderForm && (
+  <FinderForm onClose={() => setShowFinderForm(false)} />
+)}
+
+<EmailGateModal
+  isOpen={showEmailGate}
+  onClose={() => setShowEmailGate(false)}
+  onConfirm={handleEmailCollected}
+  t={t}
+/>
     </main>
   );
 }
