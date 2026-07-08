@@ -7,7 +7,6 @@ import { createClient as createAdminClient } from "@supabase/supabase-js";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type Lang = "it" | "fr" | "en" | "de" | "es";
 
 function normalizeLang(x: any): Lang {
   const v = String(x ?? "it").toLowerCase();

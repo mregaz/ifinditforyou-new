@@ -1,5 +1,5 @@
 import { parseQuery } from "./parser";
-import { mockProvider } from "./mockProvider";
+import { providers } from "./providers";
 import type { FinderPlan, FinderResponse, Lang } from "./types";
 
 type RunFinderInput = {
@@ -11,7 +11,11 @@ type RunFinderInput = {
 export async function runFinderEngine(input: RunFinderInput): Promise<FinderResponse> {
   const parsedQuery = parseQuery(input.query, input.lang);
 
-  const results = await mockProvider(parsedQuery);
+  const providerResults = await Promise.all(
+    providers.map((provider) => provider.search(parsedQuery))
+  );
+
+  const results = providerResults.flat();
 
   const sortedResults = results.sort((a, b) => b.score - a.score);
 
