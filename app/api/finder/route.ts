@@ -1,3 +1,5 @@
+import { runFinderEngine } from "@/lib/finder/engine";
+import type { Lang } from "@/lib/finder/types";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
@@ -13,15 +15,7 @@ function normalizeLang(x: any): Lang {
   return "it";
 }
 
-async function searchPublic(query: string, lang: Lang) {
-  // TODO: sostituisci con la tua logica reale già esistente
-  return [];
-}
 
-async function searchPro(query: string, lang: Lang) {
-  // TODO: sostituisci con la tua logica reale già esistente
-  return [];
-}
 
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -92,7 +86,11 @@ export async function POST(req: Request) {
   }
 
   // ✅ 6) Esegui ricerca
-  const results = isPro ? await searchPro(query, lang) : await searchPublic(query, lang);
+  const finderResponse = await runFinderEngine({
+  query,
+  lang,
+  plan: isPro ? "pro" : "free",
+});
 
   // ✅ 7) Log Search con ADMIN (bypassa RLS)
   if (userRow?.id) {
@@ -110,9 +108,10 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({
-    ok: true,
-    isPro,
-    creditsRemaining,
-    results,
-  });
+  ok: true,
+  isPro,
+  creditsRemaining,
+  finder: finderResponse,
+  results: finderResponse.results,
+});
 }

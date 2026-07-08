@@ -584,13 +584,8 @@ const t = (UI_TEXTS as any)[safeLang] ?? (UI_TEXTS as any).en;
     const q = query.trim();
     if (!q) return;
 
-   // gating free
+// gating free
 if (!isPro) {
-  if (credits <= 0) {
-    setShowFinderForm(true);
-    return;
-  }
-
   if (credits === 1 && !userEmail) {
     setShowEmailGate(true);
     return;
@@ -619,10 +614,16 @@ setLoading(true);
         return;
       }
 
-      // compat: alcuni endpoint ritornano items/summary, altri results
-      const items = data.items ?? data.results ?? [];
-      setResults(items);
-      setSummary(data.summary ?? "");
+     // compat: alcuni endpoint ritornano items/summary, altri results/finder.results
+     const items = data.items ?? data.results ?? data.finder?.results ?? [];
+
+    if (items.length === 0) {
+  setShowFinderForm(true);
+  return;
+}
+
+setResults(items);
+setSummary(data.summary ?? data.finder?.summary ?? "");
 
       // se backend ti restituisce crediti rimanenti, usali (altrimenti scala in locale)
       if (!isPro) {
