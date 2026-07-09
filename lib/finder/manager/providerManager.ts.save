@@ -1,0 +1,102 @@
+iimport type { FinderResult, ParsedQuery } from "../types";
+import type { SearchProvider } from "../contracts/SearchProvider";
+
+type ProviderExecutionStatus = "success" | "error";
+
+type ProviderExecution = {
+  provider: string;
+  status: ProviderExecutionStatus;
+  durationMs: number;
+  resultCount: number;
+};
+
+type ProviderManagerResult = {
+  results: FinderResult[];
+  executions: ProviderExecution[];
+};
+
+type RunProvidersParams = {
+  providers: SearchProvider[];
+  query: ParsedQuery;
+};
+
+export async function runProvidersDetailed({
+  providers,
+  query,
+}: RunProvidersParams): Promise<ProviderManagerResult> {
+  const executions = await Promise.all(
+    providers.map(async (provider) => {
+      const startedAt = Date.now();
+
+      try {
+        const results = await provider.search(query);
+        const durationMs = Date.now() - startedAt;
+
+        return {
+          results,
+          execution: {
+            provider: provider.name,
+            status: "success" as const,
+            durationMs,
+            resultCount: results.length,
+          },
+        };
+      } catch (error) {
+        const durationMs = Date.now() - startedAt;
+
+        console.error(`[finder] provider failed: ${provider.name}`, error);
+
+        return {
+          results: [],
+          execution: {
+            provider: provider.name,
+            status: "error" as const,
+            durationMs,
+            resultCount: 0,
+          },
+        };
+      }
+    })
+  );
+
+  return {
+    results: executions.flatMap((item) => item.results),
+    executions: executions.map((item) => item.execution),
+  };
+}
+
+export async function runProviders({
+  providers,
+  query,
+}: RunProvidersParams): Promise<FinderResult[]> {
+  const managerResult = await runProvidersDetailed({
+    providers,
+    query,
+  });
+
+  return managerResult.results;
+}mport type { FinderResult, ParsedQuery } from "../types";
+import type { SearchProvider } from "../contracts/SearchProvider";
+
+type RunProvidersParams = {
+  providers: SearchProvider[];
+  query: ParsedQuery;
+};
+
+export async function runProviders({
+  providers,
+  query,
+}: RunProvidersParams): Promise<FinderResult[]> {
+  const results = await Promise.all(
+    providers.map(async (provider) => {
+      try {
+        return await provider.search(query);
+      } catch (error) {
+        console.error(`[finder] provider failed: ${provider.name}`, error);
+        return [];
+      }
+    })
+  );
+
+  return results.flat();
+}

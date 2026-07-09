@@ -1,7 +1,8 @@
+import { runProvidersDetailed } from "./manager/providerManager";
 import { parseQuery } from "./parser";
 import { providers } from "./providers";
 import type { FinderPlan, FinderResponse, Lang } from "./types";
-
+import { finderLogger } from "./utils/logger";
 type RunFinderInput = {
   query: string;
   lang: Lang;
@@ -11,11 +12,17 @@ type RunFinderInput = {
 export async function runFinderEngine(input: RunFinderInput): Promise<FinderResponse> {
   const parsedQuery = parseQuery(input.query, input.lang);
 
-  const providerResults = await Promise.all(
-    providers.map((provider) => provider.search(parsedQuery))
-  );
+  const providerManagerResult = await runProvidersDetailed({
+  providers,
+  query: parsedQuery,
+});
 
-  const results = providerResults.flat();
+finderLogger.info("provider executions", {
+  executions: providerManagerResult.executions,
+});
+
+const results = providerManagerResult.results;
+
 
   const sortedResults = results.sort((a, b) => b.score - a.score);
 
