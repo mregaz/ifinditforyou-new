@@ -1,4 +1,4 @@
-export type AnibisListing = {
+export interface AnibisListing {
   id: string;
   title: string;
   url: string;
@@ -6,4 +6,4 @@ export type AnibisListing = {
   location?: string;
   imageUrl?: string;
   description?: string;
-};
+}

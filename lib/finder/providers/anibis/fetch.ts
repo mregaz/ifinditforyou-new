@@ -1,12 +1,8 @@
 export async function fetchAnibis(url: string): Promise<string> {
-  const response = await fetch(url, {
-    headers: {
-      "User-Agent": "Mozilla/5.0 PhoenixFinder/1.0",
-    },
-  });
+  const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error(`Anibis request failed with status ${response.status}`);
+    throw new Error(`Anibis fetch failed: ${response.status}`);
   }
 
   return response.text();
