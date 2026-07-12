@@ -1,6 +1,7 @@
 import { runProvidersDetailed } from "./manager/providerManager";
 import { parseQuery } from "./parser";
-import { providers } from "./providers";
+import { resolveCapability } from "./providers/capabilityResolver";
+import { resolveProviders } from "./providers/resolver";
 import type { FinderPlan, FinderResponse, Lang } from "./types";
 import { finderLogger } from "./utils/logger";
 type RunFinderInput = {
@@ -9,20 +10,32 @@ type RunFinderInput = {
   plan: FinderPlan;
 };
 
-export async function runFinderEngine(input: RunFinderInput): Promise<FinderResponse> {
-  const parsedQuery = parseQuery(input.query, input.lang);
+export async function runFinderEngine(
+  input: RunFinderInput
+): Promise<FinderResponse> {
+ const parsedQuery = parseQuery(input.query, input.lang);
+
+const capability = resolveCapability(parsedQuery);
+
+finderLogger.info("capability resolved", {
+  query: parsedQuery.normalized,
+  capability,
+});
+
+const providers = resolveProviders({
+  capability,
+});
 
   const providerManagerResult = await runProvidersDetailed({
-  providers,
-  query: parsedQuery,
-});
+    providers,
+    query: parsedQuery,
+  });
 
-finderLogger.info("provider executions", {
-  executions: providerManagerResult.executions,
-});
+  finderLogger.info("provider executions", {
+    executions: providerManagerResult.executions,
+  });
 
-const results = providerManagerResult.results;
-
+  const results = providerManagerResult.results;
 
   const sortedResults = results.sort((a, b) => b.score - a.score);
 
