@@ -384,3 +384,576 @@ Da questo momento il progetto entra ufficialmente nella fase di costruzione.
 Non lavoreremo più per aggiungere funzionalità.
 
 Lavoreremo per aumentare il valore dell'azienda.
+
+# PHOENIX MASTER RECORD
+## Session: Product Strategy & Go-To-Market Foundation
+**Date:** 21 July 2026
+**Status:** COMPLETED ✅
+
+---
+
+# SESSION OBJECTIVE
+
+Questa sessione è stata dedicata alla costruzione delle fondamenta strategiche del progetto Phoenix/iFindItForYou.
+
+Non è stato sviluppato codice.
+
+L'obiettivo era trasformare Phoenix da progetto software a prodotto strutturato.
+
+---
+
+# COMPLETED
+
+## Market Intelligence
+
+Completata la struttura della documentazione dedicata ai marketplace.
+
+Analisi presenti:
+
+- Anibis
+- Ricardo
+- Tutti
+- AutoScout24
+- Provider Scorecard
+
+Decisione:
+
+Separare definitivamente la Market Intelligence dalla documentazione di prodotto.
+
+---
+
+## Knowledge Base
+
+La Knowledge Base è stata estesa con nuove sezioni.
+
+Struttura aggiornata:
+
+01_DISCOVERY
+
+02_ARCHITECTURE
+
+03_PROVIDER_GUIDES
+
+04_SPRINTS
+
+05_FUTURE
+
+06_NOTES
+
+07_ADR
+
+08_MARKET_INTELLIGENCE
+
+09_PRODUCT
+
+10_GO_TO_MARKET
+
+---
+
+Decisione importante
+
+Le cartelle che contengono numerosi documenti utilizzano numerazione interna.
+
+Esempio:
+
+01_
+
+02_
+
+03_
+
+...
+
+per mantenere un ordine logico e non alfabetico.
+
+---
+
+# PRODUCT
+
+Creata la struttura Product.
+
+Documenti:
+
+- PRODUCT_MANIFESTO
+- PRODUCT_PRINCIPLES
+- FEATURE_BACKLOG
+
+Da completare:
+
+- PRODUCT_VISION
+- ROADMAP
+
+---
+
+# FEATURE BACKLOG
+
+Definita la metodologia ufficiale.
+
+Ogni feature viene:
+
+Idea
+
+↓
+
+Discovery
+
+↓
+
+Validated
+
+↓
+
+Planned
+
+↓
+
+Development
+
+↓
+
+Testing
+
+↓
+
+Released
+
+Sono stati introdotti:
+
+- Epic
+- Feature
+- Business Value
+- WOW Score
+- Technical Complexity
+- Maturity
+
+---
+
+# PRODUCT PHILOSOPHY
+
+Sono stati definiti i principi fondamentali del prodotto.
+
+Tra i principali:
+
+- Search Once
+- One Unified Market
+- AI Must Save Time
+- Quality Before Quantity
+- Transparency
+- Trust
+
+---
+
+# PRODUCT PRINCIPLES
+
+Creato il documento che governerà tutte le future decisioni.
+
+Principi introdotti:
+
+- User First
+- Marketplace Agnostic
+- Build Once Reuse Everywhere
+- Long-Term Thinking
+- Ideas Are Captured Not Forgotten
+
+---
+
+# GO TO MARKET
+
+Creata la nuova area documentale.
+
+10_GO_TO_MARKET
+
+Documenti:
+
+- IDEAL_CUSTOMER_PROFILE
+- CUSTOMER_VALIDATION_PLAN
+- GO_TO_MARKET_STRATEGY
+- MARKETING_PLAN
+- CONTENT_STRATEGY
+- SEO_STRATEGY
+- SOCIAL_MEDIA_PLAN
+- PARTNERSHIP_PLAN
+- LAUNCH_PLAN
+- GROWTH_METRICS
+
+---
+
+# IDEAL CUSTOMER
+
+Identificato il primo mercato da validare.
+
+Target iniziale:
+
+Utenti svizzeri che cercano veicoli usati specifici (es. Vespa, moto, automobile) e consultano regolarmente Anibis, Ricardo e Tutti.
+
+---
+
+# CUSTOMER VALIDATION
+
+Stabilito il principio fondamentale.
+
+Prima della crescita:
+
+- validare il problema;
+- intervistare utenti reali;
+- verificare la disponibilità ad utilizzare e pagare il servizio.
+
+---
+
+# ARCHITECTURAL DECISIONS
+
+Nuove sezioni permanenti della Knowledge Base:
+
+08_MARKET_INTELLIGENCE
+
+09_PRODUCT
+
+10_GO_TO_MARKET
+
+---
+
+# CURRENT PROJECT STATUS
+
+Infrastructure
+
+★★★★★
+
+Architecture
+
+★★★★★
+
+Provider SDK
+
+★★★★★
+
+Market Intelligence
+
+★★★★★
+
+Product Strategy
+
+★★★★★
+
+Go-To-Market
+
+★★★★☆
+
+Business Strategy
+
+☆☆☆☆☆
+
+---
+
+# NEXT PHASE
+
+PHASE 11
+
+BUSINESS STRATEGY
+
+Nuova cartella:
+
+11_BUSINESS
+
+Documenti previsti:
+
+01_BUSINESS_MODEL_CANVAS
+
+02_VALUE_PROPOSITION
+
+03_PRICING_STRATEGY
+
+04_REVENUE_MODEL
+
+05_COST_STRUCTURE
+
+06_UNIT_ECONOMICS
+
+07_COMPETITIVE_ANALYSIS
+
+08_KPI_DASHBOARD
+
+09_INVESTOR_PITCH
+
+10_RISK_REGISTER
+
+---
+
+# NEXT SESSION OBJECTIVE
+
+Iniziare la costruzione della Business Strategy.
+
+Primo documento:
+
+01_BUSINESS_MODEL_CANVAS.md
+
+L'obiettivo sarà definire:
+
+- modello di business;
+- clienti;
+- proposta di valore;
+- ricavi;
+- costi;
+- partnership;
+- vantaggio competitivo.
+
+---
+
+# CTO NOTES
+
+Questa sessione rappresenta una tappa importante nell'evoluzione del progetto.
+
+Phoenix non è più soltanto un software in sviluppo.
+
+Ora dispone di una documentazione strutturata che copre:
+
+- Engineering
+- Product
+- Market Intelligence
+- Go-To-Market
+
+La prossima fase completerà il quinto pilastro:
+
+Business Strategy.
+
+Con questa evoluzione Phoenix inizierà a essere progettato non solo come applicazione, ma come prodotto e futura azienda.
+
+---
+
+END OF MASTER RECORD
+# PHOENIX MASTER RECORD
+## Session: Phoenix Workspace Toolkit Certification
+**Date:** 24 July 2026
+**Status:** COMPLETED ✅
+
+---
+
+# SESSION OBJECTIVE
+
+Questa sessione è stata dedicata alla costruzione, consolidamento e certificazione della Phoenix Workspace V2 e del Phoenix Workspace Toolkit.
+
+L'obiettivo non era sviluppare nuove funzionalità del prodotto, ma creare l'infrastruttura permanente che governerà la documentazione, la sua qualità e la sua evoluzione nel tempo.
+
+Con questa sessione Phoenix introduce ufficialmente un sistema di governance documentale.
+
+---
+
+# COMPLETED
+
+## Phoenix Workspace V2
+
+Completata la migrazione definitiva della Workspace.
+
+Risultati ottenuti:
+
+- Migrazione completata.
+- Struttura consolidata.
+- Eliminazione delle anomalie di migrazione.
+- Eliminazione delle cartelle duplicate.
+- Eliminazione dei file `.DS_Store`.
+- Verifica completa della struttura.
+
+La Workspace è ora organizzata secondo una struttura stabile, coerente e facilmente estendibile.
+
+---
+
+## Phoenix Workspace Toolkit
+
+È stato realizzato il Toolkit ufficiale della Workspace.
+
+Componenti:
+
+```text
+tools/
+├── create_workspace.sh
+├── migrate_workspace.sh
+├── validate_workspace.sh
+└── workspace-map.conf
+```
+
+Per la prima volta Phoenix dispone di strumenti dedicati alla gestione della propria documentazione.
+
+---
+
+## Phoenix Workspace Validator v1.0
+
+Il Validator è stato completato e certificato.
+
+Controlli implementati:
+
+- struttura Workspace;
+- copertura README;
+- doppie estensioni Markdown;
+- nomi contenenti spazi;
+- nomi contenenti tab;
+- file `.DS_Store`;
+- cartelle vuote;
+- cartelle duplicate;
+- permessi degli script;
+- presenza dei file del Toolkit.
+
+Esito della certificazione:
+
+- 10 controlli eseguiti;
+- 0 errori;
+- 0 warning.
+
+La Workspace risulta ufficialmente certificata.
+
+---
+
+# GOVERNANCE
+
+Con questa sessione la documentazione diventa un processo ripetibile.
+
+Workflow ufficiale:
+
+```text
+Create Workspace
+        ↓
+Migrate Workspace
+        ↓
+Validate Workspace
+        ↓
+Certify Workspace
+        ↓
+Release Workspace
+```
+
+La documentazione non rappresenta più un insieme di file statici.
+
+Diventa parte integrante del ciclo di sviluppo del progetto.
+
+---
+
+# STRATEGIC EVOLUTION
+
+Durante questa sessione è stata consolidata una nuova evoluzione concettuale del progetto.
+
+Phoenix viene ora interpretato come una piattaforma composta da quattro motori fondamentali.
+
+```text
+Acquisition Engine
+        ↓
+Semantic Engine
+        ↓
+Knowledge Engine
+        ↓
+Decision Engine
+```
+
+Questa evoluzione modifica il posizionamento del progetto.
+
+Phoenix non mira soltanto a recuperare informazioni provenienti da sorgenti differenti.
+
+L'obiettivo diventa:
+
+- acquisire dati;
+- comprenderli;
+- trasformarli in conoscenza;
+- supportare decisioni migliori.
+
+La ricerca rappresenta il punto di partenza.
+
+La Decision Intelligence rappresenta la destinazione.
+
+---
+
+# CURRENT PROJECT STATUS
+
+Infrastructure
+
+★★★★★
+
+Architecture
+
+★★★★★
+
+Provider SDK
+
+★★★★★
+
+Documentation System
+
+★★★★★
+
+Workspace Toolkit
+
+★★★★★
+
+Governance
+
+★★★★★
+
+Decision Intelligence Vision
+
+★★★★★
+
+---
+
+# NEXT PHASE
+
+Completare la documentazione ufficiale del Toolkit.
+
+Deliverable:
+
+- tools/README.md
+- VERSION
+- CHANGELOG.md
+- WORKSPACE_RELEASE_v2.0.md
+
+Successivamente il progetto riprenderà l'evoluzione del Core con:
+
+- nuovi Provider;
+- Semantic Engine;
+- Knowledge Engine;
+- Decision Engine.
+
+---
+
+# CTO NOTES
+
+Questa sessione rappresenta una delle tappe più importanti dell'intero progetto Phoenix.
+
+Nei mesi precedenti sono stati costruiti:
+
+- il motore;
+- l'architettura;
+- il Provider SDK;
+- la documentazione tecnica;
+- la strategia di prodotto.
+
+Con la certificazione della Workspace V2 viene introdotto anche un sistema di governance documentale.
+
+Phoenix dispone ora di strumenti per:
+
+- creare;
+- migrare;
+- validare;
+- certificare;
+- rilasciare
+
+la propria base documentale attraverso un processo standardizzato.
+
+La documentazione diventa un asset permanente del progetto e non più una semplice raccolta di file.
+
+---
+
+# CONCLUSION
+
+Con il completamento della Phoenix Workspace V2 il progetto raggiunge un nuovo livello di maturità.
+
+La piattaforma dispone ora di:
+
+- un'architettura tecnica consolidata;
+- una Knowledge Base organizzata;
+- una governance documentale certificata;
+- un Toolkit dedicato alla manutenzione della Workspace;
+- una visione evolutiva orientata alla Decision Intelligence.
+
+La fase di costruzione delle fondamenta può considerarsi sostanzialmente completata.
+
+Da questo punto in avanti lo sviluppo tornerà a concentrarsi principalmente sull'evoluzione del Core e sulla creazione di valore per gli utenti attraverso nuove capacità di acquisizione, comprensione e supporto decisionale.
+
+---
+
+END OF MASTER RECORD
