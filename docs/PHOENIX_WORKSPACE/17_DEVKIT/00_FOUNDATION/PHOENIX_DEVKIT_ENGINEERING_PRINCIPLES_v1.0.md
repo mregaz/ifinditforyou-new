@@ -1,6 +1,8 @@
 # PHOENIX DEVKIT ENGINEERING PRINCIPLES
 ## Version 1.0
 
+**Status:** Living Document
+
 ---
 
 # Purpose
@@ -14,6 +16,18 @@ L'obiettivo è costruire un toolkit enterprise che sia semplice da comprendere, 
 Questi principi rappresentano la "Costituzione Tecnica" del Phoenix DevKit.
 
 ---
+# Foundation Principle — Architecture Before Implementation
+
+Architecture always precedes implementation.
+
+Before writing code, every new component must define:
+
+- its purpose
+- its responsibilities
+- its public interface
+- its dependencies
+
+Implementation is the consequence of architecture, never its starting point.
 
 # Principle 1 — Simplicity First
 
@@ -304,13 +318,15 @@ Prima di approvare una nuova funzionalità verificare sempre:
 
 ☐ Rispetta tutti i principi del Phoenix DevKit.
 
----
+☐ Ha una sola responsabilità.
+
+☐ Evita duplicazioni.-
 
 # Final Statement
 
 Il Phoenix DevKit non è semplicemente una raccolta di script.
 
-È una piattaforma di ingegneria progettata per supportare la costruzione di ecosistemi software complessi in modo standardizzato, sostenibile ed evolutivo.
+È una piattaforma di ingegneria progettata per supportare la progettazione e la costruzione di ecosistemi software complessi in modo standardizzato, sostenibile ed evolutivo.
 
 Ogni decisione tecnica dovrà sempre privilegiare qualità, semplicità, riusabilità e manutenibilità rispetto alla velocità di sviluppo.
 
