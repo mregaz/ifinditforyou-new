@@ -1,0 +1,11 @@
+tracker_id,country,marketplace,category,status,discovery_range
+52,United Kingdom,Rightmove,Property,COMPLETED,PD-194–200
+53,United Kingdom,Zoopla,Property,COMPLETED,PD-201–207
+54,United Kingdom,OnTheMarket,Property,COMPLETED,PD-208–213
+55,United Kingdom,AutoTrader.co.uk,Automotive,COMPLETED,PD-214–220
+56,United Kingdom,PistonHeads,Enthusiast automotive,COMPLETED,PD-221–227
+57,United Kingdom,eBay UK,General marketplace,COMPLETED,PD-228–234
+58,United Kingdom,Depop,Fashion / second-hand,COMPLETED,PD-235–241
+59,United Kingdom,Vinted,Fashion / recommerce,COMPLETED,PD-242–248
+60,United Kingdom,Vestiaire Collective,Luxury fashion,COMPLETED,PD-249–255
+61,United Kingdom,Videdressing,Luxury fashion / historical,CLOSED_HISTORICAL,PD-256–260
