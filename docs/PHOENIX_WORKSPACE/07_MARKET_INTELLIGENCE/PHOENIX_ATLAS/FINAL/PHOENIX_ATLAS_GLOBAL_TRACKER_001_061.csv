@@ -1,0 +1,62 @@
+tracker_id,country,marketplace,category,atlas_v1_status,evidence_note
+1,Italia,Subito.it,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+2,Italia,Bakeca.it,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+3,Italia,Kijiji.it,Annunci generalisti,RESOLVED_HISTORICAL,Gap Repair; closed/discontinued
+4,Italia,Secondamano.it,Annunci generalisti,RECONSTRUCTED_COMPLETE,Controlled Gap Repair reconstruction
+5,Italia,AnnunciPrivati.com,Annunci generalisti,RECONSTRUCTED_COMPLETE,Controlled Gap Repair reconstruction
+6,Italia,Immobiliare.it,Immobiliare,RECONSTRUCTED_COMPLETE,Controlled Gap Repair reconstruction
+7,Italia,Casa.it,Immobiliare,RECONSTRUCTED_COMPLETE,Controlled Gap Repair reconstruction
+8,Italia,Idealista.it,Immobiliare,RECONSTRUCTED_COMPLETE,Controlled Gap Repair reconstruction
+9,Italia,eBay.it,Aste / marketplace,RECONSTRUCTED_COMPLETE,Controlled Gap Repair reconstruction
+10,Italia,Catawiki.com,Aste specializzate,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+11,Francia,Leboncoin.fr,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+12,Francia,Vivastreet.fr,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+13,Francia,ParuVendu.fr,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+14,Francia,Topannonces.fr,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+15,Francia,Economique.fr,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+16,Francia,Locanto.fr,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+17,Francia,eBay.fr,Aste / marketplace,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+18,Spagna,Milanuncios.com,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+19,Spagna,Wallapop,Annunci generalisti / app,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+20,Spagna,Trovit.es,Motore / aggregatore,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+21,Spagna,Mitula,Motore / aggregatore,CONSOLIDATED_COMPLETE,KR_022_MITULA canonical consolidation
+22,Spagna,Anuto,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+23,Spagna,Clasf,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+24,Spagna,Locanto.es,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+25,Spagna,Tablondeanuncios.com,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+26,Spagna,Anuncios.es,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+27,Spagna,Tuad.es,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+28,Spagna,Anunciosparatodos.es,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+29,Spagna,Ciudadanuncios.es,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+30,Spagna,Idealista.com,Immobiliare,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+31,Spagna,Yaencontre.com,Immobiliare,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+32,Spagna,Coches.net,Auto,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+33,Spagna,eBay.es,Aste / marketplace,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+34,Spagna,Bidspirit,Aste specializzate,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+35,Spagna,Gobid.es,Aste industriali,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+36,Germania,Kleinanzeigen.de,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+37,Germania,Markt.de,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+38,Germania,Clasf.de,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+39,Germania,Hood.de,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+40,Germania,Global-free-classified-ads,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+41,Germania,DOSKIO.de,Annunci per comunità migranti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+42,Germania,Autobid.de,Aste auto B2B,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+43,Germania,Copart.de,Aste auto,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+44,UK,Gumtree.com,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+45,UK,Freeads.co.uk,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+46,UK,UKclassifieds.co.uk,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+47,UK,Friday-Ad,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+48,UK,NomTimes,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+49,UK,Okoloo,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+50,UK,Locanto.co.uk,Annunci generalisti,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+51,UK,Facebook Marketplace,Marketplace social,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+52,UK,Rightmove.co.uk,Immobiliare,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+53,UK,Zoopla,Immobiliare,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+54,UK,OnTheMarket,Immobiliare,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+55,UK,Autotrader.co.uk,Auto,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+56,UK,Pistonheads.com,Auto / community,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+57,UK,eBay.co.uk,Aste / marketplace,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+58,UK,Depop,Fashion / second-hand,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+59,UK,Vinted,Fashion / second-hand,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+60,UK,Vestiaire Collective,Luxury fashion,EVIDENCED_COMPLETE,Existing Atlas checkpoint / archived research
+61,UK,Videdressing,Luxury fashion,COMPLETED_HISTORICAL,Closed provider retained as historical intelligence
