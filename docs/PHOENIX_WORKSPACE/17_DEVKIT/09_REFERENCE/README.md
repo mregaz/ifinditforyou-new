@@ -46,6 +46,34 @@ Reference documents describe the public interfaces of certified DevKit modules a
 
 ---
 
+### Manifest
+
+**Document:** `PHOENIX_MANIFEST_API_REFERENCE_v1.0.md`
+
+**Module:** `core/manifest.sh`
+
+**Status:** Certified
+
+**Public API:** 3 functions
+
+**Automated Tests:** 23/23 PASS
+
+---
+
+### Template Engine
+
+**Document:** `PHOENIX_TEMPLATE_ENGINE_API_REFERENCE_v1.0.md`
+
+**Module:** `core/template_engine.sh`
+
+**Status:** Certified
+
+**Public API:** 3 functions
+
+**Automated Tests:** 31/31 PASS
+
+---
+
 # Reference Policy
 
 A module API Reference should be considered authoritative only after:
@@ -62,12 +90,14 @@ Modules still under development must not be presented here as certified APIs.
 
 # Planned References
 
-The following Core modules may receive dedicated API References after their respective certification and documentation phases:
+The following certified Core modules do not yet have dedicated API Reference documents:
 
 - Runtime
 - Logger
-- Manifest
-- Template Engine
+
+Their certification remains valid.
+
+Dedicated API References may be added during a future documentation consolidation cycle.
 
 ---
 
@@ -79,17 +109,14 @@ The following Core modules may receive dedicated API References after their resp
 | Logger | Pending | Certified |
 | Filesystem | Available | Certified |
 | Strings | Available | Certified |
-| Manifest | Pending | Development |
-| Template Engine | Pending | Development |
+| Manifest | Available | Certified |
+| Template Engine | Available | Certified |
 
 ---
 
-# Governance
+# Core Reference Coverage
 
-The Reference Library documents the public contracts of the Phoenix DevKit.
+Certified Core modules:
 
-Architecture defines **how the system is designed**.
-
-The Reference Library defines **how the system is used**.
-
-Changes to a certified public API must be reflected in its corresponding reference documentation.
+```text
+6
