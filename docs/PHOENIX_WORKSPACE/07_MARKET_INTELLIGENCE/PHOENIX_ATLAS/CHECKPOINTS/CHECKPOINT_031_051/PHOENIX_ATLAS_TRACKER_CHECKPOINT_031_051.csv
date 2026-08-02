@@ -1,0 +1,22 @@
+tracker_id,country,marketplace,category,status,discovery_range
+31,Spain,Yaencontre.com,Real estate,COMPLETED,PD-085–088
+32,Spain,Coches.net,Automotive,COMPLETED,PD-089–093
+33,Spain,eBay.es,Marketplace / auctions,COMPLETED,PD-094–098
+34,Spain,Bidspirit,Auctions,COMPLETED,PD-099–103
+35,Spain,Gobid.es,Industrial auctions,COMPLETED,PD-104–108
+36,Germany,Kleinanzeigen.de,General classifieds,COMPLETED,PD-109–113
+37,Germany,Markt.de,General classifieds,COMPLETED,PD-114–118
+38,Germany,Clasf.de,General classifieds (retired/unverified),COMPLETED,PD-119–121
+39,Germany,Hood.de,Marketplace,COMPLETED,PD-122–126
+40,Germany,Global-Free-Classified-Ads,General classifieds,COMPLETED,PD-127–131
+41,Germany,DOSKIO.de,General classifieds,COMPLETED,PD-132–136
+42,Germany,Autobid.de,B2B vehicle auctions,COMPLETED,PD-137–142
+43,Germany,Copart.de,Vehicle auctions / salvage,COMPLETED,PD-143–148
+44,United Kingdom,Gumtree.com,General classifieds / recommerce,COMPLETED,PD-149–155
+45,United Kingdom,Freeads.co.uk,Pets (scope pivot from general classifieds),COMPLETED,PD-156–161
+46,United Kingdom,UKclassifieds.co.uk,General classifieds,COMPLETED,PD-162–166
+47,United Kingdom,Friday-Ad,General classifieds / local commerce,COMPLETED,PD-167–171
+48,United Kingdom,NomTimes,General marketplace,COMPLETED,PD-172–176
+49,United Kingdom,Okoloo,General classifieds,COMPLETED,PD-177–181
+50,United Kingdom,Locanto.co.uk,General classifieds,COMPLETED,PD-182–186
+51,United Kingdom,Facebook Marketplace,Social marketplace,COMPLETED,PD-187–193
