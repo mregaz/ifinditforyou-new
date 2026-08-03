@@ -1904,3 +1904,296 @@ CRITICAL FINDINGS:         0
 NEXT STATE:
 READY FOR HIGHER-LEVEL DEVKIT DEVELOPMENT
 ```
+---
+
+# PHOENIX DEVKIT — GENERATOR LAYER FOUNDATION
+
+## Date
+
+2026-08-03
+
+## Status
+
+`ARCHITECTURE AND SPECIFICATION COMPLETE`
+
+---
+
+# Executive Summary
+
+Following the successful completion of the Core Consolidation Audit, development entered the first higher-level architectural layer of the Phoenix DevKit.
+
+The Generator Layer has now completed its architectural definition and public function specification.
+
+No implementation has been started yet.
+
+This milestone establishes the stable contracts that will govern all future generator implementations.
+
+---
+
+# Completed Artifacts
+
+## Architecture
+
+```text
+01_ARCHITECTURE/
+PHOENIX_GENERATOR_LAYER_ARCHITECTURE_v1.0.md
+```
+
+Status:
+
+```text
+COMPLETE
+```
+
+---
+
+## Function Specification
+
+```text
+01_ARCHITECTURE/
+PHOENIX_GENERATOR_LAYER_FUNCTION_SPECIFICATION_v1.0.md
+```
+
+Status:
+
+```text
+COMPLETE
+```
+
+---
+
+# Generator Layer Scope
+
+Generator Layer v1.0 defines:
+
+- architectural responsibilities;
+- dependency direction;
+- generation pipeline;
+- planning model;
+- execution model;
+- dry-run behavior;
+- overwrite policy;
+- security boundaries;
+- validation boundaries;
+- CLI boundary;
+- Plugin boundary.
+
+---
+
+# Public API Direction
+
+The Generator Layer exposes three public capabilities:
+
+```text
+phoenix::generator_exists
+phoenix::generator_plan
+phoenix::generator_run
+```
+
+Implementation remains pending.
+
+These names are now considered architecturally reserved.
+
+---
+
+# Architectural Decisions
+
+The following principles are now frozen:
+
+## Primary Principle
+
+```text
+Plan first.
+Validate before mutation.
+Execute explicitly.
+```
+
+---
+
+## Dependency Direction
+
+```text
+CLI
+ ↓
+Generator Layer
+ ↓
+Certified Core
+```
+
+---
+
+## Registry Direction
+
+Future implementation will follow:
+
+```text
+Generator Registry
+        ↓
+Planning Engine
+        ↓
+Execution Engine
+```
+
+The implementation order is intentionally fixed.
+
+---
+
+# Generator Output Contract
+
+Planning output now defines:
+
+```text
+STATUS=PLAN
+```
+
+Execution defines:
+
+```text
+STATUS=SUCCESS
+```
+
+Dry-run defines:
+
+```text
+STATUS=DRY_RUN
+```
+
+These values are part of the public Generator Layer contract.
+
+---
+
+# Security Decisions
+
+The Generator Layer explicitly prohibits execution of untrusted generation data.
+
+Generation inputs remain data.
+
+Implementation must not rely upon:
+
+```text
+eval
+source
+bash -c
+sh -c
+```
+
+for public Generator behavior.
+
+---
+
+# Output Serialization
+
+Generator output uses deterministic line-oriented serialization.
+
+Canonical order:
+
+```text
+STATUS
+GENERATOR
+DESTINATION
+OVERWRITE
+DRY_RUN
+ARTIFACT...
+```
+
+Artifact ordering follows Generator Definition order.
+
+---
+
+# Path Safety
+
+Generator artifact mappings are restricted to safe relative paths.
+
+Forbidden:
+
+```text
+absolute paths
+../ traversal
+```
+
+Destination traversal outside the authorized scope is prohibited.
+
+---
+
+# Reserved Generator Options
+
+Reserved execution-control options include:
+
+```text
+PHOENIX_DRY_RUN
+PHOENIX_OVERWRITE
+```
+
+Duplicate reserved options are invalid requests.
+
+Normal template variables continue using:
+
+```text
+first match wins
+```
+
+---
+
+# Current Development State
+
+```text
+Certified Core                  COMPLETE
+
+Generator Architecture          COMPLETE
+
+Generator Specification         COMPLETE
+
+Generator Implementation        NOT STARTED
+
+Planning Engine                 NOT STARTED
+
+Registry                        NOT STARTED
+
+Execution Engine                NOT STARTED
+```
+
+---
+
+# Next Development Sprint
+
+## G01 — Generator Registry
+
+Objectives:
+
+- Generator Registry architecture review;
+- registry.sh implementation;
+- Registry automated tests;
+- Registry certification.
+
+The Registry will provide:
+
+```text
+phoenix::generator_exists
+phoenix::generator_register
+phoenix::generator_resolve
+phoenix::generator_list
+```
+
+No planning or rendering logic belongs to the Registry.
+
+---
+
+# Project Status
+
+```text
+Foundation                     COMPLETE
+
+Core                           CERTIFIED
+
+Documentation                  CONSOLIDATED
+
+Core Audit                     PASS
+
+Generator Layer Architecture   COMPLETE
+
+Generator Layer Specification  COMPLETE
+
+Next Phase
+
+Generator Registry
+```
