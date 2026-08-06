@@ -1168,6 +1168,552 @@ La sequenza prevista è:
 **Working Tree:** CLEAN
 
 ---
+---
+
+# PHOENIX ATLAS — PASS 2 FINALIZATION
+
+## Stato
+
+**PHOENIX ATLAS PASS 2:** ✅ COMPLETE
+
+Phoenix Atlas v1.0 aveva completato la prima campagna strutturata di Market Intelligence con la risoluzione del catalogo canonico di 61 marketplace/provider.
+
+Atlas Pass 2 ha trasformato tale patrimonio di ricerca in requisiti architetturali per la futura evoluzione di Phoenix.
+
+Il risultato non è una nuova lista di provider.
+
+È la definizione del modello attraverso il quale Phoenix dovrà decidere:
+
+* dove cercare;
+* quali provider interrogare;
+* quanto profondamente cercare;
+* quali evidenze mancano;
+* come correlare informazioni provenienti da fonti differenti;
+* quando espandere la ricerca;
+* quando fermarsi;
+* come trasformare i risultati in supporto decisionale spiegabile.
+
+---
+
+## Canonical Deliverable
+
+È stato creato il documento:
+
+```text
+docs/PHOENIX_WORKSPACE/07_MARKET_INTELLIGENCE/PHOENIX_ATLAS/FINAL/PHOENIX_ADAPTIVE_SEARCH_AND_EVIDENCE_ARCHITECTURE_v1.0.md
+```
+
+**Status:** CANONICAL ARCHITECTURE SPECIFICATION
+
+Il documento costituisce il ponte architetturale tra Phoenix Atlas e la futura Phoenix Decision Intelligence Architecture.
+
+---
+
+# Strategic Doctrine
+
+Atlas Pass 2 stabilisce la seguente dottrina:
+
+```text
+BROAD COVERAGE
+      +
+SELECTIVE DEPTH
+      +
+ADAPTIVE SEARCH
+```
+
+Phoenix non deve ridurre artificialmente l'universo delle fonti ricercabili.
+
+Deve invece ridurre:
+
+* integrazioni duplicate;
+* esecuzioni inutili;
+* rumore;
+* costi;
+* latenza;
+* complessità non necessaria.
+
+Principio:
+
+> Phoenix deve minimizzare l'esecuzione inutile dei provider senza minimizzare l'universo ricercabile.
+
+---
+
+# Pass 2 — Analytical Clusters
+
+La seconda fase Atlas ha analizzato sette cluster architetturali.
+
+## 1 — General Marketplaces
+
+Risultato:
+
+**Search Coverage**
+
+Phoenix deve misurare se la ricerca ha prodotto una copertura sufficientemente utile, non semplicemente contare i risultati.
+
+---
+
+## 2 — Property
+
+Risultato:
+
+**Evidence Coverage**
+
+Trovare un'entità non significa comprenderla.
+
+Phoenix deve distinguere tra:
+
+```text
+Search Coverage
+        ≠
+Evidence Coverage
+```
+
+---
+
+## 3 — Automotive
+
+Risultato:
+
+**Evidence Fusion**
+
+Evidenze provenienti da fonti differenti devono poter essere correlate senza perdere:
+
+* provenance;
+* confidence;
+* temporal context;
+* entity-match confidence.
+
+I conflitti tra evidenze credibili devono rimanere visibili.
+
+---
+
+## 4 — Auctions / Collectibles
+
+Risultato:
+
+**Temporal Intelligence**
+
+Phoenix distingue:
+
+```text
+ACTIVE INVENTORY
+        ≠
+HISTORICAL EVIDENCE
+```
+
+Un risultato storico può cessare di essere acquistabile mantenendo elevato valore decisionale.
+
+---
+
+## 5 — Fashion / Recommerce
+
+Risultato:
+
+**Trust & Transaction Evidence**
+
+Phoenix adotta il principio:
+
+```text
+TRUST EVIDENCE
+NOT
+TRUST SCORE
+```
+
+Protezione, autenticazione, reputazione e transaction path devono essere rappresentati come evidenze contestuali e non come garanzie universali.
+
+---
+
+## 6 — Provider Families / Aggregators
+
+Risultato:
+
+**Provider Family Leverage + Provenance**
+
+Phoenix distingue:
+
+```text
+PROVIDER FAMILY
+      ↓
+MARKETPLACE SURFACE
+      ↓
+ACCESS SURFACE
+      ↓
+TECHNICAL ADAPTER
+```
+
+L'obiettivo è massimizzare la copertura delle marketplace surfaces riducendo le integrazioni tecniche ridondanti.
+
+La provenance della singola surface deve sempre essere preservata.
+
+---
+
+## 7 — Long-Tail / Rare Query
+
+Risultato:
+
+**Adaptive Search Expansion**
+
+I provider long-tail non sono provider deboli.
+
+Sono:
+
+```text
+CONDITIONAL SEARCH ASSETS
+```
+
+Il loro valore può diventare elevato quando:
+
+* la query è rara;
+* la copertura primaria è insufficiente;
+* servono evidenze aggiuntive;
+* il marginal information gain giustifica una nuova search wave.
+
+---
+
+# Canonical Search Architecture
+
+Atlas Pass 2 definisce la seguente evoluzione:
+
+```text
+QUERY
+  ↓
+UNDERSTANDING
+  ↓
+PROVIDER PLANNING
+  ↓
+SEARCH COVERAGE
+  ↓
+ENTITY RESOLUTION
+  ↓
+EVIDENCE COVERAGE
+  ↓
+EVIDENCE FUSION
+  ↓
+TEMPORAL INTELLIGENCE
+  ↓
+TRUST / TRANSACTION INTELLIGENCE
+  ↓
+SEARCH STATE
+  ↓
+ADAPTIVE EXPANSION
+  ↓
+RANKING
+  ↓
+DECISION INTELLIGENCE
+```
+
+---
+
+# Search State
+
+Dopo ogni search wave Phoenix dovrà poter valutare concettualmente:
+
+```text
+Inventory Sufficiency
+Evidence Sufficiency
+Evidence Independence
+Entity Confidence
+Conflict Level
+Search Saturation
+```
+
+Il Search State determina:
+
+```text
+STOP
+```
+
+oppure:
+
+```text
+EXPAND
+```
+
+---
+
+# Multidimensional Search Expansion
+
+Search Expansion non significa semplicemente interrogare più provider.
+
+Atlas Pass 2 identifica:
+
+```text
+Provider Expansion
+Provider-Family Expansion
+Geographic Expansion
+Semantic Expansion
+Specialist Expansion
+Historical Expansion
+Evidence Expansion
+Independent-Evidence Expansion
+```
+
+L'espansione deve essere scelta in funzione dell'informazione mancante.
+
+---
+
+# Provider Intelligence Dimensions
+
+Atlas Pass 2 introduce le seguenti dimensioni concettuali:
+
+```text
+CV   — Coverage Value
+UIV  — Unique Inventory Value
+RQV  — Rare Query Value
+VD   — Vertical Depth
+EV   — Evidence Value
+TEV  — Trust Evidence Value
+TXV  — Transaction Evidence Value
+PFL  — Provider Family Leverage
+MCG  — Marginal Coverage Gain
+RQP  — Rare Query Probability
+ASB  — Adaptive Search Budget
+```
+
+Le valutazioni iniziali Atlas sono considerate:
+
+```text
+ATLAS ESTIMATED SCORES
+```
+
+e dovranno progressivamente evolvere attraverso telemetria reale verso:
+
+```text
+PHOENIX OBSERVED SCORES
+```
+
+---
+
+# Constitutional Principles
+
+Atlas Pass 2 stabilisce sette principi architetturali.
+
+## Principle 1 — Evidence-Driven Expansion
+
+Phoenix espande la ricerca quando l'informazione disponibile è insufficiente, non semplicemente perché esistono altri provider.
+
+## Principle 2 — Preserve Duplicate Evidence
+
+I duplicati possono rappresentare la stessa entità reale.
+
+Phoenix deve risolvere l'entità, consolidare le evidenze e preservare la provenance.
+
+## Principle 3 — Fuse, Never Flatten
+
+Phoenix deve fondere le evidenze senza eliminare provenance, confidence, temporal context o conflitti credibili.
+
+## Principle 4 — Preserve Historical Intelligence
+
+Gli esiti storici devono rimanere evidenze temporalmente contestualizzate e non devono essere confusi con inventory corrente.
+
+## Principle 5 — Trust Is Contextual Evidence
+
+Autenticazione, reputazione, protezione e trust claims devono essere rappresentati come evidenze contestuali e non come garanzie universali.
+
+## Principle 6 — Maximize Surface Coverage, Minimize Integration Duplication
+
+Phoenix deve massimizzare le marketplace surfaces ricercabili minimizzando le integrazioni tecniche ridondanti.
+
+Provider Family reuse non deve cancellare:
+
+* surface identity;
+* access policy;
+* provenance.
+
+## Principle 7 — Long-Tail Is Conditional Intelligence
+
+I provider long-tail devono essere attivati in funzione di:
+
+* query rarity;
+* expected marginal information gain;
+* search saturation.
+
+---
+
+# Source Provenance
+
+Atlas Pass 2 formalizza il concetto di:
+
+```text
+SOURCE PROVENANCE CHAIN
+```
+
+Esempi:
+
+```text
+Phoenix
+  ↓
+Provider API
+  ↓
+Marketplace Surface
+  ↓
+Seller
+```
+
+oppure:
+
+```text
+Phoenix
+  ↓
+Aggregator
+  ↓
+Original Marketplace
+  ↓
+Seller
+```
+
+oppure:
+
+```text
+Phoenix
+  ↓
+Auction Platform
+  ↓
+Auction House
+  ↓
+Auction Event
+  ↓
+Lot
+```
+
+Questo modello supporta:
+
+* attribution;
+* deduplication;
+* evidence independence;
+* entity resolution;
+* trust analysis;
+* licensing reasoning;
+* ranking;
+* confidence.
+
+---
+
+# Evidence Independence
+
+Atlas Pass 2 stabilisce inoltre:
+
+```text
+SOURCE COUNT
+      ≠
+INDEPENDENT EVIDENCE COUNT
+```
+
+Più acquisition paths che conducono alla stessa fonte originale non costituiscono conferme indipendenti.
+
+Questa distinzione sarà fondamentale per la futura Confidence Architecture.
+
+---
+
+# Strategic Evolution
+
+Con Atlas Pass 2 Phoenix compie la seguente evoluzione:
+
+```text
+MARKET INTELLIGENCE
+        ↓
+SEARCH ARCHITECTURE
+        ↓
+EVIDENCE ARCHITECTURE
+        ↓
+KNOWLEDGE ARCHITECTURE
+        ↓
+DECISION INTELLIGENCE
+```
+
+Atlas rimane il patrimonio di intelligence esterna.
+
+Adaptive Search and Evidence Architecture definisce come tale intelligence dovrà essere utilizzata dal sistema.
+
+---
+
+# Implementation Doctrine
+
+Atlas Pass 2 definisce l'architettura futura.
+
+Non impone l'implementazione simultanea di tutte le capability.
+
+La progressione raccomandata è:
+
+```text
+PHASE 1
+Provider Planning
+Search Waves
+Search Sufficiency
+
+PHASE 2
+Entity Resolution
+Provenance
+
+PHASE 3
+Evidence Model
+Evidence Coverage
+
+PHASE 4
+Adaptive Search Expansion
+Observed Provider Metrics
+
+PHASE 5
+Evidence Fusion
+Conflict Detection
+Temporal Intelligence
+
+PHASE 6
+Trust / Transaction Intelligence
+
+PHASE 7
+Decision Intelligence
+```
+
+L'implementazione dovrà rispettare i principi Phoenix:
+
+```text
+simplicity first
+explicit contracts
+deterministic behavior
+testability
+incremental evolution
+```
+
+---
+
+# Atlas Pass 2 Declaration
+
+## PHOENIX ATLAS PASS 2 IS COMPLETE.
+
+Atlas non risponde più soltanto alla domanda:
+
+> Quali marketplace dovrebbe cercare Phoenix?
+
+La domanda architetturale diventa:
+
+> Di quali informazioni ha bisogno Phoenix per rispondere bene alla richiesta dell'utente, dove può ottenere tali informazioni, quanto sono affidabili e indipendenti e quando il sistema ha cercato abbastanza?
+
+La trasformazione è:
+
+```text
+METASEARCH
+    ↓
+ADAPTIVE SEARCH
+    ↓
+EVIDENCE SYSTEM
+    ↓
+KNOWLEDGE SYSTEM
+    ↓
+DECISION INTELLIGENCE
+```
+
+---
+
+# Final Principle
+
+> Phoenix non crea valore cercando il maggior numero possibile di fonti.
+
+> Phoenix crea valore trovando le evidenze giuste, comprendendo come tali evidenze sono collegate, riconoscendo quando servono ulteriori informazioni e trasformando tale conoscenza in una decisione spiegabile.
+
+---
+
+**PHOENIX ATLAS PASS 2:** ✅ CERTIFIED COMPLETE
 
 END OF MASTER RECORD
 # PHOENIX DEVKIT — MASTER RECORD
