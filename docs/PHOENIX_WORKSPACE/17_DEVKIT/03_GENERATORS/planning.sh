@@ -5,20 +5,23 @@
 # ==============================================================================
 #
 # Purpose:
-#   Build deterministic generation plans from registered Generator Definitions.
+#   Build and validate deterministic generation plans from registered
+#   Generator Definitions without modifying filesystem state.
 #
 # Responsibilities:
 #   - Validate generation requests
 #   - Resolve Generator Definitions
 #   - Parse reserved generator options
 #   - Validate required variables
+#   - Resolve template sources deterministically
+#   - Validate template availability
+#   - Validate rendering feasibility in memory
 #   - Validate artifact mappings
 #   - Detect destination conflicts
 #   - Produce deterministic textual plans
 #
 # Non-responsibilities:
 #   - Generator execution
-#   - Template rendering
 #   - Filesystem mutation
 #   - CLI handling
 #
@@ -37,14 +40,26 @@ PHOENIX_GENERATOR_PLANNING_LOADED=1
 
 
 # ------------------------------------------------------------------------------
-# Dependencies
+# Module Paths
 # ------------------------------------------------------------------------------
 
 PHOENIX_GENERATOR_PLANNING_DIR="$(
   cd "$(dirname "${BASH_SOURCE[0]}")" && pwd
 )"
 
+# 03_GENERATORS -> DevKit root
+PHOENIX_GENERATOR_PLANNING_DEVKIT_ROOT="$(
+  cd "${PHOENIX_GENERATOR_PLANNING_DIR}/.." && pwd
+)"
+
+
+# ------------------------------------------------------------------------------
+# Dependencies
+# ------------------------------------------------------------------------------
+
 source "${PHOENIX_GENERATOR_PLANNING_DIR}/registry.sh"
+source "${PHOENIX_GENERATOR_PLANNING_DEVKIT_ROOT}/core/filesystem.sh"
+source "${PHOENIX_GENERATOR_PLANNING_DEVKIT_ROOT}/core/template_engine.sh"
 
 
 # ------------------------------------------------------------------------------
@@ -82,6 +97,7 @@ _phoenix::generator_request_variable() {
       PHOENIX_*=*)
         continue
         ;;
+
       *=*)
         key="${argument%%=*}"
         value="${argument#*=}"
@@ -117,8 +133,8 @@ _phoenix::generator_validate_required_variables() {
     [[ -n "$variable_name" ]] || continue
 
     if ! _phoenix::generator_request_variable \
-        "$variable_name" \
-        "$@" >/dev/null; then
+      "$variable_name" \
+      "$@" >/dev/null; then
       return 1
     fi
   done <<EOF_VARS
@@ -137,8 +153,18 @@ _phoenix::generator_validate_request_arguments() {
     case "$argument" in
       *=*)
         key="${argument%%=*}"
+
         [[ -n "$key" ]] || return 1
+
+        case "$key" in
+          [A-Z][A-Z0-9_]*)
+            ;;
+          *)
+            return 1
+            ;;
+        esac
         ;;
+
       *)
         return 1
         ;;
@@ -151,7 +177,6 @@ _phoenix::generator_validate_request_arguments() {
 
 _phoenix::generator_parse_reserved_options() {
   local argument
-  local key
   local value
 
   local dry_run="0"
@@ -201,16 +226,6 @@ _phoenix::generator_parse_reserved_options() {
         return 1
         ;;
 
-      *=*)
-        key="${argument%%=*}"
-
-        case "$key" in
-          PHOENIX_*)
-            return 1
-            ;;
-        esac
-        ;;
-
     esac
   done
 
@@ -221,9 +236,33 @@ _phoenix::generator_parse_reserved_options() {
 }
 
 
+_phoenix::generator_mapping_is_safe() {
+  local mapping="${1:-}"
+
+  [[ -n "$mapping" ]] || return 1
+
+  case "$mapping" in
+    /*)
+      return 1
+      ;;
+  esac
+
+  case "/$mapping/" in
+    *"/../"*)
+      return 1
+      ;;
+  esac
+
+  return 0
+}
+
+
 _phoenix::generator_join_path() {
   local destination="${1:-}"
   local mapping="${2:-}"
+
+  [[ -n "$destination" ]] || return 1
+  [[ -n "$mapping" ]] || return 1
 
   if [[ "$destination" == "/" ]]; then
     printf '/%s\n' "$mapping"
@@ -235,6 +274,77 @@ _phoenix::generator_join_path() {
   done
 
   printf '%s/%s\n' "$destination" "$mapping"
+}
+
+
+_phoenix::generator_resolve_template_source() {
+  local template_source="${1:-}"
+
+  [[ -n "$template_source" ]] || return 1
+
+  case "$template_source" in
+    /*)
+      printf '%s\n' "$template_source"
+      ;;
+    *)
+      printf '%s/%s\n' \
+        "$PHOENIX_GENERATOR_PLANNING_DEVKIT_ROOT" \
+        "$template_source"
+      ;;
+  esac
+
+  return 0
+}
+
+
+_phoenix::generator_collect_template_assignments() {
+  local argument
+
+  for argument in "$@"; do
+    case "$argument" in
+      PHOENIX_*=*)
+        continue
+        ;;
+      *=*)
+        printf '%s\n' "$argument"
+        ;;
+    esac
+  done
+
+  return 0
+}
+
+
+_phoenix::generator_validate_rendering() {
+  local template_path="${1:-}"
+  shift || true
+
+  local template_content
+  local assignments_text
+
+  local -a assignments=()
+
+  phoenix::is_file "$template_path" || return 1
+
+  template_content="$(
+    phoenix::read_file "$template_path"
+  )" || return 1
+
+  assignments_text="$(
+    _phoenix::generator_collect_template_assignments "$@"
+  )" || return 1
+
+  if [[ -n "$assignments_text" ]]; then
+    while IFS= read -r assignment; do
+      assignments+=("$assignment")
+    done <<< "$assignments_text"
+  fi
+
+  phoenix::template_render \
+    "$template_content" \
+    "${assignments[@]}" >/dev/null || return 1
+
+  return 0
 }
 
 
@@ -256,13 +366,16 @@ phoenix::generator_plan() {
   local parsed_options
   local overwrite
   local dry_run
+  local overwrite_policy
 
   local line
-  local mapping
+  local template_mapping
+  local template_source
+  local resolved_template_source
+  local artifact_mapping
   local artifact_path
 
   local artifacts=""
-  local overwrite_policy
 
   [[ -n "$generator_id" ]] || return 1
   [[ -n "$destination" ]] || return 1
@@ -298,18 +411,45 @@ phoenix::generator_plan() {
 
   while IFS= read -r line; do
     case "$line" in
+
       TEMPLATE_MAP=*)
-        mapping="${line#TEMPLATE_MAP=}"
-        mapping="${mapping#*=>}"
+        template_mapping="${line#TEMPLATE_MAP=}"
+
+        case "$template_mapping" in
+          *'=>'*)
+            template_source="${template_mapping%%=>*}"
+            artifact_mapping="${template_mapping#*=>}"
+            ;;
+          *)
+            return 1
+            ;;
+        esac
+
+        [[ -n "$template_source" ]] || return 1
+
+        _phoenix::generator_mapping_is_safe \
+          "$artifact_mapping" || return 1
+
+        resolved_template_source="$(
+          _phoenix::generator_resolve_template_source \
+            "$template_source"
+        )" || return 1
+
+        phoenix::is_file \
+          "$resolved_template_source" || return 1
+
+        _phoenix::generator_validate_rendering \
+          "$resolved_template_source" \
+          "$@" || return 1
 
         artifact_path="$(
           _phoenix::generator_join_path \
             "$destination" \
-            "$mapping"
+            "$artifact_mapping"
         )" || return 1
 
-        if [[ -e "$artifact_path" && "$overwrite" != "1" ]]; then
-          return 1
+        if phoenix::path_exists "$artifact_path"; then
+          [[ "$overwrite" == "1" ]] || return 1
         fi
 
         artifacts="${artifacts}ARTIFACT=${artifact_path}"$'\n'
@@ -319,7 +459,7 @@ phoenix::generator_plan() {
 
   [[ -n "$artifacts" ]] || return 1
 
-  # No stdout is emitted before all planning validation succeeds.
+  # stdout is emitted only after the complete plan has been validated.
 
   printf 'STATUS=PLAN\n'
   printf 'GENERATOR=%s\n' "$generator_id"

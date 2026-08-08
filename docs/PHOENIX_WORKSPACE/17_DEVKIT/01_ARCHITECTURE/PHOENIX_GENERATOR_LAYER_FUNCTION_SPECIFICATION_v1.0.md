@@ -875,6 +875,31 @@ read template
 render content
 write destination
 ```
+## Template Source Resolution Contract
+
+Generator template sources may be expressed as absolute or relative paths.
+
+Absolute template source paths are used as provided.
+
+Relative template source paths are resolved against the Phoenix DevKit root.
+
+The DevKit root must be derived deterministically from the Generator Layer module location and must not depend on the caller's current working directory.
+
+Template source resolution is read-only.
+
+If a resolved template source:
+
+- does not exist;
+- is not a regular file;
+
+then:
+
+```text
+generator_plan → return 1
+generator_run  → return 1
+```
+
+Template source resolution must not modify templates or other filesystem state.
 
 ---
 
@@ -899,11 +924,11 @@ generator_plan → return 1
 generator_run  → return 1
 ```
 
-No filesystem mutation occurs.
-
 ---
 
 # 37. Unknown Variables
+
+Version 1.0 may accept additional valid template variables even when not declared as required, provided they do not violate reserved namespace rules.
 
 Version 1.0 may accept additional valid template variables even when not declared as required, provided they do not violate reserved namespace rules.
 
