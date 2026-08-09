@@ -2743,3 +2743,400 @@ Next Phase
 
 Generator Registry
 ```
+# PHOENIX DEVKIT — GENERATOR OPERATIONAL PIPELINE CHECKPOINT
+
+## Status
+
+The first operational pipeline of the Phoenix Generator Layer has been implemented, tested and certified.
+
+The completed sequence is:
+
+```text
+Generation Request
+        ↓
+Generator Registry
+        ↓
+Generator Definition
+        ↓
+Planning Engine
+        ↓
+Validated Artifact Plan
+        ↓
+Rendering
+        ↓
+Execution Engine
+        ↓
+Filesystem Mutation
+        ↓
+Generation Result
+```
+
+This checkpoint completes the first implementation cycle of the Generator Layer runtime path.
+
+---
+
+# G01 — Generator Registry
+
+Status:
+
+```text
+CERTIFIED
+```
+
+The Generator Registry now provides:
+
+```text
+phoenix::generator_exists
+phoenix::generator_register
+phoenix::generator_resolve
+phoenix::generator_list
+```
+
+The Registry uses explicit generator registration.
+
+Generator IDs resolve deterministically to Generator Definitions.
+
+Generator Definitions provide the structural information required by higher-level generation services, including:
+
+```text
+identity
+purpose
+template mapping
+required variables
+destination rules
+overwrite policy
+```
+
+Registry responsibilities remain isolated from:
+
+```text
+planning
+rendering
+filesystem mutation
+CLI behavior
+generator execution
+```
+
+Certification tests:
+
+```text
+Passed: 21
+Failed: 0
+```
+
+---
+
+# G02 — Planning Engine
+
+Status:
+
+```text
+CERTIFIED
+```
+
+Public planning API:
+
+```text
+phoenix::generator_plan
+```
+
+The Planning Engine:
+
+* validates generation requests;
+* resolves registered Generator Definitions;
+* validates required variables;
+* parses reserved execution-control options;
+* rejects duplicate reserved options;
+* enforces overwrite policy;
+* validates artifact mappings;
+* validates path safety;
+* resolves template sources deterministically;
+* verifies template availability;
+* validates rendering feasibility in memory;
+* detects filesystem conflicts;
+* preserves Generator Definition artifact order;
+* produces deterministic plans;
+* performs no filesystem mutation.
+
+Canonical planning output:
+
+```text
+STATUS=PLAN
+GENERATOR=<generator_id>
+DESTINATION=<destination>
+OVERWRITE=<0|1>
+DRY_RUN=<0|1>
+ARTIFACT=<path>
+ARTIFACT=<path>
+```
+
+Template source resolution was formally added to the Generator Function Specification.
+
+Relative template paths are resolved deterministically against the Phoenix DevKit root.
+
+Planning must not depend on the caller current working directory.
+
+Certification tests:
+
+```text
+Passed: 27
+Failed: 0
+```
+
+---
+
+# G03 — Execution Engine
+
+Status:
+
+```text
+CERTIFIED
+```
+
+Public execution API:
+
+```text
+phoenix::generator_run
+```
+
+The Execution Engine always consumes the validated Planning Engine contract.
+
+Execution flow:
+
+```text
+Validate Request
+      ↓
+Build Plan
+      ↓
+Validate Plan
+      ↓
+Dry-Run?
+  ┌───┴────┐
+ Yes       No
+  │         │
+  ▼         ▼
+Return    Render All
+Plan         ↓
+         Validate
+             ↓
+       Filesystem Mutation
+             ↓
+          Result
+```
+
+The Execution Engine guarantees:
+
+* `generator_run` does not bypass planning;
+* dry-run performs zero filesystem mutation;
+* all artifacts are rendered before the first filesystem write where practical;
+* filesystem mutation uses certified Core Filesystem APIs;
+* template rendering uses the certified Template Engine;
+* artifact ordering follows Generator Definition order;
+* overwrite affects only explicitly planned artifacts;
+* unrelated files remain untouched;
+* environment variables are not implicitly imported;
+* shell-like values remain literal data;
+* untrusted values are never executed through `eval`, `source`, `bash -c` or `sh -c`;
+* rendering failure occurs before filesystem mutation;
+* failed execution never reports `STATUS=SUCCESS`;
+* multiline rendered content is preserved correctly;
+* successful execution results are deterministic.
+
+Canonical successful execution result:
+
+```text
+STATUS=SUCCESS
+GENERATOR=<generator_id>
+DESTINATION=<destination>
+ARTIFACT=<path>
+ARTIFACT=<path>
+```
+
+Canonical dry-run result:
+
+```text
+STATUS=DRY_RUN
+GENERATOR=<generator_id>
+DESTINATION=<destination>
+ARTIFACT=<path>
+ARTIFACT=<path>
+```
+
+During G03 hardening, a multiline-content serialization defect was detected by the test suite.
+
+The original implementation serialized rendered artifacts using line-oriented temporary storage, which truncated multiline rendered content.
+
+The implementation was corrected using Bash 3.2-compatible indexed arrays that preserve complete rendered artifact content before filesystem mutation.
+
+The regression suite confirmed the correction.
+
+Certification tests:
+
+```text
+Passed: 36
+Failed: 0
+```
+
+---
+
+# Generator Layer Regression Status
+
+Full regression:
+
+```text
+G01 — Generator Registry      21 / 21 PASS
+
+G02 — Planning Engine         27 / 27 PASS
+
+G03 — Execution Engine        36 / 36 PASS
+
+--------------------------------------
+
+TOTAL                         84 / 84 PASS
+```
+
+Additional certification checks:
+
+```text
+Bash syntax validation        PASS
+
+Static security check         PASS
+
+git diff --check              PASS
+
+Unexpected filesystem effects NONE
+
+Working scope                 CLEAN
+```
+
+---
+
+# Generator Operational Pipeline
+
+The Phoenix DevKit now provides its first complete higher-level operational pipeline:
+
+```text
+REQUEST
+   ↓
+REGISTRY
+   ↓
+GENERATOR DEFINITION
+   ↓
+PLAN
+   ↓
+VALIDATE
+   ↓
+RENDER
+   ↓
+EXECUTE
+   ↓
+RESULT
+```
+
+This pipeline is deterministic, explicitly validated and governed by the Generator Layer v1.0 contracts.
+
+The Generator Layer has therefore moved from architectural definition to operational implementation.
+
+---
+
+# Current Development State
+
+```text
+Foundation                     COMPLETE
+
+Core                           CERTIFIED
+
+Core Documentation             COMPLETE
+
+Core Consolidation Audit       PASS
+
+Generator Architecture         COMPLETE
+
+Generator Specification        COMPLETE
+
+G01 Generator Registry         CERTIFIED
+
+G02 Planning Engine            CERTIFIED
+
+G03 Execution Engine           CERTIFIED
+
+Generator Operational Pipeline CERTIFIED
+
+Generator Regression           84 / 84 PASS
+```
+
+---
+
+# Development Significance
+
+This checkpoint marks the first point at which the Phoenix DevKit can:
+
+```text
+identify a generator
+resolve its definition
+validate a generation request
+build a deterministic artifact plan
+validate templates and destinations
+render artifacts safely
+execute authorized filesystem mutation
+return a deterministic generation result
+```
+
+The Generator Layer is no longer architecture-only.
+
+It now contains a certified operational runtime path.
+
+---
+
+# Next Development Phase
+
+The next Generator Layer work must be selected from the approved Phoenix DevKit roadmap and Generator Layer specification.
+
+No new component should be implemented before:
+
+1. architecture review;
+2. contract verification;
+3. dependency verification;
+4. test strategy definition.
+
+The next phase must build above the certified:
+
+```text
+Registry
+↓
+Planning
+↓
+Execution
+```
+
+pipeline without weakening the established separation of responsibilities.
+
+---
+
+# Project Status
+
+```text
+PHOENIX DEVKIT
+
+FOUNDATION                     COMPLETE
+
+CORE                           CERTIFIED
+
+GENERATOR ARCHITECTURE         COMPLETE
+
+GENERATOR SPECIFICATION        COMPLETE
+
+GENERATOR REGISTRY             CERTIFIED
+
+PLANNING ENGINE                CERTIFIED
+
+EXECUTION ENGINE               CERTIFIED
+
+GENERATOR OPERATIONAL PIPELINE CERTIFIED
+
+REGRESSION                     84 / 84 PASS
+
+STATUS
+
+READY FOR NEXT GENERATOR LAYER PHASE
+```
