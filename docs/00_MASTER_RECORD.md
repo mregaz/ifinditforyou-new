@@ -3140,3 +3140,384 @@ STATUS
 
 READY FOR NEXT GENERATOR LAYER PHASE
 ```
+# PHOENIX DEVKIT — G04 BUILT-IN PROVIDER GENERATOR CHECKPOINT
+
+## Status
+
+The Phoenix Generator Framework has completed its first real built-in generator implementation.
+
+G04 introduces the first concrete generator built above the certified:
+
+```text
+Registry
+↓
+Planning
+↓
+Execution
+```
+
+operational pipeline.
+
+The first certified built-in generator is:
+
+```text
+provider
+```
+
+---
+
+# G04 — Built-in Generator Framework
+
+Status:
+
+```text
+CERTIFIED
+```
+
+G04 introduces the physical Generator Framework structure:
+
+```text
+03_GENERATORS/
+├── registry.sh
+├── planning.sh
+├── execution.sh
+├── builtins.sh
+├── definitions/
+│   └── provider.definition
+└── templates/
+    └── provider/
+        ├── index.sh.tpl
+        └── manifest.phoenix.tpl
+```
+
+Runtime services remain separated from declarative generator assets.
+
+---
+
+# Built-in Generator Loading
+
+The Generator Layer now provides an explicit built-in registration mechanism:
+
+```text
+phoenix::generator_register_builtins
+```
+
+Built-in Generator Definitions are:
+
+```text
+read as inert data
+↓
+validated
+↓
+explicitly registered
+```
+
+The built-in loader does not use:
+
+```text
+source
+eval
+implicit directory scanning
+automatic discovery
+```
+
+Generator Definition files therefore remain data and are never treated as executable shell content.
+
+---
+
+# Provider Generator Definition
+
+The first real Generator Definition is:
+
+```text
+provider
+```
+
+Its v1.0 definition declares:
+
+```text
+ID=provider
+PURPOSE=Generate a Phoenix provider skeleton
+TEMPLATE_MAP=03_GENERATORS/templates/provider/index.sh.tpl=>index.sh
+TEMPLATE_MAP=03_GENERATORS/templates/provider/manifest.phoenix.tpl=>manifest.phoenix
+REQUIRED_VARIABLES=PROVIDER_NAME,COUNTRY
+DESTINATION_RULE=scoped
+OVERWRITE_POLICY=0
+```
+
+The provider generator therefore requires explicit:
+
+```text
+PROVIDER_NAME
+COUNTRY
+```
+
+request variables.
+
+Default overwrite behavior remains:
+
+```text
+DENY
+```
+
+---
+
+# Provider Template Assets
+
+The first certified provider generator uses two read-only template assets:
+
+```text
+index.sh.tpl
+manifest.phoenix.tpl
+```
+
+The resulting artifact contract is:
+
+```text
+<destination>/index.sh
+<destination>/manifest.phoenix
+```
+
+Artifact ordering follows the Generator Definition order and remains deterministic.
+
+No hidden artifact creation is permitted.
+
+---
+
+# Provider Generator Pipeline
+
+The certified G04 execution path is:
+
+```text
+provider.definition
+        ↓
+Built-in Loader
+        ↓
+Generator Registry
+        ↓
+Generator Definition
+        ↓
+Planning Engine
+        ↓
+Validated Artifact Plan
+        ↓
+Template Rendering
+        ↓
+Execution Engine
+        ↓
+index.sh
+manifest.phoenix
+```
+
+This is the first end-to-end execution of a real Phoenix Generator Definition and real Phoenix template assets through the certified Generator Layer runtime.
+
+---
+
+# G04 Test Certification
+
+Built-in registration tests:
+
+```text
+Passed: 6
+Failed: 0
+```
+
+Provider Generator end-to-end tests:
+
+```text
+Passed: 11
+Failed: 0
+```
+
+G04 subtotal:
+
+```text
+17 / 17 PASS
+```
+
+---
+
+# Full Generator Regression
+
+Following G04 integration, the complete Generator Layer regression suite was executed again.
+
+Results:
+
+```text
+G01 — Generator Registry       21 / 21 PASS
+
+G02 — Planning Engine          27 / 27 PASS
+
+G03 — Execution Engine         36 / 36 PASS
+
+G04 — Built-in Loader           6 /  6 PASS
+
+G04 — Provider Generator       11 / 11 PASS
+
+----------------------------------------
+
+TOTAL                         101 / 101 PASS
+```
+
+No regression was introduced into the previously certified Registry, Planning or Execution engines.
+
+---
+
+# Quality Checks
+
+The G04 checkpoint also confirmed:
+
+```text
+Bash syntax validation          PASS
+
+git diff --check                PASS
+
+Generator asset scope          PASS
+
+Unexpected files               NONE
+
+Repository scope               CONTROLLED
+```
+
+---
+
+# Development Significance
+
+G04 marks the transition from:
+
+```text
+generic Generator Framework
+```
+
+to:
+
+```text
+Generator Framework producing real Phoenix artifacts
+```
+
+The Phoenix DevKit can now:
+
+```text
+load a real Generator Definition
+register it explicitly
+resolve it deterministically
+validate an explicit request
+build a deterministic artifact plan
+resolve real template assets
+render real provider content
+write authorized artifacts
+return a deterministic execution result
+```
+
+The Generator Framework is therefore no longer limited to infrastructure and synthetic test fixtures.
+
+It has now generated its first real Phoenix component through the certified runtime path.
+
+---
+
+# Current Development State
+
+```text
+Foundation                     COMPLETE
+
+Core                           CERTIFIED
+
+Core Documentation             COMPLETE
+
+Core Consolidation Audit       PASS
+
+Generator Architecture         COMPLETE
+
+Generator Specification        COMPLETE
+
+G01 Generator Registry         CERTIFIED
+
+G02 Planning Engine            CERTIFIED
+
+G03 Execution Engine           CERTIFIED
+
+Generator Operational Pipeline CERTIFIED
+
+G04 Built-in Loader            CERTIFIED
+
+G04 Provider Generator         CERTIFIED
+
+Generator Regression           101 / 101 PASS
+```
+
+---
+
+# Next Development Direction
+
+The Generator Framework remains within:
+
+```text
+Phase 5 — Generator Framework
+```
+
+of the Phoenix DevKit Roadmap.
+
+The roadmap targets automated generation of:
+
+```text
+provider
+ADR
+sprint
+documentation
+template
+```
+
+The next development unit must be selected through the same controlled process used for G01–G04:
+
+1. architecture review;
+2. contract verification;
+3. dependency verification;
+4. generator definition;
+5. template definition;
+6. automated tests;
+7. regression;
+8. certification.
+
+No additional generator should weaken the certified:
+
+```text
+Registry
+↓
+Planning
+↓
+Execution
+```
+
+pipeline.
+
+---
+
+# Project Status
+
+```text
+PHOENIX DEVKIT
+
+FOUNDATION                     COMPLETE
+
+CORE                           CERTIFIED
+
+GENERATOR ARCHITECTURE         COMPLETE
+
+GENERATOR SPECIFICATION        COMPLETE
+
+GENERATOR REGISTRY             CERTIFIED
+
+PLANNING ENGINE                CERTIFIED
+
+EXECUTION ENGINE               CERTIFIED
+
+BUILT-IN GENERATOR LOADER      CERTIFIED
+
+PROVIDER GENERATOR             CERTIFIED
+
+GENERATOR REGRESSION           101 / 101 PASS
+
+STATUS
+
+READY FOR NEXT PHASE 5 GENERATOR
+```
