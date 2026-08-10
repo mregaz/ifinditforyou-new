@@ -1,0 +1,7 @@
+ID=provider
+PURPOSE=Generate a Phoenix provider skeleton
+TEMPLATE_MAP=03_GENERATORS/templates/provider/index.sh.tpl=>index.sh
+TEMPLATE_MAP=03_GENERATORS/templates/provider/manifest.phoenix.tpl=>manifest.phoenix
+REQUIRED_VARIABLES=PROVIDER_NAME,COUNTRY
+DESTINATION_RULE=scoped
+OVERWRITE_POLICY=0
