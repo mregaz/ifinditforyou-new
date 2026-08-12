@@ -3521,3 +3521,502 @@ STATUS
 
 READY FOR NEXT PHASE 5 GENERATOR
 ```
+# PHOENIX DEVKIT — G05 ADR GENERATOR CHECKPOINT
+
+## Status
+
+The Phoenix Generator Framework has completed its second real built-in generator implementation.
+
+G05 introduces the certified:
+
+```text
+adr
+```
+
+generator above the existing:
+
+```text
+Registry
+↓
+Planning
+↓
+Execution
+```
+
+pipeline.
+
+This checkpoint also extends the Generator Layer with rendered artifact mappings, allowing validated template variables to participate in deterministic artifact filenames.
+
+---
+
+# G05 — Rendered Artifact Mapping Contract
+
+Status:
+
+```text
+CERTIFIED
+```
+
+The Generator Layer now supports artifact mappings containing Template Engine placeholders.
+
+Example:
+
+```text
+ADR-{{ADR_NUMBER}}_{{ADR_FILE_TITLE}}.md
+```
+
+Artifact mapping execution follows:
+
+```text
+raw artifact mapping
+        ↓
+Template Engine
+        ↓
+rendered artifact mapping
+        ↓
+path safety validation
+        ↓
+validated artifact plan
+        ↓
+execution
+```
+
+Rendered artifact mappings remain data.
+
+They must never be executed through:
+
+```text
+eval
+source
+bash -c
+sh -c
+```
+
+Rendered mappings are validated after rendering.
+
+Invalid rendered mappings fail when they:
+
+```text
+are empty
+are absolute paths
+contain path traversal
+escape the authorized destination scope
+contain unresolved placeholders
+```
+
+No filesystem mutation occurs on mapping validation failure.
+
+---
+
+# Planning Engine Extension
+
+The Planning Engine now renders artifact mappings before destination path construction.
+
+Planning continues to enforce:
+
+```text
+deterministic output
+safe relative paths
+required variables
+template availability
+rendering feasibility
+conflict detection
+zero mutation
+```
+
+G05 Planning certification:
+
+```text
+Passed: 34
+Failed: 0
+```
+
+---
+
+# Execution Engine Alignment
+
+G05 corrected an important execution responsibility boundary.
+
+Previously, Execution reconstructed artifact paths from raw Generator Definition mappings.
+
+This could diverge from paths already rendered and validated during planning.
+
+Execution now consumes the artifact paths emitted by the validated Plan.
+
+The execution model is therefore:
+
+```text
+Planning determines path
+        ↓
+Planning validates path
+        ↓
+Execution consumes validated path
+```
+
+Execution no longer reinterprets artifact mappings independently.
+
+This strengthens the principle:
+
+> Execution executes the validated Plan.
+
+G05 Execution certification:
+
+```text
+Passed: 45
+Failed: 0
+```
+
+---
+
+# G05 — ADR Built-in Generator
+
+Status:
+
+```text
+CERTIFIED
+```
+
+The Generator Framework now includes:
+
+```text
+03_GENERATORS/
+├── definitions/
+│   ├── provider.definition
+│   └── adr.definition
+└── templates/
+    ├── provider/
+    └── adr/
+        └── adr.md.tpl
+```
+
+The ADR Generator Definition declares:
+
+```text
+ID=adr
+PURPOSE=Generate a Phoenix Architecture Decision Record
+TEMPLATE_MAP=03_GENERATORS/templates/adr/adr.md.tpl=>ADR-{{ADR_NUMBER}}_{{ADR_FILE_TITLE}}.md
+REQUIRED_VARIABLES=ADR_NUMBER,ADR_TITLE,ADR_FILE_TITLE,ADR_STATUS,ADR_DATE
+DESTINATION_RULE=scoped
+OVERWRITE_POLICY=0
+```
+
+---
+
+# ADR Generator Contract
+
+Required variables:
+
+```text
+ADR_NUMBER
+ADR_TITLE
+ADR_FILE_TITLE
+ADR_STATUS
+ADR_DATE
+```
+
+The ADR filename is deterministic and explicit.
+
+Example request values:
+
+```text
+ADR_NUMBER=013
+ADR_TITLE=Generator Artifact Naming
+ADR_FILE_TITLE=GENERATOR_ARTIFACT_NAMING
+ADR_STATUS=Proposed
+ADR_DATE=2026-08-12
+```
+
+produce:
+
+```text
+ADR-013_GENERATOR_ARTIFACT_NAMING.md
+```
+
+Human-readable title and filesystem-safe title remain separate concepts:
+
+```text
+ADR_TITLE       → document title
+ADR_FILE_TITLE  → artifact filename component
+```
+
+No automatic slug or filename normalization is introduced in G05.
+
+---
+
+# ADR Template Contract
+
+The canonical ADR Generator v1.0 template contains:
+
+```text
+ADR identity
+Status
+Date
+Context
+Decision
+Consequences
+```
+
+Generated skeleton:
+
+```text
+# ADR-<number> — <title>
+
+Status
+Date
+
+Context
+Decision
+Consequences
+```
+
+The generator intentionally produces a minimal architectural record skeleton.
+
+Optional sections such as:
+
+```text
+Purpose
+Alternatives Considered
+Implementation
+Future Evolution
+References
+Authors
+Decision Owners
+Version
+```
+
+remain decision-specific and are not mandatory in ADR Generator v1.0.
+
+---
+
+# Built-in Generator Registry
+
+The explicit built-in registry now contains:
+
+```text
+provider
+adr
+```
+
+Generator Definitions continue to be:
+
+```text
+read as inert data
+↓
+validated
+↓
+explicitly registered
+```
+
+No implicit scanning or executable definition loading has been introduced.
+
+Built-in certification:
+
+```text
+Passed: 9
+Failed: 0
+```
+
+---
+
+# ADR Generator End-to-End Certification
+
+The real ADR Generator was validated through:
+
+```text
+built-in registration
+generator resolution
+planning
+dynamic filename rendering
+path validation
+template rendering
+execution
+filesystem creation
+dry-run
+required-variable failure
+zero-mutation failure behavior
+determinism
+```
+
+ADR Generator certification:
+
+```text
+Passed: 11
+Failed: 0
+```
+
+---
+
+# Full Generator Regression
+
+Following G05 integration, the complete Generator Layer regression suite was executed.
+
+Results:
+
+```text
+G01 — Generator Registry       21 / 21 PASS
+
+G02 — Planning Engine          34 / 34 PASS
+
+G03 — Execution Engine         45 / 45 PASS
+
+G04/G05 — Built-in Loader       9 /  9 PASS
+
+G04 — Provider Generator       11 / 11 PASS
+
+G05 — ADR Generator            11 / 11 PASS
+
+----------------------------------------
+
+TOTAL                         131 / 131 PASS
+```
+
+No regression was introduced into the previously certified Generator Layer components.
+
+---
+
+# G05 Quality Checks
+
+The checkpoint also confirmed:
+
+```text
+Bash syntax validation          PASS
+
+Full Generator regression       PASS
+
+git diff --check                PASS
+
+Rendered path safety            PASS
+
+Shell-like values remain inert  PASS
+
+Unexpected filesystem mutation  NONE
+
+ADR dynamic filename generation PASS
+```
+
+---
+
+# Development Significance
+
+G05 extends the Phoenix DevKit from directory-oriented generator artifacts to deterministic dynamically named artifacts.
+
+The DevKit can now generate both:
+
+```text
+provider component structures
+```
+
+and:
+
+```text
+single-file architecture records
+```
+
+without weakening the safety contract of the Generator Layer.
+
+The Generator Framework now supports two real built-in generators:
+
+```text
+provider
+adr
+```
+
+---
+
+# Current Development State
+
+```text
+Foundation                     COMPLETE
+
+Core                           CERTIFIED
+
+Core Documentation             COMPLETE
+
+Core Consolidation Audit       PASS
+
+Generator Architecture         COMPLETE
+
+Generator Specification        COMPLETE
+
+G01 Generator Registry         CERTIFIED
+
+G02 Planning Engine            CERTIFIED
+
+G03 Execution Engine           CERTIFIED
+
+Generator Operational Pipeline CERTIFIED
+
+G04 Built-in Provider          CERTIFIED
+
+G05 Rendered Artifact Mapping  CERTIFIED
+
+G05 ADR Generator              CERTIFIED
+
+Generator Regression           131 / 131 PASS
+```
+
+---
+
+# Next Development Direction
+
+The Generator Framework remains within:
+
+```text
+Phase 5 — Generator Framework
+```
+
+The roadmap target sequence now stands at:
+
+```text
+provider        CERTIFIED
+ADR             CERTIFIED
+sprint          NEXT CANDIDATE
+documentation   PENDING
+template        PENDING
+```
+
+The next development phase must follow the same controlled sequence:
+
+1. architecture review;
+2. contract verification;
+3. generator definition;
+4. template definition;
+5. automated tests;
+6. full regression;
+7. certification.
+
+---
+
+# Project Status
+
+```text
+PHOENIX DEVKIT
+
+FOUNDATION                     COMPLETE
+
+CORE                           CERTIFIED
+
+GENERATOR ARCHITECTURE         COMPLETE
+
+GENERATOR SPECIFICATION        COMPLETE
+
+GENERATOR REGISTRY             CERTIFIED
+
+PLANNING ENGINE                CERTIFIED
+
+EXECUTION ENGINE               CERTIFIED
+
+BUILT-IN GENERATOR LOADER      CERTIFIED
+
+PROVIDER GENERATOR             CERTIFIED
+
+RENDERED ARTIFACT MAPPING      CERTIFIED
+
+ADR GENERATOR                  CERTIFIED
+
+GENERATOR REGRESSION           131 / 131 PASS
+
+STATUS
+
+READY FOR NEXT PHASE 5 GENERATOR
+```

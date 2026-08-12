@@ -57,16 +57,23 @@ DEVKIT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 source "${DEVKIT_ROOT}/03_GENERATORS/builtins.sh"
 
 PROVIDER_DEFINITION_PATH="${DEVKIT_ROOT}/03_GENERATORS/definitions/provider.definition"
+ADR_DEFINITION_PATH="${DEVKIT_ROOT}/03_GENERATORS/definitions/adr.definition"
 
 
 # ------------------------------------------------------------------------------
-# Definition file
+# Definition files
 # ------------------------------------------------------------------------------
 
 if [[ -f "$PROVIDER_DEFINITION_PATH" ]]; then
   pass "provider definition exists"
 else
   fail "provider definition exists"
+fi
+
+if [[ -f "$ADR_DEFINITION_PATH" ]]; then
+  pass "adr definition exists"
+else
+  fail "adr definition exists"
 fi
 
 
@@ -81,6 +88,10 @@ assert_success \
 assert_success \
   "provider built-in is registered" \
   phoenix::generator_exists "provider"
+
+assert_success \
+  "adr built-in is registered" \
+  phoenix::generator_exists "adr"
 
 
 # ------------------------------------------------------------------------------
@@ -101,6 +112,20 @@ assert_equals \
   "$resolved_provider"
 
 
+resolved_adr="$(
+  phoenix::generator_resolve "adr"
+)"
+
+expected_adr="$(
+  cat "$ADR_DEFINITION_PATH"
+)"
+
+assert_equals \
+  "adr resolves to definition file content" \
+  "$expected_adr" \
+  "$resolved_adr"
+
+
 # ------------------------------------------------------------------------------
 # Registry listing
 # ------------------------------------------------------------------------------
@@ -109,9 +134,15 @@ registry_list="$(
   phoenix::generator_list
 )"
 
+expected_registry_list="$(cat <<'LIST'
+provider
+adr
+LIST
+)"
+
 assert_equals \
-  "built-in registry contains provider" \
-  "provider" \
+  "built-in registry preserves provider then adr order" \
+  "$expected_registry_list" \
   "$registry_list"
 
 
@@ -120,7 +151,7 @@ assert_equals \
 # ------------------------------------------------------------------------------
 
 assert_failure \
-  "second built-in registration fails on duplicate provider" \
+  "second built-in registration fails on duplicate generator" \
   phoenix::generator_register_builtins
 
 

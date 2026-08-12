@@ -57,16 +57,28 @@ source "${PHOENIX_GENERATOR_BUILTINS_DEVKIT_ROOT}/core/filesystem.sh"
 phoenix::generator_register_builtins() {
     local provider_definition_path
     local provider_definition
+    local adr_definition_path
+    local adr_definition
 
     provider_definition_path="${PHOENIX_GENERATOR_BUILTINS_DIR}/definitions/provider.definition"
+    adr_definition_path="${PHOENIX_GENERATOR_BUILTINS_DIR}/definitions/adr.definition"
 
     phoenix::is_file "$provider_definition_path" || return 1
+    phoenix::is_file "$adr_definition_path" || return 1
 
     provider_definition="$(
         phoenix::read_file "$provider_definition_path"
     )" || return 1
 
+    adr_definition="$(
+        phoenix::read_file "$adr_definition_path"
+    )" || return 1
+
     phoenix::generator_register \
         "provider" \
-        "$provider_definition"
+        "$provider_definition" || return 1
+
+    phoenix::generator_register \
+        "adr" \
+        "$adr_definition"
 }

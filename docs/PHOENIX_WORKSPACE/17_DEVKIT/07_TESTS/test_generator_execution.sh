@@ -658,7 +658,151 @@ assert_equals \
   "complex multiline content is preserved exactly" \
   "$expected_multiline_content" \
   "$multiline_content"
+# ------------------------------------------------------------------------------
+# G05 — Rendered Artifact Mapping Execution
+# ------------------------------------------------------------------------------
 
+DYNAMIC_EXEC_TEMPLATE="${TEST_ROOT}/dynamic-exec.tpl"
+
+cat > "$DYNAMIC_EXEC_TEMPLATE" <<'TPL'
+title={{ADR_TITLE}}
+TPL
+
+dynamic_exec_definition="$(cat <<DEF
+ID=execution-dynamic-mapping
+PURPOSE=Rendered artifact mapping execution test
+TEMPLATE_MAP=${DYNAMIC_EXEC_TEMPLATE}=>ADR-{{ADR_NUMBER}}_{{ADR_FILE_TITLE}}.md
+REQUIRED_VARIABLES=ADR_NUMBER,ADR_TITLE,ADR_FILE_TITLE
+DESTINATION_RULE=scoped
+OVERWRITE_POLICY=0
+DEF
+)"
+
+phoenix::generator_register \
+  "execution-dynamic-mapping" \
+  "$dynamic_exec_definition" >/dev/null || exit 1
+
+DYNAMIC_EXEC_DEST="${TEST_ROOT}/dynamic-execution"
+
+dynamic_exec_result="$(
+  phoenix::generator_run \
+    "execution-dynamic-mapping" \
+    "$DYNAMIC_EXEC_DEST" \
+    "ADR_NUMBER=013" \
+    "ADR_TITLE=Generator Artifact Naming" \
+    "ADR_FILE_TITLE=GENERATOR_ARTIFACT_NAMING"
+)"
+
+expected_dynamic_exec_result="$(cat <<RESULT
+STATUS=SUCCESS
+GENERATOR=execution-dynamic-mapping
+DESTINATION=${DYNAMIC_EXEC_DEST}
+ARTIFACT=${DYNAMIC_EXEC_DEST}/ADR-013_GENERATOR_ARTIFACT_NAMING.md
+RESULT
+)"
+
+assert_equals \
+  "execution returns rendered artifact mapping" \
+  "$expected_dynamic_exec_result" \
+  "$dynamic_exec_result"
+
+DYNAMIC_EXEC_FILE="${DYNAMIC_EXEC_DEST}/ADR-013_GENERATOR_ARTIFACT_NAMING.md"
+
+if [[ -f "$DYNAMIC_EXEC_FILE" ]]; then
+  pass "execution writes rendered artifact filename"
+else
+  fail "execution writes rendered artifact filename"
+fi
+
+dynamic_exec_content="$(
+  cat "$DYNAMIC_EXEC_FILE" 2>/dev/null || true
+)"
+
+assert_equals \
+  "rendered artifact contains expected content" \
+  "title=Generator Artifact Naming" \
+  "$dynamic_exec_content"
+
+
+# ------------------------------------------------------------------------------
+# Rendered path safety propagates through execution
+# ------------------------------------------------------------------------------
+
+DYNAMIC_PATH_TEMPLATE="${TEST_ROOT}/dynamic-path.tpl"
+
+cat > "$DYNAMIC_PATH_TEMPLATE" <<'TPL'
+name={{NAME}}
+TPL
+
+dynamic_path_definition="$(cat <<DEF
+ID=execution-dynamic-path
+PURPOSE=Rendered execution path safety test
+TEMPLATE_MAP=${DYNAMIC_PATH_TEMPLATE}=>{{ARTIFACT_PATH}}
+REQUIRED_VARIABLES=NAME,ARTIFACT_PATH
+DESTINATION_RULE=scoped
+OVERWRITE_POLICY=0
+DEF
+)"
+
+phoenix::generator_register \
+  "execution-dynamic-path" \
+  "$dynamic_path_definition" >/dev/null || exit 1
+
+DYNAMIC_PATH_DEST="${TEST_ROOT}/dynamic-path-output"
+
+assert_failure \
+  "execution rejects rendered traversal artifact path" \
+  phoenix::generator_run \
+  "execution-dynamic-path" \
+  "$DYNAMIC_PATH_DEST" \
+  "NAME=Phoenix" \
+  "ARTIFACT_PATH=../escape.md"
+
+if [[ ! -e "$DYNAMIC_PATH_DEST" ]]; then
+  pass "rendered traversal failure causes zero mutation"
+else
+  fail "rendered traversal failure causes zero mutation"
+fi
+
+assert_failure \
+  "execution rejects rendered absolute artifact path" \
+  phoenix::generator_run \
+  "execution-dynamic-path" \
+  "$DYNAMIC_PATH_DEST" \
+  "NAME=Phoenix" \
+  "ARTIFACT_PATH=/tmp/phoenix-execution-escape.md"
+
+
+# ------------------------------------------------------------------------------
+# Shell-like artifact mapping values remain inert during execution
+# ------------------------------------------------------------------------------
+
+DYNAMIC_EXEC_SHELL_MARKER="${TEST_ROOT}/dynamic-exec-shell-marker"
+dynamic_exec_shell_value='$(touch '"${DYNAMIC_EXEC_SHELL_MARKER}"')'
+
+SHELL_DYNAMIC_DEST="${TEST_ROOT}/dynamic-shell"
+
+assert_success \
+  "execution accepts shell-like mapping value as literal data" \
+  phoenix::generator_run \
+  "execution-dynamic-path" \
+  "$SHELL_DYNAMIC_DEST" \
+  "NAME=Phoenix" \
+  "ARTIFACT_PATH=${dynamic_exec_shell_value}"
+
+if [[ ! -e "$DYNAMIC_EXEC_SHELL_MARKER" ]]; then
+  pass "execution does not execute shell-like artifact mapping value"
+else
+  fail "execution does not execute shell-like artifact mapping value"
+fi
+
+SHELL_DYNAMIC_FILE="${SHELL_DYNAMIC_DEST}/${dynamic_exec_shell_value}"
+
+if [[ -f "$SHELL_DYNAMIC_FILE" ]]; then
+  pass "execution preserves shell-like artifact filename literally"
+else
+  fail "execution preserves shell-like artifact filename literally"
+fi
 # ------------------------------------------------------------------------------
 # Summary
 # ------------------------------------------------------------------------------

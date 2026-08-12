@@ -408,6 +408,173 @@ fi
 
 
 # ------------------------------------------------------------------------------
+# G05 — Rendered Artifact Mapping Contract
+# ------------------------------------------------------------------------------
+
+DYNAMIC_MAPPING_TEMPLATE="${TEST_ROOT}/dynamic-mapping.tpl"
+
+cat > "$DYNAMIC_MAPPING_TEMPLATE" <<'TPL'
+title={{ADR_TITLE}}
+TPL
+
+dynamic_mapping_definition="$(cat <<DEF
+ID=dynamic-mapping
+PURPOSE=Rendered artifact mapping test
+TEMPLATE_MAP=${DYNAMIC_MAPPING_TEMPLATE}=>ADR-{{ADR_NUMBER}}_{{ADR_FILE_TITLE}}.md
+REQUIRED_VARIABLES=ADR_NUMBER,ADR_TITLE,ADR_FILE_TITLE
+DESTINATION_RULE=scoped
+OVERWRITE_POLICY=0
+DEF
+)"
+
+phoenix::generator_register \
+  "dynamic-mapping" \
+  "$dynamic_mapping_definition" >/dev/null || exit 1
+
+
+DYNAMIC_DEST="${TEST_ROOT}/dynamic-output"
+
+dynamic_plan="$(
+  phoenix::generator_plan \
+    "dynamic-mapping" \
+    "$DYNAMIC_DEST" \
+    "ADR_NUMBER=013" \
+    "ADR_TITLE=Generator Artifact Naming" \
+    "ADR_FILE_TITLE=GENERATOR_ARTIFACT_NAMING"
+)"
+
+expected_dynamic_plan="$(cat <<PLAN
+STATUS=PLAN
+GENERATOR=dynamic-mapping
+DESTINATION=${DYNAMIC_DEST}
+OVERWRITE=0
+DRY_RUN=0
+ARTIFACT=${DYNAMIC_DEST}/ADR-013_GENERATOR_ARTIFACT_NAMING.md
+PLAN
+)"
+
+assert_equals \
+  "artifact mapping placeholders are rendered deterministically" \
+  "$expected_dynamic_plan" \
+  "$dynamic_plan"
+
+
+second_dynamic_plan="$(
+  phoenix::generator_plan \
+    "dynamic-mapping" \
+    "$DYNAMIC_DEST" \
+    "ADR_NUMBER=013" \
+    "ADR_TITLE=Generator Artifact Naming" \
+    "ADR_FILE_TITLE=GENERATOR_ARTIFACT_NAMING"
+)"
+
+assert_equals \
+  "rendered artifact mapping is deterministic" \
+  "$dynamic_plan" \
+  "$second_dynamic_plan"
+
+
+# ------------------------------------------------------------------------------
+# Path safety must be applied AFTER mapping rendering
+# ------------------------------------------------------------------------------
+
+PATH_MAPPING_TEMPLATE="${TEST_ROOT}/path-mapping.tpl"
+
+cat > "$PATH_MAPPING_TEMPLATE" <<'TPL'
+name={{NAME}}
+TPL
+
+path_mapping_definition="$(cat <<DEF
+ID=path-mapping
+PURPOSE=Rendered path safety test
+TEMPLATE_MAP=${PATH_MAPPING_TEMPLATE}=>{{ARTIFACT_PATH}}
+REQUIRED_VARIABLES=NAME,ARTIFACT_PATH
+DESTINATION_RULE=scoped
+OVERWRITE_POLICY=0
+DEF
+)"
+
+phoenix::generator_register \
+  "path-mapping" \
+  "$path_mapping_definition" >/dev/null || exit 1
+
+assert_failure \
+  "rendered artifact traversal path fails planning" \
+  phoenix::generator_plan \
+  "path-mapping" \
+  "${TEST_ROOT}/safe-destination" \
+  "NAME=Phoenix" \
+  "ARTIFACT_PATH=../escape.md"
+
+assert_failure \
+  "rendered absolute artifact path fails planning" \
+  phoenix::generator_plan \
+  "path-mapping" \
+  "${TEST_ROOT}/safe-destination" \
+  "NAME=Phoenix" \
+  "ARTIFACT_PATH=/tmp/phoenix-escape.md"
+
+
+# ------------------------------------------------------------------------------
+# Mapping rendering failure
+# ------------------------------------------------------------------------------
+
+unresolved_mapping_definition="$(cat <<DEF
+ID=unresolved-mapping
+PURPOSE=Unresolved mapping placeholder test
+TEMPLATE_MAP=${PATH_MAPPING_TEMPLATE}=>{{UNDECLARED_ARTIFACT_PATH}}
+REQUIRED_VARIABLES=NAME
+DESTINATION_RULE=scoped
+OVERWRITE_POLICY=0
+DEF
+)"
+
+phoenix::generator_register \
+  "unresolved-mapping" \
+  "$unresolved_mapping_definition" >/dev/null || exit 1
+
+assert_failure \
+  "unresolved artifact mapping placeholder fails planning" \
+  phoenix::generator_plan \
+  "unresolved-mapping" \
+  "${TEST_ROOT}/unresolved-output" \
+  "NAME=Phoenix"
+
+
+# ------------------------------------------------------------------------------
+# Shell-like mapping values remain literal data
+# ------------------------------------------------------------------------------
+
+MAPPING_SHELL_MARKER="${TEST_ROOT}/mapping-shell-executed"
+shell_mapping_value='$(touch '"${MAPPING_SHELL_MARKER}"')'
+
+shell_mapping_plan="$(
+  phoenix::generator_plan \
+    "path-mapping" \
+    "${TEST_ROOT}/shell-mapping" \
+    "NAME=Phoenix" \
+    "ARTIFACT_PATH=${shell_mapping_value}"
+)"
+
+expected_shell_artifact="${TEST_ROOT}/shell-mapping/${shell_mapping_value}"
+
+case "$shell_mapping_plan" in
+  *"ARTIFACT=${expected_shell_artifact}"*)
+    pass "shell-like artifact mapping value remains literal"
+    ;;
+  *)
+    fail "shell-like artifact mapping value remains literal"
+    ;;
+esac
+
+if [[ ! -e "$MAPPING_SHELL_MARKER" ]]; then
+  pass "shell-like artifact mapping value is not executed"
+else
+  fail "shell-like artifact mapping value is not executed"
+fi
+
+
+# ------------------------------------------------------------------------------
 # Summary
 # ------------------------------------------------------------------------------
 

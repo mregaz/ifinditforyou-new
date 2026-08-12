@@ -633,6 +633,60 @@ The Generator Layer must not:
 - depend on directory traversal order.
 
 The Generator Definition is the authoritative ordering source.
+
+## Rendered Artifact Mapping Contract
+
+Generator artifact mappings may contain Template Engine placeholders.
+
+Example:
+
+```text
+ADR-{{ADR_NUMBER}}_{{ADR_FILE_TITLE}}.md
+```
+
+Artifact mappings containing placeholders must be rendered using the certified:
+
+```text
+phoenix::template_render
+```
+
+API.
+
+Artifact mapping rendering is non-mutating.
+
+The rendered artifact mapping becomes the authoritative relative output mapping used by planning and execution.
+
+The rendered mapping must be validated for path safety after rendering.
+
+The rendered artifact mapping must:
+
+- be non-empty;
+- remain a relative path;
+- not contain `..` traversal segments;
+- not escape the caller-provided destination scope.
+
+If artifact mapping rendering fails, or if the rendered mapping violates path safety:
+
+```text
+generator_plan → return 1
+generator_run  → return 1
+```
+
+No filesystem mutation may occur.
+
+Artifact mapping values remain data.
+
+Rendered artifact mapping must never execute values through:
+
+```text
+eval
+source
+bash -c
+sh -c
+```
+
+Artifact ordering continues to follow Generator Definition declaration order.
+
 ---
 
 # 24. Destination Conflict Policy
@@ -643,17 +697,6 @@ Default behavior:
 
 ```text
 PHOENIX_OVERWRITE=0
-```
-
-means:
-
-```text
-conflict → failure
-```
-
-No existing artifact may be modified.
-
----
 
 # 25. Explicit Overwrite
 

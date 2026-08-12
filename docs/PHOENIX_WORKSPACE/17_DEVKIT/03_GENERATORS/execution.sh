@@ -160,9 +160,11 @@ phoenix::generator_run() {
 
   local artifact_paths=""
 
+local -a planned_artifacts=()
 local -a rendered_paths=()
 local -a rendered_contents=()
 
+local planned_index=0
 local rendered_index
 
   plan="$(
@@ -180,7 +182,12 @@ local rendered_index
   )" || return 1
 
   [[ -n "$artifact_paths" ]] || return 1
+while IFS= read -r artifact_path; do
+  [[ -n "$artifact_path" ]] || continue
+  planned_artifacts+=("$artifact_path")
+done <<< "$artifact_paths"
 
+[[ "${#planned_artifacts[@]}" -gt 0 ]] || return 1
   if [[ "$dry_run" == "1" ]]; then
     printf 'STATUS=DRY_RUN\n'
     printf 'GENERATOR=%s\n' "$generator_id"
@@ -234,11 +241,11 @@ local rendered_index
             "$template_source"
         )" || return 1
 
-        artifact_path="$(
-          _phoenix::generator_join_path \
-            "$destination" \
-            "$artifact_mapping"
-        )" || return 1
+        [[ "$planned_index" -lt "${#planned_artifacts[@]}" ]] || return 1
+
+artifact_path="${planned_artifacts[$planned_index]}"
+
+planned_index=$((planned_index + 1))
 
         rendered_content="$(
           phoenix::read_file "$resolved_template_source"
@@ -255,7 +262,7 @@ rendered_contents+=("$rendered_content")
         ;;
     esac
   done <<< "$definition"
-
+[[ "$planned_index" -eq "${#planned_artifacts[@]}" ]] || return 1
   [[ "${#rendered_paths[@]}" -gt 0 ]] || return 1
 
 [[ "${#rendered_paths[@]}" -eq "${#rendered_contents[@]}" ]] || return 1

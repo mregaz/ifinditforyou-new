@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 
 # ==============================================================================
 # PHOENIX DEVKIT — GENERATOR PLANNING ENGINE
@@ -313,7 +312,31 @@ _phoenix::generator_collect_template_assignments() {
 
   return 0
 }
+_phoenix::generator_render_artifact_mapping() {
+  local artifact_mapping="${1:-}"
+  shift || true
 
+  local assignments_text
+  local assignment
+
+  local -a assignments=()
+
+  [[ -n "$artifact_mapping" ]] || return 1
+
+  assignments_text="$(
+    _phoenix::generator_collect_template_assignments "$@"
+  )" || return 1
+
+  if [[ -n "$assignments_text" ]]; then
+    while IFS= read -r assignment; do
+      assignments+=("$assignment")
+    done <<< "$assignments_text"
+  fi
+
+  phoenix::template_render \
+    "$artifact_mapping" \
+    "${assignments[@]}"
+}
 
 _phoenix::generator_validate_rendering() {
   local template_path="${1:-}"
@@ -426,9 +449,16 @@ phoenix::generator_plan() {
         esac
 
         [[ -n "$template_source" ]] || return 1
+[[ -n "$artifact_mapping" ]] || return 1
 
-        _phoenix::generator_mapping_is_safe \
-          "$artifact_mapping" || return 1
+artifact_mapping="$(
+  _phoenix::generator_render_artifact_mapping \
+    "$artifact_mapping" \
+    "$@"
+)" || return 1
+
+_phoenix::generator_mapping_is_safe \
+  "$artifact_mapping" || return 1
 
         resolved_template_source="$(
           _phoenix::generator_resolve_template_source \
