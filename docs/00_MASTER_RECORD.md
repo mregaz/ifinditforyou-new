@@ -3954,7 +3954,9 @@ G05 ADR Generator              CERTIFIED
 
 G06 Sprint Generator           CERTIFIED
 
-Generator Regression           283 / 283 PASS
+G07 Documentation Generator    CERTIFIED
+
+Generator Regression           311 / 311 PASS
 ```
 
 ---
@@ -3973,8 +3975,8 @@ The roadmap target sequence now stands at:
 provider        CERTIFIED
 ADR             CERTIFIED
 sprint          CERTIFIED
-documentation   NEXT CANDIDATE
-template        PENDING
+documentation   CERTIFIED
+template        NEXT CANDIDATE
 ```
 
 The next development phase must follow the same controlled sequence:
@@ -4018,7 +4020,9 @@ ADR GENERATOR                  CERTIFIED
 
 SPRINT GENERATOR               CERTIFIED
 
-GENERATOR REGRESSION           283 / 283 PASS
+DOCUMENTATION GENERATOR        CERTIFIED
+
+GENERATOR REGRESSION           311 / 311 PASS
 
 STATUS
 

@@ -1,0 +1,6 @@
+ID=documentation
+PURPOSE=Generate a canonical Phoenix documentation skeleton
+TEMPLATE_MAP=03_GENERATORS/templates/documentation/documentation.md.tpl=>{{DOCUMENT_SLUG}}.md
+REQUIRED_VARIABLES=DOCUMENT_TITLE,DOCUMENT_SLUG
+DESTINATION_RULE=scoped
+OVERWRITE_POLICY=0

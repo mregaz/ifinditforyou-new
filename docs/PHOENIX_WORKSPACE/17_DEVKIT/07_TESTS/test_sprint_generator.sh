@@ -103,11 +103,12 @@ expected_builtin_list="$(cat <<'LIST'
 provider
 adr
 sprint
+documentation
 LIST
 )"
 
 assert_equals \
-  "sprint generator is appended after existing built-ins" \
+  "sprint generator preserves canonical built-in order" \
   "$expected_builtin_list" \
   "$builtin_list"
 

@@ -61,14 +61,18 @@ phoenix::generator_register_builtins() {
     local adr_definition
     local sprint_definition_path
     local sprint_definition
+    local documentation_definition_path
+    local documentation_definition
 
     provider_definition_path="${PHOENIX_GENERATOR_BUILTINS_DIR}/definitions/provider.definition"
     adr_definition_path="${PHOENIX_GENERATOR_BUILTINS_DIR}/definitions/adr.definition"
     sprint_definition_path="${PHOENIX_GENERATOR_BUILTINS_DIR}/definitions/sprint.definition"
+    documentation_definition_path="${PHOENIX_GENERATOR_BUILTINS_DIR}/definitions/documentation.definition"
 
     phoenix::is_file "$provider_definition_path" || return 1
     phoenix::is_file "$adr_definition_path" || return 1
     phoenix::is_file "$sprint_definition_path" || return 1
+    phoenix::is_file "$documentation_definition_path" || return 1
 
     provider_definition="$(
         phoenix::read_file "$provider_definition_path"
@@ -82,6 +86,10 @@ phoenix::generator_register_builtins() {
         phoenix::read_file "$sprint_definition_path"
     )" || return 1
 
+    documentation_definition="$(
+        phoenix::read_file "$documentation_definition_path"
+    )" || return 1
+
     phoenix::generator_register \
         "provider" \
         "$provider_definition" || return 1
@@ -92,5 +100,9 @@ phoenix::generator_register_builtins() {
 
     phoenix::generator_register \
         "sprint" \
-        "$sprint_definition"
+        "$sprint_definition" || return 1
+
+    phoenix::generator_register \
+        "documentation" \
+        "$documentation_definition"
 }
