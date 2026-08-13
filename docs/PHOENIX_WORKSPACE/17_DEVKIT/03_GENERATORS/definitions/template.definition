@@ -1,0 +1,6 @@
+ID=template
+PURPOSE=Generate a reusable Phoenix template skeleton
+TEMPLATE_MAP=03_GENERATORS/templates/template/template.tpl=>{{TEMPLATE_FILE}}
+REQUIRED_VARIABLES=TEMPLATE_FILE
+DESTINATION_RULE=scoped
+OVERWRITE_POLICY=0

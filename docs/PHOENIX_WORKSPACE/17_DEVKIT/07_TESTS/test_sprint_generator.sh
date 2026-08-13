@@ -104,6 +104,7 @@ provider
 adr
 sprint
 documentation
+template
 LIST
 )"
 

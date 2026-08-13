@@ -104,11 +104,12 @@ provider
 adr
 sprint
 documentation
+template
 LIST
 )"
 
 assert_equals \
-  "documentation generator is appended after existing built-ins" \
+  "documentation generator preserves canonical built-in order" \
   "$expected_builtin_list" \
   "$builtin_list"
 

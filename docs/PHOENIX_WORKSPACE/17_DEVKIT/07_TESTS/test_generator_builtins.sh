@@ -187,11 +187,12 @@ provider
 adr
 sprint
 documentation
+template
 LIST
 )"
 
 assert_equals \
-  "built-in registry preserves provider then adr then sprint then documentation order" \
+  "built-in registry preserves canonical generator order" \
   "$expected_registry_list" \
   "$registry_list"
 
