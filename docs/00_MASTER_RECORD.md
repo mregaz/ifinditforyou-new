@@ -3952,7 +3952,9 @@ G05 Rendered Artifact Mapping  CERTIFIED
 
 G05 ADR Generator              CERTIFIED
 
-Generator Regression           131 / 131 PASS
+G06 Sprint Generator           CERTIFIED
+
+Generator Regression           283 / 283 PASS
 ```
 
 ---
@@ -3970,8 +3972,8 @@ The roadmap target sequence now stands at:
 ```text
 provider        CERTIFIED
 ADR             CERTIFIED
-sprint          NEXT CANDIDATE
-documentation   PENDING
+sprint          CERTIFIED
+documentation   NEXT CANDIDATE
 template        PENDING
 ```
 
@@ -4014,7 +4016,9 @@ RENDERED ARTIFACT MAPPING      CERTIFIED
 
 ADR GENERATOR                  CERTIFIED
 
-GENERATOR REGRESSION           131 / 131 PASS
+SPRINT GENERATOR               CERTIFIED
+
+GENERATOR REGRESSION           283 / 283 PASS
 
 STATUS
 

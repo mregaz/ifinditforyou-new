@@ -58,6 +58,7 @@ source "${DEVKIT_ROOT}/03_GENERATORS/builtins.sh"
 
 PROVIDER_DEFINITION_PATH="${DEVKIT_ROOT}/03_GENERATORS/definitions/provider.definition"
 ADR_DEFINITION_PATH="${DEVKIT_ROOT}/03_GENERATORS/definitions/adr.definition"
+SPRINT_DEFINITION_PATH="${DEVKIT_ROOT}/03_GENERATORS/definitions/sprint.definition"
 
 
 # ------------------------------------------------------------------------------
@@ -76,6 +77,12 @@ else
   fail "adr definition exists"
 fi
 
+if [[ -f "$SPRINT_DEFINITION_PATH" ]]; then
+  pass "sprint definition exists"
+else
+  fail "sprint definition exists"
+fi
+
 
 # ------------------------------------------------------------------------------
 # Built-in registration
@@ -92,6 +99,10 @@ assert_success \
 assert_success \
   "adr built-in is registered" \
   phoenix::generator_exists "adr"
+
+assert_success \
+  "sprint built-in is registered" \
+  phoenix::generator_exists "sprint"
 
 
 # ------------------------------------------------------------------------------
@@ -125,6 +136,19 @@ assert_equals \
   "$expected_adr" \
   "$resolved_adr"
 
+resolved_sprint="$(
+  phoenix::generator_resolve "sprint"
+)"
+
+expected_sprint="$(
+  cat "$SPRINT_DEFINITION_PATH"
+)"
+
+assert_equals \
+  "sprint resolves to definition file content" \
+  "$expected_sprint" \
+  "$resolved_sprint"
+
 
 # ------------------------------------------------------------------------------
 # Registry listing
@@ -137,11 +161,12 @@ registry_list="$(
 expected_registry_list="$(cat <<'LIST'
 provider
 adr
+sprint
 LIST
 )"
 
 assert_equals \
-  "built-in registry preserves provider then adr order" \
+  "built-in registry preserves provider then adr then sprint order" \
   "$expected_registry_list" \
   "$registry_list"
 

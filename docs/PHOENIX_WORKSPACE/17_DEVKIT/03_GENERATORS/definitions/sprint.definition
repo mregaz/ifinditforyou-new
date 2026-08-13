@@ -1,0 +1,6 @@
+ID=sprint
+PURPOSE=Generate a canonical Phoenix Sprint document
+TEMPLATE_MAP=03_GENERATORS/templates/sprint/sprint.md.tpl=>SPRINT_{{SPRINT_ID}}_{{SPRINT_SLUG}}.md
+REQUIRED_VARIABLES=SPRINT_ID,SPRINT_TITLE,SPRINT_SLUG
+DESTINATION_RULE=scoped
+OVERWRITE_POLICY=0
