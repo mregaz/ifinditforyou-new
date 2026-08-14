@@ -1,0 +1,3 @@
+ID=structure
+PURPOSE=Validate Phoenix DevKit structural requirements
+IMPLEMENTATION=phoenix::validator_structure

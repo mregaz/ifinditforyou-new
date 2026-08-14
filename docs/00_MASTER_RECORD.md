@@ -3958,7 +3958,21 @@ G07 Documentation Generator    CERTIFIED
 
 G08 Template Generator         CERTIFIED
 
-Generator Regression           340 / 340 PASS
+V01 Validation Architecture    FROZEN
+
+V01 Function Specification     FROZEN
+
+V01 Validator Registry         CERTIFIED — 19 / 19 PASS
+
+V01 Validation Execution       CERTIFIED — 21 / 21 PASS
+
+V01 Structure Validator        CERTIFIED — 12 / 12 PASS
+
+V01 Built-in Validators        CERTIFIED — 8 / 8 PASS
+
+V01 Security / Code Review     PASS
+
+Full DevKit Regression         400 / 400 PASS
 ```
 
 ---
@@ -3981,15 +3995,30 @@ documentation   CERTIFIED
 template        CERTIFIED
 ```
 
-The next development phase must follow the same controlled sequence:
+Phase 6 — Validation Framework is now active.
 
-1. architecture review;
-2. contract verification;
-3. generator definition;
-4. template definition;
-5. automated tests;
-6. full regression;
-7. certification.
+The first Validation Framework tranche has established:
+
+1. frozen Validation architecture;
+2. frozen Function Specification;
+3. deterministic Validator Registry;
+4. Validation Execution Engine;
+5. strict VALID / INVALID / ERROR semantics;
+6. built-in Structure Validator;
+7. read-only validation contract;
+8. fail-fast validation;
+9. deterministic result serialization;
+10. security and layer-separation validation.
+
+The remaining Phase 6 roadmap domains are:
+
+```text
+structure        CERTIFIED
+naming           PENDING
+documentation    PENDING
+dependencies     PENDING
+standards        PENDING
+```
 
 ---
 
@@ -4028,9 +4057,24 @@ TEMPLATE GENERATOR             CERTIFIED
 
 GENERATOR FRAMEWORK            COMPLETE
 
-GENERATOR REGRESSION           340 / 340 PASS
+VALIDATION ARCHITECTURE        FROZEN
+
+VALIDATION SPECIFICATION       FROZEN
+
+VALIDATOR REGISTRY             CERTIFIED
+
+VALIDATION EXECUTION ENGINE    CERTIFIED
+
+STRUCTURE VALIDATOR            CERTIFIED
+
+VALIDATOR BUILT-IN LOADER      CERTIFIED
+
+VALIDATION SECURITY REVIEW     PASS
+
+FULL DEVKIT REGRESSION         400 / 400 PASS
 
 STATUS
 
-READY FOR PHASE 6 — VALIDATION FRAMEWORK
+PHASE 6 — VALIDATION FRAMEWORK ACTIVE
+V01 CORE VALIDATION TRANCHE CERTIFIED
 ```
