@@ -58,10 +58,15 @@ source "${DEVKIT_ROOT}/04_VALIDATORS/registry.sh"
 
 BUILTINS="${DEVKIT_ROOT}/04_VALIDATORS/builtins.sh"
 STRUCTURE_DEFINITION="${DEVKIT_ROOT}/04_VALIDATORS/definitions/structure.definition"
+NAMING_DEFINITION="${DEVKIT_ROOT}/04_VALIDATORS/definitions/naming.definition"
 STRUCTURE_IMPLEMENTATION="${DEVKIT_ROOT}/04_VALIDATORS/implementations/structure.sh"
+NAMING_IMPLEMENTATION="${DEVKIT_ROOT}/04_VALIDATORS/implementations/naming.sh"
 
 if [[ -f "$STRUCTURE_IMPLEMENTATION" ]]; then
   source "$STRUCTURE_IMPLEMENTATION"
+fi
+if [[ -f "$NAMING_IMPLEMENTATION" ]]; then
+  source "$NAMING_IMPLEMENTATION"
 fi
 
 if [[ -f "$BUILTINS" ]]; then
@@ -83,7 +88,17 @@ if [[ -f "$STRUCTURE_IMPLEMENTATION" ]]; then
 else
   fail "structure validator implementation exists"
 fi
+if [[ -f "$NAMING_DEFINITION" ]]; then
+  pass "naming validator definition exists"
+else
+  fail "naming validator definition exists"
+fi
 
+if [[ -f "$NAMING_IMPLEMENTATION" ]]; then
+  pass "naming validator implementation exists"
+else
+  fail "naming validator implementation exists"
+fi
 # ------------------------------------------------------------------------------
 # Built-in registration
 # ------------------------------------------------------------------------------
@@ -96,7 +111,10 @@ assert_success \
   "structure validator is registered" \
   phoenix::validator_exists \
     "structure"
-
+assert_success \
+  "naming validator is registered" \
+  phoenix::validator_exists \
+    "naming"
 # ------------------------------------------------------------------------------
 # Definition contract
 # ------------------------------------------------------------------------------
@@ -116,7 +134,21 @@ assert_equals \
   "structure resolves to canonical definition" \
   "$expected_structure_definition" \
   "$resolved_structure"
+expected_naming_definition="$(cat <<'DEF'
+ID=naming
+PURPOSE=Validate Phoenix DevKit file naming requirements
+IMPLEMENTATION=phoenix::validator_naming
+DEF
+)"
 
+resolved_naming="$(
+  phoenix::validator_resolve "naming" 2>/dev/null || true
+)"
+
+assert_equals \
+  "naming resolves to canonical definition" \
+  "$expected_naming_definition" \
+  "$resolved_naming"
 # ------------------------------------------------------------------------------
 # Canonical built-in order
 # ------------------------------------------------------------------------------
@@ -125,9 +157,15 @@ validator_list="$(
   phoenix::validator_list 2>/dev/null || true
 )"
 
+expected_validator_list="$(cat <<'LIST'
+structure
+naming
+LIST
+)"
+
 assert_equals \
-  "built-in validator list contains structure" \
-  "structure" \
+  "built-in validator list preserves structure then naming order" \
+  "$expected_validator_list" \
   "$validator_list"
 
 # ------------------------------------------------------------------------------
@@ -139,7 +177,11 @@ if declare -F phoenix::validator_structure >/dev/null 2>&1; then
 else
   fail "structure validator implementation is available"
 fi
-
+if declare -F phoenix::validator_naming >/dev/null 2>&1; then
+  pass "naming validator implementation is available"
+else
+  fail "naming validator implementation is available"
+fi
 # ------------------------------------------------------------------------------
 # Duplicate built-in registration
 # ------------------------------------------------------------------------------

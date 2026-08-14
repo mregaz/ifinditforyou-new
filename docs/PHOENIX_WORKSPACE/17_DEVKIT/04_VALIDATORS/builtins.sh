@@ -43,14 +43,21 @@ phoenix::validator_register_builtins() {
   local structure_definition
 
   structure_definition_path="${PHOENIX_VALIDATOR_BUILTINS_DIR}/definitions/structure.definition"
-
+  naming_definition_path="${PHOENIX_VALIDATOR_BUILTINS_DIR}/definitions/naming.definition"
   phoenix::is_file "$structure_definition_path" || return 1
-
+phoenix::is_file "$naming_definition_path" || return 1
   structure_definition="$(
     phoenix::read_file "$structure_definition_path"
   )" || return 1
+  naming_definition="$(
+    phoenix::read_file "$naming_definition_path"
+  )" || return 1
 
-  phoenix::validator_register \
-    "structure" \
-    "$structure_definition"
+ phoenix::validator_register \
+  "structure" \
+  "$structure_definition" || return 1
+
+phoenix::validator_register \
+  "naming" \
+  "$naming_definition"
 }
