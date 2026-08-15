@@ -1,0 +1,3 @@
+ID=documentation
+PURPOSE=Validate Phoenix DevKit documentation presence and non-empty domain documentation
+IMPLEMENTATION=phoenix::validator_documentation

@@ -61,7 +61,12 @@ STRUCTURE_DEFINITION="${DEVKIT_ROOT}/04_VALIDATORS/definitions/structure.definit
 NAMING_DEFINITION="${DEVKIT_ROOT}/04_VALIDATORS/definitions/naming.definition"
 STRUCTURE_IMPLEMENTATION="${DEVKIT_ROOT}/04_VALIDATORS/implementations/structure.sh"
 NAMING_IMPLEMENTATION="${DEVKIT_ROOT}/04_VALIDATORS/implementations/naming.sh"
+DOCUMENTATION_DEFINITION="${DEVKIT_ROOT}/04_VALIDATORS/definitions/documentation.definition"
+DOCUMENTATION_IMPLEMENTATION="${DEVKIT_ROOT}/04_VALIDATORS/implementations/documentation.sh"
 
+if [[ -f "$DOCUMENTATION_IMPLEMENTATION" ]]; then
+  source "$DOCUMENTATION_IMPLEMENTATION"
+fi
 if [[ -f "$STRUCTURE_IMPLEMENTATION" ]]; then
   source "$STRUCTURE_IMPLEMENTATION"
 fi
@@ -99,6 +104,17 @@ if [[ -f "$NAMING_IMPLEMENTATION" ]]; then
 else
   fail "naming validator implementation exists"
 fi
+if [[ -f "$DOCUMENTATION_DEFINITION" ]]; then
+  pass "documentation validator definition exists"
+else
+  fail "documentation validator definition exists"
+fi
+
+if [[ -f "$DOCUMENTATION_IMPLEMENTATION" ]]; then
+  pass "documentation validator implementation exists"
+else
+  fail "documentation validator implementation exists"
+fi
 # ------------------------------------------------------------------------------
 # Built-in registration
 # ------------------------------------------------------------------------------
@@ -115,6 +131,10 @@ assert_success \
   "naming validator is registered" \
   phoenix::validator_exists \
     "naming"
+    assert_success \
+  "documentation validator is registered" \
+  phoenix::validator_exists \
+    "documentation"
 # ------------------------------------------------------------------------------
 # Definition contract
 # ------------------------------------------------------------------------------
@@ -149,6 +169,21 @@ assert_equals \
   "naming resolves to canonical definition" \
   "$expected_naming_definition" \
   "$resolved_naming"
+  expected_documentation_definition="$(cat <<'DEF'
+ID=documentation
+PURPOSE=Validate Phoenix DevKit documentation presence and non-empty domain documentation
+IMPLEMENTATION=phoenix::validator_documentation
+DEF
+)"
+
+resolved_documentation="$(
+  phoenix::validator_resolve "documentation" 2>/dev/null || true
+)"
+
+assert_equals \
+  "documentation resolves to canonical definition" \
+  "$expected_documentation_definition" \
+  "$resolved_documentation"
 # ------------------------------------------------------------------------------
 # Canonical built-in order
 # ------------------------------------------------------------------------------
@@ -160,11 +195,12 @@ validator_list="$(
 expected_validator_list="$(cat <<'LIST'
 structure
 naming
+documentation
 LIST
 )"
 
 assert_equals \
-  "built-in validator list preserves structure then naming order" \
+"built-in validator list preserves structure then naming then documentation order" \
   "$expected_validator_list" \
   "$validator_list"
 
@@ -181,6 +217,11 @@ if declare -F phoenix::validator_naming >/dev/null 2>&1; then
   pass "naming validator implementation is available"
 else
   fail "naming validator implementation is available"
+fi
+if declare -F phoenix::validator_documentation >/dev/null 2>&1; then
+  pass "documentation validator implementation is available"
+else
+  fail "documentation validator implementation is available"
 fi
 # ------------------------------------------------------------------------------
 # Duplicate built-in registration
