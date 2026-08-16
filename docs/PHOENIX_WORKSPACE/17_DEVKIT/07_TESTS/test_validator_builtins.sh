@@ -63,7 +63,8 @@ STRUCTURE_IMPLEMENTATION="${DEVKIT_ROOT}/04_VALIDATORS/implementations/structure
 NAMING_IMPLEMENTATION="${DEVKIT_ROOT}/04_VALIDATORS/implementations/naming.sh"
 DOCUMENTATION_DEFINITION="${DEVKIT_ROOT}/04_VALIDATORS/definitions/documentation.definition"
 DOCUMENTATION_IMPLEMENTATION="${DEVKIT_ROOT}/04_VALIDATORS/implementations/documentation.sh"
-
+DEPENDENCIES_DEFINITION="${DEVKIT_ROOT}/04_VALIDATORS/definitions/dependencies.definition"
+DEPENDENCIES_IMPLEMENTATION="${DEVKIT_ROOT}/04_VALIDATORS/implementations/dependencies.sh"
 if [[ -f "$DOCUMENTATION_IMPLEMENTATION" ]]; then
   source "$DOCUMENTATION_IMPLEMENTATION"
 fi
@@ -78,6 +79,9 @@ if [[ -f "$BUILTINS" ]]; then
   source "$BUILTINS"
 fi
 
+if [[ -f "$DEPENDENCIES_IMPLEMENTATION" ]]; then
+  source "$DEPENDENCIES_IMPLEMENTATION"
+fi
 # ------------------------------------------------------------------------------
 # Assets
 # ------------------------------------------------------------------------------
@@ -115,6 +119,17 @@ if [[ -f "$DOCUMENTATION_IMPLEMENTATION" ]]; then
 else
   fail "documentation validator implementation exists"
 fi
+if [[ -f "$DEPENDENCIES_DEFINITION" ]]; then
+  pass "dependencies validator definition exists"
+else
+  fail "dependencies validator definition exists"
+fi
+
+if [[ -f "$DEPENDENCIES_IMPLEMENTATION" ]]; then
+  pass "dependencies validator implementation exists"
+else
+  fail "dependencies validator implementation exists"
+fi
 # ------------------------------------------------------------------------------
 # Built-in registration
 # ------------------------------------------------------------------------------
@@ -135,6 +150,10 @@ assert_success \
   "documentation validator is registered" \
   phoenix::validator_exists \
     "documentation"
+    assert_success \
+  "dependencies validator is registered" \
+  phoenix::validator_exists \
+    "dependencies"
 # ------------------------------------------------------------------------------
 # Definition contract
 # ------------------------------------------------------------------------------
@@ -184,6 +203,21 @@ assert_equals \
   "documentation resolves to canonical definition" \
   "$expected_documentation_definition" \
   "$resolved_documentation"
+  expected_dependencies_definition="$(cat <<'DEF'
+ID=dependencies
+PURPOSE=Validate Phoenix DevKit internal dependency integrity
+IMPLEMENTATION=phoenix::validator_dependencies
+DEF
+)"
+
+resolved_dependencies="$(
+  phoenix::validator_resolve "dependencies" 2>/dev/null || true
+)"
+
+assert_equals \
+  "dependencies resolves to canonical definition" \
+  "$expected_dependencies_definition" \
+  "$resolved_dependencies"
 # ------------------------------------------------------------------------------
 # Canonical built-in order
 # ------------------------------------------------------------------------------
@@ -196,11 +230,12 @@ expected_validator_list="$(cat <<'LIST'
 structure
 naming
 documentation
+dependencies
 LIST
 )"
 
 assert_equals \
-"built-in validator list preserves structure then naming then documentation order" \
+"built-in validator list preserves structure then naming then documentation then dependencies order" \
   "$expected_validator_list" \
   "$validator_list"
 
@@ -222,6 +257,11 @@ if declare -F phoenix::validator_documentation >/dev/null 2>&1; then
   pass "documentation validator implementation is available"
 else
   fail "documentation validator implementation is available"
+fi
+if declare -F phoenix::validator_dependencies >/dev/null 2>&1; then
+  pass "dependencies validator implementation is available"
+else
+  fail "dependencies validator implementation is available"
 fi
 # ------------------------------------------------------------------------------
 # Duplicate built-in registration

@@ -48,13 +48,18 @@ phoenix::validator_register_builtins() {
   local documentation_definition_path
   local documentation_definition
 
+  local dependencies_definition_path
+  local dependencies_definition
+
   structure_definition_path="${PHOENIX_VALIDATOR_BUILTINS_DIR}/definitions/structure.definition"
   naming_definition_path="${PHOENIX_VALIDATOR_BUILTINS_DIR}/definitions/naming.definition"
   documentation_definition_path="${PHOENIX_VALIDATOR_BUILTINS_DIR}/definitions/documentation.definition"
+  dependencies_definition_path="${PHOENIX_VALIDATOR_BUILTINS_DIR}/definitions/dependencies.definition"
 
   phoenix::is_file "$structure_definition_path" || return 1
   phoenix::is_file "$naming_definition_path" || return 1
   phoenix::is_file "$documentation_definition_path" || return 1
+  phoenix::is_file "$dependencies_definition_path" || return 1
 
   structure_definition="$(
     phoenix::read_file "$structure_definition_path"
@@ -68,6 +73,10 @@ phoenix::validator_register_builtins() {
     phoenix::read_file "$documentation_definition_path"
   )" || return 1
 
+  dependencies_definition="$(
+    phoenix::read_file "$dependencies_definition_path"
+  )" || return 1
+
   phoenix::validator_register \
     "structure" \
     "$structure_definition" || return 1
@@ -78,5 +87,9 @@ phoenix::validator_register_builtins() {
 
   phoenix::validator_register \
     "documentation" \
-    "$documentation_definition"
+    "$documentation_definition" || return 1
+
+  phoenix::validator_register \
+    "dependencies" \
+    "$dependencies_definition"
 }
