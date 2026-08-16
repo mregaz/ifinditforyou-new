@@ -4091,3 +4091,100 @@ V04 DEPENDENCIES VALIDATOR
 
 V03 DOCUMENTATION VALIDATOR
 ```
+# PHOENIX ATLAS — PASS 3A FINALIZATION
+
+## Stato
+
+**PHOENIX ATLAS PASS 3A:** ✅ CERTIFIED COMPLETE
+
+È stata completata e certificata la specifica architetturale del Provider Planner e del Search State.
+
+## Canonical Deliverable
+
+```text
+PHOENIX_PROVIDER_PLANNER_AND_SEARCH_STATE_SPECIFICATION_v1.0.md
+```
+
+Percorso:
+
+```text
+docs/PHOENIX_WORKSPACE/07_MARKET_INTELLIGENCE/PHOENIX_ATLAS/FINAL/
+```
+
+## Scope certificato
+
+* Provider Selection
+* Search Roles
+* Provider Families
+* Marketplace Surfaces
+* Availability Gate
+* Search Waves
+* Rare Query Behavior
+* Inventory Sufficiency
+* Search Saturation
+* Expansion Policy
+* Stop Decision
+* Adaptive Search Budget
+* Failure Isolation
+* Deterministic Planning
+* Access Governance
+
+## Architectural Boundary
+
+La separazione canonica è:
+
+```text
+REGISTRY
+   ↓
+PLANNER
+   ↓
+EXECUTION
+   ↓
+SEARCH STATE
+   ↓
+STOP / EXPAND
+```
+
+Il Planner non implementa:
+
+* Entity Resolution
+* Evidence Fusion
+* Ranking
+* Decision Intelligence
+
+Principio:
+
+> Search Sufficiency is not Evidence Truth.
+
+## Implementation Status
+
+```text
+Architecture      CERTIFIED
+Implementation    NOT STARTED
+```
+
+L'implementazione sarà una milestone separata.
+
+## Next Atlas Phase
+
+**PASS 3B — Evidence Model & Provenance**
+
+Deliverable previsto:
+
+```text
+PHOENIX_EVIDENCE_MODEL_AND_PROVENANCE_SPECIFICATION_v1.0.md
+```
+
+Scope iniziale:
+
+* Evidence
+* Source Provenance
+* Entity Evidence
+* Temporal Context
+* Evidence Independence
+* Confidence
+* Conflict Representation
+
+---
+
+**PHOENIX ATLAS PASS 3A:** ✅ CERTIFIED COMPLETE
