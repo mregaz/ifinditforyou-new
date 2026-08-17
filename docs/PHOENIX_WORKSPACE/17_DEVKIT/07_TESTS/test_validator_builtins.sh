@@ -65,6 +65,13 @@ DOCUMENTATION_DEFINITION="${DEVKIT_ROOT}/04_VALIDATORS/definitions/documentation
 DOCUMENTATION_IMPLEMENTATION="${DEVKIT_ROOT}/04_VALIDATORS/implementations/documentation.sh"
 DEPENDENCIES_DEFINITION="${DEVKIT_ROOT}/04_VALIDATORS/definitions/dependencies.definition"
 DEPENDENCIES_IMPLEMENTATION="${DEVKIT_ROOT}/04_VALIDATORS/implementations/dependencies.sh"
+STANDARDS_DEFINITION="${DEVKIT_ROOT}/04_VALIDATORS/definitions/standards.definition"
+STANDARDS_IMPLEMENTATION="${DEVKIT_ROOT}/04_VALIDATORS/implementations/standards.sh"
+
+if [[ -f "$STANDARDS_IMPLEMENTATION" ]]; then
+  source "$STANDARDS_IMPLEMENTATION"
+fi
+
 if [[ -f "$DOCUMENTATION_IMPLEMENTATION" ]]; then
   source "$DOCUMENTATION_IMPLEMENTATION"
 fi
@@ -130,6 +137,18 @@ if [[ -f "$DEPENDENCIES_IMPLEMENTATION" ]]; then
 else
   fail "dependencies validator implementation exists"
 fi
+
+if [[ -f "$STANDARDS_DEFINITION" ]]; then
+  pass "standards validator definition exists"
+else
+  fail "standards validator definition exists"
+fi
+
+if [[ -f "$STANDARDS_IMPLEMENTATION" ]]; then
+  pass "standards validator implementation exists"
+else
+  fail "standards validator implementation exists"
+fi
 # ------------------------------------------------------------------------------
 # Built-in registration
 # ------------------------------------------------------------------------------
@@ -154,6 +173,10 @@ assert_success \
   "dependencies validator is registered" \
   phoenix::validator_exists \
     "dependencies"
+    assert_success \
+  "standards validator is registered" \
+  phoenix::validator_exists \
+    "standards"
 # ------------------------------------------------------------------------------
 # Definition contract
 # ------------------------------------------------------------------------------
@@ -218,6 +241,22 @@ assert_equals \
   "dependencies resolves to canonical definition" \
   "$expected_dependencies_definition" \
   "$resolved_dependencies"
+
+  expected_standards_definition="$(cat <<'DEF'
+ID=standards
+PURPOSE=Validate Phoenix DevKit shell module standards
+IMPLEMENTATION=phoenix::validator_standards
+DEF
+)"
+
+resolved_standards="$(
+  phoenix::validator_resolve "standards" 2>/dev/null || true
+)"
+
+assert_equals \
+  "standards resolves to canonical definition" \
+  "$expected_standards_definition" \
+  "$resolved_standards"
 # ------------------------------------------------------------------------------
 # Canonical built-in order
 # ------------------------------------------------------------------------------
@@ -231,11 +270,12 @@ structure
 naming
 documentation
 dependencies
+standards
 LIST
 )"
 
 assert_equals \
-"built-in validator list preserves structure then naming then documentation then dependencies order" \
+"built-in validator list preserves structure then naming then documentation then dependencies then standards order"\
   "$expected_validator_list" \
   "$validator_list"
 
@@ -262,6 +302,11 @@ if declare -F phoenix::validator_dependencies >/dev/null 2>&1; then
   pass "dependencies validator implementation is available"
 else
   fail "dependencies validator implementation is available"
+fi
+if declare -F phoenix::validator_standards >/dev/null 2>&1; then
+  pass "standards validator implementation is available"
+else
+  fail "standards validator implementation is available"
 fi
 # ------------------------------------------------------------------------------
 # Duplicate built-in registration
