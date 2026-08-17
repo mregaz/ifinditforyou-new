@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 # ==============================================================================
 # PHOENIX DEVKIT — GENERATOR PLANNING ENGINE

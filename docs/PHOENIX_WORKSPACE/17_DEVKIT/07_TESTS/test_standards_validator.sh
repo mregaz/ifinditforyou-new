@@ -435,6 +435,52 @@ assert_equals \
   "$actual"
 
 # ------------------------------------------------------------------------------
+# Test harness exclusion
+# ------------------------------------------------------------------------------
+
+test_harness_target="${TEST_ROOT}/test-harness-exclusion"
+
+mkdir -p \
+  "${test_harness_target}/core" \
+  "${test_harness_target}/07_TESTS"
+
+cat > "${test_harness_target}/core/runtime.sh" <<'MODULE'
+#!/usr/bin/env bash
+
+phoenix::runtime_info() {
+  return 0
+}
+MODULE
+
+cat > "${test_harness_target}/07_TESTS/test_example.sh" <<'MODULE'
+#!/usr/bin/env bash
+
+pass() {
+  return 0
+}
+
+source ./helper.sh
+MODULE
+
+actual="$(
+  phoenix::validator_run \
+    "standards" \
+    "$test_harness_target" 2>/dev/null || true
+)"
+
+expected="$(cat <<EOF_EXPECTED
+STATUS=VALID
+VALIDATOR=standards
+TARGET=${test_harness_target}
+EOF_EXPECTED
+)"
+
+assert_equals \
+  "standards validator excludes test harness domain" \
+  "$expected" \
+  "$actual"
+
+# ------------------------------------------------------------------------------
 # Read-only guarantee
 # ------------------------------------------------------------------------------
 

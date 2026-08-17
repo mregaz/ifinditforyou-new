@@ -177,12 +177,13 @@ ${source_lines}
 EOF_SOURCE_LINES
 
   done < <(
-    find "$target" \
-      -type f \
-      -name '*.sh' \
-      ! -path '*/.git/*' \
-      -print |
-      sort
+ find "$target" \
+  -type f \
+  -name '*.sh' \
+  ! -path '*/.git/*' \
+  ! -path '*/07_TESTS/*' \
+  -print |
+  sort
   )
 
   printf 'RESULT=VALID\n'

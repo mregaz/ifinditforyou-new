@@ -355,6 +355,47 @@ else
 fi
 
 # ------------------------------------------------------------------------------
+# Test harness exclusion
+# ------------------------------------------------------------------------------
+
+test_harness_target="${TEST_ROOT}/test-harness-exclusion"
+
+mkdir -p \
+  "${test_harness_target}/core" \
+  "${test_harness_target}/07_TESTS"
+
+cat > "${test_harness_target}/core/runtime.sh" <<'MODULE'
+#!/usr/bin/env bash
+MODULE
+
+cat > "${test_harness_target}/07_TESTS/test_example.sh" <<'MODULE'
+#!/usr/bin/env bash
+
+source ./test-helper.sh
+
+pass() {
+  return 0
+}
+MODULE
+
+actual="$(
+  phoenix::validator_run \
+    "dependencies" \
+    "$test_harness_target" 2>/dev/null || true
+)"
+
+expected="$(cat <<EOF_EXPECTED
+STATUS=VALID
+VALIDATOR=dependencies
+TARGET=${test_harness_target}
+EOF_EXPECTED
+)"
+
+assert_equals \
+  "dependencies validator excludes test harness domain" \
+  "$expected" \
+  "$actual"
+# ------------------------------------------------------------------------------
 # Read-only guarantee
 # ------------------------------------------------------------------------------
 

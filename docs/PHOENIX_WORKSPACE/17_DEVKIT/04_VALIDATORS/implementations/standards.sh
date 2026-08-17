@@ -143,11 +143,12 @@ EOF_FUNCTION_NAMES
 
   done < <(
     find "$target" \
-      -type f \
-      -name '*.sh' \
-      ! -path '*/.git/*' \
-      -print |
-      sort
+  -type f \
+  -name '*.sh' \
+  ! -path '*/.git/*' \
+  ! -path '*/07_TESTS/*' \
+  -print |
+  sort
   )
 
   printf 'RESULT=VALID\n'

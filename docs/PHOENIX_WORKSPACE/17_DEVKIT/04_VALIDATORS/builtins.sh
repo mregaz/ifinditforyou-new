@@ -35,6 +35,9 @@ PHOENIX_VALIDATOR_BUILTINS_DEVKIT_ROOT="$(
   cd "${PHOENIX_VALIDATOR_BUILTINS_DIR}/.." && pwd
 )"
 
+# ------------------------------------------------------------------------------
+# Dependencies
+# ------------------------------------------------------------------------------
 source "${PHOENIX_VALIDATOR_BUILTINS_DIR}/registry.sh"
 source "${PHOENIX_VALIDATOR_BUILTINS_DEVKIT_ROOT}/core/filesystem.sh"
 
