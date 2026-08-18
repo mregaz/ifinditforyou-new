@@ -4,7 +4,7 @@ This directory is reserved for the Phoenix DevKit Command-Line Interface.
 
 ## Status
 
-PLANNED — NOT YET IMPLEMENTED
+ARCHITECTURE AND FUNCTION SPECIFICATION FROZEN — IMPLEMENTATION NOT YET STARTED
 
 CLI development begins after final certification of the Validation Framework.
 
@@ -55,10 +55,22 @@ Command parsing and dispatch must not introduce uncontrolled command execution, 
 
 No production CLI implementation is certified at this checkpoint.
 
-The canonical CLI architecture, command model, and implementation contracts will be established during Phase 7.
+The canonical CLI architecture, command model, and function contracts are frozen.
+
+Production CLI implementation has not yet started.
 
 ## Next Phase
 
 PHASE 7 — CLI
 
 Implementation must not begin until the preceding Validation Framework final certification has been completed.
+## Frozen Contracts
+
+The canonical Phase 7 CLI contracts are:
+
+- `01_ARCHITECTURE/PHOENIX_CLI_ARCHITECTURE_v1.0.md`
+- `01_ARCHITECTURE/PHOENIX_CLI_FUNCTION_SPECIFICATION_v1.0.md`
+
+Implementation must conform to these frozen contracts.
+
+Any incompatible change requires an explicit architecture/specification revision.
