@@ -2,7 +2,7 @@ Phoenix DevKit — CLI
 
 Status
 
-IMPLEMENTED — VALIDATION IN PROGRESS
+CERTIFIED COMPLETE
 
 The Phoenix DevKit CLI implementation is operational.
 
@@ -387,26 +387,16 @@ dedicated CLI regression
 full DevKit regression
 implementation audit
 
-Still required before final Phase 7 certification:
+## Certification State
 
-final documentation consistency review
-final regression evidence recording
-Master Record update
-Git checkpoint
-final technical certification
+PHASE 7 — CLI
 
-Certification State
+**PHOENIX CLI — CERTIFIED COMPLETE**
 
-The CLI implementation is operational and its dedicated automated verification currently reports:
+Final evidence:
 
-74 / 74 PASS
-
-The complete DevKit regression currently reports:
-
-27 test scripts
-0 failed scripts
-FULL DEVKIT REGRESSION: PASS
-
-Phase 7 must not be declared CERTIFIED COMPLETE until the remaining documentation, repository, and final certification gates have been completed.
-
-PHOENIX CLI — IMPLEMENTED / VALIDATION IN PROGRESS
+- CLI dedicated regression: 74 / 74 PASS
+- Full DevKit regression: 27 test scripts / 0 failures
+- Final Technical Audit: PASS
+- Repository synchronization: PASS
+- Working tree at certification checkpoint: CLEAN
