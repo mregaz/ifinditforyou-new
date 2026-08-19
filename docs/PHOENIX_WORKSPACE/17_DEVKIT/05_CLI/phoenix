@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# ==============================================================================
+# PHOENIX DEVKIT — CLI ENTRY POINT
+# ==============================================================================
+#
+# Version: 1.0
+#
+# Purpose:
+#   Process entry point for the Phoenix DevKit CLI.
+#
+# ==============================================================================
+
+PHOENIX_CLI_ENTRY_DIR="$(
+  cd "$(dirname "${BASH_SOURCE[0]}")" && pwd
+)"
+
+source "${PHOENIX_CLI_ENTRY_DIR}/cli.sh"
+
+phoenix::cli_run "$@"
+status=$?
+
+exit "$status"

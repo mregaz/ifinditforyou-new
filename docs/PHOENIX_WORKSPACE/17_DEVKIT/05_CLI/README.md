@@ -1,76 +1,412 @@
-# Phoenix DevKit — CLI
+Phoenix DevKit — CLI
 
-This directory is reserved for the Phoenix DevKit Command-Line Interface.
+Status
 
-## Status
+IMPLEMENTED — VALIDATION IN PROGRESS
 
-ARCHITECTURE AND FUNCTION SPECIFICATION FROZEN — IMPLEMENTATION NOT YET STARTED
+The Phoenix DevKit CLI implementation is operational.
 
-CLI development begins after final certification of the Validation Framework.
+The canonical CLI Architecture and Function Specification are frozen and the current implementation is being validated against those contracts.
 
-## Purpose
+Final Phase 7 certification still requires:
 
-The CLI will provide the user-facing command interface to certified Phoenix DevKit capabilities.
+final documentation consistency;
 
-It will expose controlled access to lower-level services without duplicating their business logic.
+final regression evidence;
 
-## Planned Responsibilities
+Master Record update;
 
-The CLI domain is expected to define:
+Git checkpoint;
 
-- command contracts;
-- argument parsing;
-- command dispatch;
-- exit-code behavior;
-- error presentation;
-- user-facing help;
-- integration with certified DevKit subsystems.
+final technical certification.
 
-## Architectural Boundary
+Purpose
+
+The CLI provides the user-facing command interface to certified Phoenix DevKit capabilities.
+
+It exposes controlled access to lower-level services without duplicating their domain semantics.
 
 The CLI is an orchestration and presentation layer.
 
-It must not reimplement logic belonging to:
+Implemented Commands
 
-- Core;
-- Template Engine;
-- Generator Framework;
-- Validation Framework.
+Root
 
-CLI commands must delegate operations to the appropriate public Phoenix APIs.
+phoenix
+phoenix help
+phoenix --help
+phoenix --version
 
-## Dependencies
+Generate
 
-Dependencies will be defined and frozen during the CLI architecture phase.
+phoenix generate --help
+phoenix generate --list
+phoenix generate <generator-id> <destination> [KEY=VALUE ...] [--dry-run] [--overwrite]
 
-The CLI must depend downward on certified DevKit capabilities and must not introduce reverse dependencies into lower-level layers.
+Validate
 
-## Safety
+phoenix validate --help
+phoenix validate --list
+phoenix validate <validator-id> <target>
 
-CLI input must be treated as untrusted input.
+Physical Architecture
 
-Command parsing and dispatch must not introduce uncontrolled command execution, path traversal, unsafe filesystem mutation, or dynamic evaluation.
+05_CLI/
+├── phoenix
+├── cli.sh
+├── parsing.sh
+├── commands.sh
+└── README.md
 
-## Implementation
+phoenix
 
-No production CLI implementation is certified at this checkpoint.
+Executable process entry point.
 
-The canonical CLI architecture, command model, and function contracts are frozen.
+Responsibilities:
 
-Production CLI implementation has not yet started.
+resolve the CLI module location;
 
-## Next Phase
+load cli.sh;
 
-PHASE 7 — CLI
+forward the original arguments;
 
-Implementation must not begin until the preceding Validation Framework final certification has been completed.
-## Frozen Contracts
+propagate the canonical return status;
+
+own process termination.
+
+cli.sh
+
+Reusable CLI lifecycle module.
+
+Responsibilities:
+
+CLI metadata;
+
+subsystem bootstrap;
+
+dispatch coordination;
+
+canonical lifecycle;
+
+result and status propagation.
+
+parsing.sh
+
+Reusable parser module.
+
+Responsibilities:
+
+root grammar;
+
+Generate grammar;
+
+Validate grammar;
+
+normalized inert request construction;
+
+duplicate CLI flag rejection;
+
+CLI syntax validation.
+
+commands.sh
+
+Reusable command-handler module.
+
+Responsibilities:
+
+help presentation;
+
+version presentation;
+
+Generator listing;
+
+Generator execution delegation;
+
+Validator listing;
+
+Validator execution delegation;
+
+result classification and presentation.
+
+Generator Integration
+
+The CLI delegates generation to certified Generator public APIs.
+
+The integration path is:
+
+CLI
+ ↓
+phoenix::generator_register_builtins
+ ↓
+phoenix::generator_list
+phoenix::generator_run
+
+Implemented behavior includes:
+
+Generator capability listing;
+
+dry-run;
+
+real artifact generation;
+
+collision protection;
+
+explicit overwrite request translation;
+
+preservation of Generator overwrite policy;
+
+unknown Generator failure handling.
+
+CLI execution-control translation:
+
+--dry-run   → PHOENIX_DRY_RUN=1
+--overwrite → PHOENIX_OVERWRITE=1
+
+The CLI does not implement Generator planning, rendering, destination policy, or overwrite semantics.
+
+Those responsibilities remain owned by the Generator Layer.
+
+Validator Integration
+
+The CLI delegates validation to certified Validator public APIs.
+
+The integration path is:
+
+CLI
+ ↓
+phoenix::validator_register_builtins
+ ↓
+Validator implementations
+ ↓
+phoenix::validator_list
+phoenix::validator_run
+
+Built-in Validator capabilities exposed through the CLI are:
+
+structure
+naming
+documentation
+dependencies
+standards
+
+The canonical Validator result mapping is:
+
+VALID    → exit 0
+INVALID  → exit 6
+ERROR    → exit 1
+
+Unexpected or unclassified technical failures map to:
+
+exit 1
+
+The CLI does not determine whether a target is valid.
+
+Validation semantics remain owned by the Validation Framework.
+
+Security Boundary
+
+CLI input is treated as untrusted data.
+
+The implementation enforces:
+
+no eval;
+
+no dynamic shell command construction from user input;
+
+no filesystem command discovery;
+
+no lower-layer internal _phoenix::* API consumption;
+
+explicit command dispatch;
+
+preserved argument boundaries;
+
+inert KEY=VALUE handling;
+
+no process termination from reusable CLI modules.
+
+Only 05_CLI/phoenix owns process exit.
+
+Source Safety
+
+The reusable CLI modules are:
+
+cli.sh
+parsing.sh
+commands.sh
+
+They are safe to source.
+
+Repeated sourcing is supported through load guards.
+
+Sourcing the reusable modules does not automatically execute CLI operations.
+
+Bootstrap Model
+
+Bootstrap is capability-specific.
+
+Generator operations initialize the Generator Framework only when required.
+
+Validator operations initialize the Validation Framework only when required.
+
+Bootstrap operations are idempotent within the same sourced shell.
+
+A subsystem is marked bootstrapped only after successful initialization.
+
+Working Directory
+
+CLI module resolution is independent of the caller working directory.
+
+The CLI preserves the caller working directory.
+
+User-supplied relative paths remain governed by caller-directory and lower-layer semantics.
+
+Testing
+
+Dedicated CLI test suites are:
+
+07_TESTS/test_cli_parsing.sh
+07_TESTS/test_cli_lifecycle.sh
+07_TESTS/test_cli_generator.sh
+07_TESTS/test_cli_validator.sh
+
+Current dedicated CLI evidence:
+
+CLI Parsing Tests      26 / 26 PASS
+CLI Lifecycle Tests    14 / 14 PASS
+CLI Generator Tests    20 / 20 PASS
+CLI Validator Tests    14 / 14 PASS
+-----------------------------------
+CLI Dedicated Total    74 / 74 PASS
+
+The dedicated suites cover:
+
+command parsing;
+
+canonical request construction;
+
+invalid syntax rejection;
+
+duplicate execution-control rejection;
+
+literal user-input preservation;
+
+command-substitution safety;
+
+source safety;
+
+double-source safety;
+
+working-directory preservation;
+
+bootstrap idempotency;
+
+Generator listing;
+
+Generator dry-run;
+
+real Generator execution;
+
+collision protection;
+
+overwrite-policy preservation;
+
+Validator listing;
+
+VALID result mapping;
+
+INVALID result mapping;
+
+ERROR result mapping;
+
+technical failure handling;
+
+entry-point status propagation.
+
+Full DevKit Regression
+
+The complete DevKit regression was executed after CLI integration.
+
+Current evidence:
+
+Test scripts run: 27
+Failed scripts:   0
+FULL DEVKIT REGRESSION: PASS
+
+This confirms that the current CLI implementation introduces no detected regression into previously certified DevKit behavior.
+
+Implementation Audit
+
+The current CLI implementation has passed the implementation audit.
+
+Verified properties include:
+
+CLI entry point executable                  PASS
+Reusable CLI modules non-executable         PASS
+Canonical Bash shebangs                     PASS
+Bash syntax                                 PASS
+git diff --check                            PASS
+No operational eval                         PASS
+No process exit in reusable CLI modules     PASS
+No lower-layer internal API consumption     PASS
+Working-directory preservation              PASS
+
+Frozen Contracts
 
 The canonical Phase 7 CLI contracts are:
 
-- `01_ARCHITECTURE/PHOENIX_CLI_ARCHITECTURE_v1.0.md`
-- `01_ARCHITECTURE/PHOENIX_CLI_FUNCTION_SPECIFICATION_v1.0.md`
+01_ARCHITECTURE/PHOENIX_CLI_ARCHITECTURE_v1.0.md
 
-Implementation must conform to these frozen contracts.
+01_ARCHITECTURE/PHOENIX_CLI_FUNCTION_SPECIFICATION_v1.0.md
 
-Any incompatible change requires an explicit architecture/specification revision.
+The implementation must conform to these frozen contracts.
+
+Any incompatible behavioral change requires an explicit architecture or function-specification revision.
+
+Current Phase Boundary
+
+Implemented and validated:
+
+root help and version
+Generate help
+Generate list
+Generate execution
+Validate help
+Validate list
+Validate execution
+Generator dry-run
+Generator real artifact generation
+Generator collision protection
+Generator overwrite-policy preservation
+Validator VALID / INVALID / ERROR mapping
+source safety
+bootstrap idempotency
+working-directory preservation
+security invariants
+dedicated CLI regression
+full DevKit regression
+implementation audit
+
+Still required before final Phase 7 certification:
+
+final documentation consistency review
+final regression evidence recording
+Master Record update
+Git checkpoint
+final technical certification
+
+Certification State
+
+The CLI implementation is operational and its dedicated automated verification currently reports:
+
+74 / 74 PASS
+
+The complete DevKit regression currently reports:
+
+27 test scripts
+0 failed scripts
+FULL DEVKIT REGRESSION: PASS
+
+Phase 7 must not be declared CERTIFIED COMPLETE until the remaining documentation, repository, and final certification gates have been completed.
+
+PHOENIX CLI — IMPLEMENTED / VALIDATION IN PROGRESS
