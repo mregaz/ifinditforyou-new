@@ -2,7 +2,7 @@
 
 ## Version 1.0
 
-**Status:** FINAL CANDIDATE
+**Status:** CERTIFIED
 **Program:** Phoenix Atlas — Pass 3A
 **Scope:** Provider Planning, Search Waves, Search Sufficiency, Adaptive Expansion
 **Upstream:** `PHOENIX_ADAPTIVE_SEARCH_AND_EVIDENCE_ARCHITECTURE_v1.0.md`
@@ -980,11 +980,11 @@ Expansion Policy                 DEFINED
 Stop Policy                      DEFINED
 Access Governance                DEFINED
 Implementation                   NOT STARTED
-Final Certification              PENDING
+Final Certification              PASS
 ```
 
-**Document Status:** FINAL CANDIDATE
-**Next Action:** Final Architecture Certification
+**Document Status:** CERTIFIED
+**Next Action:** PASS 3B — Evidence Model & Provenance
 
 ---
 
