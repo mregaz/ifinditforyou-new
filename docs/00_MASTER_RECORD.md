@@ -4393,6 +4393,9 @@ PHASE 8
 
 **PHOENIX ATLAS PASS 3A:** ✅ CERTIFIED COMPLETE
 
+
+
+
 È stata completata e certificata la specifica architetturale del Provider Planner e del Search State.
 
 ## Canonical Deliverable
@@ -4484,3 +4487,97 @@ Scope iniziale:
 ---
 
 **PHOENIX ATLAS PASS 3A:** ✅ CERTIFIED COMPLETE
+
+
+
+
+# PHOENIX ATLAS — PASS 3B FINALIZATION
+
+## Stato
+
+**PHOENIX ATLAS PASS 3B — CONTROLLED RE-MATERIALIZATION:** ✅ CERTIFIED COMPLETE
+
+È stata completata e certificata la Controlled Re-materialization di PASS 3B — Evidence Model & Provenance.
+
+La certificazione si applica esclusivamente all'artefatto e al digest indicati sotto. Non costituisce recupero o certificazione per inferenza dell'artefatto storico Revision 2 / R2.1 non disponibile.
+
+## Canonical Deliverable
+
+```text
+PHOENIX_EVIDENCE_MODEL_AND_PROVENANCE_SPECIFICATION_v1.0.md
+```
+
+Percorso:
+
+```text
+docs/PHOENIX_WORKSPACE/07_MARKET_INTELLIGENCE/PHOENIX_ATLAS/FINAL/
+```
+
+SHA-256:
+
+```text
+f8ec79d1b74d6715ed6100c46a9266418d429c2a75f41fcc8659da3e4956d7ff
+```
+
+## Certification Evidence
+
+Final Boundary Review:
+
+```text
+PHOENIX_PASS_3B_CONTROLLED_REMATERIALIZATION_FINAL_BOUNDARY_REVIEW_REPORT.md
+SHA-256: 84f60dddca439e5b529368bfc41d58edc17476806096cf8c1e2554977b00fd0f
+```
+
+Final Certification:
+
+```text
+PHOENIX_PASS_3B_CONTROLLED_REMATERIALIZATION_FINAL_CERTIFICATION_REPORT.md
+SHA-256: 5483d8473da16f89bd7d27d8bd9c3db9460868f3ed1f42d2c4f78312448ff439
+```
+
+Exact verdict:
+
+```text
+PASS — PHOENIX ATLAS PASS 3B CONTROLLED RE-MATERIALIZATION CERTIFIED COMPLETE
+```
+
+## Certification Result
+
+```text
+Required review gates       COMPLETE / ALL PASS
+Recovered invariants        18 / 18 PASS
+Candidate success criteria  34 / 34 PASS
+Historical findings         7 / 7 CLOSED
+R2/R2.1 integrity           PASS
+Section 31 preserved        YES
+Cross-pass integrity        PASS
+```
+
+## Historical Recovery Boundary
+
+```text
+Historical Revision 2 / R2.1 artifact certified by inference  NO
+Unavailable historical wording reconstructed                  NO
+Exact R2.1 Section 31 preserved                                YES
+```
+
+## Implementation Status
+
+```text
+Architecture controlled re-materialization  CERTIFIED
+Repository implementation                   NOT STARTED
+Deferred capabilities                       NOT IMPLEMENTED
+```
+
+## Next Atlas Phase
+
+```text
+PASS 3C  NOT STARTED
+```
+
+PASS 3C requires separate explicit authorization and must preserve all PASS 3B cross-pass boundaries.
+
+---
+
+**PHOENIX ATLAS PASS 3B — CONTROLLED RE-MATERIALIZATION:** ✅ CERTIFIED COMPLETE
+**PASS 3C:** NOT STARTED
