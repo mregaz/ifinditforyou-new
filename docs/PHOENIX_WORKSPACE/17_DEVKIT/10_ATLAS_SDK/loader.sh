@@ -113,3 +113,87 @@ _phoenix::atlas_source_resolve() {
 
   printf '%s\n' "$source_path"
 }
+
+# ------------------------------------------------------------------------------
+# IP-03 — Safe Source Loading
+# ------------------------------------------------------------------------------
+
+_phoenix::atlas_source_is_readable() {
+  local source_id="${1-}"
+  local source_path
+
+  source_path="$(_phoenix::atlas_source_resolve "$source_id")" || return $?
+
+  if [[ ! -r "$source_path" ]]; then
+    return 5
+  fi
+
+  return 0
+}
+
+_phoenix::atlas_source_load() {
+  local source_id="${1-}"
+  local source_path
+
+  source_path="$(_phoenix::atlas_source_resolve "$source_id")" || return $?
+
+  if [[ ! -r "$source_path" ]]; then
+    return 5
+  fi
+
+  phoenix::read_file "$source_path" || return 8
+}
+
+_phoenix::atlas_source_requirement_for_initialize() {
+  local source_id="${1-}"
+
+  case "$source_id" in
+    TRACKER)
+      printf '%s\n' "REQUIRED"
+      ;;
+    FINAL_MASTER|FINAL_RECONCILIATION|STRATEGIC_SYNTHESIS)
+      printf '%s\n' "OPTIONAL"
+      ;;
+    PASS_2_ARCHITECTURE|PASS_3A_SPECIFICATION)
+      printf '%s\n' "CONTEXT_ONLY"
+      ;;
+    *)
+      return 2
+      ;;
+  esac
+}
+
+_phoenix::atlas_source_prepare_for_initialize() {
+  local source_id="${1-}"
+  local requirement
+  local source_path
+  local status
+
+  requirement="$(
+    _phoenix::atlas_source_requirement_for_initialize "$source_id"
+  )" || return $?
+
+  if [[ "$requirement" == "CONTEXT_ONLY" ]]; then
+    return 0
+  fi
+
+  source_path="$(_phoenix::atlas_source_resolve "$source_id")" || {
+    status=$?
+
+    if [[ "$requirement" == "OPTIONAL" ]] && [[ "$status" -eq 4 ]]; then
+      return 0
+    fi
+
+    return "$status"
+  }
+
+  if [[ ! -r "$source_path" ]]; then
+    if [[ "$requirement" == "OPTIONAL" ]]; then
+      return 0
+    fi
+
+    return 5
+  fi
+
+  return 0
+}
