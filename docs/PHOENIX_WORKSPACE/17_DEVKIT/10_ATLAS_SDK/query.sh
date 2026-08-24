@@ -661,3 +661,118 @@ phoenix::atlas_access_get() {
     printf "%s\n" "$serialized"
   fi
 }
+
+# ------------------------------------------------------------------------------
+# IP-10 — Provider Card Composition Layer
+# ------------------------------------------------------------------------------
+
+_phoenix::atlas_provider_card_field() {
+  local record="${1-}"
+  local key="${2-}"
+
+  if [[ "$#" -ne 2 || -z "$key" ]]; then
+    return 2
+  fi
+
+  printf '%s\n' "$record" |
+    awk -F= -v wanted="$key" '
+      $1 == wanted {
+        sub(/^[^=]*=/, "")
+        print
+        exit
+      }
+    '
+}
+
+phoenix::atlas_provider_card() {
+  local provider_id="${1-}"
+  local provider_record
+  local lifecycle_record
+  local access_record
+  local normalized
+  local serialized
+
+  local marketplace
+  local country
+  local category
+  local atlas_status
+  local evidence_note
+  local lifecycle
+  local access_state
+
+  if [[ "$#" -ne 1 ]]; then
+    return 2
+  fi
+
+  if [[ -z "$provider_id" ]]; then
+    return 2
+  fi
+
+  _phoenix::atlas_source_resolve TRACKER >/dev/null || return $?
+  _phoenix::atlas_source_resolve FINAL_MASTER >/dev/null || return $?
+
+  provider_record="$(
+    phoenix::atlas_provider_get "$provider_id"
+  )" || return $?
+
+  lifecycle_record="$(
+    phoenix::atlas_lifecycle_get "$provider_id"
+  )" || return $?
+
+  access_record="$(
+    phoenix::atlas_access_get "$provider_id"
+  )" || return $?
+
+  marketplace="$(
+    _phoenix::atlas_provider_card_field "$provider_record" "MARKETPLACE"
+  )" || return $?
+
+  country="$(
+    _phoenix::atlas_provider_card_field "$provider_record" "COUNTRY"
+  )" || return $?
+
+  category="$(
+    _phoenix::atlas_provider_card_field "$provider_record" "CATEGORY"
+  )" || return $?
+
+  atlas_status="$(
+    _phoenix::atlas_provider_card_field "$provider_record" "ATLAS_STATUS"
+  )" || return $?
+
+  evidence_note="$(
+    _phoenix::atlas_provider_card_field "$provider_record" "EVIDENCE_NOTE"
+  )" || return $?
+
+  lifecycle="$(
+    _phoenix::atlas_provider_card_field "$lifecycle_record" "LIFECYCLE"
+  )" || return $?
+
+  access_state="$(
+    _phoenix::atlas_provider_card_field "$access_record" "ACCESS_STATE"
+  )" || return $?
+
+  normalized="$(
+    _phoenix::atlas_normalized_field "PROVIDER_ID" "$provider_id" || exit $?
+    _phoenix::atlas_normalized_field "MARKETPLACE" "$marketplace" || exit $?
+    _phoenix::atlas_normalized_field "COUNTRY" "$country" || exit $?
+    _phoenix::atlas_normalized_field "CATEGORY" "$category" || exit $?
+    _phoenix::atlas_normalized_field "PROVIDER_FAMILY" "UNKNOWN" || exit $?
+    _phoenix::atlas_normalized_field "MARKETPLACE_SURFACE" "UNKNOWN" || exit $?
+    _phoenix::atlas_normalized_field "LIFECYCLE" "$lifecycle" || exit $?
+    _phoenix::atlas_normalized_field "ACCESS_STATE" "$access_state" || exit $?
+    _phoenix::atlas_normalized_field "ATLAS_STATUS" "$atlas_status" || exit $?
+    _phoenix::atlas_normalized_field "EVIDENCE_NOTE" "$evidence_note" || exit $?
+    _phoenix::atlas_normalized_field "SOURCE_REFERENCE" \
+      "PHOENIX_ATLAS_GLOBAL_TRACKER_001_061.csv" || exit $?
+    _phoenix::atlas_normalized_field "SOURCE_REFERENCE_2" \
+      "PHOENIX_ATLAS_FINAL_MASTER_v1.0.md" || exit $?
+  )" || return $?
+
+  serialized="$(
+    _phoenix::atlas_serialize_normalized_record "$normalized"
+  )" || return $?
+
+  if [[ -n "$serialized" ]]; then
+    printf '%s\n' "$serialized"
+  fi
+}
