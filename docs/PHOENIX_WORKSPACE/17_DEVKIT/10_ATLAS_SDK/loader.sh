@@ -432,11 +432,50 @@ _phoenix::atlas_validate_source() {
       source_path="$(_phoenix::atlas_source_resolve TRACKER)" || return $?
       _phoenix::atlas_validate_tracker_file "$source_path"
       ;;
+    FINAL_MASTER)
+      source_path="$(_phoenix::atlas_source_resolve FINAL_MASTER)" || return $?
+      _phoenix::atlas_validate_final_master_file "$source_path"
+      ;;
     "")
       return 2
       ;;
     *)
       return 2
+      ;;
+  esac
+}
+
+# ------------------------------------------------------------------------------
+# IP-11 — FINAL_MASTER minimum canonical validation support
+# ------------------------------------------------------------------------------
+
+_phoenix::atlas_validate_final_master_file() {
+  local source_path="${1-}"
+  local first_line
+
+  if [[ -z "$source_path" ]]; then
+    return 2
+  fi
+
+  if [[ ! -f "$source_path" ]]; then
+    return 4
+  fi
+
+  if [[ ! -r "$source_path" ]]; then
+    return 5
+  fi
+
+  IFS= read -r first_line < "$source_path" || return 6
+
+  case "$first_line" in
+    "# PHOENIX ATLAS — FINAL MASTER v1.0")
+      return 0
+      ;;
+    "# PHOENIX ATLAS — FINAL MASTER v"*)
+      return 7
+      ;;
+    *)
+      return 6
       ;;
   esac
 }

@@ -220,9 +220,14 @@ assert_status \
   _phoenix::atlas_validate_source
 
 assert_status \
+  "canonical FINAL_MASTER validates successfully" \
+  0 \
+  _phoenix::atlas_validate_source FINAL_MASTER
+
+assert_status \
   "unsupported source validation request returns INVALID_ARGUMENT" \
   2 \
-  _phoenix::atlas_validate_source FINAL_MASTER
+  _phoenix::atlas_validate_source UNKNOWN_SOURCE
 
 printf '\nTests passed: %s\n' "$TESTS_PASSED"
 printf 'Tests failed: %s\n' "$TESTS_FAILED"
