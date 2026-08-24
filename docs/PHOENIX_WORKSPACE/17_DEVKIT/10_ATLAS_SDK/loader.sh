@@ -65,6 +65,10 @@ _phoenix::atlas_source_filename() {
       printf '%s\n' \
         "PHOENIX_ATLAS_FINAL_MASTER_v1.0.md"
       ;;
+    SURFACE_REGISTRY)
+      printf '%s\n' \
+        "PHOENIX_ATLAS_MARKETPLACE_SURFACE_REGISTRY_v1.0.csv"
+      ;;
     FINAL_RECONCILIATION)
       printf '%s\n' \
         "PHOENIX_ATLAS_FINAL_RECONCILIATION_v1.0.md"
@@ -151,7 +155,7 @@ _phoenix::atlas_source_requirement_for_initialize() {
     TRACKER)
       printf '%s\n' "REQUIRED"
       ;;
-    FINAL_MASTER|FINAL_RECONCILIATION|STRATEGIC_SYNTHESIS)
+    FINAL_MASTER|SURFACE_REGISTRY|FINAL_RECONCILIATION|STRATEGIC_SYNTHESIS)
       printf '%s\n' "OPTIONAL"
       ;;
     PASS_2_ARCHITECTURE|PASS_3A_SPECIFICATION)

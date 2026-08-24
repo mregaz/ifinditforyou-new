@@ -334,3 +334,231 @@ phoenix::atlas_provider_list() {
     printf '%s\n' "$serialized"
   fi
 }
+
+# ------------------------------------------------------------------------------
+# IP-08 — Marketplace Surface Query Layer
+# ------------------------------------------------------------------------------
+
+_phoenix::atlas_surface_id_is_valid() {
+  local surface_id="${1-}"
+
+  if [[ -z "$surface_id" ]]; then
+    return 2
+  fi
+
+  case "$surface_id" in
+    ATLAS-SURFACE-[0-9][0-9][0-9])
+      ;;
+    *)
+      return 2
+      ;;
+  esac
+
+  return 0
+}
+
+_phoenix::atlas_surface_require_sources() {
+  _phoenix::atlas_source_resolve TRACKER >/dev/null || return $?
+  _phoenix::atlas_source_resolve FINAL_MASTER >/dev/null || return $?
+  _phoenix::atlas_source_resolve SURFACE_REGISTRY >/dev/null || return $?
+
+  return 0
+}
+
+_phoenix::atlas_surface_normalized_record() {
+  local surface_id="${1-}"
+  local marketplace="${2-}"
+  local country="${3-}"
+  local provider_family="${4-}"
+  local access_state="${5-}"
+  local lifecycle="${6-}"
+  local source_reference="${7-}"
+
+  _phoenix::atlas_normalized_field "SURFACE_ID" "$surface_id" || return $?
+  _phoenix::atlas_normalized_field "MARKETPLACE" "$marketplace" || return $?
+  _phoenix::atlas_normalized_field "COUNTRY" "$country" || return $?
+  _phoenix::atlas_normalized_field "PROVIDER_FAMILY" "$provider_family" || return $?
+  _phoenix::atlas_normalized_field "ACCESS_STATE" "$access_state" || return $?
+  _phoenix::atlas_normalized_field "LIFECYCLE" "$lifecycle" || return $?
+  _phoenix::atlas_normalized_field "SOURCE_REFERENCE" "$source_reference" || return $?
+}
+
+_phoenix::atlas_surface_normalized_records() {
+  local registry_path
+  local surface_id
+  local tracker_id
+  local marketplace
+  local country
+  local provider_family
+  local access_state
+  local lifecycle
+  local source_reference
+  local extra
+  local record_count=0
+
+  _phoenix::atlas_surface_require_sources || return $?
+
+  registry_path="$(
+    _phoenix::atlas_source_resolve SURFACE_REGISTRY
+  )" || return $?
+
+  while IFS=',' read -r \
+    surface_id \
+    tracker_id \
+    marketplace \
+    country \
+    provider_family \
+    access_state \
+    lifecycle \
+    source_reference \
+    extra
+  do
+    if [[ "$surface_id" == "surface_id" ]]; then
+      continue
+    fi
+
+    if [[ -z "$surface_id" ]]; then
+      continue
+    fi
+
+    if [[ -n "${extra-}" ]]; then
+      return 6
+    fi
+
+    _phoenix::atlas_surface_id_is_valid "$surface_id" || return 6
+
+    if [[ "$record_count" -gt 0 ]]; then
+      printf '%s\n' "--"
+    fi
+
+    _phoenix::atlas_surface_normalized_record \
+      "$surface_id" \
+      "$marketplace" \
+      "$country" \
+      "$provider_family" \
+      "$access_state" \
+      "$lifecycle" \
+      "$source_reference" || return $?
+
+    record_count=$((record_count + 1))
+  done < "$registry_path"
+
+  return 0
+}
+
+_phoenix::atlas_surface_find_normalized() {
+  local requested_id="${1-}"
+  local normalized
+  local line
+  local record=""
+  local id_line
+  local key
+  local state
+  local value
+
+  _phoenix::atlas_surface_id_is_valid "$requested_id" || return $?
+
+  normalized="$(
+    _phoenix::atlas_surface_normalized_records
+  )" || return $?
+
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    if [[ "$line" == "--" ]]; then
+      id_line="$(
+        printf '%s\n' "$record" |
+          LC_ALL=C grep '^SURFACE_ID' |
+          head -n 1
+      )" || true
+
+      if [[ -n "$id_line" ]]; then
+        IFS=$'\t' read -r key state value <<EOF_SURFACE_ID
+$id_line
+EOF_SURFACE_ID
+
+        if [[ "$state" == "PRESENT" &&
+              "$value" == "$requested_id" ]]; then
+          printf '%s\n' "$record"
+          return 0
+        fi
+      fi
+
+      record=""
+      continue
+    fi
+
+    if [[ -n "$record" ]]; then
+      record="${record}"$'\n'
+    fi
+
+    record="${record}${line}"
+  done <<EOF_SURFACE_RECORDS
+$normalized
+EOF_SURFACE_RECORDS
+
+  if [[ -n "$record" ]]; then
+    id_line="$(
+      printf '%s\n' "$record" |
+        LC_ALL=C grep '^SURFACE_ID' |
+        head -n 1
+    )" || true
+
+    if [[ -n "$id_line" ]]; then
+      IFS=$'\t' read -r key state value <<EOF_SURFACE_ID_FINAL
+$id_line
+EOF_SURFACE_ID_FINAL
+
+      if [[ "$state" == "PRESENT" &&
+            "$value" == "$requested_id" ]]; then
+        printf '%s\n' "$record"
+        return 0
+      fi
+    fi
+  fi
+
+  return 3
+}
+
+phoenix::atlas_surface_get() {
+  local surface_id="${1-}"
+  local normalized
+  local serialized
+
+  if [[ "$#" -ne 1 ]]; then
+    return 2
+  fi
+
+  _phoenix::atlas_surface_id_is_valid "$surface_id" || return $?
+
+  normalized="$(
+    _phoenix::atlas_surface_find_normalized "$surface_id"
+  )" || return $?
+
+  serialized="$(
+    _phoenix::atlas_serialize_normalized_record "$normalized"
+  )" || return $?
+
+  if [[ -n "$serialized" ]]; then
+    printf '%s\n' "$serialized"
+  fi
+}
+
+phoenix::atlas_surface_list() {
+  local normalized
+  local serialized
+
+  if [[ "$#" -ne 0 ]]; then
+    return 2
+  fi
+
+  normalized="$(
+    _phoenix::atlas_surface_normalized_records
+  )" || return $?
+
+  serialized="$(
+    _phoenix::atlas_serialize_normalized_records "$normalized"
+  )" || return $?
+
+  if [[ -n "$serialized" ]]; then
+    printf '%s\n' "$serialized"
+  fi
+}

@@ -197,6 +197,8 @@ PHOENIX_ATLAS_FINAL_RECONCILIATION_v1.0.md
 
 PHOENIX_ATLAS_GLOBAL_TRACKER_001_061.csv
 
+PHOENIX_ATLAS_MARKETPLACE_SURFACE_REGISTRY_v1.0.csv
+
 PHOENIX_ATLAS_STRATEGIC_SYNTHESIS_v1.0.md
 
 PHOENIX_ADAPTIVE_SEARCH_AND_EVIDENCE_ARCHITECTURE_v1.0.md
@@ -3119,6 +3121,7 @@ Atlas SDK v1.0 recognizes the following canonical source identifiers:
 ```text
 TRACKER
 FINAL_MASTER
+SURFACE_REGISTRY
 FINAL_RECONCILIATION
 STRATEGIC_SYNTHESIS
 PASS_2_ARCHITECTURE
@@ -3133,6 +3136,9 @@ TRACKER
 
 FINAL_MASTER
 → PHOENIX_ATLAS_FINAL_MASTER_v1.0.md
+
+SURFACE_REGISTRY
+→ PHOENIX_ATLAS_MARKETPLACE_SURFACE_REGISTRY_v1.0.csv
 
 FINAL_RECONCILIATION
 → PHOENIX_ATLAS_FINAL_RECONCILIATION_v1.0.md
@@ -3220,18 +3226,18 @@ The SDK must not introduce unnecessary source dependencies.
 
 The frozen candidate source matrix is:
 
-| Public Capability | TRACKER | FINAL_MASTER | FINAL_RECONCILIATION | STRATEGIC_SYNTHESIS | PASS_2_ARCHITECTURE | PASS_3A_SPECIFICATION |
-|---|---|---|---|---|---|---|
-| `phoenix::atlas_initialize` | REQUIRED | OPTIONAL | OPTIONAL | OPTIONAL | CONTEXT_ONLY | CONTEXT_ONLY |
-| `phoenix::atlas_is_available` | REQUIRED | OPTIONAL | NOT_USED | NOT_USED | NOT_USED | NOT_USED |
-| `phoenix::atlas_validate` | REQUIRED | REQUIRED | OPTIONAL | OPTIONAL | CONTEXT_ONLY | CONTEXT_ONLY |
-| `phoenix::atlas_provider_get` | REQUIRED | OPTIONAL | OPTIONAL | OPTIONAL | CONTEXT_ONLY | CONTEXT_ONLY |
-| `phoenix::atlas_provider_list` | REQUIRED | OPTIONAL | OPTIONAL | OPTIONAL | CONTEXT_ONLY | CONTEXT_ONLY |
-| `phoenix::atlas_surface_get` | REQUIRED | REQUIRED | OPTIONAL | OPTIONAL | CONTEXT_ONLY | CONTEXT_ONLY |
-| `phoenix::atlas_surface_list` | REQUIRED | REQUIRED | OPTIONAL | OPTIONAL | CONTEXT_ONLY | CONTEXT_ONLY |
-| `phoenix::atlas_lifecycle_get` | REQUIRED | REQUIRED | OPTIONAL | OPTIONAL | CONTEXT_ONLY | CONTEXT_ONLY |
-| `phoenix::atlas_access_get` | REQUIRED | REQUIRED | OPTIONAL | OPTIONAL | CONTEXT_ONLY | CONTEXT_ONLY |
-| `phoenix::atlas_provider_card` | REQUIRED | REQUIRED | OPTIONAL | OPTIONAL | CONTEXT_ONLY | CONTEXT_ONLY |
+| Public Capability | TRACKER | FINAL_MASTER | SURFACE_REGISTRY | FINAL_RECONCILIATION | STRATEGIC_SYNTHESIS | PASS_2_ARCHITECTURE | PASS_3A_SPECIFICATION |
+|---|---|---|---|---|---|---|---|
+| `phoenix::atlas_initialize` | REQUIRED | OPTIONAL | OPTIONAL | OPTIONAL | OPTIONAL | CONTEXT_ONLY | CONTEXT_ONLY |
+| `phoenix::atlas_is_available` | REQUIRED | OPTIONAL | NOT_USED | NOT_USED | NOT_USED | NOT_USED | NOT_USED |
+| `phoenix::atlas_validate` | REQUIRED | REQUIRED | OPTIONAL | OPTIONAL | OPTIONAL | CONTEXT_ONLY | CONTEXT_ONLY |
+| `phoenix::atlas_provider_get` | REQUIRED | OPTIONAL | NOT_USED | OPTIONAL | OPTIONAL | CONTEXT_ONLY | CONTEXT_ONLY |
+| `phoenix::atlas_provider_list` | REQUIRED | OPTIONAL | NOT_USED | OPTIONAL | OPTIONAL | CONTEXT_ONLY | CONTEXT_ONLY |
+| `phoenix::atlas_surface_get` | REQUIRED | REQUIRED | REQUIRED | OPTIONAL | OPTIONAL | CONTEXT_ONLY | CONTEXT_ONLY |
+| `phoenix::atlas_surface_list` | REQUIRED | REQUIRED | REQUIRED | OPTIONAL | OPTIONAL | CONTEXT_ONLY | CONTEXT_ONLY |
+| `phoenix::atlas_lifecycle_get` | REQUIRED | REQUIRED | NOT_USED | OPTIONAL | OPTIONAL | CONTEXT_ONLY | CONTEXT_ONLY |
+| `phoenix::atlas_access_get` | REQUIRED | REQUIRED | NOT_USED | OPTIONAL | OPTIONAL | CONTEXT_ONLY | CONTEXT_ONLY |
+| `phoenix::atlas_provider_card` | REQUIRED | REQUIRED | NOT_USED | OPTIONAL | OPTIONAL | CONTEXT_ONLY | CONTEXT_ONLY |
 
 ---
 
@@ -3249,6 +3255,7 @@ The following sources are optional during initialization:
 
 ```text
 FINAL_MASTER
+SURFACE_REGISTRY
 FINAL_RECONCILIATION
 STRATEGIC_SYNTHESIS
 ```
@@ -3307,7 +3314,7 @@ phoenix::atlas_access_get
 phoenix::atlas_provider_card
 ```
 
-must additionally verify their required `FINAL_MASTER` dependency before returning successful canonical output.
+must additionally verify their capability-specific required canonical dependencies before returning successful canonical output. Surface capabilities require both `FINAL_MASTER` and `SURFACE_REGISTRY`; lifecycle, access and Provider Card capabilities retain the `FINAL_MASTER` dependency.
 
 Initialization must not promote an optional capability source into a global requirement.
 
@@ -3376,6 +3383,7 @@ FINAL_MASTER
 It may additionally validate available optional sources:
 
 ```text
+SURFACE_REGISTRY
 FINAL_RECONCILIATION
 STRATEGIC_SYNTHESIS
 ```
@@ -3441,6 +3449,7 @@ The following capabilities require:
 ```text
 TRACKER
 FINAL_MASTER
+SURFACE_REGISTRY
 ```
 
 ```text
@@ -3448,9 +3457,9 @@ phoenix::atlas_surface_get
 phoenix::atlas_surface_list
 ```
 
-The tracker identifies marketplace records.
+The tracker identifies canonical marketplace/provider records.
 
-The Final Master provides the canonical Atlas intelligence needed to preserve the architectural distinction between:
+The Final Master provides the architectural intelligence needed to preserve the distinction between:
 
 ```text
 Provider Family
@@ -3458,7 +3467,52 @@ Provider Family
 Marketplace Surface
 ```
 
-A surface capability must not fabricate a surface identity when the required canonical surface intelligence cannot be resolved.
+`SURFACE_REGISTRY` is the canonical runtime authority for materialized Marketplace Surface identity in Atlas SDK v1.0.
+
+It provides the explicit surface identity required by `phoenix::atlas_surface_get` and `phoenix::atlas_surface_list`.
+
+The registry must preserve deterministic traceability to the canonical Atlas provider/marketplace record from which each surface entry is derived.
+
+The registry must not redefine Provider Family, lifecycle or access semantics.
+
+A surface capability must not fabricate, infer or synthesize a `SURFACE_ID` when the required canonical surface registry record cannot be resolved.
+
+## 70.9.1 Canonical Marketplace Surface Identity Rule
+
+Atlas SDK v1.0 freezes a deterministic Marketplace Surface identity mapping for the canonical 61-record Tracker baseline.
+
+Every materialized Marketplace Surface must have exactly one stable and unique `SURFACE_ID`.
+
+The identities remain distinct:
+
+```text
+TRACKER_ID != PROVIDER_ID != SURFACE_ID
+```
+
+For Atlas v1.0 the authorized mapping is:
+
+```text
+SURFACE_ID = ATLAS-SURFACE-<three-digit canonical TRACKER_ID>
+```
+
+Examples:
+
+```text
+TRACKER_ID=1  -> SURFACE_ID=ATLAS-SURFACE-001
+TRACKER_ID=9  -> SURFACE_ID=ATLAS-SURFACE-009
+TRACKER_ID=61 -> SURFACE_ID=ATLAS-SURFACE-061
+```
+
+This mapping creates a distinct Surface identity; it does not redefine or replace Tracker identity.
+
+The mapping must be deterministic, injective, stable across repeated materialization, independent of display names, locale, filesystem path and runtime order, and traceable to exactly one canonical Tracker record.
+
+Materialization must fail when the originating `TRACKER_ID` is absent, invalid or duplicated, or when the derived `SURFACE_ID` collides.
+
+`PROVIDER_ID` is not created by this rule and must not be silently inferred from `TRACKER_ID`.
+
+Once materialized, `SURFACE_REGISTRY` is the runtime authority for stored `SURFACE_ID` values. Runtime Surface APIs must resolve stored registry identities and must not regenerate missing identities.
+
 
 ---
 
@@ -3712,7 +3766,13 @@ The minimum v1.0 direction is:
 identity / basic provider record
 → TRACKER
 
-registry / lifecycle / surface / access intelligence
+registry / lifecycle / access intelligence
+→ FINAL_MASTER
+
+materialized marketplace surface identity
+→ SURFACE_REGISTRY
+
+surface architectural semantics
 → FINAL_MASTER
 
 reconciliation explanation
@@ -3818,7 +3878,7 @@ Tests must verify at minimum:
 6. optional source absence does not incorrectly fail the capability;
 7. context-only source absence does not fail runtime query functions;
 8. provider lookup can operate from the tracker minimum contract;
-9. surface lookup fails when its required Final Master source is unavailable;
+9. surface lookup fails when either required FINAL_MASTER or SURFACE_REGISTRY authority is unavailable;
 10. lifecycle lookup fails when its required lifecycle source is unavailable;
 11. access lookup does not infer authorization from partial sources;
 12. Provider Card preserves multi-source traceability;
@@ -3838,7 +3898,7 @@ The Source Requirement Matrix freezes the following candidate invariants:
 4. Atlas SDK does not treat every Atlas file as globally mandatory.
 5. Required-source failure maps to the Section 40 status contract.
 6. Provider lookup and listing require the tracker baseline.
-7. Surface, lifecycle, access and Provider Card capabilities require the Final Master baseline.
+7. Surface capabilities require TRACKER, FINAL_MASTER and SURFACE_REGISTRY; lifecycle, access and Provider Card capabilities retain the TRACKER and FINAL_MASTER baseline.
 8. PASS 2 remains architectural context.
 9. PASS 3A remains architectural context.
 10. PASS 3B is excluded from the v1.0 runtime matrix at this checkpoint.
@@ -3875,7 +3935,13 @@ Source Requirement Matrix            FROZEN
 Implementation                       NOT STARTED
 ```
 
-The Source Requirement Matrix is formally `FROZEN` following the successful P8-09 cross-contract consistency review.
+The Source Requirement Matrix was formally `FROZEN` following the successful P8-09 cross-contract consistency review.
+
+IP-08D performs one controlled post-freeze contract revision limited to Marketplace Surface authority materialization. The revision introduces `SURFACE_REGISTRY` as a capability-specific required canonical source for `phoenix::atlas_surface_get` and `phoenix::atlas_surface_list`.
+
+This revision does not alter the source requirements of provider, lifecycle, access or Provider Card capabilities.
+
+Following successful IP-08D contract verification, the revised Source Requirement Matrix returns to `FROZEN` state.
 ---
 
 # 71. Performance Boundary
