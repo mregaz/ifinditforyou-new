@@ -562,3 +562,102 @@ phoenix::atlas_surface_list() {
     printf '%s\n' "$serialized"
   fi
 }
+
+# ------------------------------------------------------------------------------
+# IP-09 — Lifecycle Query Layer
+# ------------------------------------------------------------------------------
+
+_phoenix::atlas_lifecycle_require_sources() {
+  _phoenix::atlas_source_resolve TRACKER >/dev/null || return $?
+  _phoenix::atlas_source_resolve FINAL_MASTER >/dev/null || return $?
+
+  return 0
+}
+
+_phoenix::atlas_lifecycle_normalized_record() {
+  local provider_id="${1-}"
+
+  _phoenix::atlas_normalized_field "PROVIDER_ID" "$provider_id" || return $?
+  _phoenix::atlas_normalized_field "LIFECYCLE" "UNKNOWN" || return $?
+  _phoenix::atlas_normalized_field "SOURCE_REFERENCE" "PHOENIX_ATLAS_FINAL_MASTER_v1.0.md" || return $?
+}
+
+phoenix::atlas_lifecycle_get() {
+  local provider_id="${1-}"
+  local normalized
+  local serialized
+
+  if [[ "$#" -ne 1 ]]; then
+    return 2
+  fi
+
+  if [[ -z "$provider_id" ]]; then
+    return 2
+  fi
+
+  _phoenix::atlas_lifecycle_require_sources || return $?
+
+  phoenix::atlas_provider_get "$provider_id" >/dev/null 2>&1 || return $?
+
+  normalized="$(
+    _phoenix::atlas_lifecycle_normalized_record "$provider_id"
+  )" || return $?
+
+  serialized="$(
+    _phoenix::atlas_serialize_normalized_record "$normalized"
+  )" || return $?
+
+  if [[ -n "$serialized" ]]; then
+    printf "%s\n" "$serialized"
+  fi
+}
+
+# ------------------------------------------------------------------------------
+# IP-09 — Access Query Layer
+# ------------------------------------------------------------------------------
+
+_phoenix::atlas_access_require_sources() {
+  _phoenix::atlas_source_resolve TRACKER >/dev/null || return $?
+  _phoenix::atlas_source_resolve FINAL_MASTER >/dev/null || return $?
+
+  return 0
+}
+
+_phoenix::atlas_access_normalized_record() {
+  local provider_id="${1-}"
+
+  _phoenix::atlas_normalized_field "PROVIDER_ID" "$provider_id" || return $?
+  _phoenix::atlas_normalized_field "ACCESS_STATE" "UNKNOWN" || return $?
+  _phoenix::atlas_normalized_field "ACCESS_POLICY" "UNKNOWN" || return $?
+  _phoenix::atlas_normalized_field "SOURCE_REFERENCE" "PHOENIX_ATLAS_FINAL_MASTER_v1.0.md" || return $?
+}
+
+phoenix::atlas_access_get() {
+  local provider_id="${1-}"
+  local normalized
+  local serialized
+
+  if [[ "$#" -ne 1 ]]; then
+    return 2
+  fi
+
+  if [[ -z "$provider_id" ]]; then
+    return 2
+  fi
+
+  _phoenix::atlas_access_require_sources || return $?
+
+  phoenix::atlas_provider_get "$provider_id" >/dev/null 2>&1 || return $?
+
+  normalized="$(
+    _phoenix::atlas_access_normalized_record "$provider_id"
+  )" || return $?
+
+  serialized="$(
+    _phoenix::atlas_serialize_normalized_record "$normalized"
+  )" || return $?
+
+  if [[ -n "$serialized" ]]; then
+    printf "%s\n" "$serialized"
+  fi
+}

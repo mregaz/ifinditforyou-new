@@ -3533,6 +3533,16 @@ Optional reconciliation and synthesis sources may provide explanatory or histori
 
 They must not silently override canonical lifecycle data.
 
+At the IP-09 baseline, no complete provider-specific Lifecycle Registry is materialized as a canonical Atlas runtime source.
+
+Narrative, aggregate, historical or architectural lifecycle statements must not be converted into provider-specific runtime values unless an explicit deterministic mapping contract authorizes that conversion.
+
+Therefore, when provider identity is valid and the required sources are available but no unambiguous provider-specific lifecycle value can be resolved under an authorized canonical mapping:
+
+LIFECYCLE=UNKNOWN
+
+UNKNOWN must not be interpreted as ACTIVE, inactive, closed, unavailable or any other lifecycle state.
+
 ---
 
 # 70.11 Access Requirement
@@ -3559,6 +3569,17 @@ Provider Existence ≠ Executable Access
 Optional sources may enrich access intelligence but must not independently create authorization.
 
 No access result may be inferred solely from source presence.
+
+At the IP-09 baseline, no complete provider-specific Access Registry or Access Matrix is materialized as a canonical Atlas runtime source.
+
+Narrative references to APIs, feeds, partnerships, licensing, restrictions, technical availability or preferred integration routes must not be converted into provider-specific authorization or access-state values unless an explicit deterministic mapping contract authorizes that conversion.
+
+Therefore, when provider identity is valid and the required sources are available but no unambiguous provider-specific access value can be resolved under an authorized canonical mapping:
+
+ACCESS_STATE=UNKNOWN
+ACCESS_POLICY=UNKNOWN
+
+UNKNOWN must not be interpreted as authorized, unauthorized, technically available, executable or prohibited.
 
 ---
 
