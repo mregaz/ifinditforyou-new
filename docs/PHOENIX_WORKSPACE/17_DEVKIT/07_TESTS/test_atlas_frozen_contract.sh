@@ -170,14 +170,14 @@ else
 fi
 
 echo
-echo "===== FINAL CERTIFICATION REMAINS DEFERRED ====="
+echo "===== FINAL CERTIFICATION STATE ====="
 
 if grep -E \
-  'Final Certification[[:space:]]+NOT STARTED' \
+  '^Final Certification[[:space:]]+COMPLETE$' \
   "$SPEC" >/dev/null; then
-  pass "Final Certification remains NOT STARTED before IP-16"
+  pass "Final Certification is COMPLETE"
 else
-  fail "Final Certification state changed prematurely"
+  fail "Final Certification is not COMPLETE"
 fi
 
 echo
