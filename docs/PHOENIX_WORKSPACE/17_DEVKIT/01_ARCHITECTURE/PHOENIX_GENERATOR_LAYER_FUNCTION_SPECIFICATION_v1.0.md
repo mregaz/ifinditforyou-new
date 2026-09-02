@@ -31,11 +31,12 @@ These capabilities are exposed through the public API:
 
 ```text
 phoenix::generator_exists
+phoenix::generator_register
 phoenix::generator_plan
 phoenix::generator_run
 ```
 
-No additional public Generator Layer API is required for version 1.0.
+No additional public Generator Layer API beyond these four functions is required for version 1.0.
 
 ---
 
@@ -1394,4 +1395,90 @@ The layer separates planning from execution, denies overwrite by default, suppor
 The Generator Layer must always follow:
 
 > Plan first. Validate before mutation. Execute explicitly.
+
+---
+
+## Public Registration Contract — `phoenix::generator_register`
+
+### Purpose
+
+Registers one explicit Generator Definition in the Generator Registry.
+
+This function is the public Generator Registration Contract used by
+authorized extension layers, including the Phoenix Plugin / Extension
+Model.
+
+Registration does not execute a generator.
+
+### Signature
+
+```bash
+phoenix::generator_register \
+  <generator-id> \
+  <generator-definition>
+```
+
+### Success Preconditions
+
+All of the following must be true:
+
+```text
+generator ID is non-empty
+generator definition is non-empty
+generator ID is not already registered
+generator definition satisfies the certified Generator Definition contract
+definition ID matches the requested generator ID
+```
+
+### Success Effect
+
+The Generator ID and exact accepted Generator Definition are appended to
+the in-memory Generator Registry.
+
+Registration order remains deterministic.
+
+### Failure
+
+Return `1` when any mandatory registration precondition fails.
+
+A failed registration must not append a partial Generator Registry entry.
+
+### Duplicate Registration
+
+A duplicate Generator ID must fail.
+
+The previously registered Generator Definition must remain unchanged.
+
+### Output
+
+No public stdout output is required on successful registration.
+
+Diagnostics may be written to stderr.
+
+### Mutation Boundary
+
+`phoenix::generator_register` may mutate only Generator Registry state.
+
+It must not:
+
+```text
+generate artifacts
+modify generated destination files
+execute templates
+execute Plugin behavior
+patch Generator engine internals
+perform implicit filesystem discovery
+```
+
+### Extension Contract
+
+Future extension layers may register Generator Definitions only through
+this public registration contract.
+
+They must not mutate Generator Registry arrays directly or call private
+`_phoenix::generator_*` helpers.
+
+This section formalizes the Generator Registration Contract already
+defined by the Generator Layer Architecture. It does not introduce new
+runtime behavior.
 
