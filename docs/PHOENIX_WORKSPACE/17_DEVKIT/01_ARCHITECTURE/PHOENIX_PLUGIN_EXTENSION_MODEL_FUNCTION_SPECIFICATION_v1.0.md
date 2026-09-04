@@ -1151,6 +1151,218 @@ Specification freeze decision is recorded in Sections 42 and 43.
 
 <!-- STEP 11B.5 FORMAL FUNCTION SPECIFICATION FREEZE -->
 
+## Post-Freeze Remediation — P9-F15 / P9-F16
+
+The original Section 41 freeze review recorded that no runtime contract blockers remained at that checkpoint.
+
+Subsequent implementation forensics identified a contribution-definition authority gap that was not detected by that review. The earlier freeze record remains part of the historical specification trail, but it is superseded for current implementation authority by this remediation.
+
+### P9-F15 — Contribution Definition Authority
+
+A Plugin Definition continues to declare contributions only through the frozen v1.0 declaration grammar:
+
+```text
+CONTRIBUTION=<TYPE>:<TARGET_ID>
+```
+
+This declaration identifies contribution type and target identity. It does not contain, imply, encode, discover, or authorize the concrete lower-layer Definition required by Generator or Validator registration.
+
+Generator and Validator contribution application requires an explicit Contribution Binding supplied to the private Plugin contribution-coordination workflow.
+
+A Contribution Binding contains exactly the following logical values:
+
+```text
+PLUGIN_ID
+TYPE
+TARGET_ID
+TARGET_DEFINITION
+```
+
+`TARGET_DEFINITION` is complete inert multiline data.
+
+Plugin coordination must not reinterpret target-domain Definition semantics. Semantic validation remains owned by the target lower layer.
+
+The following authority rules are frozen for Plugin v1.0:
+
+1. Contribution declaration owns contribution type and target identity.
+2. Explicit Contribution Binding supplies the concrete target Definition.
+3. Plugin coordination owns validation, preflight ordering, deterministic dispatch, application sequencing, and failure containment.
+4. Generator remains semantic authority for Generator Definitions.
+5. Validator remains semantic authority for Validator Definitions.
+6. No target Definition may be inferred from target ID, filename, directory layout, working directory, registry state, filesystem discovery, private lower-layer helpers, executable discovery, or guessed mappings.
+7. Contribution Bindings are transient private coordination input and are not Plugin Registry state.
+8. `phoenix::plugin_register` remains unchanged and stores only the exact accepted Plugin Definition.
+9. `phoenix::plugin_resolve` remains unchanged and returns only the exact registered Plugin Definition.
+10. Plugin v1.0 public API remains exactly the four already frozen public functions.
+
+### Private Binding Carrier
+
+Plugin v1.0 uses Bash 3.2-compatible indexed-array coordination for multiple Contribution Bindings.
+
+The private coordinator may maintain parallel local arrays equivalent to:
+
+```text
+binding_types[N]
+binding_target_ids[N]
+binding_definitions[N]
+```
+
+All arrays must have identical cardinality.
+
+Each index represents one logical binding. `binding_definitions[N]` may contain the complete multiline target Definition as a single shell string.
+
+These arrays are local, transient, private implementation state. They must not be exported as public Plugin Registry arrays or persistent Plugin authority.
+
+For each declared contribution there must be exactly one matching binding by exact `(TYPE, TARGET_ID)` identity:
+
+```text
+0 matches   -> failure
+1 match     -> candidate success
+2+ matches  -> failure
+```
+
+First-match-wins behavior is forbidden for Contribution Bindings.
+
+### Contribution Preflight and Application Order
+
+The Plugin Definition `CONTRIBUTION=` declaration order is the canonical contribution-processing order.
+
+Filesystem order, binding-input order, alphabetical order, and lower-layer registry order are not authoritative.
+
+All mandatory contributions must complete preflight successfully before any lower-layer contribution application begins.
+
+Conceptually:
+
+```text
+validate all bindings
+        |
+        v
+preflight contribution 1
+preflight contribution 2
+...
+preflight contribution N
+        |
+        +-- any failure -> STOP; application count = 0
+        |
+        v
+apply contribution 1
+apply contribution 2
+...
+apply contribution N
+```
+
+Application dispatch must be static and explicit:
+
+```text
+GENERATOR -> phoenix::generator_register
+VALIDATOR -> phoenix::validator_register
+```
+
+Dynamic function-name construction from Plugin data is forbidden.
+
+On the first mandatory application failure, processing stops and subsequent mandatory contributions are not attempted.
+
+Earlier successful lower-layer registrations may remain.
+
+Partial completion must never be reported as overall Plugin success.
+
+Plugin v1.0 does not claim transactional rollback.
+
+### Physical Coordination Boundary
+
+Plugin Registry remains non-responsible for contribution application.
+
+Plugin v1.0 authorizes a dedicated private contribution-coordination module under `06_PLUGINS/` for contribution validation, preflight, application, and failure attribution.
+
+A separate private Plugin bootstrap/orchestration module may coordinate the explicit registration workflow and contribution workflow.
+
+Such orchestration does not create a new public Plugin API, does not own lower-layer semantics, and must not introduce implicit Plugin discovery.
+
+The intended physical decomposition is:
+
+```text
+06_PLUGINS/
+  definition.sh       Plugin Definition grammar
+  registry.sh         Plugin Registry and compatibility gate
+  contributions.sh    private contribution coordination
+  bootstrap.sh        private explicit workflow orchestration
+```
+
+Private helper decomposition remains implementation-controlled, subject to the frozen public behavior and security boundaries.
+
+
+### P9-F19 — Registration / Contribution Workflow State
+
+Plugin v1.0 freezes the combined explicit registration and contribution workflow as a private orchestration responsibility.
+
+The canonical workflow order is:
+
+1. validate Plugin Definition and Contribution Bindings
+2. complete mandatory contribution preflight
+3. register Plugin through phoenix::plugin_register
+4. apply contributions in Plugin Definition CONTRIBUTION declaration order
+5. report success only when every mandatory workflow step succeeds
+
+Contribution application must not precede successful Plugin registration.
+
+A mandatory validation or preflight failure occurs before Plugin Registry mutation and before lower-layer contribution mutation.
+
+A Plugin registration failure stops the workflow. Contribution application must not be attempted after failed Plugin registration.
+
+After successful Plugin registration, a mandatory contribution application failure makes the overall orchestration operation fail.
+
+In that case:
+Plugin registration remains present.
+Earlier successful lower-layer registrations remain present.
+The failed lower-layer contribution is not registered.
+Later contributions are not attempted.
+The overall orchestration result is failure.
+No cross-registry rollback is performed.
+No persistent FAILED Plugin lifecycle state is created.
+
+
+The retained Plugin Registry entry is not evidence that all declared contributions were successfully applied.
+Plugin registration and contribution application remain distinct operations coordinated by the private workflow.
+
+Plugin v1.0 does not remove the successfully registered Plugin as compensation for a later contribution failure.
+Plugin v1.0 does not roll back earlier successful Generator or Validator registrations.
+
+The private bootstrap/orchestration implementation must not add a public Plugin API.
+It must not weaken phoenix::plugin_register semantics.
+It must not infer Plugins or Contribution Bindings from filesystem state.
+It must not consume lower-layer private helpers.
+It must not mutate Generator or Validator Registry arrays directly.
+It must not dynamically construct executable function names from Plugin data.
+
+This workflow-state policy resolves P9-F19 without introducing a new Plugin lifecycle state or cross-registry transaction authority.
+
+### P9-F16 — Freeze Consistency Resolution
+
+The Section 41 statements that no runtime contribution blocker remained are historical findings of the earlier freeze review and must not be interpreted as current authority after discovery of P9-F15.
+
+P9-F15 constitutes a controlled post-freeze contract remediation.
+
+Phase 9 final certification remains blocked until this remediated contribution contract is implemented, tested, audited, documented, and recorded.
+
+This remediation does not change:
+
+```text
+Plugin public API
+phoenix::plugin_register signature
+Plugin Definition CONTRIBUTION grammar
+Plugin Registry exact-definition storage semantics
+Plugin Registry insertion ordering
+lower-layer semantic ownership
+Bash 3.2 baseline
+```
+
+P9-F15 and P9-F16 are resolved at contract level only when this remediation is reviewed and accepted.
+
+Runtime implementation and final Phase 9 certification remain separate gates.
+
+---
+
+
 # 42. Specification Status
 
 ```text
@@ -1175,8 +1387,8 @@ Failure Containment                     FROZEN
 Security Boundary                       FROZEN
 Bash Compatibility                      FROZEN
 Cross-Contract Review                   PASS — COMPLETE
-Implementation Plan                         NOT STARTED
-Plugin Runtime Implementation               NOT STARTED
+Implementation Plan                         COMPLETE
+Plugin Runtime Implementation               COMPLETE
 
 FUNCTION SPECIFICATION                  FROZEN
 ```

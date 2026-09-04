@@ -4,19 +4,24 @@ This directory is reserved for the Phoenix DevKit Plugin and Extension Model.
 
 ## Status
 
-PLANNED — NOT YET IMPLEMENTED
+PHASE 9 — IMPLEMENTATION COMPLETE / CERTIFICATION PENDING
 
-Plugin development will occur only after the required lower-level DevKit architecture and runtime capabilities have been certified.
+The Plugin Registry, Plugin Definition Engine, dependency compatibility foundation, contribution coordination, preflight, application, and private bootstrap/orchestration workflow are implemented.
+
+Runtime implementation is complete. Final Phase 9 regression, audit, certification, repository synchronization, and remote closure remain pending.
+
+Final Phase 9 certification and remote closure have not yet occurred.
+
 
 ## Purpose
 
-The Plugin domain will provide a controlled extension mechanism for Phoenix DevKit capabilities.
+The Plugin domain provides a controlled extension mechanism for Phoenix DevKit capabilities.
 
 Its purpose is to allow future functionality to be added without weakening the architectural boundaries, deterministic behavior, or security guarantees of the Core DevKit.
 
-## Planned Responsibilities
+## Responsibilities
 
-The Plugin and Extension Model is expected to address:
+The Plugin and Extension Model addresses:
 
 - explicit plugin registration;
 - extension discovery policy;
@@ -43,9 +48,8 @@ The Plugin layer must depend on stable public APIs rather than private implement
 
 ## Dependencies
 
-Dependencies will be defined and frozen during the Plugin/Extension architecture phase.
+Plugin dependencies are defined by the frozen Plugin / Extension Model contract and must remain explicit, controlled, and compatible with the Phoenix dependency model.
 
-Plugin dependencies must remain explicit, controlled, and compatible with the Phoenix dependency model.
 
 ## Safety
 
@@ -58,16 +62,18 @@ The extension mechanism must not introduce uncontrolled:
 - dynamic evaluation;
 - mutation of certified DevKit components.
 
-Security boundaries will be defined before implementation begins.
+Security boundaries are defined by the frozen Plugin / Extension Model contract and enforced by the Phase 9 implementation.
 
 ## Implementation
 
-No production Plugin or Extension Model implementation is certified at this checkpoint.
+Phase 9 runtime implementation is complete, but the Plugin / Extension Model is not yet finally certified at this checkpoint.
 
-Architecture, contracts, implementation, and certification will be handled as a dedicated future Phoenix DevKit phase.
+
+Architecture, contracts, implementation, testing, audit, and certification are being handled within Phoenix DevKit Phase 9.
+
 
 ## Limitations
 
 This README defines the current domain boundary only.
 
-It does not constitute the final Plugin architecture or implementation specification.
+The authoritative Plugin architecture and implementation contracts are defined by the frozen Phase 9 specifications.
