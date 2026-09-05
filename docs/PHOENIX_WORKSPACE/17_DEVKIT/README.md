@@ -7,69 +7,66 @@
 | Field | Value |
 |---|---|
 | Project | Phoenix DevKit |
-| Status | Foundation |
-| Version | 0.1 |
+| Status | Active Engineering Platform |
+| Roadmap | Version 2.0 |
 | Type | Engineering Framework |
 | First Reference Project | iFindItForYou |
 
 ---
 
-## 1. Overview
+# 1. Overview
 
-Phoenix DevKit is an engineering framework designed to standardize, automate, document, validate, and evolve professional software projects.
+Phoenix DevKit is an engineering framework designed to standardize, automate, document, validate and safeguard the construction and evolution of professional software projects.
 
 It transforms recurring engineering activities into reusable systems based on:
 
+- explicit architecture;
 - conventions;
 - templates;
 - generators;
 - validators;
-- shared libraries;
-- governance;
-- documentation.
+- shared runtime capabilities;
+- controlled CLI interfaces;
+- extension mechanisms;
+- documentation;
+- testing;
+- governance.
 
 Phoenix DevKit is not application business logic.
 
-It is the system used to build and maintain application projects.
+It is the engineering system used to build and maintain application projects.
 
 ---
 
-## 2. Mission
+# 2. Mission
 
-Reduce the time and complexity required to create professional software by providing a repeatable engineering method.
+Phoenix DevKit exists to reduce the time, complexity and inconsistency involved in building professional software.
 
-The DevKit helps projects begin with:
+Its purpose is to provide a repeatable engineering method based on:
 
 - clear architecture;
-- consistent documentation;
-- standardized workflows;
-- automated generation;
+- deterministic behavior;
+- explicit contracts;
+- reusable capabilities;
+- controlled automation;
 - verifiable structures;
+- traceable engineering decisions;
 - maintainable conventions.
+
+The objective is not automation for its own sake.
+
+Automation must solve real recurring engineering problems while preserving safety, determinism and authority boundaries.
 
 ---
 
-## 3. Core Principle
+# 3. Core Principle
 
 > **Build the system that builds the project.**
 
-The objective is not to automate everything.
+Phoenix DevKit builds reusable engineering capabilities.
 
-The objective is to automate recurring work that benefits from consistency, traceability, and validation.
+Projects consume those capabilities without transferring their business logic into the DevKit.
 
----
-
-## 4. Phoenix Ecosystem
-
-```text
-PHOENIX ECOSYSTEM
-│
-├── Phoenix DevKit
-│   └── Engineering framework and development system
-│
-└── iFindItForYou
-    └── Intelligent multi-marketplace search platform
----
 ---
 
 # 4. Phoenix Ecosystem
@@ -78,205 +75,327 @@ PHOENIX ECOSYSTEM
 PHOENIX ECOSYSTEM
 │
 ├── Phoenix DevKit
-│   └── Engineering framework and development system
+│   └── Engineering framework and reusable development capabilities
 │
 └── iFindItForYou
-    └── Intelligent multi-marketplace search platform
+    └── First production project using the Phoenix engineering method
 ```
 
-Phoenix DevKit defines and automates the engineering method.
+Phoenix DevKit defines and supports the engineering method.
 
-iFindItForYou is the first production project used to validate that method.
+iFindItForYou is the first production project used to validate and exercise that method.
 
 ---
 
-# 5. Current Capabilities
+# 5. Current Platform Capabilities
 
-The first certified DevKit tools are:
+Phoenix DevKit currently contains established engineering capabilities including:
+
+- Core Runtime;
+- Template Engine;
+- Generator Framework;
+- Validation Framework;
+- CLI;
+- Atlas SDK;
+- Plugin / Extension Model;
+- documentation governance;
+- testing and regression infrastructure;
+- certified public interfaces;
+- explicit dependency and authority boundaries.
+
+The DevKit has therefore evolved beyond its original Foundation stage.
+
+Its next planned evolution concerns controlled orchestration of these certified capabilities.
+
+---
+
+# 6. Certified Evolution State
+
+The current evidence-backed DevKit lineage is:
 
 ```text
-tools/create_pds.sh
-tools/create_provider.sh
-tools/create_adr.sh
-tools/create_sprint.sh
+PHASE 5 — GENERATOR FRAMEWORK          COMPLETE
+PHASE 6 — VALIDATION FRAMEWORK         CERTIFIED COMPLETE
+PHASE 7 — CLI                          CERTIFIED COMPLETE
+PHASE 8 — ATLAS SDK                    CERTIFIED COMPLETE
+PHASE 8 — REMOTE CLOSURE               COMPLETE
+PHASE 9 — PLUGIN / EXTENSION MODEL     CERTIFIED COMPLETE
+PHASE 9 — REMOTE CLOSURE               COMPLETE
 ```
 
-These tools currently provide:
+Earlier Foundation-era development remains preserved in historical documentation and records.
 
-- Phoenix Development System generation
-- Provider scaffolding
-- ADR creation
-- Sprint workspace creation
+The DevKit does not retroactively reinterpret uncertain early phase numbering as new certification history.
 
-The next evolution will progressively migrate these generators to a common Core Engine.
-
----
-
-# 6. Target Architecture
+For detailed historical evidence, consult:
 
 ```text
-Phoenix CLI
-│
-├── Generators
-├── Validators
-├── Migrations
-│
-└── Core Engine
-    ├── Template Engine
-    ├── Manifest Parser
-    ├── Shared Libraries
-    ├── Filesystem
-    ├── Logger
-    └── Configuration
+docs/00_MASTER_RECORD.md
 ```
 
-The Core Engine will become the reusable foundation shared by every Phoenix generator, ensuring consistency, maintainability and scalability across the entire engineering ecosystem.
 ---
 
-# 7. DevKit Documentation Map
+# 7. Current Forward Direction
+
+The current forward-planning authority is:
 
 ```text
-17_DEVKIT/
-│
-├── 00_FOUNDATION/
-│   ├── PHOENIX_DEVKIT_CHARTER_v0.1.md
-│   ├── PHOENIX_DEVKIT_ARCHITECTURE_v1.0.md
-│   └── README.md
-│
-├── 01_ARCHITECTURE/
-├── 02_TEMPLATE_ENGINE/
-├── 03_GENERATORS/
-├── 04_VALIDATORS/
-├── 05_CLI/
-├── 06_PLUGINS/
-├── 07_TESTS/
-├── 08_ROADMAP/
-├── 09_REFERENCE/
-│
-└── README.md
+00_FOUNDATION/PHOENIX_DEVKIT_ROADMAP_v2.0.md
 ```
 
----
+Roadmap v1.0 remains preserved as the historical planning baseline.
 
-# 8. Engineering Principles
-
-Phoenix DevKit follows these engineering principles:
-
-1. Method before implementation.
-2. Convention over configuration.
-3. One source of truth.
-4. Templates describe, engines generate.
-5. Documentation is part of the software.
-6. Every component must be testable.
-7. The Core Engine must remain small and stable.
-8. Automation must solve real recurring problems.
-9. Every module has a single responsibility.
-10. Long-term maintainability is more important than short-term speed.
-
----
-
-# 9. Development Strategy
-
-Phoenix DevKit evolves through four controlled phases.
-
-## Phase 1 — Foundation
-
-- Charter
-- Architecture
-- Documentation
-- Engineering Principles
-
-## Phase 2 — Core Engine
-
-- Shared Libraries
-- Template Engine
-- Manifest Parser
-- Filesystem Utilities
-- Logging
-
-## Phase 3 — Generator Migration
-
-- Provider Generator
-- ADR Generator
-- Sprint Generator
-- Release Generator
-
-## Phase 4 — Unified CLI
-
-```bash
-phoenix init
-phoenix create provider
-phoenix create sprint
-phoenix create adr
-phoenix validate
-phoenix release
-```
----
-
-# 10. Current Status
-
-Phoenix DevKit is currently in the **Foundation Phase**.
-
-The initial engineering framework has been defined, together with its mission, architecture and documentation structure.
-
-The next milestone is:
+The current next-phase candidate is:
 
 ```text
-Sprint 001
-Core Engine
+PHASE 10 — AUTOMATION LAYER
+
+Status:
+DESIGN CANDIDATE
+NOT YET AUTHORIZED FOR IMPLEMENTATION
 ```
 
-The objective of Sprint 001 is to build the reusable engine that will progressively power every Phoenix generator.
+Its central architectural principle is:
+
+> **Automation orchestrates authority. Automation does not become authority.**
+
+A roadmap entry does not itself authorize implementation, certification, release or deployment.
 
 ---
 
-# 11. Foundation Documents
+# 8. Architectural Boundaries
 
-The Foundation Pack currently includes:
+Phoenix DevKit follows a layered architecture.
 
-- Phoenix DevKit Charter
-- Phoenix DevKit Architecture
-- DevKit README
+Higher layers may consume certified lower-layer public interfaces.
 
-Additional documents will be added as the project evolves.
+They must not:
+
+- bypass certified public contracts;
+- consume forbidden private helpers;
+- redefine lower-layer semantic authority;
+- create uncontrolled filesystem discovery;
+- construct executable dispatch dynamically from user input;
+- silently infer authority.
+
+Domain semantics remain owned by their respective certified domains.
+
+Examples include:
+
+```text
+Generator semantics    → Generator Framework
+Validation semantics   → Validation Framework
+Atlas semantics        → Atlas contract
+Plugin semantics       → Plugin / Extension Model
+CLI dispatch boundary  → CLI architecture
+```
+
+Future orchestration must preserve these boundaries.
 
 ---
 
-# 12. Governance
+# 9. Automation Direction
 
-Every significant DevKit change should include, where applicable:
+Automation is a core DevKit concern.
 
-- updated documentation;
-- Architecture Decision Records (ADR);
-- tests;
-- validation;
-- changelog updates;
-- version updates.
+Repeated engineering operations should become controlled DevKit capabilities when automation provides meaningful consistency, safety and traceability.
 
-No engineering component is considered complete until its purpose, behavior and usage are documented.
+The planned Automation Layer is intended to coordinate certified capabilities into safe, deterministic and repeatable engineering workflows.
+
+Automation must not become a replacement authority for the domains it invokes.
+
+Automation implementation is not yet authorized.
 
 ---
 
-# 13. Long-Term Vision
+# 10. Release Engine Boundary
 
-Phoenix DevKit aims to evolve from a local engineering toolkit into a reusable development platform.
+Release Engine is a separate DevKit architectural concern.
 
-The long-term goal is to allow a new software project to start with a single command:
+Historical DevKit documents contain explicit Release Engine and `phoenix release` concepts.
+
+The detailed canonical Release Engine contract is not yet frozen.
+
+Therefore:
+
+```text
+Release Engine             SEPARATE ARCHITECTURAL DOMAIN
+Detailed Release Contract  NOT YET FROZEN
+Automation Relationship    TO BE DEFINED
+```
+
+Automation must not assume Release Engine authority.
+
+Engineering certification, Git remote closure, software release and deployment remain distinguishable states.
+
+---
+
+# 11. PDS Boundary
+
+Phoenix Development System and Phoenix DevKit Automation address different concerns.
+
+```text
+PDS
+Engineering process discipline and governance
+
+Automation Layer
+Technical orchestration of authorized engineering mechanics
+```
+
+PDS does not own DevKit domain semantics.
+
+Automation does not own PDS process authority.
+
+The detailed PDS contract remains governed by its own architecture and review process.
+
+---
+
+# 12. Documentation Authority
+
+Phoenix DevKit documentation has distinct responsibilities.
+
+## README
+
+Provides orientation, current platform summary and navigation.
+
+## Roadmap
+
+Defines current and future DevKit evolution planning.
+
+The current forward-planning authority is:
+
+```text
+PHOENIX_DEVKIT_ROADMAP_v2.0.md
+```
+
+## Master Record
+
+Provides historical engineering, certification and closure evidence.
+
+## Architecture Specifications
+
+Define architectural responsibilities, dependency boundaries and domain semantics.
+
+## Function Specifications
+
+Define public behavior, interfaces, inputs, outputs and failure contracts where applicable.
+
+No README or roadmap statement overrides an applicable certified domain contract.
+
+---
+
+# 13. Engineering Principles
+
+Phoenix DevKit engineering is governed by principles including:
+
+1. architecture before implementation;
+2. safety before automation;
+3. determinism before convenience;
+4. explicit responsibility;
+5. controlled dependency direction;
+6. documentation as part of development;
+7. self-validation;
+8. fail fast;
+9. backward compatibility where possible;
+10. automation of real recurring engineering work.
+
+The canonical Engineering Principles document remains authoritative for the complete principle set.
+
+---
+
+# 14. Governance
+
+Every significant DevKit evolution must preserve:
+
+- explicit scope;
+- identifiable authority;
+- architecture before implementation;
+- certified dependency boundaries;
+- documentation;
+- targeted testing;
+- regression protection;
+- auditability;
+- explicit certification;
+- controlled Git closure.
+
+A capability is not considered certified merely because implementation exists or tests pass.
+
+Certification requires the applicable evidence and explicit certification decision.
+
+Roadmap status is not certification status.
+
+---
+
+# 15. Repository Orientation
+
+The DevKit is located under:
+
+```text
+docs/PHOENIX_WORKSPACE/17_DEVKIT/
+```
+
+Its major engineering areas include:
+
+```text
+00_FOUNDATION/
+01_ARCHITECTURE/
+02_TEMPLATE_ENGINE/
+03_GENERATORS/
+04_VALIDATORS/
+05_CLI/
+06_PLUGINS/
+07_TESTS/
+```
+
+Additional supporting artifacts and reference material may exist within the DevKit workspace.
+
+The filesystem structure must not be inferred from this README when exact repository state is required.
+
+Use the repository itself as the source of truth for physical file presence.
+
+---
+
+# 16. Long-Term Vision
+
+Phoenix DevKit aims to evolve into a reusable engineering platform capable of coordinating the complete construction lifecycle of professional software systems.
+
+The long-term experience should allow complex engineering operations to be expressed through controlled interfaces such as:
 
 ```bash
 phoenix init my-project
+phoenix generate ...
+phoenix validate ...
 ```
 
-That command should generate:
+Future commands or capabilities are introduced only through their applicable architecture, specification, implementation and certification process.
 
-- a complete engineering workspace;
-- project documentation;
-- architecture templates;
-- governance documents;
-- validation tools;
-- initial project structure.
+The DevKit does not build product business logic.
 
-The generated project should follow Phoenix engineering standards from day one.
+It builds and evolves the engineering system used to build products.
+
+---
+
+# Current State
+
+```text
+DEVKIT                                  ACTIVE ENGINEERING PLATFORM
+
+GENERATOR FRAMEWORK                     COMPLETE
+VALIDATION FRAMEWORK                    CERTIFIED COMPLETE
+CLI                                     CERTIFIED COMPLETE
+ATLAS SDK                               CERTIFIED COMPLETE
+PLUGIN / EXTENSION MODEL                CERTIFIED COMPLETE
+
+PHASE 9 REMOTE CLOSURE                  COMPLETE
+
+ROADMAP v1.0                            HISTORICAL BASELINE
+ROADMAP v2.0                            CURRENT FORWARD-PLANNING AUTHORITY
+
+PHASE 10 — AUTOMATION LAYER             DESIGN CANDIDATE
+PHASE 10 IMPLEMENTATION                 NOT AUTHORIZED
+
+RELEASE ENGINE DETAILED CONTRACT        NOT YET FROZEN
+```
 
 ---
 
@@ -284,6 +403,6 @@ The generated project should follow Phoenix engineering standards from day one.
 
 Phoenix DevKit is not designed to build applications directly.
 
-It is designed to build the engineering system that enables applications to be created faster, more consistently and with higher quality.
+It is designed to build the engineering system that enables applications to be created and evolved consistently, safely and repeatably.
 
-**Build the system that builds the project.**
+> **Build the system that builds the project.**
