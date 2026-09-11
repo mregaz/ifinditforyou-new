@@ -5342,3 +5342,95 @@ Formal design freeze does not imply Phase 10 completion.
 ---
 
 **PHOENIX DEVKIT PHASE 10 — A04 FORMAL DESIGN FREEZE:** ✅ COMPLETE
+
+# PHOENIX DEVKIT — PHASE 10 / A05 FORMAL DESIGN FREEZE
+
+## Freeze Scope
+
+This record establishes the formal design freeze of Phoenix DevKit Phase 10 A05 — Workspace Automation.
+
+The freeze follows forensic discovery, contract modeling, architecture construction, adversarial review, bounded remediation, internal regression, independent post-remediation review, targeted F08 remediation and independent F09 identity/delta re-review.
+
+No implementation, certification, release, deployment, recovery, CLI authority, remote closure, or A10 authority is granted by this design-freeze record.
+
+## Final Architecture State
+
+| Item | Result |
+|------|--------|
+| A05 Workspace Automation | FORMALLY DESIGN FROZEN |
+| A05-AR-F01 | CLOSED BY INDEPENDENT RECHECK |
+| A05-AR-F02 | CLOSED BY INDEPENDENT RECHECK |
+| A05-AR-F03 | CLOSED BY INDEPENDENT RECHECK |
+| A05-AR-F04 | CLOSED BY INDEPENDENT RECHECK |
+| A05-AR-F05 | CLOSED BY INDEPENDENT RECHECK |
+| A05-AR-F06 | CLOSED BY INDEPENDENT RECHECK |
+| A05-AR-F07 | CLOSED BY INDEPENDENT RECHECK |
+| A05-IR-F08 | CLOSED BY INDEPENDENT RECHECK |
+| A05-IR-F09 | CLOSED BY INDEPENDENT RECHECK |
+| A05-I01 → A05-I65 | PASS — 65 / 65 |
+| PASS 8-R Independent Re-review | COMPLETE — PASS |
+| PASS 9-R F09 Delta Re-review | COMPLETE — PASS |
+| New Critical Findings | 0 |
+| New Major Findings | 0 |
+| New Minor Findings | 0 |
+
+## Canonical Frozen Artifact
+
+| Property | Value |
+|----------|-------|
+| File | PHOENIX_WORKSPACE_AUTOMATION_ARCHITECTURE_v1.2-FINAL.md |
+| Path | docs/PHOENIX_WORKSPACE/17_DEVKIT/01_ARCHITECTURE/PHOENIX_WORKSPACE_AUTOMATION_ARCHITECTURE_v1.2-FINAL.md |
+| SHA-256 | 3a196f0bcb1c1d86d5f19c8a6e8b0c9d4af1a5096d7189e3c9a7ab9c725d4e45 |
+| Lines | 708 |
+| Bytes | 25317 |
+
+The frozen artifact identity is the exact FINAL identity independently rechecked after the F09 title correction.
+
+Any modification to the frozen artifact changes its identity and requires explicit lifecycle handling under the applicable Phoenix governance and certification controls.
+
+## Independent Review Result
+
+| Item | Result |
+|------|--------|
+| Candidate Identity Verification | PASS |
+| F01 → F07 Regression | PASS |
+| A05-IR-F08 Targeted Recheck | PASS |
+| A05-IR-F09 Targeted Recheck | PASS |
+| A05-I01 → A05-I65 Regression | PASS — 65 / 65 |
+| A01 Boundary | PASS |
+| A02 Boundary | PASS |
+| A03 Boundary | PASS |
+| A04 Boundary | PASS |
+| A08 Boundary | PASS |
+| A10 Boundary | PASS |
+| Final Review Disposition | COMPLETE — PASS |
+
+## Lifecycle Status
+
+| Item | Status |
+|------|--------|
+| A05 Formal Design Freeze | COMPLETE |
+| A05 Certification | NOT CERTIFIED |
+| Automation Implementation | NOT AUTHORIZED |
+| Git Integration | PENDING |
+| Remote Closure | PENDING |
+| A06 | NOT STARTED |
+| A10 | NOT STARTED |
+| Phase 10 | IN PROGRESS |
+| Next Architectural Mission | A06 — Backup / Recovery Coordination |
+
+Formal design freeze does not imply certification.
+
+Formal design freeze does not imply implementation authorization.
+
+Formal design freeze does not imply recovery authority.
+
+Formal design freeze does not imply release authority.
+
+Formal design freeze does not imply remote closure.
+
+Formal design freeze does not imply Phase 10 completion.
+
+---
+
+**PHOENIX DEVKIT PHASE 10 — A05 FORMAL DESIGN FREEZE:** ✅ COMPLETE
