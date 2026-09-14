@@ -5672,3 +5672,166 @@ Formal design freeze does not imply Phase 10 completion.
 ---
 
 **PHOENIX DEVKIT PHASE 10 — A07 FORMAL DESIGN FREEZE:** ✅ COMPLETE
+
+---
+
+# PHOENIX DEVKIT — PHASE 10 / A08 FORMAL DESIGN FREEZE
+
+## Freeze Scope
+
+This record establishes the formal design freeze of Phoenix DevKit Phase 10 A08 — CLI Integration.
+
+The freeze follows forensic discovery, governing-contract extraction, architecture construction, adversarial architecture review, bounded remediation, bounded-remediation regression, and independent post-remediation re-review.
+
+No implementation, certification, Release execution, Deployment, Publication, Recovery, Production Acceptance, remote closure, A09 completion, or A10 authority is granted by this design-freeze record.
+
+The A08 design defines the required scoped CLI contract amendment but does not itself apply that amendment or authorize runtime exposure.
+
+## Final Architecture State
+
+| Item | Result |
+|------|--------|
+| A08 CLI Integration | FORMALLY DESIGN FROZEN |
+| A08-AR-F01 | CLOSED BY INDEPENDENT RECHECK |
+| A08-AR-F02 | CLOSED BY INDEPENDENT RECHECK |
+| A08-AR-F03 | EVIDENCE LIMITATION — RESOLVED FOR PASS 6 ARCHITECTURE REVIEW |
+| A08-I01 → A08-I45 | PASS — 45 / 45 |
+| PASS 5-R Bounded Remediation Regression | COMPLETE — PASS |
+| PASS 6 Independent Post-Remediation Re-review | COMPLETE — PASS |
+| CLI Contract Revision Boundary | PASS |
+| Automation Public API Boundary | PASS |
+| Parser / Semantics Boundary | PASS |
+| Argument Preservation | PASS |
+| Bootstrap Boundary | PASS |
+| Explicit Dispatch | PASS |
+| Three Automation Result Planes Preserved | PASS |
+| Automation Status-Origin Policy | PASS |
+| Return Status Preservation | PASS |
+| stdout / stderr Preservation | PASS |
+| A05 Boundary | PASS |
+| A06 Boundary | PASS |
+| A07 Boundary | PASS |
+| Source Safety | PASS |
+| Backward Compatibility | PASS |
+| Runtime Compatibility | PASS |
+| New Critical Findings | 0 |
+| New Major Findings | 0 |
+| New Minor Findings | 0 |
+| New Observations | 0 |
+
+## Canonical Frozen Artifact
+
+| Property | Value |
+|----------|-------|
+| File | PHOENIX_CLI_AUTOMATION_INTEGRATION_ARCHITECTURE_v1.0-PASS5.md |
+| Path | docs/PHOENIX_WORKSPACE/17_DEVKIT/01_ARCHITECTURE/PHOENIX_CLI_AUTOMATION_INTEGRATION_ARCHITECTURE_v1.0-PASS5.md |
+| SHA-256 | 519cec9975dd85ad38e30a85070501a98ef3322948189ff8581e5477de172129 |
+| Lines | 1163 |
+| Bytes | 28815 |
+
+The frozen artifact identity is the exact candidate identity independently verified during PASS 6.
+
+Any modification to the frozen artifact changes its identity and requires explicit lifecycle handling under the applicable Phoenix governance and certification controls.
+
+## Independent Review Result
+
+| Item | Result |
+|------|--------|
+| Candidate Identity Verification | PASS |
+| Reviewer Independence | PASS |
+| CLI Contract Revision Boundary | PASS |
+| CLI Public API Boundary | PASS |
+| Automation Public API Boundary | PASS |
+| Parser / Semantics Boundary | PASS |
+| Argument Preservation | PASS |
+| Help Collision | PASS |
+| Bootstrap Boundary | PASS |
+| Explicit Dispatch | PASS |
+| Three Result Planes Preserved | PASS |
+| Automation Status-Origin Policy | PASS |
+| Return Status Preservation | PASS |
+| stdout / stderr Preservation | PASS |
+| Workflow State Preservation | PASS |
+| Mutation Authority | PASS |
+| A05 Boundary | PASS |
+| A06 Boundary | PASS |
+| A07 Boundary | PASS |
+| Source Safety | PASS |
+| Backward Compatibility | PASS |
+| Runtime Compatibility | PASS |
+| Bounded Scope | PASS |
+| A08-I01 → A08-I45 | PASS — 45 / 45 |
+| Final Review Disposition | COMPLETE — PASS |
+| Design-Freeze Readiness | YES |
+
+## CLI Contract Amendment Status
+
+A08 defines a required scoped amendment to the frozen CLI architecture and function specification.
+
+The required amendment scope includes:
+
+- root CLI grammar;
+- normalized Automation actions;
+- Automation parser contract;
+- capability-specific Automation bootstrap;
+- explicit Automation dispatch;
+- Automation command-handler contract;
+- transparent Automation presentation behavior;
+- Automation-specific result-origin / numeric-status handling;
+- help and discoverability;
+- backward-compatibility constraints.
+
+This design freeze does not itself apply that amendment.
+
+This design freeze does not itself authorize runtime exposure of:
+
+```text
+phoenix automation ...
+The CLI contract amendment and implementation remain separate lifecycle actions.
+
+Lifecycle Status
+Item	Status
+A08 Formal Design Freeze	COMPLETE
+A08 Certification	NOT CERTIFIED
+CLI Contract Amendment	REQUIRED — NOT YET APPLIED
+Automation Implementation	NOT AUTHORIZED
+phoenix automation Runtime Exposure	NOT AUTHORIZED
+Release Execution	NOT AUTHORIZED
+Deployment	NOT AUTHORIZED
+Publication Authority	NOT GRANTED
+Recovery Authority	NOT GRANTED
+Production Acceptance Authority	NOT GRANTED
+Git Integration	PENDING
+Remote Closure	PENDING
+A09	NOT STARTED
+A10	NOT STARTED
+Phase 10	IN PROGRESS
+Next Architectural Mission	A09 — Automation Tests
+
+Formal design freeze does not imply certification.
+
+Formal design freeze does not imply implementation authorization.
+
+Formal design freeze does not itself apply the CLI contract amendment.
+
+Formal design freeze does not authorize runtime exposure of phoenix automation.
+
+Formal design freeze does not authorize phoenix release.
+
+Formal design freeze does not authorize Release execution.
+
+Formal design freeze does not authorize Deployment or Publication.
+
+Formal design freeze does not grant Recovery authority.
+
+Formal design freeze does not imply Production Acceptance.
+
+Formal design freeze does not imply remote closure.
+
+Formal design freeze does not imply A09 completion.
+
+Formal design freeze does not imply A10 completion.
+
+Formal design freeze does not imply Phase 10 completion.
+
+PHOENIX DEVKIT PHASE 10 — A08 FORMAL DESIGN FREEZE: ✅ COMPLETE
