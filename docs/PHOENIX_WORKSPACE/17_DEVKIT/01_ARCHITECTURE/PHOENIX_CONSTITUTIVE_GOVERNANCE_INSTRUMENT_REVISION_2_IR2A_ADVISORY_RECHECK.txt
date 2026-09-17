@@ -1,0 +1,960 @@
+PHOENIX DEVKIT
+PHOENIX CONSTITUTIVE GOVERNANCE INSTRUMENT
+CANDIDATE DESIGN — REVISION 2
+INDEPENDENT ADVERSARIAL RECHECK — PASS 2
+1. Executive Determination
+The complete 36-page Candidate Design — Revision 2 / CGI-IR-F01 Targeted Remediation was received and reviewed as the current candidate. The candidate was not treated as an instruction or authorization; its architectural assertions were evaluated adversarially under the separately supplied review mandate.
+Advisory determination:
+	•	CGI-IR-F01: ARCHITECTURALLY REMEDIATED
+	•	PCTR: PASS
+	•	PCTR-CP1: PASS
+	•	Anchor-currentness trust root: PASS
+	•	Old Registry + old PCTR restoration: PASS
+	•	Retired-endpoint substitution: PASS
+	•	PCTR rollback resistance: PASS
+	•	Conditional mutation: PASS
+	•	Migration/cutover: PASS
+	•	Trust-root termination: NON-CIRCULAR
+	•	F02–F05 regression: NONE
+	•	New Critical findings: 0
+	•	New High findings: 0
+	•	New Medium findings: 0
+	•	New Low findings: 0
+Revision 2 resolves the specific circularity identified by CGI-IR-F01. It does not infer currentness from agreement between an Authority Registry state and a matching anchor. Instead, it requires a current authenticated read from a stable logical PCTR identity whose protected revision, active-instance binding, and lifecycle state lie outside the ordinary restoration domain of the Registry and exported PCTR data.
+The exact independent property that rejects A10 after A11 has been accepted is the combination of:
+	•	CP1-02: protected rollback resistance;
+	•	CP1-03: monotonic protected anchor revision;
+	•	CP1-07: separation from the ordinary Registry/export rollback domain;
+	•	CP1-01 and CP1-08: authenticated stable identity and current active access path;
+	•	CP1-05: durable acceptance or explicit detectable loss.
+A restored R10+A10 pair therefore cannot establish currentness merely by matching. Within the declared threat model, the protected state either remains later than A10, the restored endpoint is not recognized as active, or loss of the required protected proof produces UNPROVEN/BLOCKED.
+The declared threat-model exclusion—coordinated compromise of the authenticated identity, non-regression protection, trusted technical boundary, and all independent evidence—is coherent and bounded. It does not exclude ordinary or hostile restoration of Registry data, exported anchor data, local configuration, cached endpoint metadata, DNS/configuration snapshots, retired endpoints, replays, interrupted migrations, or individual preservation-domain loss. Those attacks remain expressly in scope.
+No new substantive governance authority is created. PCTR establishes technical currentness only; it cannot appoint, delegate, qualify reviewers, close findings, approve freeze, activate certification, certify, or change normative ownership.
+REVIEW OUTCOME:
+IR2-A — REVISION 2 INDEPENDENT ADVISORY RECHECK PASS
+This is a pre-G1, non-authoritative architectural determination. It is not an implementation certification, finding closure, design freeze, constitutive act, or authorization to begin A10.
+
+2. Reviewer Independence
+REVIEWER ACTOR ID: Codex review actor for the present task (/root).
+ENVIRONMENT: Codex desktop task, operating against the supplied PDF in a read-only advisory-review posture.
+ROLE: Pre-G1 independent advisory adversarial reviewer.
+SCOPE: CGI-IR-F01; PCTR; PCTR-CP1; old-consistent-pair resistance; endpoint currentness; rollback; conditional mutation; recovery; migration; loss; F02–F05 regression; A09/A10 boundary preservation.
+KNOWN PRIOR INVOLVEMENT: No substantive prior involvement appears in the available task record.
+SOURCE MATERIAL RECEIVED:
+	•	Complete Candidate Design — Revision 2 / CGI-IR-F01 Targeted Remediation;
+	•	Revision 2 independent adversarial recheck mandate;
+	•	historical Revision 1 recheck instruction available as limited context.
+AUTHORING INVOLVEMENT:
+	•	Authored Candidate Design PASS 1: NO
+	•	Authored Candidate Design Revision 1: NO
+	•	Authored Candidate Design Revision 2: NO
+REMEDIATION INVOLVEMENT:
+	•	Designed or proposed CGI-IR-F01 remediation: NO
+	•	Materially participated in PCTR/PCTR-CP1 design: NO
+	•	Performed the remediation now reviewed: NO
+LIMITATIONS:
+	•	Independence is determined from the available task record; no external authorship ledger was supplied.
+	•	The previous complete IR-C report and full Revision 1 candidate were not independently re-reviewed.
+	•	F02–F05 were examined only for causal regression introduced by the Revision 2 delta, as required.
+	•	No concrete PCTR implementation exists or was tested.
+	•	No commercial product selection or conformance certification was performed.
+	•	Architectural sufficiency was reviewed; implementation conformance remains future work.
+REVIEWER INDEPENDENCE: ESTABLISHED FOR PRE-G1 NON-AUTHORITATIVE ADVISORY RECHECK
+Different hardware, session, model, provider, or account was not relied upon as the basis for independence. The basis is absence of substantive authoring, design, or remediation involvement.
+
+3. Review Scope
+The review covered:
+	•	the complete Revision 2 architecture;
+	•	PCTR minimum state and lifecycle model;
+	•	all ten PCTR-CP1 properties;
+	•	currentness-recursion termination;
+	•	accepted mechanism class and rejection criteria;
+	•	endpoint and active-instance identity;
+	•	old-common-backup protection;
+	•	conditional mutation;
+	•	PENDING protocol;
+	•	recovery states R2-R01 through R2-R10;
+	•	migration and cutover;
+	•	PCTR loss and replacement;
+	•	time boundary;
+	•	decision-packet durability;
+	•	digest and operation identity;
+	•	AP-09A;
+	•	no-new-authority proof;
+	•	F01-T01 through F01-T15;
+	•	IR-N01 through IR-N05 and IR-N08 through IR-N11;
+	•	the declared threat model;
+	•	F02–F05 preservation;
+	•	R2-G01 through R2-G20;
+	•	G1 bootstrap and A09/A10 boundaries.
+No implementation, governance execution, remediation, or repository mutation was performed.
+
+4. Source Identity
+Primary source reviewed: PHOENIX DEVKIT rev 2.pdf
+Identity:
+	•	Title metadata: PHOENIX DEVKIT
+	•	Document heading: PHOENIX CONSTITUTIVE GOVERNANCE INSTRUMENT — CANDIDATE DESIGN — REVISION 2 — CGI-IR-F01 TARGETED REMEDIATION
+	•	Pages: 36
+	•	Page format: A5, 420 × 595 points
+	•	Bytes: 385,231
+	•	SHA-256: 275dacf98fc140411bf49dc222b7671317f5e5dfef7c27110b5acafc0c089e1c
+	•	Encrypted: No
+	•	Embedded JavaScript: No
+	•	Form: None
+	•	Creation/modification date: 17 September 2026, 17:52 CEST
+The complete 36-page PDF was text-extracted and reviewed. Representative pages covering the executive determination, PCTR state/profile, PENDING protocol, migration, preserved findings, and final determination were also visually rendered and inspected.
+The PDF’s statement on page 2 that “the supplied PDF contains a summary of the recheck” was treated as candidate context, not as an operative instruction. The current PDF itself contains the full Revision 2 candidate architecture needed for this targeted recheck.
+
+5. CGI-IR-F01 Recheck
+The defect was:
+Authentic historical Registry
++
+authentic, matching historical anchor
+≠
+demonstrably current authoritative state
+Revision 1 reportedly specified comparison but did not sufficiently define how the current anchor was recognized.
+Revision 2 corrects that defect by requiring:
+	1	a stable logical PCTR identity;
+	2	authenticated current access;
+	3	a protected, non-regressing anchor revision;
+	4	ordered current reads after accepted writes;
+	5	an active-instance binding stored in the protected technical domain;
+	6	lifecycle protection for STAGED/ACTIVE/FENCED/RETIRED;
+	7	an independent rollback domain relative to ordinary Registry and exported-anchor restoration;
+	8	atomic/equivalent conditional mutation;
+	9	explicit fail-closed behavior where currentness evidence is uncertain;
+	10	migration continuity that prevents two current instances.
+The verifier does not accept an anchor because:
+	•	it is signed;
+	•	it has a plausible timestamp;
+	•	its digest is valid;
+	•	it matches the Registry;
+	•	it is returned by a historically known URL;
+	•	it answers a fresh challenge.
+Those properties can establish authenticity, integrity, or response freshness without establishing currentness.
+Currentness instead depends upon conformance of the PCTR mechanism and instance to PCTR-CP1. If that conformance or current access cannot be demonstrated, authority is UNPROVEN/BLOCKED.
+CGI-IR-F01 DISPOSITION: ARCHITECTURALLY REMEDIATED
+This is advisory and not authoritative closure.
+
+6. PCTR Architecture Recheck
+PCTR is sufficiently defined as a technological class rather than a named implementation.
+Its minimum state includes:
+	•	PCTR_ID
+	•	GOVERNANCE_EPOCH_ID
+	•	LINEAGE_ID
+	•	ANCHOR_REVISION
+	•	REGISTRY_GENERATION
+	•	REGISTRY_HEAD_DIGEST
+	•	PREDECESSOR_HEAD_DIGEST
+	•	OPERATION_ID
+	•	STATE: CURRENT | PENDING
+	•	UPDATED_AT
+	•	MECHANISM_ID / PROFILE_ID
+During PENDING, it also preserves the accepted predecessor and reserved successor identities.
+A separate service-instance lifecycle is defined:
+	•	STAGED
+	•	ACTIVE
+	•	FENCED
+	•	RETIRED
+This separation is important. A retired instance may retain an internally CURRENT historical anchor without being permitted to present itself as the current active source.
+PCTR’s functions remain technical:
+	•	authenticated identification;
+	•	current-state reading;
+	•	non-regression;
+	•	ordering;
+	•	conditional update;
+	•	migration continuity.
+PCTR does not decide what governance action should occur. It records and protects the current technical continuity state of an independently authorized transition.
+PCTR: PASS
+
+7. PCTR-CP1 Recheck
+Property
+Defined
+Independently testable
+Non-circular
+Necessary
+Sufficient in combination
+Result
+CP1-01 Stable identity
+Yes
+Yes: clone/export substitution test
+Yes
+Yes
+Yes, with active binding and rollback protection
+PASS
+CP1-02 Rollback resistance
+Yes
+Yes: restore R after R+1
+Yes
+Yes
+Yes, with CP1-03/05/07
+PASS
+CP1-03 Monotonic revision
+Yes
+Yes: update, restart, cancellation, restore
+Yes
+Yes
+Yes, with atomic mutation and protected storage
+PASS
+CP1-04 Conditional mutation
+Yes
+Yes: concurrent writers against same revision
+Yes
+Yes
+Yes, with operation binding
+PASS
+CP1-05 Durable acceptance
+Yes
+Yes: crash after acknowledgment
+Yes
+Yes
+Yes: exact recovery or detectable loss/block
+PASS
+CP1-06 Authenticated state
+Yes
+Yes: alteration and replay rejection
+Yes
+Yes
+Yes, with current access and active binding
+PASS
+CP1-07 Independent rollback domain
+Yes
+Yes: combined ordinary backup restoration
+Yes
+Yes
+Yes, for the old-pair attack
+PASS
+CP1-08 Current access path
+Yes
+Yes: restore pre-cutover client configuration
+Yes
+Yes
+Yes, with stable identity and protected active binding
+PASS
+CP1-09 Migration continuity
+Yes
+Yes: crash at every cutover phase and dual-current test
+Yes
+Yes
+Yes, with fencing and protected binding
+PASS
+CP1-10 Fail closed
+Yes
+Yes: endpoint/revision/continuity uncertainty
+Yes
+Yes
+Yes, as the terminal safety behavior
+PASS
+The candidate does more than state that a future service “must” provide these properties. Each CP1 property includes a minimum observable operational falsification or acceptance test. The mechanism class also excludes superficially plausible but insufficient mechanisms, including:
+	•	strongly consistent databases without restore protection;
+	•	append-only logs without proof of latest checkpoint;
+	•	hardware counters unbound from head, identity, and lifecycle;
+	•	managed services without verifiable migration and non-regression guarantees;
+	•	files, Git refs, tags, copies, JSON exports, URLs, timestamps, hashes, and signatures used alone.
+No commercial implementation is required at this design stage. A future mechanism still cannot be admitted on self-declaration; its specification, rollback boundaries, restore behavior, and relevant test results must satisfy the profile.
+PCTR-CP1: PASS
+
+8. Old Consistent Pair Attack
+Attack sequence
+T1:
+Registry R10
+PCTR A10
+
+T2:
+Registry R11
+PCTR A11 accepted
+
+T3:
+restore Registry R10
+restore exported PCTR data A10
+restore client configuration
+restore cached endpoint metadata
+restore DNS/configuration snapshot
+
+Do not restore protected non-regression state.
+Independent rejection property
+A10 is proved non-current by the protected PCTR anchor revision and active-instance/lifecycle state that survived outside the ordinary restored domain.
+The decisive controls are:
+	•	CP1-02 and CP1-03 retain evidence of advancement beyond A10;
+	•	CP1-07 prevents ordinary Registry/export restoration from restoring that protected state;
+	•	CP1-01 and CP1-08 prevent a restored service from inheriting active-instance legitimacy;
+	•	CP1-05 requires either recovery of the accepted state or explicit detectable loss.
+Conforming outcomes are:
+	1	PCTR returns A11 and R10 is detected as stale;
+	2	PCTR detects that restored A10 data are below protected state and refuses to present A10 as current;
+	3	the restored endpoint is not recognized as active;
+	4	protected advancement survives but A11 content is missing, producing loss detection and BLOCKED.
+The architecture expressly rejects matching R10↔A10 as sufficient evidence.
+Total protected-root compromise
+Revision 2 places outside the declared threat model only a coordinated compromise of:
+	•	the trusted technical boundary;
+	•	authenticated identity;
+	•	non-regression guarantee;
+	•	protected active binding/lifecycle;
+	•	all independent evidence;
+such that false and real state become indistinguishable.
+This boundary is coherent. It does not classify ordinary shared-backup restoration, endpoint replay, retired endpoints, stale configuration, or interrupted migration as total trust-root compromise.
+OLD REGISTRY + OLD PCTR RESTORE: PASS
+
+9. Endpoint Identity Attack
+Attack
+Candidate control
+Result
+Authentic retired endpoint
+RETIRED cannot present as active; active binding is separately protected
+PASS
+Cloned endpoint
+Clone/export does not inherit active-instance identity
+PASS
+Restored endpoint
+Restore cannot restore protected ACTIVE legitimacy
+PASS
+Stale DNS/configuration
+Must block or reach active instance through verifiable current binding
+PASS
+Old certificate/credential
+Credential authenticity alone does not prove ACTIVE lifecycle
+PASS
+Valid historical response
+Historical authenticity does not prove currentness
+PASS
+Replayed response
+Response must bind to the current request; replay rejected
+PASS
+Fresh response from stale service
+Fresh challenge alone insufficient; service must prove current ordered/active state
+PASS
+Two endpoints both claiming current
+Verifier blocks absent a unique protected cutover lineage
+PASS
+Rollback of ACTIVE/FENCED/RETIRED
+Lifecycle and active binding are in the protected non-regressing technical domain
+PASS
+Revision 2 distinguishes:
+AUTHENTIC ENDPOINT
+from:
+CURRENT ACTIVE ENDPOINT
+A fresh challenge proves only that an endpoint can presently answer. It does not prove that its state or lifecycle is current.
+RETIRED ENDPOINT SUBSTITUTION: PASS
+
+10. Trust-Root Recursion
+The recursion terminates as follows:
+Registry state
+    ↓ checked against
+PCTR anchor state
+    ↓ obtained through
+authenticated current access path
+    ↓ constrained by
+protected active-instance/lifecycle binding
+    ↓ ordered by
+protected non-regressing revision and atomic mutation
+    ↓ assumed through
+declared and conformance-tested infrastructure trust boundary
+The termination point is not:
+	•	the Registry;
+	•	matching exported PCTR data;
+	•	an endpoint’s statement that it is current;
+	•	a URL;
+	•	a signature;
+	•	a timestamp;
+	•	a digest;
+	•	a restored database.
+It is the declared CP1-conforming infrastructure boundary. That assumption is finite and explicit. Operational tests may falsify a mechanism’s conformance, although they cannot prove universal physical invulnerability.
+If the assumption cannot be established for the selected instance:
+PCTR NON-CONFORMING
+→ CURRENT_AUTHORITY_STATE UNPROVEN
+→ BLOCKED
+TRUST-ROOT TERMINATION: NON-CIRCULAR
+
+11. Conditional Mutation
+Revision 2 requires compare-and-set, conditional transaction, or a genuinely atomic equivalent.
+Every request binds at least:
+	•	active instance;
+	•	epoch;
+	•	lineage;
+	•	expected anchor revision;
+	•	expected state;
+	•	operation ID;
+	•	exact transition content.
+For concurrent writers:
+Writer A:
+expected N → successor X
+
+Writer B:
+expected N → successor Y
+at most one may succeed. The other must receive a precondition mismatch unless it is an identical retry of the already accepted operation.
+An implementation advertising CAS while performing unprotected:
+READ
+→ CHECK
+→ WRITE
+is expressly non-conforming.
+Additional determinations:
+	•	Duplicate identical retry: safely recognized as idempotent.
+	•	Same operation ID/different successor: rejected.
+	•	Stale expected revision: rejected by conditional mutation.
+	•	Operation replay: no reapplication after supersession.
+	•	Cross-epoch reuse: rejected by epoch/lineage binding.
+	•	Cancellation after later revision: rejected by conditional state/revision mismatch.
+	•	Confirmation after supersession: rejected because confirmation binds the exact reservation and expected revision.
+CONDITIONAL MUTATION: PASS
+
+12. Revision / Generation Separation
+Revision 2 correctly separates:
+	•	ANCHOR_REVISION: advances on every PCTR mutation, including reservation, confirmation, cancellation, and lifecycle mutation;
+	•	REGISTRY_GENERATION: advances only when a Registry successor is accepted.
+The required sequence is explicitly permitted:
+anchor revision 20 / registry generation 10 / CURRENT
+→ anchor revision 21 / registry generation 10 / PENDING successor 11
+→ anchor revision 22 / registry generation 11 / CURRENT
+Cancellation creates a new anchor revision while preserving Registry generation 10. It does not return to anchor revision 20.
+This prevents both counter conflation and apparent rollback through cancellation.
+REVISION / GENERATION SEPARATION: PASS
+
+13. PENDING Crash Matrix
+Point
+Authoritative state
+Permitted retry/recovery
+Required block
+Branch discretion
+Result
+P1 before reservation
+Existing CURRENT predecessor
+Retry PREPARE/current read
+Block if current read or identity uncertain
+None
+PASS
+P2 after PENDING reservation
+Exact reserved transition is authoritative as PENDING, not effective successor
+Retry exact operation; recover exact reserved successor; conditionally cancel with trace
+Block unrelated successor and substantive operation
+No arbitrary branch; reservation binds successor
+PASS
+P3 after successor durable
+Still PENDING until required evidence and confirmation
+Verify exact successor/evidence, then confirm conditionally
+Block use as CURRENT before confirmation
+No promotion by object existence
+PASS
+P4 during evidence durability
+PENDING; incomplete evidence does not finalize
+Complete exact required evidence or remain blocked
+Confirmation blocked until durability condition holds
+No technical invention of missing authority
+PASS
+P5 before confirmation
+PENDING with durable successor/evidence
+Retry exact conditional confirmation
+Block if prerequisites, expiry, or reservation no longer match
+Confirmation is mechanically conditioned
+PASS
+P6 during confirmation
+Determined by recovered protected revision/state
+Retry same operation ID and exact content
+Block on ambiguous or lost acceptance
+CP1-05 requires exact recovery or explicit loss
+PASS
+P7 after confirmation, before local acknowledgment
+Recovered PCTR state is authoritative
+Identical retry returns accepted state/result
+Stale cancellation or alternate successor blocked
+No duplicate substantive decision
+PASS
+The recovery table further provides:
+	•	exact recovery of the object named by PCTR;
+	•	no promotion of a numerically newer Registry unless it matches the current reservation;
+	•	no PCTR rollback to match an older Registry;
+	•	BLOCKED when PCTR is unavailable;
+	•	UNPROVEN/BLOCKED for uncertain identity;
+	•	BLOCKED for ambiguous dual-current endpoints;
+	•	rejection of restored consistent historical pairs.
+A custodian may perform only constrained completion, conditional cancellation, or preservation operations. The custodian does not acquire power to choose a convenient lineage as authoritative.
+
+14. Migration / Cutover Attack
+Required sequence:
+OLD ACTIVE
+NEW STAGED
+resolve PENDING
+record migration intent and suspend substantive operations
+NEW initialized from exact current checkpoint
+NEW CP1/identity verified
+OLD FENCED with durable final checkpoint/proof
+protected binding conditionally cut over
+NEW usable only with cutover proof and OLD non-current
+OLD RETIRED
+verify no dual-current
+resume operations
+Attack determinations:
+Attack
+Determination
+OLD ACTIVE + NEW ACTIVE
+Prevented: NEW cannot be used before protected cutover and proof OLD is non-current
+OLD writable after NEW activation
+Prevented by durable fencing before NEW use
+NEW active before OLD fencing
+Prevented by required ordering
+Lost cutover record
+Protected conditional binding remains authoritative; uncertainty blocks
+Restored OLD after retirement
+OLD cannot recover protected active status from local data
+Stale client reaches OLD
+OLD is FENCED/RETIRED or cannot authenticate as active
+NEW initialized from historical checkpoint
+Rejected: exact current checkpoint and current OLD verification required
+Cutover based on stale OLD
+Rejected by current OLD identity/revision/head verification
+Failure between fencing and NEW activation
+Availability gap/BLOCKED; accepted by design
+Lifecycle-binding rollback
+Non-conforming under CP1-02/03/08/09
+Two endpoints claim current
+BLOCKED until a unique protected binding is established
+Transfer of the entire trust-root mechanism
+Requires equivalent continuity proof; copying checkpoint alone is insufficient
+Revision 2 expressly does not assume atomicity between the Registry and PCTR archives. It obtains safety by fencing OLD first and accepting an availability gap.
+The architecture prioritizes:
+NO DUAL-CURRENT
+over:
+CONTINUOUS AVAILABILITY
+as required.
+MIGRATION / CUTOVER: PASS
+
+15. PCTR Loss / Replacement
+Revision 2 distinguishes migration from loss.
+Migration requires:
+	•	verified current checkpoint;
+	•	ordered cutover;
+	•	verified cessation of the previous writer;
+	•	protected continuity.
+Loss means the current source is unavailable or unreliable.
+A recovery may preserve lineage only if a previously adopted process retains:
+	•	sufficient independent proof of the latest state; and
+	•	proof that prior writers can no longer accept writes.
+If either proof is absent:
+BLOCKED
+→ ORPHANED when no legitimate path remains
+The Authority Registry cannot nominate or reconstruct its own replacement PCTR from the available copy. A new prospective epoch cannot validate the lost lineage retroactively.
+This prevents the Registry from becoming its own currentness proof and prevents emergency recovery from silently creating governance authority.
+PCTR LOSS / REPLACEMENT: PASS
+
+16. Digest / Operation Identity
+Revision 2 requires every digest identity to bind:
+	•	ALGORITHM
+	•	BYTE IDENTITY / CANONICALIZATION RULE
+	•	DIGEST VALUE
+The default is hashing the exact bytes of the immutable object with an identified algorithm. Canonical representation is allowed only where the canonicalization rule is explicit and unambiguous.
+The architecture correctly states that a digest proves content identity, not:
+	•	origin;
+	•	currentness;
+	•	authority.
+Operation identity binds:
+	•	governance epoch;
+	•	lineage;
+	•	logical PCTR and relevant instance;
+	•	expected PCTR revision;
+	•	expected Registry generation;
+	•	predecessor-head digest;
+	•	successor-head digest.
+Results:
+Attack
+Result
+Digest without algorithm
+Rejected/incomplete
+Canonicalization ambiguity
+Rejected/incomplete
+Same label, different bytes
+Distinct byte identity/digest
+Operation-ID reuse
+Rejected unless exact retry
+Cross-epoch replay
+Rejected
+Predecessor mismatch
+Conditional transition rejected
+Successor substitution
+Rejected
+Same operation ID, different successor
+Rejected
+Superseded operation replay
+No effect on current state
+DIGEST / OPERATION IDENTITY: PASS
+
+17. Decision Packet Durability
+A finalization becomes effective only after durable preservation, or verifiable durable availability, of:
+	•	the immutable decision packet;
+	•	decision attachments;
+	•	required evidence.
+A PCTR reference does not substitute for those objects.
+PCTR does not become a second Authority Registry because it retains only technical references needed for currentness/finalization; substantive decision records remain in their designated archives.
+If evidence later disappears, the surviving digest does not conceal that loss. Reuse is blocked where verification requires the missing material.
+DECISION PACKET DURABILITY: PASS
+
+18. Time Boundary
+Revision 2 correctly states:
+	•	UPDATED_AT is provenance, not currentness proof;
+	•	a signature or timestamp does not establish that a state is current;
+	•	time-sensitive delegations continue to require a time source appropriate to the relevant interval;
+	•	uncertainty crossing an effective or expiry boundary produces BLOCKED;
+	•	Revision 2 does not claim to solve universal clock rollback.
+No new finding is warranted merely because a concrete time service has not yet been selected.
+TIME BOUNDARY: PASS
+
+19. No-New-Authority Recheck
+Actor/component
+Permitted function
+Governance power not acquired
+Result
+PCTR
+Technical continuity
+Source of mandate
+PASS
+PCTR operator
+Mechanism administration
+Governance authority
+PASS
+Custodian
+Preservation and authorized operations
+Normative ownership
+PASS
+Currentness verifier
+Determine observable currentness state
+Reviewer eligibility
+PASS
+Conditional mutation mechanism
+Order an already authorized transition
+Finding closure
+PASS
+Technical finalization
+Record authorized event
+Freeze approval
+PASS
+Active PCTR
+Provide technical service
+Certification
+PASS
+Migration operator
+Execute constrained cutover
+Appointments/delegations
+PASS
+Recovery operator
+Restore only under predetermined proof
+Emergency governance authority
+PASS
+Revision 2 introduces no additional H0/H1/H2 roles.
+The mechanism cannot:
+	•	appoint;
+	•	delegate;
+	•	decide reviewer eligibility;
+	•	close findings;
+	•	approve A09 freeze;
+	•	activate CG-CAP-09;
+	•	certify;
+	•	amend normative ownership;
+	•	authorize G1.
+NO-NEW-AUTHORITY: PASS
+
+20. G1 Bootstrap Regression
+Revision 2 preserves:
+G1
+→ prospective applicability
+→ technical initialization
+→ CP1 conformance/currentness verification
+→ first ordinary governance operation
+Before G1, the PCTR configuration is prepared infrastructure, not a mandate.
+AP-09A identifies the future mechanism, initial identity, access path, protected binding, epoch, lineage, initial revision, initial Registry state, trust boundary, separation, recovery policy, and conformance evidence. The future constitutive act makes the adopted configuration prospectively applicable.
+Before the first ordinary post-G1 operation, the following must succeed:
+	•	Registry initialization;
+	•	PCTR initialization;
+	•	CP1 conformance verification;
+	•	authenticated currentness verification.
+Those checks do not authorize G1 retroactively. Failure blocks derivative operation.
+Thus:
+	•	PCTR does not authorize G1.
+	•	G1 does not depend on governance authority that exists only after G1.
+	•	Technical readiness is distinguished from constitutive authority.
+G1 BOOTSTRAP REGRESSION: NONE
+
+21. F02–F05 Regression
+Revision 2’s stated delta is limited to CGI-IR-F01 and the technical currentness trust root. Its provisions preserve rather than alter:
+	•	constitutive authority;
+	•	reviewer eligibility;
+	•	freeze and certification boundaries;
+	•	holder models;
+	•	prospective applicability;
+	•	non-retroactivity;
+	•	ORPHANED state;
+	•	separation from A10.
+No Revision 2 clause was found that causally reopens or weakens the preserved F02–F05 dispositions.
+	•	F02 REGRESSION: NONE
+	•	F03 REGRESSION: NONE
+	•	F04 REGRESSION: NONE
+	•	F05 REGRESSION: NONE
+This is regression-only review, not a new independent adjudication of the original F02–F05 merits.
+
+22. A09 / A10 Boundary
+Revision 2 preserves:
+	•	PDS-GAR-D01: STILL OPEN
+	•	A09-ELIG-F002: STILL OPEN
+	•	A09 reviewer eligibility: NOT DETERMINED
+	•	A09 formal design freeze: NOT PERFORMED
+	•	CG-CAP-09: DORMANT
+	•	A10: NOT STARTED
+	•	Historical status: UNCHANGED
+PCTR currentness verification does not decide A09 eligibility, close the open findings, perform freeze, activate certification, certify the design, or begin A10.
+A09/A10 LEAKAGE: NONE
+
+23. F01-T01…T15 Matrix
+Test
+Independent result
+Decisive reason
+F01-T01 Authentic stale prefix
+PASS
+Current PCTR read plus exact head comparison
+F01-T02 Registry rollback
+PASS
+PCTR protected outside ordinary Registry restore
+F01-T03 PCTR rollback
+PASS
+Protected revision retains advancement or detects loss
+F01-T04 Old consistent pair
+PASS
+CP1-02/07/08; matching is insufficient
+F01-T05 Concurrent successors
+PASS
+Atomic/equivalent conditional mutation
+F01-T06 PENDING, successor absent
+PASS
+No effectiveness; exact recovery or BLOCKED
+F01-T07 Durable but unconfirmed successor
+PASS
+Object presence does not establish CURRENT
+F01-T08 Confirmed PCTR, Registry head missing
+PASS
+Recover exact PCTR-designated object; otherwise BLOCKED
+F01-T09 Historical export presented as current
+PASS
+Authenticated active-instance path and current ordered read
+F01-T10 Migration
+PASS
+STAGED → FENCED → protected cutover → ACTIVE
+F01-T11 Revision rollback/reuse
+PASS
+Monotonic protected revision; cancellation advances
+F01-T12 Custodian selects branch
+PASS
+Accepted head/reservation binds the only permitted branch
+F01-T13 PCTR unavailable
+PASS
+No presumed current authority; BLOCKED
+F01-T14 Predecessor mismatch
+PASS
+Conditional transition rejected
+F01-T15 Coordinated compromise of all trust roots
+OUTSIDE DECLARED THREAT MODEL
+Explicit bounded compromise of the complete declared technical root and independent evidence
+For F01-T15, the exclusion is not used to evade ordinary restoration or endpoint attacks; those remain in scope.
+
+24. IR-N Scenario Matrix
+Scenario
+Independent result
+Reason
+IR-N01 Endpoint substitution
+PASS
+Protected active-instance identity outside Registry
+IR-N02 Conditional-write emulation
+PASS
+Non-atomic read/check/write expressly non-conforming
+IR-N03 Operation ID reused across epochs
+PASS
+Epoch/lineage/PCTR/revision/digest binding
+IR-N04 Prepared-successor equivocation
+PASS
+Reservation binds exact successor digest and context
+IR-N05 Ambiguous digest algorithm
+PASS
+Algorithm and byte/canonicalization rule mandatory
+IR-N08 Migration dual-current
+PASS
+OLD fenced before NEW may be used
+IR-N09 Reference without durable packet
+PASS
+Durability precedes effectiveness
+IR-N10 Clock rollback
+PASS
+Timestamps not currentness; boundary uncertainty blocks
+IR-N11 Decision/update same position
+PASS
+Ordered transition; effect cannot authorize its own decision
+
+25. New IR2-N Scenarios
+IR2-N01 — Full ordinary restore except protected revision
+ATTACK: Restore Registry, PCTR export, client configuration, cached endpoint metadata, and DNS snapshot to T1. PRECONDITION: Protected CP1 revision/lifecycle state still reflects T2. EXPLOIT: Present the restored R10+A10 pair as mutually corroborating. IMPACT: Historical authority could be mistaken for current authority. CONTROL: CP1-02/03/07 reject A10 as current; CP1-01/08 reject the restored active identity. RESULT: PASS.
+IR2-N02 — Fresh challenge answered by retired endpoint
+ATTACK: Send a fresh nonce to an authentic retired service that still has historical credentials. PRECONDITION: The retired process remains reachable. EXPLOIT: Use response freshness as a substitute for lifecycle currentness. IMPACT: Historical state could appear live and authoritative. CONTROL: Freshness is necessary but insufficient; protected active-instance status must also verify. RESULT: PASS.
+IR2-N03 — Stale forwarding endpoint
+ATTACK: Restore an old client path that forwards requests through OLD. PRECONDITION: OLD can still receive traffic but is FENCED or RETIRED. EXPLOIT: Attempt to make historical routing appear equivalent to current access. IMPACT: Access-path rollback. CONTROL: Forwarding is acceptable only if it verifiably terminates at the protected active instance; otherwise BLOCKED. RESULT: PASS.
+IR2-N04 — Same ID, altered successor
+ATTACK: Reuse an accepted operation ID with a different successor digest. PRECONDITION: The identifier is known from a valid prior request. EXPLOIT: Exploit weak idempotency to substitute content. IMPACT: Unauthorized lineage alteration. CONTROL: Operation ID binds exact epoch, lineage, revisions, predecessor, and successor. RESULT: PASS.
+IR2-N05 — Late cancellation after confirmation
+ATTACK: Replay cancellation for a PENDING reservation after that reservation has already been confirmed and superseded. PRECONDITION: Cancellation request was delayed or restored from a queue. EXPLOIT: Attempt to revert an effective current state. IMPACT: Anchor rollback or decision erasure. CONTROL: Conditional cancellation fails against the later revision/state and itself could never roll revision backward. RESULT: PASS.
+IR2-N06 — Confirmation after reservation superseded
+ATTACK: Replay a stale confirmation after an authorized conditional cancellation or later transition. PRECONDITION: The successor and evidence still exist. EXPLOIT: Treat durable object existence as authority to finalize. IMPACT: Reanimation of an obsolete branch. CONTROL: Confirmation must match the exact current reservation, revision, state, and operation. RESULT: PASS.
+IR2-N07 — Crash after OLD fenced, before protected cutover
+ATTACK: Terminate migration immediately after OLD is durably fenced. PRECONDITION: NEW is STAGED but not active. EXPLOIT: Pressure operator to reactivate OLD or promote NEW without proof. IMPACT: Dual-current or unverified cutover. CONTROL: Availability gap is allowed; operations remain BLOCKED until conditional cutover completes. RESULT: PASS.
+IR2-N08 — Restore OLD after NEW activation
+ATTACK: Restore OLD’s data and local lifecycle configuration to its pre-cutover ACTIVE state. PRECONDITION: NEW is already active through the protected binding. EXPLOIT: Attempt to recover OLD’s legitimacy from its snapshot. IMPACT: Two writable/current roots. CONTROL: Protected binding and lifecycle do not regress with OLD’s local restore; OLD remains non-current. RESULT: PASS.
+IR2-N09 — NEW seeded from an authentic stale checkpoint
+ATTACK: Initialize NEW with a signed, authentic checkpoint older than OLD’s current final revision. PRECONDITION: The checkpoint is cryptographically valid. EXPLOIT: Confuse authenticity with currentness. IMPACT: Rollback during migration. CONTROL: Exact current OLD checkpoint, final revision, head, epoch, lineage, and cutover event must match. RESULT: PASS.
+IR2-N10 — Evidence deletion after finalization
+ATTACK: Retain PCTR digest/reference while deleting required decision evidence. PRECONDITION: Finalization previously succeeded. EXPLOIT: Present the surviving digest as sufficient evidence. IMPACT: Unverifiable decision reused as authoritative. CONTROL: Digest does not replace content; reuse blocks when verification requires missing evidence. RESULT: PASS.
+IR2-N11 — Total PCTR data loss with Registry copy intact
+ATTACK: Destroy current PCTR state, protected revision, endpoint binding, and lifecycle evidence while retaining a plausible Registry. PRECONDITION: No independent adopted recovery evidence survives. EXPLOIT: Reconstruct the PCTR from the Registry’s self-description. IMPACT: Registry becomes its own currentness authority. CONTROL: Reconstruction from Registry is prohibited; state becomes BLOCKED and ultimately ORPHANED. RESULT: PASS.
+IR2-N12 — New epoch retroactively blesses lost lineage
+ATTACK: Create a prospective new epoch and use it to declare the lost prior lineage valid. PRECONDITION: Prior PCTR continuity is irrecoverable. EXPLOIT: Convert prospective authority into retroactive validation. IMPACT: Historical-status alteration and false continuity. CONTROL: New prospective epoch cannot validate old lineage retroactively. RESULT: PASS.
+IR2-N13 — Protected revision survives, accepted content does not
+ATTACK: Preserve proof that the revision advanced beyond A10 while losing A11’s content. PRECONDITION: Protected metadata and content have different failure modes. EXPLOIT: Fall back to A10 because it is the latest available complete state. IMPACT: Silent rollback. CONTROL: CP1-05 requires explicit detected loss and BLOCKED, not fallback to A10. RESULT: PASS.
+IR2-N14 — PCTR operator asserts emergency authority
+ATTACK: Operator claims that PCTR unavailability permits appointment, branch choice, finding closure, or emergency certification. PRECONDITION: Technical continuity is unavailable. EXPLOIT: Convert operational custody into substantive governance power. IMPACT: Unauthorized governance act. CONTROL: Loss yields BLOCKED/ORPHANED; no emergency powers are created. RESULT: PASS.
+
+26. R2-G01…G20 Regression Matrix
+Check
+Independent result
+R2-G01 PCTR becomes authority source
+PASS — prevented
+R2-G02 PCTR operator becomes governance holder
+PASS — prevented
+R2-G03 PCTR becomes second Authority Registry
+PASS — prevented
+R2-G04 G1 requires post-G1 authority
+PASS — prevented
+R2-G05 Technical initialization self-authorizes
+PASS — prevented
+R2-G06 Migration creates authority
+PASS — prevented
+R2-G07 Recovery creates authority
+PASS — prevented
+R2-G08 Anchor rollback accepted
+PASS — prevented/detected
+R2-G09 Dual-current accepted
+PASS — prevented; ambiguity blocks
+R2-G10 HEAD proves currentness
+PASS — prevented
+R2-G11 Timestamp proves currentness
+PASS — prevented
+R2-G12 Signature alone proves currentness
+PASS — prevented
+R2-G13 Common backup silently accepted
+PASS — prevented
+R2-G14 Old endpoint accepted as current
+PASS — prevented
+R2-G15 A09 authority transferred to PCTR
+PASS — prevented
+R2-G16 PCTR confers A10 certification
+PASS — prevented
+R2-G17 PCTR loss creates emergency powers
+PASS — prevented
+R2-G18 Historical status changed
+PASS — prevented
+R2-G19 F02–F05 semantics altered
+PASS — no causal alteration found
+R2-G20 Universal consensus required
+PASS — not introduced
+These determinations assess the architecture, not a future implementation.
+
+27. Trust-Root Analysis
+Revision 2’s trust root is bounded by PCTR-CP1 and the selected mechanism instance’s verified conformance.
+The root assumption encompasses:
+	•	stable authenticated logical identity;
+	•	protected active-instance and lifecycle binding;
+	•	current reads ordered after accepted writes;
+	•	non-regressing protected revision;
+	•	genuine conditional mutation;
+	•	durable acceptance or detectable loss;
+	•	rollback-domain separation;
+	•	verifiable migration continuity;
+	•	fail-closed behavior.
+The architecture avoids infinite regress by treating these as the explicit infrastructure root assumption after conformance verification.
+It avoids circularity because currentness is not derived from:
+Registry says PCTR is current
+or:
+PCTR data say this PCTR endpoint is current
+after those same data have been restored.
+The active binding and protected revision must survive or detect restoration independently of the ordinary restored material. If the entire protected assumption is lost or compromised, the architecture does not manufacture a proof; it blocks or becomes orphaned.
+ANCHOR CURRENTNESS TRUST ROOT: PASS TRUST-ROOT TERMINATION: NON-CIRCULAR
+
+28. Findings Register
+No new architectural defect was established.
+NEW CRITICAL FINDINGS: 0 NEW HIGH FINDINGS: 0 NEW MEDIUM FINDINGS: 0 NEW LOW FINDINGS: 0 NEW INFORMATIONAL FINDINGS: 0
+Implementation selection, conformance evidence, concrete custody configuration, restore testing, and cutover testing remain future obligations explicitly acknowledged by Revision 2. They are not defects in the design-stage architecture and do not constitute findings in this review.
+
+29. Severity Summary
+Severity
+New findings
+CRITICAL
+0
+HIGH
+0
+MEDIUM
+0
+LOW
+0
+INFORMATIONAL
+0
+No finding was remediated, closed authoritatively, or rewritten by this review.
+
+30. Review Outcome
+IR2-A REVISION 2 INDEPENDENT ADVISORY RECHECK PASS
+The IR2-A criteria are met:
+	•	reviewer independence established;
+	•	CGI-IR-F01 architecturally remediated;
+	•	PCTR-CP1 architecturally sufficient and operationally testable;
+	•	old Registry + old PCTR restoration prevented within the declared threat model;
+	•	retired-endpoint substitution prevented;
+	•	PCTR rollback prevented or detected within the declared threat model;
+	•	conditional mutation sufficient;
+	•	migration prevents dual-current;
+	•	trust-root termination bounded and non-circular;
+	•	no new governance authority introduced;
+	•	no F02–F05 regression found;
+	•	no A09/A10 leakage found;
+	•	no new Critical, High, or Medium architectural finding remains.
+This outcome does not certify any concrete PCTR mechanism or close CGI-IR-F01 authoritatively.
+
+31. Operation Declaration
+Files modified: 0 Files created: 0 persistent files Temporary visual QA files: Generated in an isolated temporary directory and deleted after inspection Repository inspections: 0 Git inspections: 0 Tests executed: 0 implementation/runtime tests; architectural attacks and conformance-criterion analysis only Runtime changes: 0 Git state-changing operations: 0 Commits: 0 Pushes: 0 Merges: 0 Tags: 0 Constitutive instrument created: 0 Constitutive acts: 0 G1 creation: 0 Authority Registry creation: 0 PCTR creation: 0 Authority appointments: 0 Holder appointments: 0 PDS amendments: 0 Reviewer appointments: 0 Eligibility decisions: 0 Finding closures: 0 Freeze operations: 0 CG-CAP-09 activation: 0 Certification operations: 0 Historical status changes: 0
+Expected governance/repository state-changing operations: 0 Actual governance/repository state-changing operations: 0
+
+32. Final Determination
+REVIEW TYPE: PRE-G1 INDEPENDENT ADVISORY ADVERSARIAL RECHECK
+TARGET: CANDIDATE DESIGN — REVISION 2
+REVIEWER INDEPENDENCE: ESTABLISHED
+REVIEW AUTHORITY: NON-AUTHORITATIVE
+CGI-IR-F01: ARCHITECTURALLY REMEDIATED
+PCTR: PASS
+PCTR-CP1: PASS
+ANCHOR CURRENTNESS TRUST ROOT: PASS
+OLD REGISTRY + OLD PCTR RESTORE: PASS
+RETIRED ENDPOINT SUBSTITUTION: PASS
+PCTR REVISION ROLLBACK: PASS
+CONDITIONAL MUTATION: PASS
+MIGRATION / CUTOVER: PASS
+TRUST-ROOT TERMINATION: NON-CIRCULAR
+F02 REGRESSION: NONE
+F03 REGRESSION: NONE
+F04 REGRESSION: NONE
+F05 REGRESSION: NONE
+NEW CRITICAL FINDINGS: 0
+NEW HIGH FINDINGS: 0
+NEW MEDIUM FINDINGS: 0
+NEW LOW FINDINGS: 0
+CONSTITUTIVE AUTHORITY: NOT YET ESTABLISHED
+G1: NOT CREATED
+PDS-GAR-D01: STILL OPEN
+A09-ELIG-F002: STILL OPEN
+A09 REVIEWER ELIGIBILITY: NOT DETERMINED
+A09 FORMAL DESIGN FREEZE: NOT PERFORMED
+CG-CAP-09: DORMANT
+A10: NOT STARTED
+HISTORICAL STATUS: UNCHANGED
+REPOSITORY MUTATIONS: 0
+RECHECK OUTCOME: IR2-A
+NEXT AUTHORIZED ACTION: RECORD THIS NON-AUTHORITATIVE IR2-A REPORT AS PRE-G1 ADVISORY EVIDENCE WITHOUT CLOSING CGI-IR-F01 OR ALTERING ANY GOVERNANCE STATUS.
+STOP.

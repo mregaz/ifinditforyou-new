@@ -5835,3 +5835,119 @@ Formal design freeze does not imply A10 completion.
 Formal design freeze does not imply Phase 10 completion.
 
 PHOENIX DEVKIT PHASE 10 — A08 FORMAL DESIGN FREEZE: ✅ COMPLETE
+---
+
+# PHOENIX DEVKIT — PRE-G1 CONSTITUTIVE GOVERNANCE / REVISION 2 ADVISORY EVIDENCE RECORD
+
+## Record Scope
+
+This record preserves the current PRE-G1 advisory evidence produced during the governance remediation path opened before Phoenix DevKit Phase 10 A09 — Automation Tests.
+
+It records evidence only.
+
+It does not constitute a constitutive act, create G1, establish Constitutive Authority, close a governance finding, determine A09 reviewer eligibility, perform A09 formal design freeze, activate certification authority, begin A10, authorize implementation, or alter historical governance status.
+
+## Candidate Design — Revision 2
+
+| Property | Value |
+|----------|-------|
+| Artifact | PHOENIX_CONSTITUTIVE_GOVERNANCE_INSTRUMENT_CANDIDATE_DESIGN_REVISION_2.txt |
+| Path | docs/PHOENIX_WORKSPACE/17_DEVKIT/01_ARCHITECTURE/PHOENIX_CONSTITUTIVE_GOVERNANCE_INSTRUMENT_CANDIDATE_DESIGN_REVISION_2.txt |
+| Representation | UTF-8 plain-text representation |
+| Lines | 722 |
+| Bytes | 28551 |
+| SHA-256 | 3884512772a6a2130ce3a0dfeacaefbb5c0fa2d970f68a07119f61cdb729a311 |
+| Candidate Outcome | CGI-R2-A — ARCHITECTURALLY READY FOR INDEPENDENT ADVERSARIAL RECHECK |
+
+This TXT artifact is a preserved local textual representation of Candidate Design — Revision 2.
+
+It is not asserted to be byte-identical to the PDF independently reviewed during IR2-A.
+
+## Independently Reviewed Source Identity
+
+The IR2-A report identifies its reviewed primary source as:
+
+| Property | Value |
+|----------|-------|
+| Reviewed Source | PHOENIX DEVKIT rev 2.pdf |
+| Pages | 36 |
+| Bytes | 385231 |
+| SHA-256 | 275dacf98fc140411bf49dc222b7671317f5e5dfef7c27110b5acafc0c089e1c |
+
+The reviewed-source identity above is recorded from the independent IR2-A report and is not replaced by the local TXT representation identity.
+
+## PRE-G1 Independent Advisory Recheck — IR2-A
+
+| Property | Value |
+|----------|-------|
+| Artifact | PHOENIX_CONSTITUTIVE_GOVERNANCE_INSTRUMENT_REVISION_2_IR2A_ADVISORY_RECHECK.txt |
+| Path | docs/PHOENIX_WORKSPACE/17_DEVKIT/01_ARCHITECTURE/PHOENIX_CONSTITUTIVE_GOVERNANCE_INSTRUMENT_REVISION_2_IR2A_ADVISORY_RECHECK.txt |
+| Representation | UTF-8 plain text |
+| Lines | 959 |
+| Bytes | 43581 |
+| SHA-256 | 0e2d89aaacd29393797dd12282e9575412c292e31940b449de60d7a0b364152e |
+| Review Type | PRE-G1 INDEPENDENT ADVISORY ADVERSARIAL RECHECK |
+| Reviewer Independence | ESTABLISHED FOR PRE-G1 NON-AUTHORITATIVE ADVISORY RECHECK |
+| Review Outcome | IR2-A — REVISION 2 INDEPENDENT ADVISORY RECHECK PASS |
+| Review Authority | NON-AUTHORITATIVE |
+
+## Advisory Architectural Determination
+
+The IR2-A advisory recheck reports:
+
+| Item | Advisory Result |
+|------|-----------------|
+| CGI-IR-F01 | ARCHITECTURALLY REMEDIATED |
+| PCTR | PASS |
+| PCTR-CP1 | PASS |
+| Anchor-currentness trust root | PASS |
+| Old Registry + old PCTR restoration | PASS |
+| Retired-endpoint substitution | PASS |
+| PCTR rollback resistance | PASS |
+| Conditional mutation | PASS |
+| Migration / cutover | PASS |
+| Trust-root termination | NON-CIRCULAR |
+| F02–F05 regression | NONE |
+| New Critical Findings | 0 |
+| New High Findings | 0 |
+| New Medium Findings | 0 |
+| New Low Findings | 0 |
+
+These results are preserved as advisory evidence.
+
+They do not constitute authoritative finding closure.
+
+## Governance Status Preserved
+
+| Governance Item | Status |
+|-----------------|--------|
+| Constitutive Authority | NOT YET ESTABLISHED |
+| G1 | NOT CREATED |
+| PDS-GAR-D01 | STILL OPEN |
+| A09-ELIG-F002 | STILL OPEN |
+| A09 Reviewer Eligibility | NOT DETERMINED |
+| A09 Formal Design Freeze | NOT PERFORMED |
+| CGI-IR-F01 Authoritative Closure | NOT PERFORMED |
+| CG-CAP-09 | DORMANT |
+| A10 | NOT STARTED |
+| Historical Status | UNCHANGED |
+| Implementation Authorization | NOT GRANTED |
+| Certification | NOT PERFORMED |
+
+## Recording Disposition
+
+Revision 2 and IR2-A are recorded as PRE-G1 governance/advisory evidence.
+
+This recording does not convert advisory architectural remediation into authoritative closure.
+
+This recording does not create or infer governance authority.
+
+This recording does not retroactively qualify any reviewer or validate any historical governance act.
+
+This recording does not modify the A08 formal design-freeze decision.
+
+This recording does not complete A09.
+
+This recording does not begin A10.
+
+**PRE-G1 REVISION 2 / IR2-A ADVISORY EVIDENCE:** RECORDED — NO GOVERNANCE STATUS CHANGE

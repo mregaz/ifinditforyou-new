@@ -1,0 +1,723 @@
+# PHOENIX DEVKIT
+## PHOENIX CONSTITUTIVE GOVERNANCE INSTRUMENT
+### CANDIDATE DESIGN — REVISION 2
+### CGI-IR-F01 TARGETED REMEDIATION
+
+### 1. Executive Determination
+
+**CGI-R2-A — REVISION 2 ARCHITECTURALLY READY FOR INDEPENDENT ADVERSARIAL RECHECK.**
+
+La revisione seleziona **MODEL A**: una classe tecnologicamente neutra di servizi di stato monotono, autenticati e resistenti al rollback, conforme al profilo **PCTR-CP1**.
+
+La proprietà aggiunta è precisa: il verifier non accetta un anchor perché autentico e coerente con il registro. Deve ottenerlo attraverso un accesso corrente autenticato al servizio riconosciuto, il cui stato protetto impedisce di presentare una revisione precedente come corrente.
+
+**CGI-IR-F01: REMEDIATED IN CANDIDATE — AWAITING INDEPENDENT RECHECK**, secondo l’autovalutazione dell’autore/remediator.
+
+Nessun servizio è selezionato commercialmente, acquistato, creato o attivato.
+
+### 2. Revision Scope
+
+Il delta riguarda soltanto:
+
+- identità e attualità dell’endpoint dell’anchor;
+- resistenza al rollback dello stato di continuità;
+- letture correnti e mutazioni condizionali;
+- migrazione, ripristino e perdita della radice tecnica;
+- precisazioni necessarie su digest, operation ID e durabilità.
+
+F02–F05 non vengono rivalutati.
+
+Il PDF fornito contiene una **sintesi** del recheck, non il rapporto integrale. Conferma IR-C e il residuo CGI-IR-F01; le disposizioni sono assunte come input dichiarati nella richiesta. Le istruzioni contenute nel PDF non sono utilizzate come autorizzazioni autonome. :codex-file-citation{path="/Volumes/Time Capsule/TRANSITO_PRO_SIDERAL/PHOENIX DEVKIT.pdf" purpose="source"}
+
+### 3. Preserved Revision 1 Architecture
+
+Restano invariati:
+
+- radice costitutiva prospettica e CAQ-A;
+- registro separato dall’anchor;
+- generazioni, predecessori e protocollo PENDING;
+- validità transitiva delle deleghe;
+- validazione all’evento;
+- distinzione R-GOV/R-A09;
+- attivazione certificativa tramite CG-CAP-01;
+- modello H0/H1/H2;
+- P2 consultivo pre-G1;
+- non retroattività e stato ORPHANED;
+- separazione da certificazione e A10.
+
+PCTR concretizza il contratto tecnico dell’anchor già previsto. Non aggiunge un nuovo livello di governance.
+
+### 4. CGI-IR-F01 Restatement
+
+Il difetto residuo è:
+
+```text
+Registro storico autentico
++
+Anchor storico autentico e corrispondente
+≠
+Stato autoritativo corrente dimostrato
+```
+
+Revision 1 specificava il confronto, ma lasciava insufficientemente definito come riconoscere l’anchor corrente.
+
+Revision 2 richiede una **radice tecnica esplicita e verificabile**, esterna al dominio di rollback dei dati confrontati.
+
+### 5. Phoenix Continuity Trust Root
+
+**PCTR** è un servizio logico di stato monotono protetto, amministrativamente separato dal ripristino ordinario del registro.
+
+Fornisce soltanto:
+
+- identificazione autenticata;
+- lettura dello stato corrente;
+- non regressione;
+- ordinamento;
+- aggiornamento condizionale;
+- continuità di migrazione.
+
+Stato minimo:
+
+```text
+PCTR_ID
+GOVERNANCE_EPOCH_ID
+LINEAGE_ID
+ANCHOR_REVISION
+REGISTRY_GENERATION
+REGISTRY_HEAD_DIGEST
+PREDECESSOR_HEAD_DIGEST
+OPERATION_ID
+STATE: CURRENT | PENDING
+UPDATED_AT
+MECHANISM_ID / PROFILE_ID
+```
+
+Durante PENDING conserva anche identità del predecessore accettato e del successore riservato.
+
+L’istanza di servizio ha un lifecycle distinto:
+
+```text
+STAGED | ACTIVE | FENCED | RETIRED
+```
+
+Questi stati non sostituiscono CURRENT/PENDING. Per esempio, un’istanza RETIRED può conservare uno storico anchor CURRENT senza poterlo presentare come fonte corrente.
+
+### 6. PCTR-CP1 Conformance Profile
+
+La conformità richiede **tutte** le proprietà seguenti.
+
+| Requisito | Proprietà obbligatoria | Evidenza/verifica operativa minima |
+|---|---|---|
+| **CP1-01 Stable identity** | Identità logica e istanza autenticabili; un clone non eredita la legittimità dell’endpoint | Tentativo di sostituzione con clone/export: rifiutato |
+| **CP1-02 Rollback resistance** | Dopo accettazione R+1, R non può essere restituita silenziosamente come corrente | Restore dello stato R: servizio mantiene R+1 oppure segnala perdita/blocco |
+| **CP1-03 Monotonic revision** | Ogni mutazione riuscita incrementa la revisione protetta, senza riuso | Test di aggiornamento, riavvio, annullamento e ripristino |
+| **CP1-04 Conditional mutation** | Confronto e mutazione sono un’unica operazione atomica o equivalente | Due scrittori sullo stesso expected revision: al massimo uno accettato |
+| **CP1-05 Durable acceptance** | Uno stato riconosciuto resta recuperabile oppure la perdita è rilevabile | Crash dopo acknowledgment: recupero esatto o errore esplicito |
+| **CP1-06 Authenticated state** | Risposta autentica lega identità, revisione, epoch, lineage, head, stato e operazione | Alterazione o replay di risposta: rifiutato |
+| **CP1-07 Independent rollback domain** | Il restore ordinario del registro non arretra anche lo stato protetto PCTR | Ripristino congiunto dei backup ordinari: vecchia coppia non accettata |
+| **CP1-08 Current access path** | Accesso corrente autenticato; nessuna equivalenza tra endpoint storico e attivo | Configurazione client precedente al cutover: blocco o inoltro verificabile |
+| **CP1-09 Migration continuity** | Nuova istanza ammessa soltanto mediante cutover dal checkpoint corrente | Crash in ogni fase: nessuna doppia istanza valida |
+| **CP1-10 Fail closed** | Proprietà o prove insufficienti impediscono l’uso dell’autorità | Endpoint, revisione o continuità incerti: UNPROVEN/BLOCKED |
+
+La conformance evidence comprende specifica del meccanismo, confini amministrativi, comportamento di backup/restore e risultati delle prove pertinenti. La sola autodichiarazione “CP1 compliant” non basta.
+
+Questi sono requisiti di accettazione futuri: **nessuna prova è stata eseguita in questo PASS**.
+
+### 7. Currentness Recursion Termination
+
+La ricorsione termina a un confine infrastrutturale dichiarato:
+
+- identità stabile autenticata;
+- letture correnti ordinate rispetto alle scritture accettate;
+- stato di revisione non regressivo;
+- mutazioni condizionali;
+- protezione dello stato di lifecycle e instradamento;
+- durabilità e audit.
+
+Phoenix assume queste garanzie come **root assumption tecnica**, dopo verifica della conformità del meccanismo scelto.
+
+Non deduce l’attualità dalla frase contenuta nella risposta “sono corrente”. Si affida al contratto verificato del servizio e a un accesso autenticato che esclude export, replay e istanze ritirate.
+
+Le prove operative possono falsificare una pretesa di conformità; non dimostrano invulnerabilità fisica universale.
+
+Se la garanzia non è dimostrabile per l’istanza scelta:
+
+```text
+PCTR NON-CONFORMING
+→ CURRENT_AUTHORITY_STATE UNPROVEN
+→ BLOCKED
+```
+
+### 8. Accepted Mechanism Class
+
+**Classe selezionata:** servizio di stato transazionale a letture correnti, con revisione e lifecycle protetti contro regressione e accesso autenticato non sostituibile mediante backup dei dati.
+
+La protezione può essere ottenuta con supporto infrastrutturale o hardware, purché l’intera istanza soddisfi CP1. Il meccanismo deve dichiarare quale stato protetto sopravvive al ripristino dei dati e come viene rilevata la sua perdita.
+
+Non sono sufficienti automaticamente:
+
+- un database “strongly consistent” privo di protezione dal restore;
+- un log append-only senza prova dell’ultimo checkpoint;
+- un contatore hardware senza binding a head, identità e lifecycle;
+- un servizio gestito senza garanzie verificabili di migrazione e non regressione.
+
+Sono insufficienti da soli file, branch, HEAD, tag, copie, database ripristinati insieme al registro, JSON esportati, URL, timestamp, hash e firme.
+
+**Una firma prova l’origine di un dato; può firmare anche un dato ormai storico.**
+
+### 9. Endpoint Identity
+
+La configurazione adottata lega:
+
+```text
+PCTR_ID logico stabile
+MECHANISM_PROFILE
+GOVERNANCE_EPOCH_ID
+LINEAGE_ID
+identità dell’istanza attiva
+identità del percorso autenticato di accesso
+```
+
+Il meccanismo conserva il binding dell’istanza attiva nel **medesimo dominio tecnico protetto** che garantisce la non regressione. Il binding non risiede soltanto nel registro o nella configurazione locale del client.
+
+La lettura corrente deve:
+
+1. autenticare il servizio logico atteso;
+2. verificare che l’istanza sia quella attiva;
+3. ottenere una risposta legata alla richiesta corrente, non riproducibile da un export;
+4. utilizzare una lettura ordinata dopo gli aggiornamenti già accettati dal servizio.
+
+Una challenge fresca impedisce il replay di una vecchia risposta, ma **non basta da sola**: il servizio deve garantire anche che la risposta nuova non provenga da una replica obsoleta.
+
+Un endpoint precedente al cutover deve risultare FENCED/RETIRED oppure non essere autenticabile come attivo. Un clone con vecchi dati non può restaurare il proprio status attivo.
+
+Se due endpoint risultano entrambi validamente correnti senza una continuità univoca, il verifier blocca.
+
+### 10. Old Common Backup Protection
+
+Scenario:
+
+```text
+T1: R10 + A10
+T2: R11 + A11 accettati
+T3: ripristino dei dati R10 + A10
+```
+
+La protezione non deriva dal confronto R10↔A10.
+
+Deriva congiuntamente da:
+
+- **CP1-02/03:** lo stato protetto conserva almeno l’avanzamento oltre A10;
+- **CP1-07:** tale stato non viene arretrato dal restore ordinario;
+- **CP1-01/08:** un servizio ricreato dal vecchio backup non può spacciarsi per l’istanza attiva;
+- **CP1-05:** se il contenuto A11 è perso ma sopravvive la prova dell’avanzamento, il servizio segnala perdita e blocca.
+
+Esiti conformi:
+
+- il servizio restituisce A11 e rileva R10 obsoleto;
+- il servizio riconosce che i propri dati A10 sono inferiori allo stato protetto e rifiuta di dichiararli correnti;
+- l’istanza ripristinata non è riconosciuta come attiva.
+
+Se un restore può riportare dati, revisione protetta e identità attiva ad A10 senza rilevazione, **quel meccanismo non soddisfa CP1**.
+
+### 11. Conditional Mutation
+
+Primitive ammesse: compare-and-set, transazione condizionale o controllo di versione equivalente, realmente atomico.
+
+Ogni richiesta lega almeno:
+
+- istanza attiva;
+- epoch e lineage;
+- expected anchor revision;
+- expected state;
+- operation ID;
+- contenuto esatto della transizione.
+
+Invariante:
+
+> Da una medesima revisione corrente, al massimo una mutazione concorrente può essere accettata.
+
+Una seconda richiesta deve fallire sul precondition mismatch oppure essere riconosciuta come retry identico dell’operazione già accettata.
+
+`READ → WRITE` ordinario non è conforme, anche se normalmente eseguito da un solo operatore.
+
+### 12. PENDING Protocol
+
+Sequenza preservata:
+
+```text
+PREPARE
+→ CURRENT PCTR READ
+→ CONDITIONAL PENDING RESERVATION
+→ DURABLE SUCCESSOR AND EVIDENCE
+→ CONDITIONAL CONFIRMATION
+→ CURRENT
+```
+
+Contatori distinti:
+
+- **ANCHOR_REVISION:** avanza a ogni mutazione PCTR, compresi prenotazione, conferma, annullamento e lifecycle;
+- **REGISTRY_GENERATION:** avanza quando viene accettato il successore del registro.
+
+Esempio:
+
+```text
+Anchor revision 20 / Registry generation 10 / CURRENT
+→ revision 21 / generation 10 / PENDING successor 11
+→ revision 22 / generation 11 / CURRENT
+```
+
+Un annullamento produce una nuova anchor revision, lasciando generation 10 accettata. Non “torna” alla revisione 20.
+
+La conferma controlla la riserva esatta e le condizioni di finalizzazione Revision 1. Se scadenze o prerequisiti non sono più soddisfatti, non finalizza la decisione.
+
+### 13. Recovery Model
+
+| Caso | Risposta deterministica |
+|---|---|
+| **R2-R01 — CURRENT, head disponibile** | Verificare identità, CP1, generation/head e predecessore; procedere secondo Revision 1 |
+| **R2-R02 — CURRENT, head mancante** | BLOCKED; recuperare esclusivamente l’oggetto indicato dal PCTR |
+| **R2-R03 — PENDING, successore mancante** | BLOCKED; completare l’esatto successore autorizzato o annullare condizionatamente la riserva con traccia |
+| **R2-R04 — PENDING, successore durevole** | Verificare riserva, contenuto, evidenze e condizioni; confermare condizionatamente oppure mantenere il blocco |
+| **R2-R05 — registro apparentemente più nuovo** | Non promuoverlo per numero; utilizzarlo solo se coincide con la riserva corrente, altrimenti non efficace |
+| **R2-R06 — registro più vecchio** | Rilevare restore incompleto; recuperare il head corrente, senza arretrare PCTR |
+| **R2-R07 — PCTR indisponibile** | Nessuna nuova decisione sostanziale; BLOCKED |
+| **R2-R08 — identità incerta** | UNPROVEN/BLOCKED; nessun fallback a un URL noto storicamente |
+| **R2-R09 — due endpoint correnti** | Richiedere cutover univoco nel binding protetto; in assenza BLOCKED |
+| **R2-R10 — vecchia coppia ripristinata** | Rilevazione tramite stato non regressivo/identità attiva; mai accettazione dal solo matching |
+
+L’annullamento di una riserva non revoca una decisione già confermata: il controllo condizionale impedisce che un retry tardivo annulli uno stato successivo.
+
+Nessun recupero tecnico inventa un nuovo mandato.
+
+### 14. Migration / Cutover
+
+La migrazione trasferisce un’**istanza tecnica**, mantenendo la continuità del servizio logico e del suo binding protetto.
+
+Protocollo:
+
+1. verificare OLD come istanza corrente;
+2. completare o risolvere eventuali operazioni PENDING;
+3. registrare condizionatamente l’intento di migrazione e sospendere le operazioni sostanziali;
+4. predisporre NEW come **STAGED**, dall’esatto checkpoint;
+5. verificare CP1 e identità NEW;
+6. rendere OLD **FENCED**, con checkpoint finale e prova durevole della cessazione dell’accettazione;
+7. aggiornare condizionatamente il binding protetto verso NEW;
+8. rendere NEW utilizzabile soltanto con prova del cutover e OLD non corrente;
+9. registrare OLD come RETIRED e verificare assenza di dual-current;
+10. riprendere le operazioni.
+
+Il record lega:
+
+```text
+Logical PCTR_ID
+OLD_INSTANCE_ID / OLD_FINAL_REVISION / OLD_HEAD
+NEW_INSTANCE_ID / NEW_INITIAL_REVISION / NEW_HEAD
+EPOCH / LINEAGE / CUTOVER_EVENT_ID
+```
+
+Gli identificatori OLD/NEW corrispondono alle rispettive istanze PCTR. Il checkpoint include anche l’ultima generazione del registro.
+
+**Nessuna atomicità fra i due archivi è presunta.** Prima si impedisce a OLD di accettare nuove operazioni; poi si abilita NEW. L’intervallo senza istanza utilizzabile è ammesso e produce blocco.
+
+Se il supporto prescelto non può garantire fencing persistente e binding non regressivo, non è conforme alla migrazione CP1.
+
+Il trasferimento o la sostituzione dell’intera radice tecnica, compreso il meccanismo d’identità, richiede prova di continuità equivalente: non è risolto copiando il checkpoint.
+
+### 15. PCTR Loss / Replacement
+
+Sono diversi:
+
+- **migrazione:** il checkpoint corrente è verificato e il cutover è ordinato;
+- **perdita:** la fonte corrente non è più disponibile o affidabile.
+
+Se una procedura di recupero già adottata conserva una prova indipendente sufficiente dell’ultimo stato e della cessazione di possibili scrittori precedenti, può ripristinare il servizio mantenendo la lineage.
+
+Se tale prova manca:
+
+```text
+BLOCKED
+→ ORPHANED, quando non resta alcun percorso legittimo
+```
+
+Il registro non può nominare il proprio nuovo PCTR mediante la copia disponibile.
+
+Un’eventuale nuova epoca prospettica non convalida retroattivamente la lineage perduta.
+
+### 16. Time Boundary
+
+`UPDATED_AT` è informazione di provenienza, non prova di attualità.
+
+Per deleghe o condizioni con scadenza, Revision 1 continua a richiedere una fonte temporale adeguata all’intervallo pertinente.
+
+Se l’incertezza attraversa una scadenza o una decorrenza:
+
+**BLOCKED.**
+
+Revision 2 non introduce una nuova architettura del tempo e non pretende di risolvere ogni clock rollback.
+
+### 17. Decision Packet Durability
+
+Una finalizzazione può diventare efficace soltanto dopo che:
+
+- il pacchetto decisionale immutabile;
+- gli allegati decisionali;
+- le evidenze richieste;
+
+sono durevolmente conservati o ne è verificabile la disponibilità durevole.
+
+Il riferimento nel PCTR non sostituisce gli oggetti.
+
+Non viene creato un secondo authority store: i fascicoli rimangono negli archivi previsti e il PCTR ne conserva soltanto i riferimenti necessari.
+
+Perdita successiva delle evidenze non viene occultata dalla permanenza del digest: blocca il riutilizzo quando la verifica richiede quei contenuti.
+
+### 18. Digest Identity
+
+Ogni identità basata su digest specifica:
+
+```text
+ALGORITHM
+BYTE IDENTITY / CANONICALIZATION RULE
+DIGEST VALUE
+```
+
+Default progettuale: hash dei byte esatti dell’oggetto immutabile, con algoritmo dichiarato. Una rappresentazione canonica è ammessa soltanto se la regola è esplicita e produce un’identità non ambigua.
+
+Il digest identifica il contenuto. Non prova origine, attualità o autorità.
+
+### 19. Operation Identity
+
+L’operation ID è univocamente legato a:
+
+```text
+GOVERNANCE_EPOCH_ID
+LINEAGE_ID
+PCTR_ID e istanza pertinente
+EXPECTED_PCTR_REVISION
+EXPECTED_REGISTRY_GENERATION
+PREDECESSOR_HEAD_DIGEST
+SUCCESSOR_HEAD_DIGEST
+```
+
+Il retry dello stesso ID è ammesso soltanto per il medesimo contenuto e contesto.
+
+Stesso ID con successor diverso → rifiuto.  
+Stesso ID in un’altra epoca/lineage → rifiuto.  
+Operazione già superata → nessuna riapplicazione allo stato corrente.
+
+L’operation ID non conferisce autorizzazione: collega una transizione alla sua evidenza autorizzante.
+
+### 20. Adoption Packet AP-09A
+
+AP-09A deve ora contenere:
+
+- PCTR-CP1 e relativa versione;
+- concreta istanza del meccanismo scelta prima dell’adozione;
+- PCTR_ID logico e identità iniziale dell’istanza;
+- accesso autenticato e binding protetto;
+- epoch e lineage;
+- anchor revision iniziale;
+- generation/head iniziali del registro;
+- dichiarazione del confine di fiducia;
+- separazione amministrativa e di rollback;
+- policy di migrazione/recupero;
+- evidenze di conformità.
+
+Questo PASS sceglie la **classe architetturale**, non un servizio o prodotto.
+
+Prima di G1 sono configurazioni preparate, non mandati. L’atto futuro rende applicabile la configurazione adottata.
+
+Prima della prima operazione ordinaria post-G1 devono riuscire:
+
+```text
+Registry initialization
++
+PCTR initialization
++
+CP1 conformance verification
++
+authenticated currentness verification
+```
+
+Nessuna di queste verifiche autorizza G1 retroattivamente. Un fallimento blocca l’operatività derivata.
+
+### 21. No-New-Authority Proof
+
+| Elemento | Funzione | Potere non acquisito |
+|---|---|---|
+| PCTR | Continuità tecnica | Fonte di mandato |
+| Operatore PCTR | Amministrazione del meccanismo | Governance authority |
+| Custode | Conservazione e operazioni autorizzate | Normative owner |
+| Currentness check | Stabilire lo stato osservabile | Eligibilità reviewer |
+| Conditional mutation | Ordinare una transizione | Closure |
+| Finalizzazione tecnica | Registrare un evento autorizzato | Approvazione freeze |
+| PCTR attivo | Servizio disponibile | Certificazione |
+
+Non vengono aggiunti ruoli H0/H1/H2.
+
+La specifica PCTR è un requisito progettuale; il servizio che la realizza non diventa esso stesso un contratto normativo o un decisore.
+
+### 22. F01-T01…F01-T15 Recheck
+
+Autoverifica concettuale dell’autore, non test eseguiti.
+
+| Test | Esito | Proprietà decisiva |
+|---|---|---|
+| F01-T01 Prefisso autentico obsoleto | PREVENTED | Lettura corrente CP1 e confronto head |
+| F01-T02 Registry rollback | PREVENTED | PCTR fuori dal restore del registro |
+| F01-T03 PCTR rollback | PREVENTED | Revisione protetta; restore rilevato o rifiutato |
+| F01-T04 Vecchia coppia ripristinata | PREVENTED | CP1-02/07/08, non semplice matching |
+| F01-T05 Successori concorrenti | PREVENTED | Mutazione condizionale atomica |
+| F01-T06 PENDING/successore mancante | PREVENTED | Nessuna efficacia; blocco |
+| F01-T07 Successore durevole/non confermato | PREVENTED | Non viene presunto corrente |
+| F01-T08 PCTR confermato/registro mancante | PREVENTED | Recupero esatto o blocco |
+| F01-T09 Export storico come corrente | PREVENTED | Accesso autenticato fresco e istanza attiva |
+| F01-T10 Migrazione | PREVENTED | Staging, fencing e cutover protetto |
+| F01-T11 Rollback revisione | PREVENTED | Non riuso/non regressione |
+| F01-T12 Custode sceglie un branch | PREVENTED | Head accettato vincolante; nessuna scelta per convenienza |
+| F01-T13 PCTR indisponibile | PREVENTED | Nessuna autorità corrente presunta |
+| F01-T14 Predecessori discordanti | PREVENTED | Rifiuto della transizione |
+| F01-T15 Compromissione di tutte le radici dichiarate | OUTSIDE DECLARED THREAT MODEL | Limite esplicito |
+
+“PREVENTED” indica prevenzione dell’accettazione come stato valido; non garanzia di disponibilità continua.
+
+### 23. IR-N Scenario Recheck
+
+| Scenario | Revision 2 | Risultato |
+|---|---|---|
+| IR-N01 Endpoint substitution | PREVENTS | Identità attiva verificata fuori dal registro |
+| IR-N02 Conditional-write emulation | PREVENTS | Read/write ordinario non conforme |
+| IR-N03 Operation ID fra epoche | PREVENTS | Binding completo e rifiuto del riuso |
+| IR-N04 Prepared-successor equivocation | PREVENTS | Riserva lega il digest; contenuti diversi rifiutati |
+| IR-N05 Algoritmo digest ambiguo | PREVENTS | Algoritmo e regola dei byte obbligatori |
+| IR-N08 Migrazione dual-current | PREVENTS | OLD fenced prima dell’uso di NEW |
+| IR-N09 Reference senza pacchetto durevole | PREVENTS | Durabilità antecedente alla finalizzazione |
+| IR-N10 Clock rollback | BOUNDS | Fonte temporale circoscritta; incertezza rilevante blocca |
+| IR-N11 Decisione e update nella stessa posizione | PREVENTS | Transizione ordinata: validazione sul predecessore, nuova autorità efficace dopo |
+
+Per IR-N11 una transizione può registrare una decisione e il suo effetto, ma l’effetto non autorizza la decisione che lo produce.
+
+### 24. Threat Model
+
+**In scope:**
+
+- restore accidentali o ostili dei dati del registro;
+- restore dei dati esportabili dell’anchor;
+- vecchia coppia coerente;
+- endpoint ritirati o configurazioni client obsolete;
+- replay di risposte e operation ID;
+- scrittori concorrenti;
+- migrazione interrotta;
+- perdita di un dominio di conservazione;
+- presentazione di evidenza storica autentica come corrente.
+
+Il meccanismo deve resistere o rilevare questi casi senza promuovere uno stato incerto.
+
+**Fuori scope:** compromissione coordinata del confine tecnico fidato, dell’identità autenticata, della garanzia di non regressione e di ogni evidenza indipendente utilizzata, tale da rendere il falso stato indistinguibile da quello reale.
+
+La radice di fiducia è dichiarata e verificata come prerequisito tecnico. Non deriva la propria correttezza dal contenuto del registro: per questo l’assunzione è limitata, non circolare.
+
+### 25. CGI-IR-F01 Disposition
+
+**ORIGINAL SEVERITY:** MEDIUM.
+
+**REMEDIATION PROPERTY:** riconoscere l’anchor corrente attraverso un meccanismo autenticato, non regressivo e operativamente verificabile.
+
+**REVISION 2 CHANGE:** PCTR-CP1, classe di meccanismi ammessi, accesso corrente, revisioni protette, protocollo condizionale e cutover con fencing.
+
+**TRUST ROOT SELECTED:** MODEL A — servizio logico di stato monotono protetto, con identità attiva e letture correnti verificabili.
+
+**CONFORMANCE PROFILE:** PCTR-CP1.
+
+**OLD-COMMON-BACKUP RESULT:** vecchia coppia rifiutata o perdita segnalata, entro il modello dichiarato.
+
+**RETIRED-ENDPOINT RESULT:** non utilizzabile come fonte corrente.
+
+**ROLLBACK RESULT:** non regressione o rilevazione con blocco.
+
+**MIGRATION RESULT:** staging, checkpoint esatto, fencing e cutover verificabile; nessuna promozione autonoma di NEW.
+
+**SELF-ASSESSMENT:**  
+**REMEDIATED IN CANDIDATE — AWAITING INDEPENDENT RECHECK.**
+
+### 26. Preserved F02–F05 Status
+
+CGI-AR-F02:  
+**PRESERVED AS ARCHITECTURALLY REMEDIATED BY PRIOR INDEPENDENT RECHECK**
+
+CGI-AR-F03:  
+**PRESERVED AS ARCHITECTURALLY REMEDIATED BY PRIOR INDEPENDENT RECHECK**
+
+CGI-AR-F04:  
+**PRESERVED AS ARCHITECTURALLY REMEDIATED BY PRIOR INDEPENDENT RECHECK**
+
+CGI-AR-F05:  
+**PRESERVED AS ARCHITECTURALLY REMEDIATED BY PRIOR INDEPENDENT RECHECK**
+
+Sono disposizioni riportate dagli input del recheck precedente, non nuove attestazioni indipendenti di questo autore.
+
+### 27. Regression Check
+
+| Test | Esito |
+|---|---|
+| R2-G01 PCTR fonte di autorità | PREVENTED |
+| R2-G02 Operatore PCTR titolare di governance | PREVENTED |
+| R2-G03 Secondo Authority Registry | PREVENTED |
+| R2-G04 G1 richiede autorità post-G1 | PREVENTED |
+| R2-G05 Autoautorizzazione dell’inizializzazione | PREVENTED |
+| R2-G06 Migrazione crea autorità | PREVENTED |
+| R2-G07 Recupero crea autorità | PREVENTED |
+| R2-G08 Rollback anchor accettato | PREVENTED |
+| R2-G09 Dual-current accettato | PREVENTED |
+| R2-G10 HEAD come prova di currentness | PREVENTED |
+| R2-G11 Timestamp come prova di currentness | PREVENTED |
+| R2-G12 Firma come prova sufficiente di currentness | PREVENTED |
+| R2-G13 Common backup accettato silenziosamente | PREVENTED |
+| R2-G14 Vecchio endpoint accettato corrente | PREVENTED |
+| R2-G15 Autorità A09 trasferita a PCTR | PREVENTED |
+| R2-G16 PCTR conferisce certificazione A10 | PREVENTED |
+| R2-G17 Perdita PCTR crea poteri d’emergenza | PREVENTED |
+| R2-G18 Cambiamenti storici | PREVENTED |
+| R2-G19 Alterazione delle semantiche F02–F05 | PREVENTED |
+| R2-G20 Consenso universale richiesto | PREVENTED |
+
+Gli esiti sono valutazioni progettuali condizionate alla conformità CP1 del futuro meccanismo, non prove di una realizzazione esistente.
+
+### 28. Remaining Open Questions
+
+Restano future attività di concretizzazione, non autorizzate qui:
+
+- individuazione di un’istanza che soddisfi CP1;
+- acquisizione delle relative evidenze e prove;
+- configurazione di custodia, autenticazione, durabilità e recupero;
+- scelta del supporto di stato protetto e del percorso corrente;
+- esecuzione delle prove di restore e cutover.
+
+La classe accettabile non resta indeterminata: i requisiti e i criteri di esclusione sono definiti. **Nessuna istanza potrà essere ammessa sulla sola promessa di implementarli dopo G1.**
+
+Il recheck indipendente dovrà concentrarsi soprattutto su vecchia coppia coerente, endpoint ritirato e perdita del binding protetto.
+
+### 29. Operation Declaration
+
+| Operazione | Risultato |
+|---|---|
+| Files modified | 0 |
+| Files created | 0 |
+| Repository inspections | 0 |
+| Git inspections | 0 |
+| Tests executed | 0; verifiche concettuali soltanto |
+| Runtime changes | 0 |
+| Git state-changing operations | 0 |
+| Commits / Pushes / Merges / Tags | 0 ciascuno |
+| Constitutive instrument created | 0 |
+| Constitutive acts | 0 |
+| G1 creation | 0 |
+| Authority Registry creation | 0 |
+| PCTR creation | 0 |
+| Authority appointments | 0 |
+| Holder appointments | 0 |
+| PDS amendments | 0 |
+| Reviewer appointments | 0 |
+| Eligibility decisions | 0 |
+| Finding closures | 0 |
+| Freeze operations | 0 |
+| CG-CAP-09 activation | 0 |
+| Certification operations | 0 |
+| Historical status changes | 0 |
+
+Sono stati letti il prompt e tutte le tre pagine testuali del PDF. Il PDF non è stato modificato o riesportato.
+
+### 30. Final Determination
+
+REVISION:  
+CANDIDATE DESIGN — REVISION 2
+
+REVISION SCOPE:  
+CGI-IR-F01 ONLY
+
+CGI-IR-F01:  
+REMEDIATED IN CANDIDATE — AWAITING INDEPENDENT RECHECK
+
+PCTR:  
+DEFINED
+
+PCTR CONFORMANCE PROFILE:  
+PCTR-CP1 DEFINED
+
+ANCHOR CURRENTNESS TRUST ROOT:  
+BOUNDED AND OPERATIONALLY TESTABLE
+
+OLD REGISTRY + OLD PCTR RESTORE:  
+PREVENTED WITHIN DECLARED THREAT MODEL
+
+RETIRED ENDPOINT SUBSTITUTION:  
+PREVENTED
+
+PCTR REVISION ROLLBACK:  
+PREVENTED WITHIN DECLARED THREAT MODEL
+
+CONDITIONAL MUTATION:  
+REQUIRED AND DEFINED
+
+MIGRATION / CUTOVER:  
+DEFINED
+
+F02 STATUS:  
+PRESERVED
+
+F03 STATUS:  
+PRESERVED
+
+F04 STATUS:  
+PRESERVED
+
+F05 STATUS:  
+PRESERVED
+
+CONSTITUTIVE ROOT:  
+NON-CIRCULAR
+
+NEW GOVERNANCE AUTHORITY:  
+NONE
+
+CONSTITUTIVE AUTHORITY:  
+NOT YET ESTABLISHED
+
+INSTRUMENT STATUS:  
+DESIGN ONLY — NOT NORMATIVE
+
+G1:  
+NOT CREATED
+
+PDS-GAR-D01:  
+STILL OPEN
+
+A09-ELIG-F002:  
+STILL OPEN
+
+A09 REVIEWER ELIGIBILITY:  
+NOT DETERMINED
+
+A09 FORMAL DESIGN FREEZE:  
+NOT PERFORMED
+
+CG-CAP-09:  
+DORMANT
+
+A10:  
+NOT STARTED
+
+HISTORICAL STATUS:  
+UNCHANGED
+
+REPOSITORY MUTATIONS:  
+0
+
+REVISION 2 OUTCOME:  
+CGI-R2-A
+
+NEXT AUTHORIZED ACTION:  
+Stop and await explicit authorization for an independent adversarial recheck of Revision 2, focused on CGI-IR-F01 and regression detection.
+
+STOP.
