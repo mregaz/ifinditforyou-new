@@ -1,0 +1,24 @@
+{
+  "mission": "P05-AP09A-INFRA-PREP-1",
+  "client_version": "2.0.3",
+  "reported_status": "Synchronized",
+  "earliest": {
+    "tv_sec": 1790017361,
+    "tv_nsec": 664212984
+  },
+  "latest": {
+    "tv_sec": 1790017361,
+    "tv_nsec": 666611438
+  },
+  "derived_interval_width_ns": 2398454,
+  "derived_interval_width_ms": "2.398454",
+  "observation_count": 1,
+  "evidence_basis": "User-provided terminal output; status supplied in a subsequent message",
+  "source_ids": [
+    "CHAT-02"
+  ],
+  "threshold_assessment": "NOT_PERFORMED",
+  "conformance_assessment": "NOT_PERFORMED",
+  "certification": "NOT_PERFORMED",
+  "T01_T33": "NOT_EXECUTED"
+}

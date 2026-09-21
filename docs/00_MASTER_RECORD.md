@@ -5951,3 +5951,39 @@ This recording does not complete A09.
 This recording does not begin A10.
 
 **PRE-G1 REVISION 2 / IR2-A ADVISORY EVIDENCE:** RECORDED — NO GOVERNANCE STATUS CHANGE
+
+---
+
+# P05 — AP-09A INFRASTRUCTURE PREPARATION / DOCUMENTARY EVIDENCE
+
+| Property | Value |
+|----------|-------|
+| Mission | P05-AP09A-INFRA-PREP-1 |
+| Authorization | PREP-AUTH-AP09A-002 |
+| Technical observation date | 2026-09-21 |
+| Local source package | P05-local-evidence-2026-09-21, version 1.0-r1 |
+| Package checksum manifest SHA-256 | `3cd02c0220165094850f2ba41b873a9f39f528c74f7961117e0e2787d5de7b57` |
+
+The minimal canonical set is located at `docs/PHOENIX_WORKSPACE/17_DEVKIT/01_ARCHITECTURE/P05-AP09A-INFRA-PREP-1/`:
+
+- `P05-preparation-report-2026-09-21.md`
+- `provenance.csv`
+- `clockbound-observation.json`
+- `outstanding-evidence.md`
+
+The report, ClockBound observation JSON and outstanding-evidence record are byte-identical to their respective local 1.0-r1 sources. `provenance.csv` is a documented canonical adaptation preserving source attribution and limitations, identifying LOCAL-ONLY material and adapting canonical references to the flat directory. The package checksum manifest digest identifies the complete local source package, not a checksum manifest for this canonical subset.
+
+The last documented EC2 state is **Stopped**: a historical observation, not a current AWS verification.
+
+ClockBound records one technical observation: diagnostic endpoints `earliest = (1790017361 s, 664212984 ns)` and `latest = (1790017361 s, 666611438 ns)`; status `Synchronized` was communicated separately. The interval width **2.398454 ms** is calculated from those endpoints. This observation is not a threshold pass or a conformance or certification result.
+
+| Assessment / Status | Value |
+|---------------------|-------|
+| Threshold assessment | NOT PERFORMED |
+| T01–T33 | NOT EXECUTED |
+| Conformance | NOT PERFORMED |
+| Certification | NOT PERFORMED |
+| Governance effects | NONE |
+| P05 | NOT CLOSED |
+
+Actual AWS costs remain unreconciled. Other documented gaps remain open as recorded in `outstanding-evidence.md`. This registration does not establish AP-09A completion, close P05, or modify the preceding PRE-G1 Revision 2 / IR2-A checkpoint.
