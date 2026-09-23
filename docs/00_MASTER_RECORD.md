@@ -5987,3 +5987,31 @@ ClockBound records one technical observation: diagnostic endpoints `earliest = (
 | P05 | NOT CLOSED |
 
 Actual AWS costs remain unreconciled. Other documented gaps remain open as recorded in `outstanding-evidence.md`. This registration does not establish AP-09A completion, close P05, or modify the preceding PRE-G1 Revision 2 / IR2-A checkpoint.
+
+
+---
+
+# P05 — DOCUMENTARY CLOSURE / CD7 — 2026-09-23
+
+**P05 — CLOSED: TECHNICAL PREPARATION AND DOCUMENTARY RECORD**
+
+**AWS FINAL ECONOMIC RECONCILIATION — OPEN**
+
+Mission `P05-AP09A-INFRA-PREP-1`, authorization `PREP-AUTH-AP09A-002`; technical observations dated 2026-09-21. This user-authorized CD7 registration supersedes only the historical P05 NOT CLOSED status above. It leaves PRE-G1 Revision 2 / IR2-A and all governance checkpoints unchanged.
+
+The existing [P05 report](PHOENIX_WORKSPACE/17_DEVKIT/01_ARCHITECTURE/P05-AP09A-INFRA-PREP-1/P05-preparation-report-2026-09-21.md) records accepted economic sufficiency: 21–22 September Usage before credits 0.1090748028 USD; observed credits -0.1090747932 USD and balance 0.0000000096 USD, separately. For the first 30-day horizon, 2026-09-21 13:04:19 UTC to 2026-10-21 13:04:19 UTC, the prudent total is 4.8474525798 USD against the 10 USD cap, leaving 5.1525474202 USD. This includes residual EBS without double counting and 3 USD of planning reserves; credits do not reduce the cap comparison. These assumptions are not a final bill or guaranteed spending bound.
+
+Billing lag, incomplete attribution, taxes/credits and retained-resource assumptions remain accepted non-blocking residuals. [Outstanding evidence](PHOENIX_WORKSPACE/17_DEVKIT/01_ARCHITECTURE/P05-AP09A-INFRA-PREP-1/outstanding-evidence.md) retains final AWS economic reconciliation and the other technical/documentary gaps. No further AWS operation is authorized by this registration. EC2 Stopped remains the last documented historical state, not a current verification.
+
+The four-file canonical set remains in the same directory. The report and outstanding-evidence record are now subsequent derivatives, no longer byte-identical to local package 1.0-r1; provenance is updated as a canonical adaptation and marks economic CSVs LOCAL-ONLY. The local package and its previously recorded checksum-manifest digest remain unchanged. The ClockBound JSON is unchanged: one diagnostic observation, separately communicated Synchronized status and calculated width 2.398454 ms; no threshold pass.
+
+| Assessment / Status | Value |
+|---|---|
+| AP-09A | NOT COMPLETED |
+| T01–T33 | NOT EXECUTED |
+| Threshold assessment | NOT PERFORMED |
+| Conformance | NOT PERFORMED |
+| Certification | NOT PERFORMED |
+| Governance effects | NONE |
+
+This closure does not establish protected enrollment, PCTR implementation, Genesis/R0, C/G1, A09 freeze or A10 certification.

@@ -115,3 +115,64 @@ Non sono stati applicati sconti Free Tier al preventivo. Non è stato acquisito 
 Nessuna implementazione PCTR, esecuzione T01–T33, enrollment reale, allocazione di identificatori Phoenix, Authority Registry, R0 operativo, Genesis, C/G1, nomina di holder, chiusura autoritativa di findings o certificazione. Nessuna modifica al repository Phoenix, commit o push da queste operazioni. Le modifiche sull’host riguardano dipendenze, configurazioni di servizio e diagnostico di preparazione.
 
 **Nota storica:** la preparazione locale proposta nel rapporto originale è realizzata da questo pacchetto. Nessun upload S3 eseguito o disposto.
+
+## CD7 — Chiusura documentale del 23 settembre 2026
+
+**P05 — CLOSED: TECHNICAL PREPARATION AND DOCUMENTARY RECORD**
+
+**AWS FINAL ECONOMIC RECONCILIATION — OPEN**
+
+Chiusura limitata alla missione `P05-AP09A-INFRA-PREP-1`, sulla base della sufficienza economica accettata dall’utente e dell’autorizzazione P05-CD7. Le sezioni precedenti conservano i riscontri storici del 21 settembre: l’assenza allora dichiarata di dati Billing è aggiornata dai dati seguenti. Non è una nuova verifica AWS. L’ultimo stato EC2 documentato resta Stopped, come fatto storico.
+
+Il rapporto e `outstanding-evidence.md` canonici diventano derivati successivi e non sono più byte-identical alle sorgenti del pacchetto locale `1.0-r1`, che resta invariato. `provenance.csv` aggiorna la canonical adaptation; `clockbound-observation.json` resta invariato. Il digest del checksum manifest locale `3cd02c0220165094850f2ba41b873a9f39f528c74f7961117e0e2787d5de7b57` identifica quel pacchetto storico, non questi derivati.
+
+### Evidenza economica disponibile
+
+CSV Cost Explorer forniti dall’utente, conservati esclusivamente LOCAL-ONLY fuori dal repository: `costs (5).csv`–`costs (12).csv`; hash dei byte effettivamente disponibili in `provenance.csv` (COST-01–COST-08). Periodo delle righe: 21–22 settembre 2026. Timestamp di esportazione e filtri completi non sono incorporati nei CSV e non vengono ricostruiti. Il contesto di consultazione proviene dalla conversazione, non da metadati inventati.
+
+| Usage prima dei crediti | USD |
+|---|---:|
+| EBS gp3 | 0.088822223 |
+| EC2 t3.micro | 0.0145383348 |
+| IPv4 | 0.005555555 |
+| S3 | 0.00015869 |
+| Totale | 0.1090748028 |
+| Crediti osservati, separati dal consumo | -0.1090747932 |
+| Saldo osservato dopo crediti | 0.0000000096 |
+
+Il saldo quasi nullo non rappresenta consumo gratuito né fattura definitiva. Per il confronto prudenziale con il cap si usa tutto l’Usage osservato prima dei crediti, senza ridurlo con i crediti. L’attribuzione esclusiva a P05 non è dimostrata: il tag di missione non era disponibile. La variazione tra letture comunicata dall’utente segnala contabilizzazione tardiva; non dimostra che gli addebiti siano ormai completi. Il CSV `costs (12).csv` espone zero senza una dimensione identificabile: non annulla l’Usage S3 positivo negli altri export, mantenuto prudenzialmente.
+
+### Previsione e confronto con il limite
+
+Orizzonte di pianificazione: primo mese di 30 giorni dal **2026-09-21 13:04:19 UTC al 2026-10-21 13:04:19 UTC**, senza rinnovo implicito. Ipotesi: EC2 resta arrestata, volume gp3 da 16 GiB e tariffa invariati, nessuna nuova risorsa o caricamento. Quantità EBS osservata: `0.777777777 GB-Month`; equivalente mensile EBS già calcolato: `1.8272 USD`. La proiezione non è una nuova quotazione AWS.
+
+| Calcolo prudenziale | USD |
+|---|---:|
+| Usage maturato disponibile, prima dei crediti | 0.1090748028 |
+| EBS per l’intero orizzonte | 1.827200000 |
+| EBS già incluso nell’Usage, da sottrarre | -0.088822223 |
+| EBS residuo nell’orizzonte | 1.738377777 |
+| Base: Usage + EBS residuo | 1.8474525798 |
+| Riserva S3/storage/richieste residue | 1.0000000000 |
+| Riserva billing lag/altri utilizzi non ancora esposti, escluso EBS già proiettato | 1.0000000000 |
+| Riserva imposte/differenze di fatturazione | 1.0000000000 |
+| Totale prudenziale | **4.8474525798** |
+| Cap autorizzato | **10.0000000000** |
+| Margine residuo | **5.1525474202** |
+
+L’EBS già maturato è contato una sola volta. Il residuo comprende anche utilizzo successivo al 22 settembre eventualmente già maturato ma non esposto: non è interamente futuro alla data della sintesi. Le tre riserve sono assunzioni di pianificazione accettate, non costi misurati, tariffe, limiti garantiti o ulteriori autorizzazioni di spesa. Imposte effettive e contenuto S3 attuale non sono determinati; la sufficienza economica è prudenziale, non verifica definitiva della fattura o garanzia del cap. La conservazione oltre questo orizzonte richiede una decisione separata.
+
+### Sufficienza e residui accettati
+
+**SUFFICIENT TO CLOSE P05**, esclusivamente per preparazione tecnica e registrazione documentale. Restano accettati come non bloccanti: billing provvisorio e lag, attribuzione incompleta, imposte/crediti finali non riconciliati, export a zero non risolto, ipotesi di conservazione e gli altri limiti elencati in [outstanding-evidence.md](outstanding-evidence.md). La futura riconciliazione AWS dovrà distinguere Usage, crediti, imposte, periodo, attribuzione e costi di conservazione, registrando eventuali scostamenti. Nessun ulteriore accesso AWS è autorizzato da questa chiusura.
+
+| Assessment / Status | Value |
+|---|---|
+| AP-09A | NOT COMPLETED |
+| T01–T33 | NOT EXECUTED |
+| Threshold assessment | NOT PERFORMED |
+| Conformance | NOT PERFORMED |
+| Certification | NOT PERFORMED |
+| Governance effects | NONE |
+
+ClockBound resta una singola osservazione tecnica: estremi diagnostici, stato Synchronized comunicato separatamente e ampiezza calcolata 2.398454 ms. Nessun protected enrollment, implementazione PCTR, Genesis/R0, C/G1, A09 freeze o A10 viene attestato o autorizzato.
