@@ -6015,3 +6015,67 @@ The four-file canonical set remains in the same directory. The report and outsta
 | Governance effects | NONE |
 
 This closure does not establish protected enrollment, PCTR implementation, Genesis/R0, C/G1, A09 freeze or A10 certification.
+
+---
+
+# PDS — PASSES 3G–3K / END-OF-SESSION RECORD — 2026-09-27
+
+## Documentary scope and completed sequence
+
+This checkpoint records the supplied end-of-session disposition after PDS Pass 3K. It preserves the preceding historical records, including the P05 closure and open AWS final economic reconciliation. It grants no new authority.
+
+- **Pass 3G:** identified PDS-3G-N01, the frozen-state contradiction in the current evidence-boundary narrative.
+- **Pass 3H:** remediated that documentary contradiction; disposition: COMPLETE — PASS, ready for independent recheck.
+- **Pass 3I:** independently rechecked the remediation; disposition: COMPLETE — PASS. PDS-3G-N01: CLOSED BY INDEPENDENT RECHECK. Closure authority: PDS PASS 3I.
+- **Pass 3J:** COMPLETE — PASS; CONTROLLED RECORDING ONLY. It recorded the Pass 3I disposition and did not establish independent closure authority.
+- **Pass 3K:** COMPLETE — PASS; INDEPENDENT VERIFICATION — PASS. The Pass 3J canonical record update was independently verified.
+
+## Canonical identity and recovery provenance
+
+Current canonical PDS System Book:
+
+`/Volumes/Time Capsule/TRANSITO_PRO_SIDERAL/PHOENIX_DEVELOPMENT_SYSTEM_BOOK_v1.0.md`
+
+SHA-256: `6de0757dd1715c271c0795061ab0eaec00f40ea7d7953aae13545baff6f2a5d0`
+Size: 39,537 bytes; 724 LF lines.
+
+Preserved Pass 3I baseline:
+
+`/Volumes/Time Capsule/TRANSITO_PRO_SIDERAL/VECCHI_PASS/PHOENIX_DEVELOPMENT_SYSTEM_BOOK_v1.0 copie 3.md`
+
+SHA-256: `882a48fd831045c98be23077782a20a3cbc10af4438965a43058b0a35f52237b`
+Size: 38,814 bytes; 716 LF lines.
+
+Before Pass 3J, the expected canonical Pass 3I baseline was temporarily unavailable at the canonical root path. Its exact identity was established by the baseline hash and size above. The exact-hash copy was located at the preserved historical path, copied without modification to the canonical location, and independently verified to retain the exact Pass 3I hash before Pass 3J. The historical source remained preserved unchanged.
+
+Pass 3J then performed the authorized controlled record update, producing the current canonical identity above. Pass 3K independently verified the baseline-to-current delta: +723 bytes; +8 net lines; 11 additions; 3 deletions; exactly three hunks; no unauthorized semantic delta. The recovery event was artifact restoration, not an architecture, implementation, or governance change.
+
+For this Master Record update, both external artifact hashes, byte counts, and LF line counts were rechecked against the identities above; their comparison corroborated the reported delta counts. The historical recovery and Pass 3K disposition are recorded from the supplied session record; this documentary update does not claim to perform or replace those earlier reviews.
+
+## Current terminal state
+
+| Item | Recorded state / authority |
+| --- | --- |
+| PDS PASS 3K | COMPLETE — PASS |
+| Pass 3J canonical record update | INDEPENDENTLY VERIFIED |
+| PDS-3G-N01 | CLOSED BY INDEPENDENT RECHECK; authority: PDS PASS 3I |
+| Pass 3J role | CONTROLLED RECORDING ONLY |
+| Pass 3K role | INDEPENDENT VERIFICATION — PASS |
+| Canonical frozen record | INDEPENDENTLY VERIFIED COHERENT |
+| Core PDS Architecture | FORMALLY DESIGN FROZEN |
+| Freeze authority | PDS PASS 3E-R |
+| Freeze scope | CORE PDS ARCHITECTURE ONLY |
+| PDS-F05A | OPEN |
+| Final Automation Interface | NOT FROZEN / NOT AUTHORIZED |
+| PDS-F05B | OPEN |
+| Final Release Interface | NOT FROZEN / NOT AUTHORIZED |
+| Implementation | NOT AUTHORIZED |
+| Certification | NOT READY / NOT CERTIFIED |
+
+## Next-session boundary
+
+Do not reopen Passes 3G–3K. Preserve the canonical System Book at SHA-256 `6de0757dd1715c271c0795061ab0eaec00f40ea7d7953aae13545baff6f2a5d0`.
+
+The next mission begins READ-ONLY: determine from the frozen PDS governance/canonical record the required sequencing and prerequisites for PDS-F05A — Final Automation Interface and PDS-F05B — Final Release Interface. Do not assume which comes first. No implementation authorization is implied.
+
+This mission is a Master Record documentary update only. System Book modification, architecture redesign, semantic redesign, authority expansion, implementation, certification, deployment, and external-interface closure: **0**. Git commit and git push: **0**.
