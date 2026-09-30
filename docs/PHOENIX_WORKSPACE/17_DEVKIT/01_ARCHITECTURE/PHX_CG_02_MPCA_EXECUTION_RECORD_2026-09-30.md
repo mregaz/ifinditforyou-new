@@ -530,3 +530,13 @@ PUSHES: 0
 ## 8. Administrative recording observations
 
 Initial local evidence-file write and fsync completed; observed UTC completion time: `2026-09-30T19:35:20.549Z`. This is a local recording observation, not proof of remote publication.
+
+### Remote durable-recording confirmation
+
+The initial execution-evidence record was pushed successfully to origin/main in commit `ab923317ef35e5965250640dbb85f1fabdd576a6`. A fresh remote refs/heads/main query matched that commit, and GitHub Contents API retrieval at that immutable commit returned bytes identical to the local record.
+
+Actual remote retrieval/verification observation timestamp: `2026-09-30T19:37:16.850Z`. This establishes durable recording by that observed time, strictly before the fixed effective timestamp; an exact GitHub server acceptance timestamp is not exposed and is not invented.
+
+Published execution-evidence file SHA-256 before this additive confirmation: `26076826cba61a8880be872ac2f1d893d91da454fc4b06ecd9080561acd64c5b`.
+
+This confirmation preserves the actual observed durable-recording time and will itself be published as an additive follow-up in the same designated artifact. The final commit and final file hash are reported externally to avoid a self-referential hash. No assent, candidate term or prior event timestamp is changed.
