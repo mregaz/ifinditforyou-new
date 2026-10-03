@@ -63,3 +63,11 @@ Mauro designated repository `mregaz/ifinditforyou-new`, branch `main`, path `doc
 - Actual remote publication and verification observations: **PENDING at this initial local capture**. A later attributable additive section may record them without rewriting the assent or candidate terms.
 - No GitHub server acceptance timestamp is available or invented.
 - No effectiveness determination is made here. The proposed effective time remains `2026-10-15T00:00:00Z`, contingent on complete timely durable recording and all candidate conditions.
+
+## 7. Additive remote durable-recording confirmation
+
+The initial execution-evidence record was pushed to `origin/main` in commit `8ae3b1ebe1bd4e914c47b0b30b56e204954eb68a`. A fresh remote `refs/heads/main` query matched that commit. Authenticated GitHub Contents API retrieval at that immutable commit returned **7,070 bytes**, identical to the local record, SHA-256 `1d52a9335e03ebcf92008328bf9273fd0b6c53659cb0b6c115c1aec47397edb6`.
+
+Actual remote retrieval and integrity-verification observation: **`2026-10-03T19:45:25.744Z`** UTC. This establishes complete durable recording by that observed time, strictly before `2026-10-15T00:00:00Z`. The precise GitHub server acceptance time is not exposed or invented. The unauthenticated Contents API returned 404; authenticated retrieval succeeded. This additive confirmation does not modify the assent, event time, candidate binding or operative terms.
+
+The confirmation itself is to be published as an addition to this designated record. The final file hash and final commit are reported externally, avoiding a self-referential hash.
