@@ -28,6 +28,7 @@ export function mapAnibisListing(
     source: "anibis",
     url: listing.url,
     ...(priceChf !== undefined && { priceChf }),
+    ...(listing.year !== undefined && { year: listing.year }),
     ...(isAccessory && { isAccessory }),
     snippet:
       listing.description ||

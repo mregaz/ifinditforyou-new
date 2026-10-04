@@ -3,6 +3,7 @@ export interface AnibisListing {
   title: string;
   url: string;
   price?: string;
+  year?: number;
   location?: string;
   imageUrl?: string;
   description?: string;

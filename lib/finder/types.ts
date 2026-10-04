@@ -20,6 +20,7 @@ export type FinderResult = {
   url: string;
   snippet?: string;
   priceChf?: number;
+  year?: number;
   isAccessory?: boolean;
   score: number;
 };

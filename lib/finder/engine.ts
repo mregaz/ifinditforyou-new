@@ -2,6 +2,7 @@ import { runProvidersDetailed } from "./manager/providerManager";
 import { parseQuery } from "./parser";
 import { filterByPriceCap } from "./price";
 import { filterByStructuredSubject } from "./subjectMatch";
+import { filterByMinYear } from "./year";
 import { resolveCapability } from "./providers/capabilityResolver";
 import { resolveProviders } from "./providers/resolver";
 import type { FinderPlan, FinderResponse, Lang } from "./types";
@@ -50,7 +51,8 @@ const providers = resolveProviders({
     parsedQuery.vehicleIntent
   );
 
-  const sortedResults = subjectResults.sort((a, b) => b.score - a.score);
+  const yearResults = filterByMinYear(subjectResults, parsedQuery.minYear);
+  const sortedResults = yearResults.sort((a, b) => b.score - a.score);
 
   return {
     query: parsedQuery,

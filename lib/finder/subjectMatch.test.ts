@@ -64,7 +64,7 @@ const html = [
 ].join("");
 
 describe("Finder subject filter", () => {
-  it("runs after price and accessory filters while retaining the 2018 model", async () => {
+  it("runs after price and accessory filters and excludes the 2018 model by minYear", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(html));
 
     const response = await runFinderEngine({
@@ -73,7 +73,7 @@ describe("Finder subject filter", () => {
     });
 
     expect(response.results.map(({ id }) => id)).toEqual([
-      "anibis-xmax-2021", "anibis-xmax-abs", "anibis-xmax-2018",
+      "anibis-xmax-2021", "anibis-xmax-abs",
       "anibis-xmax-2020", "anibis-xmax",
     ]);
   });
