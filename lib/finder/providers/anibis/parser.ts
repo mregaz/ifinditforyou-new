@@ -3,6 +3,7 @@ import type { Cheerio } from "cheerio";
 import type { Element } from "domhandler";
 import type { AnibisListing } from "./types";
 import { extractVehicleYear } from "../../year";
+import { extractVehicleMileageKm } from "../../mileage";
 
 const ANIBIS_BASE_URL = "https://www.anibis.ch";
 const ANIBIS_CANDIDATE_LIMIT = 20;
@@ -135,6 +136,7 @@ export function parseAnibisHtml(html: string): AnibisListing[] {
   url,
   price: extractPrice(card),
   year: extractVehicleYear(title, extractCleanCardText(card)),
+  mileageKm: extractVehicleMileageKm(extractCleanCardText(card)),
   location: extractLocation(card),
   imageUrl: extractImageUrl(card),
 });

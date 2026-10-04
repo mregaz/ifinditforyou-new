@@ -3,6 +3,7 @@ import { parseQuery } from "./parser";
 import { filterByPriceCap } from "./price";
 import { filterByStructuredSubject } from "./subjectMatch";
 import { filterByMinYear } from "./year";
+import { filterByMaxMileage } from "./mileage";
 import { resolveCapability } from "./providers/capabilityResolver";
 import { resolveProviders } from "./providers/resolver";
 import type { FinderPlan, FinderResponse, Lang } from "./types";
@@ -52,7 +53,8 @@ const providers = resolveProviders({
   );
 
   const yearResults = filterByMinYear(subjectResults, parsedQuery.minYear);
-  const sortedResults = yearResults.sort((a, b) => b.score - a.score);
+  const mileageResults = filterByMaxMileage(yearResults, parsedQuery.maxMileageKm);
+  const sortedResults = mileageResults.sort((a, b) => b.score - a.score);
 
   return {
     query: parsedQuery,

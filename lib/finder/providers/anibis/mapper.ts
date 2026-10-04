@@ -29,6 +29,7 @@ export function mapAnibisListing(
     url: listing.url,
     ...(priceChf !== undefined && { priceChf }),
     ...(listing.year !== undefined && { year: listing.year }),
+    ...(listing.mileageKm !== undefined && { mileageKm: listing.mileageKm }),
     ...(isAccessory && { isAccessory }),
     snippet:
       listing.description ||

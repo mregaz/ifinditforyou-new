@@ -21,6 +21,7 @@ export type FinderResult = {
   snippet?: string;
   priceChf?: number;
   year?: number;
+  mileageKm?: number;
   isAccessory?: boolean;
   score: number;
 };
