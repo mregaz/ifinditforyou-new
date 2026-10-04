@@ -5,14 +5,13 @@ import { parseAnibisHtml } from "./parser";
 import { mapAnibisListing } from "./mapper";
 import { validateAnibisListings } from "./validator";
 
-const ANIBIS_TEST_SEARCH_URL =
-  "https://www.anibis.ch/it/q/cercare/Ak6l2ZXNwYSAzMDDAlMDAwMA";
-
 export const anibisProvider: SearchProvider = {
   name: "anibis",
 
-  async search(_query: ParsedQuery): Promise<FinderResult[]> {
-    const html = await fetchAnibis(ANIBIS_TEST_SEARCH_URL);
+  async search(query: ParsedQuery): Promise<FinderResult[]> {
+    const searchUrl = new URL("https://www.anibis.ch/it/q");
+    searchUrl.searchParams.set("query", query.raw.trim());
+    const html = await fetchAnibis(searchUrl.toString());
 
     const listings = parseAnibisHtml(html);
 
