@@ -1,6 +1,7 @@
 import { runProvidersDetailed } from "./manager/providerManager";
 import { parseQuery } from "./parser";
 import { filterByPriceCap } from "./price";
+import { filterByStructuredSubject } from "./subjectMatch";
 import { resolveCapability } from "./providers/capabilityResolver";
 import { resolveProviders } from "./providers/resolver";
 import type { FinderPlan, FinderResponse, Lang } from "./types";
@@ -43,8 +44,13 @@ const providers = resolveProviders({
   const vehicleResults = parsedQuery.vehicleIntent
     ? results.filter((result) => result.isAccessory !== true)
     : results;
+  const subjectResults = filterByStructuredSubject(
+    vehicleResults,
+    parsedQuery.searchSubject,
+    parsedQuery.vehicleIntent
+  );
 
-  const sortedResults = vehicleResults.sort((a, b) => b.score - a.score);
+  const sortedResults = subjectResults.sort((a, b) => b.score - a.score);
 
   return {
     query: parsedQuery,
