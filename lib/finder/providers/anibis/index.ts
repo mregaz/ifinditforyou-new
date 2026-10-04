@@ -10,7 +10,14 @@ export const anibisProvider: SearchProvider = {
 
   async search(query: ParsedQuery): Promise<FinderResult[]> {
     const searchUrl = new URL("https://www.anibis.ch/it/q");
-    searchUrl.searchParams.set("query", query.raw.trim());
+    const hasVehicleConstraints = query.vehicleIntent ||
+      query.maxPriceChf !== undefined ||
+      query.minYear !== undefined ||
+      query.maxMileageKm !== undefined;
+    searchUrl.searchParams.set(
+      "query",
+      hasVehicleConstraints && query.searchSubject ? query.searchSubject : query.raw.trim()
+    );
     const html = await fetchAnibis(searchUrl.toString());
 
     const listings = parseAnibisHtml(html);

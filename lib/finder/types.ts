@@ -6,6 +6,11 @@ export type ParsedQuery = {
   raw: string;
   normalized: string;
   lang: Lang;
+  searchSubject?: string;
+  maxPriceChf?: number;
+  minYear?: number;
+  maxMileageKm?: number;
+  vehicleIntent?: boolean;
 };
 
 export type FinderResult = {
