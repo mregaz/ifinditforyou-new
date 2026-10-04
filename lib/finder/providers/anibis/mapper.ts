@@ -2,6 +2,16 @@ import type { FinderResult } from "../../types";
 import { parseChfPrice } from "../../price";
 import type { AnibisListing } from "./types";
 
+function isObviousAccessory(listing: AnibisListing): boolean {
+  const pathSegments = new URL(listing.url).pathname.toLowerCase().split("/");
+  if (pathSegments.includes("accessori-moto") || pathSegments.includes("accessori-auto")) {
+    return true;
+  }
+
+  return /^(?:pare[\s-]?brise|[ée]chappement|tablier|parabrezza|scarico|marmitta|pneus?|supporto?|top[\s-]?case|windschild|auspuff)\b/i
+    .test(listing.title.trim());
+}
+
 export function mapAnibisListing(
   listing: AnibisListing,
   index: number
@@ -10,6 +20,7 @@ export function mapAnibisListing(
     .filter(Boolean)
     .join(" · ");
   const priceChf = parseChfPrice(listing.price);
+  const isAccessory = isObviousAccessory(listing);
 
   return {
     id: listing.id,
@@ -17,6 +28,7 @@ export function mapAnibisListing(
     source: "anibis",
     url: listing.url,
     ...(priceChf !== undefined && { priceChf }),
+    ...(isAccessory && { isAccessory }),
     snippet:
       listing.description ||
       metadata ||

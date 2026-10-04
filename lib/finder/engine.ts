@@ -40,8 +40,11 @@ const providers = resolveProviders({
     providerManagerResult.results,
     parsedQuery.maxPriceChf
   );
+  const vehicleResults = parsedQuery.vehicleIntent
+    ? results.filter((result) => result.isAccessory !== true)
+    : results;
 
-  const sortedResults = results.sort((a, b) => b.score - a.score);
+  const sortedResults = vehicleResults.sort((a, b) => b.score - a.score);
 
   return {
     query: parsedQuery,
