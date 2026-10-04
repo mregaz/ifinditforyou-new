@@ -4,6 +4,7 @@ import type { Element } from "domhandler";
 import type { AnibisListing } from "./types";
 
 const ANIBIS_BASE_URL = "https://www.anibis.ch";
+const ANIBIS_CANDIDATE_LIMIT = 20;
 
 function extractListingUrl(card: Cheerio<Element>): string | undefined {
   const href = card.find('a[href*="/it/vi/"]').first().attr("href");
@@ -137,5 +138,5 @@ export function parseAnibisHtml(html: string): AnibisListing[] {
 });
   });
 
-  return listings.slice(0, 5);
+  return listings.slice(0, ANIBIS_CANDIDATE_LIMIT);
 }
