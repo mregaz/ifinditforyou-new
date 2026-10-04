@@ -26,6 +26,7 @@ describe("mapAnibisListing", () => {
       title: "Vespa GTS 300",
       source: "anibis",
       url: "https://www.anibis.ch/it/vi/123",
+      priceChf: 5790,
       snippet: "CHF 5'790.- · Losanna, 1000",
       score: 70,
     });
@@ -57,6 +58,12 @@ describe("mapAnibisListing", () => {
     expect(result.snippet).toBe(
       "Risultato estratto da Anibis."
     );
+    expect(result.priceChf).toBeUndefined();
+  });
+
+  it("does not invent a numeric price from ambiguous text", () => {
+    expect(mapAnibisListing(createListing({ price: "4,900" }), 0).priceChf)
+      .toBeUndefined();
   });
 
   it("decreases score according to index", () => {

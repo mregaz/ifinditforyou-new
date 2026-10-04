@@ -1,5 +1,6 @@
 import { runProvidersDetailed } from "./manager/providerManager";
 import { parseQuery } from "./parser";
+import { filterByPriceCap } from "./price";
 import { resolveCapability } from "./providers/capabilityResolver";
 import { resolveProviders } from "./providers/resolver";
 import type { FinderPlan, FinderResponse, Lang } from "./types";
@@ -35,7 +36,10 @@ const providers = resolveProviders({
     executions: providerManagerResult.executions,
   });
 
-  const results = providerManagerResult.results;
+  const results = filterByPriceCap(
+    providerManagerResult.results,
+    parsedQuery.maxPriceChf
+  );
 
   const sortedResults = results.sort((a, b) => b.score - a.score);
 

@@ -19,6 +19,7 @@ export type FinderResult = {
   source: string;
   url: string;
   snippet?: string;
+  priceChf?: number;
   score: number;
 };
 

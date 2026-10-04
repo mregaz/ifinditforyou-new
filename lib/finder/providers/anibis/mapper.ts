@@ -1,4 +1,5 @@
 import type { FinderResult } from "../../types";
+import { parseChfPrice } from "../../price";
 import type { AnibisListing } from "./types";
 
 export function mapAnibisListing(
@@ -8,12 +9,14 @@ export function mapAnibisListing(
   const metadata = [listing.price, listing.location]
     .filter(Boolean)
     .join(" · ");
+  const priceChf = parseChfPrice(listing.price);
 
   return {
     id: listing.id,
     title: listing.title,
     source: "anibis",
     url: listing.url,
+    ...(priceChf !== undefined && { priceChf }),
     snippet:
       listing.description ||
       metadata ||
