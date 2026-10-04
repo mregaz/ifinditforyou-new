@@ -10,6 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { isSupportedLocale, i18n, type Locale } from "@/lib/i18n-config";
 import { toLocale } from "@/lib/lang";
 import FinderForm from "@/components/FinderForm";
+import type { FinderResult, ParsedQuery } from "@/lib/finder/types";
 
 /*
 ====================================
@@ -291,12 +292,19 @@ es: {
 },
 } as const;
 
-type ResultItem = {
-  title?: string;
-  url?: string;
-  price?: string;
-  source?: string;
+type ResultItem = FinderResult;
+
+const RESULT_LABELS: Record<Lang, { year: string; mileage: string; unknown: string }> = {
+  it: { year: "Anno", mileage: "Chilometraggio", unknown: "Non noto" },
+  en: { year: "Year", mileage: "Mileage", unknown: "Unknown" },
+  fr: { year: "Année", mileage: "Kilométrage", unknown: "Inconnu" },
+  de: { year: "Jahr", mileage: "Kilometerstand", unknown: "Unbekannt" },
+  es: { year: "Año", mileage: "Kilometraje", unknown: "Desconocido" },
 };
+
+function formatSwissNumber(value: number): string {
+  return new Intl.NumberFormat("de-CH").format(value).replace(/’/g, "'");
+}
 
 type SearchRow = {
   query: string;
@@ -448,6 +456,7 @@ export default function HomePageClient({ initialLang }: HomePageClientProps) {
   const [lang, setLang] = useState<Lang>(initialLang);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<ResultItem[]>([]);
+  const [resultConstraints, setResultConstraints] = useState<Pick<ParsedQuery, "minYear" | "maxMileageKm">>({});
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -466,6 +475,7 @@ export default function HomePageClient({ initialLang }: HomePageClientProps) {
 
   const safeLang = toLocale(lang);
 const t = (UI_TEXTS as any)[safeLang] ?? (UI_TEXTS as any).en;
+const resultLabels = RESULT_LABELS[safeLang];
 
 
   // Local storage: credits/pro/email (MVP)
@@ -594,6 +604,7 @@ if (!isPro) {
 
 setLoading(true);
     setResults([]);
+    setResultConstraints({});
     setSummary("");
     setIsFromSavedSearch(false);
 
@@ -623,6 +634,7 @@ setLoading(true);
 }
 
 setResults(items);
+setResultConstraints(data.finder?.query ?? {});
 setSummary(data.summary ?? data.finder?.summary ?? "");
 
       // se backend ti restituisce crediti rimanenti, usali (altrimenti scala in locale)
@@ -984,11 +996,19 @@ setSummary(data.summary ?? data.finder?.summary ?? "");
                   <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{item.title || "Senza titolo"}</div>
                   <div style={{ fontSize: 12, opacity: 0.7 }}>
                     {item.source && <span>{item.source}</span>}
-                    {item.price && (
+                    {item.priceChf !== undefined && (
                       <span>
                         {" "}
-                        • <strong>{item.price}</strong>
+                        • <strong>CHF {formatSwissNumber(item.priceChf)}</strong>
                       </span>
+                    )}
+                    {(item.year !== undefined || resultConstraints.minYear !== undefined) && (
+                      <span> • {resultLabels.year}: {item.year ?? resultLabels.unknown}</span>
+                    )}
+                    {(item.mileageKm !== undefined || resultConstraints.maxMileageKm !== undefined) && (
+                      <span> • {resultLabels.mileage}: {item.mileageKm !== undefined
+                        ? `${formatSwissNumber(item.mileageKm)} km`
+                        : resultLabels.unknown}</span>
                     )}
                   </div>
                 </a>
