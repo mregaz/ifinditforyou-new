@@ -41,3 +41,18 @@ describe("eBay accessory classification", () => {
     expect(result.source).toBe("ebay");
   });
 });
+
+describe("eBay complete vehicles with equipment", () => {
+  it.each([
+    "Vespa GTS 300 2022 con parabrezza",
+    "Yamaha XMAX 300 con sella nuova",
+  ])("keeps a complete scooter: %s", (title) => {
+    expect(mapEbayItem(item(title)).isAccessory).not.toBe(true);
+  });
+
+  it("still identifies a windshield sold separately", () => {
+    expect(
+      mapEbayItem(item("Parabrezza Vespa GTS 300")).isAccessory
+    ).toBe(true);
+  });
+});

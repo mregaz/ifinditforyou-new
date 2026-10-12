@@ -25,6 +25,17 @@ export function isEbayAccessory(title: string): boolean {
 
   const words = normalized.match(/[a-z]+/g) ?? [];
 
+  const completeVehicleWithEquipment =
+    /\b(?:vespa|yamaha|honda)\b/.test(normalized) &&
+    /\b(?:gts|xmax|forza)\s+\d{2,4}\b/.test(normalized) &&
+    /\b(?:con|with|avec|mit)\s+(?:parabrezza|sella|scarico|windshield|windscreen)\b/.test(
+      normalized
+    );
+
+  if (completeVehicleWithEquipment) {
+    return false;
+  }
+
   return ACCESSORY_TERMS.some((term) => {
     const termWords = term.split(" ");
 

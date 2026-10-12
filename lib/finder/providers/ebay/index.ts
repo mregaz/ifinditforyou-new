@@ -35,12 +35,28 @@ export const ebayProvider: SearchProvider = {
         normalizedQuery
       );
 
+    const recognizedScooterModel =
+      /\b(?:vespa\s+gts\s+300|yamaha\s+xmax\s+300|honda\s+forza\s+350)\b/.test(
+        normalizedQuery
+      );
+
     const completeVehicleIntent =
       query.vehicleIntent === true ||
-      /\b(vespa|scooter|moto|motocicletta)\b/.test(normalizedQuery) &&
-        /\b(usata|usato|used|occasion|gebraucht)\b/.test(normalizedQuery);
+      recognizedScooterModel ||
+      (/\b(vespa|scooter|moto|motocicletta)\b/.test(normalizedQuery) &&
+        /\b(usata|usato|used|occasion|gebraucht)\b/.test(normalizedQuery));
 
-    if (completeVehicleIntent && !explicitAccessoryIntent) {
+    const vehicleRequestedWithEquipment =
+      query.vehicleIntent === true &&
+      !/\b(?:ricambi|ricambio|ersatzteile|ersatzteil|spare parts)\b/.test(
+        normalizedQuery
+      ) &&
+      /\b(?:con|with|avec|mit)\b/.test(normalizedQuery);
+
+    if (
+      completeVehicleIntent &&
+      (!explicitAccessoryIntent || vehicleRequestedWithEquipment)
+    ) {
       return results.filter((result) => result.isAccessory !== true);
     }
 

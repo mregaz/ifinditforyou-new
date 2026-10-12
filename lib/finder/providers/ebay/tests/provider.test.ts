@@ -125,3 +125,128 @@ describe("eBay vehicle versus accessory intent", () => {
     );
   });
 });
+
+describe("eBay implicit vehicle intent", () => {
+  it("excludes accessories for a Vespa model without 'usata'", async () => {
+    fetchEbayMock.mockResolvedValueOnce({
+      total: 2,
+      itemSummaries: [
+        {
+          itemId: "vespa-complete",
+          title: "Vespa GTS 300 Super 2022",
+          itemWebUrl: "https://www.ebay.ch/itm/333",
+          price: { value: "5500.00", currency: "CHF" },
+        },
+        {
+          itemId: "vespa-windshield",
+          title: "Parabrezza Vespa GTS 300",
+          itemWebUrl: "https://www.ebay.ch/itm/444",
+          price: { value: "100.00", currency: "CHF" },
+        },
+      ],
+    });
+
+    const results = await ebayProvider.search({
+      raw: "Vespa GTS 300",
+      normalized: "vespa gts 300",
+      lang: "it",
+    });
+
+    expect(results.map((result) => result.id)).toEqual([
+      "ebay-vespa-complete",
+    ]);
+  });
+});
+
+describe("eBay vehicle with accessory requirements", () => {
+  it("keeps complete scooters when a windshield is requested as equipment", async () => {
+    fetchEbayMock.mockResolvedValueOnce({
+      total: 2,
+      itemSummaries: [
+        {
+          itemId: "scooter-equipped",
+          title: "Vespa GTS 300 2022 con parabrezza",
+          itemWebUrl: "https://www.ebay.ch/itm/555",
+          price: { value: "5200.00", currency: "CHF" },
+        },
+        {
+          itemId: "windshield-only",
+          title: "Parabrezza Vespa GTS 300",
+          itemWebUrl: "https://www.ebay.ch/itm/666",
+          price: { value: "120.00", currency: "CHF" },
+        },
+      ],
+    });
+
+    const results = await ebayProvider.search({
+      raw: "Cerco uno scooter Vespa GTS 300 con parabrezza",
+      normalized: "cerco uno scooter vespa gts 300 con parabrezza",
+      lang: "it",
+      vehicleIntent: true,
+    });
+
+    expect(results.map((result) => result.id)).toEqual([
+      "ebay-scooter-equipped",
+    ]);
+  });
+});
+
+describe("eBay explicit accessory intent", () => {
+  it("keeps spare parts requested for a scooter", async () => {
+    fetchEbayMock.mockResolvedValueOnce({
+      total: 2,
+      itemSummaries: [
+        {
+          itemId: "complete-vespa",
+          title: "Vespa GTS 300 Super 2022",
+          itemWebUrl: "https://www.ebay.ch/itm/777",
+          price: { value: "5300.00", currency: "CHF" },
+        },
+        {
+          itemId: "vespa-parts",
+          title: "Ricambi Vespa GTS 300",
+          itemWebUrl: "https://www.ebay.ch/itm/888",
+          price: { value: "80.00", currency: "CHF" },
+        },
+      ],
+    });
+
+    const results = await ebayProvider.search({
+      raw: "Cerco ricambi per scooter Vespa GTS 300",
+      normalized: "cerco ricambi per scooter vespa gts 300",
+      lang: "it",
+      vehicleIntent: true,
+    });
+
+    expect(results.map((result) => result.id)).toContain(
+      "ebay-vespa-parts"
+    );
+  });
+});
+
+describe("eBay accessory intent with shipping requirements", () => {
+  it("keeps spare parts when the user requests shipping", async () => {
+    fetchEbayMock.mockResolvedValueOnce({
+      total: 1,
+      itemSummaries: [
+        {
+          itemId: "parts-shipping",
+          title: "Ricambi Vespa GTS 300",
+          itemWebUrl: "https://www.ebay.ch/itm/999",
+          price: { value: "95.00", currency: "CHF" },
+        },
+      ],
+    });
+
+    const results = await ebayProvider.search({
+      raw: "Cerco ricambi per scooter Vespa GTS 300 con spedizione",
+      normalized: "cerco ricambi per scooter vespa gts 300 con spedizione",
+      lang: "it",
+      vehicleIntent: true,
+    });
+
+    expect(results.map((result) => result.id)).toContain(
+      "ebay-parts-shipping"
+    );
+  });
+});
