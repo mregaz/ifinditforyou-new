@@ -32,6 +32,16 @@ export function isEbayAccessory(title: string): boolean {
       normalized
     );
 
+  const explicitSpareParts =
+    /\b(?:ricambi|ricambio|ersatzteile|ersatzteil|replacement)\b/.test(
+      normalized
+    ) ||
+    /\bspare\s+parts\b/.test(normalized);
+
+  if (explicitSpareParts) {
+    return true;
+  }
+
   if (completeVehicleWithEquipment) {
     return false;
   }

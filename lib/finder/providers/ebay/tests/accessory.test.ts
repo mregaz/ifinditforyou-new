@@ -56,3 +56,13 @@ describe("eBay complete vehicles with equipment", () => {
     ).toBe(true);
   });
 });
+
+describe("eBay accessory classification precedence", () => {
+  it("identifies a spare-parts kit even when equipment is mentioned", () => {
+    expect(
+      mapEbayItem(
+        item("Kit ricambi Vespa GTS 300 con parabrezza")
+      ).isAccessory
+    ).toBe(true);
+  });
+});
