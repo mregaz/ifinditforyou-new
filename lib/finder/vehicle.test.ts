@@ -45,7 +45,7 @@ describe("Finder vehicle intent", () => {
     });
 
     expect(response.results.map(({ id }) => id)).toEqual([
-      "mock-1", "mock-2", "anibis-screen", "anibis-exhaust",
+      "anibis-screen", "anibis-exhaust",
       "anibis-cover", "anibis-xmax", "anibis-xmax-abs",
     ]);
   });

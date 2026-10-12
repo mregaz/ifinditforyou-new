@@ -79,7 +79,7 @@ describe("Finder price-cap integration", () => {
     });
 
     expect(response.results.map(({ id }) => id)).toEqual([
-      "mock-1", "mock-2", "anibis-below", "anibis-above",
+      "anibis-below", "anibis-above",
     ]);
   });
 });

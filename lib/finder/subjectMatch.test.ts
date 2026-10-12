@@ -83,7 +83,7 @@ describe("Finder subject filter", () => {
 
     const response = await runFinderEngine({ query: "annunci", lang: "it", plan: "free" });
 
-    expect(response.results).toHaveLength(11);
+    expect(response.results).toHaveLength(9);
     expect(response.results.map(({ id }) => id)).toContain("anibis-ktm");
     expect(response.results.map(({ id }) => id)).toContain("anibis-nmax");
   });

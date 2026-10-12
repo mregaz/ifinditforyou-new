@@ -30,4 +30,5 @@ export type FinderResponse = {
   query: ParsedQuery;
   results: FinderResult[];
   summary: string;
+  status: import("./manager/finderStatus").FinderExecutionStatus;
 };

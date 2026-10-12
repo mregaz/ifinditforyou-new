@@ -1,4 +1,5 @@
 import { runProvidersDetailed } from "./manager/providerManager";
+import { resolveFinderStatus } from "./manager/finderStatus";
 import { parseQuery } from "./parser";
 import { filterByPriceCap } from "./price";
 import { filterByStructuredSubject } from "./subjectMatch";
@@ -59,6 +60,7 @@ const providers = resolveProviders({
   return {
     query: parsedQuery,
     results: sortedResults,
+    status: resolveFinderStatus(providerManagerResult.executions),
     summary:
       input.plan === "pro"
         ? "Ricerca PRO completata con Finder Engine."

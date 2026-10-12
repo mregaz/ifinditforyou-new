@@ -1,0 +1,12 @@
+import { fileURLToPath, URL } from "node:url";
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      "server-only": fileURLToPath(
+        new URL("./tests/server-only.mock.ts", import.meta.url)
+      ),
+    },
+  },
+});
