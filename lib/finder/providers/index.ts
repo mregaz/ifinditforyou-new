@@ -1,5 +1,6 @@
 import { mockProvider } from "./mock/provider";
 import { anibisProvider } from "./anibis";
+import { ebayProvider } from "./ebay";
 import type { RegisteredProvider } from "./registry";
 
 export const providerRegistry: RegisteredProvider[] = [
@@ -20,6 +21,16 @@ export const providerRegistry: RegisteredProvider[] = [
     priority: 90,
     countries: ["CH"],
     languages: ["it", "fr", "de"],
+    categories: ["general-marketplace", "vehicles"],
+    capabilities: ["general-marketplace", "vehicles"],
+  },
+  {
+    id: "ebay",
+    provider: ebayProvider,
+    enabled: false,
+    priority: 80,
+    countries: ["CH"],
+    languages: ["it", "fr", "de", "en"],
     categories: ["general-marketplace", "vehicles"],
     capabilities: ["general-marketplace", "vehicles"],
   },

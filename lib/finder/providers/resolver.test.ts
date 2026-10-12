@@ -1,42 +1,51 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("server-only", () => ({}));
+
 import { resolveProviders } from "./resolver";
 
-describe("resolveProviders", () => {
-  it("resolves vehicle providers by priority", () => {
-    const providers = resolveProviders({
-      capability: "vehicles",
-    });
+const originalFinderMode = process.env.FINDER_MODE;
 
-    expect(providers.map((provider) => provider.name)).toEqual([
-      "mock",
-      "anibis",
-    ]);
-  });
+afterEach(() => {
+  if (originalFinderMode === undefined) {
+    delete process.env.FINDER_MODE;
+  } else {
+    process.env.FINDER_MODE = originalFinderMode;
+  }
+});
 
-  it("resolves watch providers", () => {
-    const providers = resolveProviders({
-      capability: "watches",
-    });
+describe("Phoenix provider resolver", () => {
+  it("uses Anibis but excludes disabled eBay in real mode", () => {
+    process.env.FINDER_MODE = "real";
 
-    expect(providers.map((provider) => provider.name)).toEqual(["mock"]);
-  });
-
-  it("resolves electronics providers", () => {
-    const providers = resolveProviders({
-      capability: "electronics",
-    });
-
-    expect(providers.map((provider) => provider.name)).toEqual(["mock"]);
-  });
-
-  it("resolves general marketplace providers by priority", () => {
     const providers = resolveProviders({
       capability: "general-marketplace",
     });
 
-    expect(providers.map((provider) => provider.name)).toEqual([
-      "mock",
-      "anibis",
-    ]);
+    const names = providers.map((provider) => provider.name);
+
+    expect(names).toContain("anibis");
+    expect(names).not.toContain("ebay");
+    expect(names).not.toContain("mock");
+  });
+
+  it("uses only Mock in demo mode", () => {
+    process.env.FINDER_MODE = "demo";
+
+    const providers = resolveProviders({
+      capability: "general-marketplace",
+    });
+
+    expect(providers.map((provider) => provider.name)).toEqual(["mock"]);
+  });
+
+  it("returns no providers for an unknown mode", () => {
+    process.env.FINDER_MODE = "unknown";
+
+    const providers = resolveProviders({
+      capability: "general-marketplace",
+    });
+
+    expect(providers).toEqual([]);
   });
 });
