@@ -3,7 +3,7 @@ import type { ParsedQuery } from "../../types";
 export type EbaySearchIntent = "VEHICLE" | "ACCESSORY" | "UNKNOWN";
 
 const ACCESSORY_TERMS =
-  /\b(?:parabrezza|sella|scarico|ricambi|ricambio|windshield|windscreen|ersatzteile|ersatzteil|spare parts)\b/;
+  /\b(?:parabrezza|sella|selle|sattel|scarico|ricambi|ricambio|windshield|windscreen|ersatzteile|ersatzteil|spare parts)\b/;
 
 const VEHICLE_TERMS =
   /\b(?:scooter|moto|motocicletta|vespa)\b/;

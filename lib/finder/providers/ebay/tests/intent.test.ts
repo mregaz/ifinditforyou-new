@@ -58,3 +58,16 @@ describe("eBay vehicle with spare parts included", () => {
     expect(classifyEbaySearchIntent(query)).toBe("VEHICLE");
   });
 });
+
+describe("eBay multilingual search intent", () => {
+  it.each([
+    ["Je cherche une selle pour Vespa GTS 300", "ACCESSORY"],
+    ["Je cherche un scooter Vespa GTS 300", "VEHICLE"],
+    ["Ich suche einen Sattel für Vespa GTS 300", "ACCESSORY"],
+    ["Ich suche einen Vespa GTS 300 Roller", "VEHICLE"],
+    ["Looking for a Vespa GTS 300 windshield", "ACCESSORY"],
+    ["Looking for a Vespa GTS 300 scooter", "VEHICLE"],
+  ] as const)("classifies %s", (raw, expected) => {
+    expect(classifyEbaySearchIntent(makeQuery(raw))).toBe(expected);
+  });
+});

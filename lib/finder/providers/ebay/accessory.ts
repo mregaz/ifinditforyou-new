@@ -6,6 +6,8 @@
 const ACCESSORY_TERMS = [
   "parabrezza",
   "sella",
+  "selle",
+  "sattel",
   "scarico",
   "windshield",
   "windscreen",

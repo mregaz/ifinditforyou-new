@@ -1,3 +1,4 @@
+import { isEbayAccessory as checkMultilingualAccessory } from "../accessory";
 import { describe, expect, it } from "vitest";
 import { mapEbayItem } from "../mapper";
 import type { EbayItemSummary } from "../types";
@@ -64,5 +65,14 @@ describe("eBay accessory classification precedence", () => {
         item("Kit ricambi Vespa GTS 300 con parabrezza")
       ).isAccessory
     ).toBe(true);
+  });
+});
+
+describe("eBay multilingual accessory titles", () => {
+  it.each([
+    ["Selle Vespa GTS 300 originale", true],
+    ["Sattel Vespa GTS 300 original", true],
+  ] as const)("classifies %s as accessory", (title, expected) => {
+    expect(checkMultilingualAccessory(title)).toBe(expected);
   });
 });
