@@ -54,3 +54,34 @@ describe("Phoenix Provider Manager resilience", () => {
     ]);
   });
 });
+
+describe("Phoenix Provider Manager total failure", () => {
+  it("reports all provider failures without inventing results", async () => {
+    const query: ParsedQuery = {
+      raw: "Vespa GTS 300",
+      normalized: "vespa gts 300",
+      lang: "it",
+    };
+
+    const failingProvider: SearchProvider = {
+      name: "unavailable",
+      search: vi.fn(async () => {
+        throw new Error("Provider unavailable");
+      }),
+    };
+
+    const result = await runProvidersDetailed({
+      providers: [failingProvider],
+      query,
+    });
+
+    expect(result.results).toEqual([]);
+    expect(result.executions).toEqual([
+      expect.objectContaining({
+        provider: "unavailable",
+        status: "error",
+        resultCount: 0,
+      }),
+    ]);
+  });
+});
