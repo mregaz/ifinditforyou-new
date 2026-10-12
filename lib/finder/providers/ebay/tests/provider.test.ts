@@ -250,3 +250,30 @@ describe("eBay accessory intent with shipping requirements", () => {
     );
   });
 });
+
+describe("eBay accessory request with shipping", () => {
+  it("keeps a saddle requested with shipping", async () => {
+    fetchEbayMock.mockResolvedValueOnce({
+      total: 1,
+      itemSummaries: [
+        {
+          itemId: "vespa-saddle",
+          title: "Sella originale Vespa GTS 300",
+          itemWebUrl: "https://www.ebay.ch/itm/1001",
+          price: { value: "150.00", currency: "CHF" },
+        },
+      ],
+    });
+
+    const results = await ebayProvider.search({
+      raw: "Cerco una sella per scooter Vespa GTS 300 con spedizione",
+      normalized: "cerco una sella per scooter vespa gts 300 con spedizione",
+      lang: "it",
+      vehicleIntent: true,
+    });
+
+    expect(results.map((result) => result.id)).toContain(
+      "ebay-vespa-saddle"
+    );
+  });
+});
