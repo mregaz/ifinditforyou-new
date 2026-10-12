@@ -76,3 +76,12 @@ describe("eBay multilingual accessory titles", () => {
     expect(checkMultilingualAccessory(title)).toBe(expected);
   });
 });
+
+describe("eBay French vehicle versus accessory titles", () => {
+  it.each([
+    ["Vespa GTS 300 2022 avec selle confort", false],
+    ["Selle confort pour Vespa GTS 300", true],
+  ] as const)("classifies %s correctly", (title, expected) => {
+    expect(checkMultilingualAccessory(title)).toBe(expected);
+  });
+});

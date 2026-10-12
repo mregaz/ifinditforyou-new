@@ -30,7 +30,7 @@ export function isEbayAccessory(title: string): boolean {
   const completeVehicleWithEquipment =
     /\b(?:vespa|yamaha|honda)\b/.test(normalized) &&
     /\b(?:gts|xmax|forza)\s+\d{2,4}\b/.test(normalized) &&
-    /\b(?:con|with|avec|mit)\s+(?:parabrezza|sella|scarico|windshield|windscreen)\b/.test(
+    /\b(?:con|with|avec|mit)\s+(?:parabrezza|sella|selle|sattel|scarico|windshield|windscreen)\b/.test(
       normalized
     );
 
