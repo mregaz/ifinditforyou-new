@@ -128,3 +128,39 @@ describe("eBay Browse API fetch", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });
+
+describe("eBay Browse category metadata", () => {
+  it("preserves optional categories from the API response", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        total: 1,
+        itemSummaries: [{
+          itemId: "vehicle-123",
+          title: "Vespa GTS 300",
+          itemWebUrl: "https://www.ebay.ch/itm/123",
+          price: { value: "4500.00", currency: "CHF" },
+          categories: [{
+            categoryId: "TEST-VEHICLE",
+            categoryName: "Scooters",
+          }],
+        }],
+      }),
+    } as Response);
+
+    globalThis.fetch = fetchMock;
+
+    const { fetchEbay } = await loadFetch();
+    const result = await fetchEbay("Vespa GTS 300");
+
+    expect(result.itemSummaries?.[0]?.categories).toEqual([
+      {
+        categoryId: "TEST-VEHICLE",
+        categoryName: "Scooters",
+      },
+    ]);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+});

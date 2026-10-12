@@ -10,6 +10,10 @@ export type EbayItemSummary = {
   itemWebUrl?: string;
   price?: EbayMoney;
   condition?: string;
+  categories?: Array<{
+    categoryId: string;
+    categoryName?: string;
+  }>;
   shortDescription?: string;
   shippingOptions?: Array<{
     shippingCost?: EbayMoney;
