@@ -10,7 +10,12 @@ export function parseQuery(query: string, lang: Lang): ParsedQuery {
   const maxPrice = query.match(/\bmassimo\s+(?:CHF\s*)?(\d{1,3}(?:['’\s]\d{3})+|\d+)\b/i);
   const minYear = query.match(/\bdal\s+((?:19|20)\d{2})\s+in\s+poi\b/i);
   const maxMileage = query.match(/\bmeno\s+di\s+(\d{1,3}(?:['’\s]\d{3})+|\d+)\s*km\b/i);
-  const vehicleIntent = /\b(?:scooter|moto|motociclo|motocicletta)\b/i.test(query);
+    const vehicleIntent =
+    /\b(?:scooter|moto|motociclo|motocicletta)\b/i.test(query) ||
+    (
+      /\b(?:vespa\s+gts\s+300|yamaha\s+xmax\s+300|honda\s+forza\s+350)\b/i.test(query) &&
+      !/\b(?:ricambi|ricambio|ersatzteile|ersatzteil|spare\s+parts|parabrezza|sella|scarico|windshield|windscreen)\b/i.test(query)
+    );
 
   return {
     raw: query,

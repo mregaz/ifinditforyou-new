@@ -85,3 +85,24 @@ describe("eBay French vehicle versus accessory titles", () => {
     expect(checkMultilingualAccessory(title)).toBe(expected);
   });
 });
+
+describe("eBay real-world scooter accessories", () => {
+  it.each([
+    "TPU Schutzfolie für Vespa GTS300",
+    "Taillight - PIAGGIO Vespa GTS 300",
+    "BAULETTO ORIGINALE PIAGGIO VESPA GTS 300",
+    "Vespa GTS 300 Original Vespa Emblem",
+    "Spiegellochabdeckung CNC für Vespa GTS 300",
+    "Navigation Storage Bag For Vespa GTS 300",
+    "Manuale Officina Vespa GTS 300",
+    "Vespa GTS 300 Throttle Body ECU",
+    "WOLFLINE Gepäckträger für Vespa GTS 300",
+    "WOLFLINE Schutzbügel für Vespa GTS 300",
+    "ALBERO MOTORE COMPLETO VESPA GTS 300",
+    "Vespa GTS 300 Auspuffrohr",
+    "Vespa GTS 300 Kennzeichenhalter",
+    "Vespa GTS 300 FORCELLA TUBO STERZO",
+  ])("recognizes a separately sold accessory: %s", (title) => {
+    expect(checkMultilingualAccessory(title)).toBe(true);
+  });
+});

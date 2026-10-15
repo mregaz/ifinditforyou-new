@@ -17,7 +17,37 @@ function normalizeLang(x: any): Lang {
 
 
 export async function POST(req: Request) {
-  const supabase = await createClient();
+  // PHOENIX_LOCAL_FREE_MVP: ricerca gratuita in sviluppo
+  if (
+    process.env.NODE_ENV === "development" &&
+    process.env.FINDER_MODE === "real"
+  ) {
+    const body = await req.json().catch(() => ({}));
+    const query = String(body?.query ?? "").trim();
+    const lang = normalizeLang(body?.lang);
+
+    if (!query) {
+      return NextResponse.json(
+        { error: "Missing query" },
+        { status: 400 }
+      );
+    }
+
+    const finderResponse = await runFinderEngine({
+      query,
+      lang,
+      plan: "free",
+    });
+
+    return NextResponse.json({
+      ok: true,
+      isPro: false,
+      creditsRemaining: null,
+      finder: finderResponse,
+      results: finderResponse.results,
+    });
+  }  
+const supabase = await createClient();
 
   // ✅ 1) CLIENT ADMIN (SERVICE ROLE) per bypassare RLS lato server
   const supabaseUrl = process.env.SUPABASE_URL;

@@ -56,7 +56,9 @@ async function requestEbayToken(): Promise<string> {
 
   if (
     !data.access_token ||
-    data.token_type?.toLowerCase() !== "bearer" ||
+    !["bearer", "application access token"].includes(
+      data.token_type?.toLowerCase()
+    ) ||
     !Number.isFinite(data.expires_in) ||
     data.expires_in <= 0
   ) {

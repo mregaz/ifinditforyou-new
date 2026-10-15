@@ -17,7 +17,7 @@ export const providerRegistry: RegisteredProvider[] = [
   {
     id: "anibis",
     provider: anibisProvider,
-    enabled: true,
+    enabled: false,
     priority: 90,
     countries: ["CH"],
     languages: ["it", "fr", "de"],
@@ -27,7 +27,7 @@ export const providerRegistry: RegisteredProvider[] = [
   {
     id: "ebay",
     provider: ebayProvider,
-    enabled: false,
+    enabled: true,
     priority: 80,
     countries: ["CH"],
     languages: ["it", "fr", "de", "en"],

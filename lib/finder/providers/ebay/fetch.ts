@@ -7,11 +7,12 @@ const EBAY_SEARCH_URL =
   "https://api.ebay.com/buy/browse/v1/item_summary/search";
 
 const DEFAULT_MARKETPLACE = "EBAY_CH";
-const SEARCH_LIMIT = 20;
+const SEARCH_LIMIT = 50;
 const REQUEST_TIMEOUT_MS = 2000;
 
 export async function fetchEbay(
-  query: string
+  query: string,
+  categoryId?: string
 ): Promise<EbaySearchResponse> {
   const normalizedQuery = query.trim();
 
@@ -61,7 +62,9 @@ export async function fetchEbay(
 
   url.searchParams.set("q", normalizedQuery);
   url.searchParams.set("limit", String(SEARCH_LIMIT));
-
+  if (categoryId) {
+  url.searchParams.set("category_ids", categoryId);
+}
   const response = await fetch(url, {
     method: "GET",
     headers: {

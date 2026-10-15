@@ -36,6 +36,7 @@ describe("parseQuery vehicle constraints", () => {
     expect(parseQuery("Yamaha XMAX 300", "it")).toEqual({
       raw: "Yamaha XMAX 300",
       normalized: "yamaha xmax 300",
+      vehicleIntent: true,
       lang: "it",
       searchSubject: "Yamaha XMAX 300",
     });
