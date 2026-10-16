@@ -1,6 +1,6 @@
 import type { FinderResult } from "./types";
 
-type VehicleSubject = { brand: string; model: string; engineSize: number };
+type VehicleSubject = { brand: string; model: string; engineSize?: number };
 type SubjectClassification = NonNullable<FinderResult["matchClassification"]>;
 
 const GENERIC_AFTER_BRAND = new Set(["scooter", "moto", "motorrad", "motorcycle", "usato", "used"]);
@@ -11,13 +11,13 @@ function words(value: string): string[] {
 }
 
 function parseVehicleSubject(subject?: string): VehicleSubject | undefined {
-  const match = subject?.trim().match(/^([a-z]+)\s+([a-z][a-z\d-]*)\s+(\d{2,4})$/i);
-  if (!match) return undefined;
+  const match = subject?.trim().match(/^([a-z]+)\s+([a-z][a-z\d-]*)(?:\s+(\d{2,4}))?$/i);
+  if (!match || GENERIC_AFTER_BRAND.has(match[1].toLowerCase())) return undefined;
 
   return {
     brand: match[1].toLowerCase(),
     model: words(match[2]).join(""),
-    engineSize: Number(match[3]),
+    ...(match[3] && { engineSize: Number(match[3]) }),
   };
 }
 
@@ -44,7 +44,7 @@ export function titleMatchesSubject(title: string, subject: string): boolean {
     .map(Number)
     .filter((number) => number >= 50 && number <= 1500);
 
-  if (engineSizes.length > 0 && !engineSizes.includes(vehicle.engineSize)) return false;
+  if (vehicle.engineSize !== undefined && engineSizes.length > 0 && !engineSizes.includes(vehicle.engineSize)) return false;
   if (hasModel) return true;
 
   const brandPosition = titleWords.indexOf(vehicle.brand);
@@ -74,8 +74,8 @@ export function classifyVehicleSubject(
     .filter((word) => /^\d{2,4}$/.test(word))
     .map(Number)
     .filter((number) => number >= 50 && number <= 1500);
-  if (hasModel && engineSizes.includes(vehicle.engineSize)) return "exact";
-  if (hasModel && engineSizes.length > 0) return "alternative";
+if (hasModel && (vehicle.engineSize === undefined || engineSizes.includes(vehicle.engineSize))) return "exact";
+  if (hasModel && vehicle.engineSize !== undefined && engineSizes.length > 0) return "alternative";
 
   const followingWord = titleWords[brandPosition + 1];
   if (brandPosition >= 0 && followingWord && /^[a-z]+$/.test(followingWord) &&

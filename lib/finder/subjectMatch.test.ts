@@ -105,3 +105,16 @@ describe("Finder subject filter", () => {
     expect(response.results.map(({ id }) => id)).toContain("anibis-nmax");
   });
 });
+
+describe("vehicle models without displacement", () => {
+  it("recognizes Vespa PX without engine size", () => {
+    expect(classifyVehicleSubject("Vespa PX 125 1982", "Vespa PX")).toBe("exact");
+    expect(classifyVehicleSubject("Vespa Primavera 125", "Vespa PX")).toBe("alternative");
+    expect(classifyVehicleSubject("Vespa scooter usata", "Vespa PX")).toBe("unverified");
+  });
+
+  it("preserves Honda SH 125 recognition", () => {
+    expect(classifyVehicleSubject("Honda SH 125 2022", "Honda SH 125")).toBe("exact");
+    expect(classifyVehicleSubject("Yamaha XMAX 300", "Honda SH 125")).toBeUndefined();
+  });
+});
