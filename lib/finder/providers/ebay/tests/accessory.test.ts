@@ -86,6 +86,22 @@ describe("eBay French vehicle versus accessory titles", () => {
   });
 });
 
+describe("eBay real-world Vespa search regression", () => {
+  it.each([
+    "Vespa Gs 150 Vs5t Ulma Originale Anbauteile",
+    "Vespa ACMA 1950 Bacchetta Accesories Gestängeschaltung Zubehör Patina",
+  ])("excludes accessory listing: %s", (title) => {
+    expect(checkMultilingualAccessory(title)).toBe(true);
+  });
+
+  it.each([
+    "Vespa primavera 50 ccm",
+    "vespa 125ccm",
+  ])("keeps potential complete scooter: %s", (title) => {
+    expect(checkMultilingualAccessory(title)).toBe(false);
+  });
+});
+
 describe("eBay real-world scooter accessories", () => {
   it.each([
     "TPU Schutzfolie für Vespa GTS300",

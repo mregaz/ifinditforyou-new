@@ -4,6 +4,10 @@
  */
 
 const ACCESSORY_TERMS = [
+  "anbauteile",
+  "zubehor",
+  "accessories",
+  "accesories",
   "parabrezza",
   "sella",
   "selle",
