@@ -49,3 +49,27 @@ describe("parseQuery vehicle constraints", () => {
     expect(parseQuery("iPhone 13 mini", "it").searchSubject).toBeUndefined();
   });
 });
+
+
+describe("parseQuery additional vehicle models", () => {
+  it.each([
+    ["Vespa PX 125", "Vespa PX 125"],
+    ["Honda SH 125", "Honda SH 125"],
+    ["Vespa PX", "Vespa PX"],
+  ])("recognizes vehicle model: %s", (raw, subject) => {
+    expect(parseQuery(raw, "it")).toMatchObject({
+      searchSubject: subject,
+      vehicleIntent: true,
+    });
+  });
+
+  it("does not treat spare parts as a complete vehicle", () => {
+    expect(parseQuery("Vespa PX 125 ricambi", "it").vehicleIntent)
+      .toBeUndefined();
+  });
+
+  it("does not classify an iPhone as a vehicle", () => {
+    expect(parseQuery("iPhone 13 mini", "it").vehicleIntent)
+      .toBeUndefined();
+  });
+});
