@@ -29,7 +29,14 @@ const isVespaSearch =
 
 const categoryId = isVespaSearch ? "9939" : undefined;
 
-let response = await fetchEbay(searchText, categoryId);
+// Un solo budget temporale per ricerca iniziale e fallback.
+const searchDeadline = AbortSignal.timeout(2500);
+
+let response = await fetchEbay(
+  searchText,
+  categoryId,
+  searchDeadline
+);
 
 const hasUsableVehicle = (response.itemSummaries ?? []).some(
   (item) => {
@@ -59,9 +66,14 @@ if (
   isVespaSearch &&
   query.searchSubject &&
   !hasUsableVehicle &&
-  searchText.toLowerCase() !== "vespa"
+  searchText.toLowerCase() !== "vespa" &&
+  !searchDeadline.aborted
 ) {
-  response = await fetchEbay("Vespa", categoryId);
+  response = await fetchEbay(
+    "Vespa",
+    categoryId,
+    searchDeadline
+  );
 }
 
     const validItems = (response.itemSummaries ?? [])

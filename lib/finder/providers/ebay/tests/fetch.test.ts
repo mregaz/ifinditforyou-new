@@ -164,3 +164,20 @@ describe("eBay Browse category metadata", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
+describe("eBay shared deadline protection", () => {
+  it("does not start Browse when the shared signal is already aborted", async () => {
+    const fetchMock = vi.fn();
+    globalThis.fetch = fetchMock;
+
+    const { fetchEbay } = await loadFetch();
+
+    const controller = new AbortController();
+    controller.abort();
+
+    await expect(
+      fetchEbay("Vespa GTS 300", "9939", controller.signal)
+    ).rejects.toThrow();
+
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});

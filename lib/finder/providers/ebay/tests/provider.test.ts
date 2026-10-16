@@ -28,7 +28,11 @@ describe("eBay SearchProvider", () => {
 
     await ebayProvider.search(baseQuery);
 
-    expect(fetchEbayMock).toHaveBeenCalledWith("Vespa GTS 300", "9939");
+    expect(fetchEbayMock).toHaveBeenCalledWith(
+  "Vespa GTS 300",
+  "9939",
+  expect.any(AbortSignal)
+);
   });
 
   it("filters invalid items and maps valid items", async () => {
@@ -325,17 +329,21 @@ describe("eBay intelligent fallback", () => {
 
     const results = await ebayProvider.search(baseQuery);
 
-    expect(fetchEbayMock).toHaveBeenNthCalledWith(
-      1,
-      "Vespa GTS 300",
-      "9939"
-    );
+expect(fetchEbayMock).toHaveBeenNthCalledWith(
+  1,
+  "Vespa GTS 300",
+  "9939",
+  expect.any(AbortSignal)
+);
 
-    expect(fetchEbayMock).toHaveBeenNthCalledWith(
-      2,
-      "Vespa",
-      "9939"
-    );
+ const sharedSignal = fetchEbayMock.mock.calls[0][2];
+
+expect(fetchEbayMock).toHaveBeenNthCalledWith(
+  2,
+  "Vespa",
+  "9939",
+  sharedSignal
+);
 
     expect(results.map((result) => result.id)).toEqual([
       "ebay-fallback-scooter",
@@ -381,11 +389,14 @@ describe("eBay fallback after accessory-only results", () => {
     const results = await ebayProvider.search(baseQuery);
 
     expect(fetchEbayMock).toHaveBeenCalledTimes(2);
-    expect(fetchEbayMock).toHaveBeenNthCalledWith(
-      2,
-      "Vespa",
-      "9939"
-    );
+    const sharedSignal = fetchEbayMock.mock.calls[0][2];
+
+expect(fetchEbayMock).toHaveBeenNthCalledWith(
+  2,
+  "Vespa",
+  "9939",
+  sharedSignal
+);
 
     expect(results.map((result) => result.id)).toEqual([
       "ebay-recovered-scooter",

@@ -12,7 +12,8 @@ const REQUEST_TIMEOUT_MS = 2000;
 
 export async function fetchEbay(
   query: string,
-  categoryId?: string
+  categoryId?: string,
+  signal?: AbortSignal
 ): Promise<EbaySearchResponse> {
   const normalizedQuery = query.trim();
 
@@ -28,36 +29,44 @@ export async function fetchEbay(
   }
 
   const deadline = AbortSignal.timeout(2500);
+if (signal?.aborted) {
+  throw signal.reason ?? new Error("eBay search aborted");
+}
+const effectiveDeadline = signal
+  ? AbortSignal.any([deadline, signal])
+  : deadline;
 
-  const token = await new Promise<string>((resolve, reject) => {
-    const cleanup = () => {
-      deadline.removeEventListener("abort", onAbort);
-    };
+const token = await new Promise<string>((resolve, reject) => {
+  const cleanup = () => {
+    effectiveDeadline.removeEventListener("abort", onAbort);
+  };
 
-    const onAbort = () => {
+  const onAbort = () => {
+    cleanup();
+    reject(effectiveDeadline.reason);
+  };
+
+  if (effectiveDeadline.aborted) {
+    reject(effectiveDeadline.reason);
+    return;
+  }
+
+  effectiveDeadline.addEventListener("abort", onAbort, { once: true });
+
+  getEbayAccessToken().then(
+    (value) => {
       cleanup();
-      reject(deadline.reason);
-    };
-
-    if (deadline.aborted) {
-      reject(deadline.reason);
-      return;
+      resolve(value);
+    },
+    (error) => {
+      cleanup();
+      reject(error);
     }
-
-    deadline.addEventListener("abort", onAbort, { once: true });
-
-    getEbayAccessToken().then(
-      (value) => {
-        cleanup();
-        resolve(value);
-      },
-      (error) => {
-        cleanup();
-        reject(error);
-      }
-    );
-  });
-
+  );
+});
+if (effectiveDeadline.aborted) {
+  throw effectiveDeadline.reason ?? new Error("eBay search aborted");
+}
   const url = new URL(EBAY_SEARCH_URL);
 
   url.searchParams.set("q", normalizedQuery);
@@ -72,7 +81,10 @@ export async function fetchEbay(
       "X-EBAY-C-MARKETPLACE-ID": marketplace,
       Accept: "application/json",
     },
-    signal: AbortSignal.any([deadline, AbortSignal.timeout(REQUEST_TIMEOUT_MS)]),
+    signal: AbortSignal.any([
+  effectiveDeadline,
+  AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+]),
     cache: "no-store",
   });
 
