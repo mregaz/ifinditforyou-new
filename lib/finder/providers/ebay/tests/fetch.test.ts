@@ -181,3 +181,101 @@ describe("eBay shared deadline protection", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });
+describe("eBay in-flight cancellation", () => {
+  it("aborts an HTTP request already in progress", async () => {
+    const controller = new AbortController();
+    let requestStarted = false;
+    let requestAborted = false;
+
+    const fetchMock = vi.fn(
+      (_url: unknown, options?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          requestStarted = true;
+
+         const requestSignal = options!.signal as AbortSignal;
+
+          const onAbort = () => {
+            requestAborted = true;
+            reject(
+              requestSignal.reason ??
+                new Error("Request aborted")
+            );
+          };
+
+          if (requestSignal.aborted) {
+            onAbort();
+          } else {
+            requestSignal.addEventListener(
+              "abort",
+              onAbort,
+              { once: true }
+            );
+          }
+        })
+    );
+
+    globalThis.fetch = fetchMock;
+
+    const { fetchEbay } = await loadFetch();
+
+    const pendingSearch = fetchEbay(
+      "Vespa GTS 300",
+      "9939",
+      controller.signal
+    );
+
+    await vi.waitFor(() => {
+      expect(requestStarted).toBe(true);
+    });
+
+    controller.abort();
+
+    await expect(pendingSearch).rejects.toThrow();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(requestAborted).toBe(true);
+  });
+});
+describe("eBay automatic HTTP timeout", () => {
+  it("aborts a stalled HTTP request automatically", async () => {
+    let requestAborted = false;
+
+    const fetchMock = vi.fn(
+      (_url: unknown, options?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          const requestSignal = options!.signal as AbortSignal;
+
+          const onAbort = () => {
+            requestAborted = true;
+            reject(
+              requestSignal.reason ??
+                new Error("Request aborted")
+            );
+          };
+
+          if (requestSignal.aborted) {
+            onAbort();
+          } else {
+            requestSignal.addEventListener(
+              "abort",
+              onAbort,
+              { once: true }
+            );
+          }
+        })
+    );
+
+    globalThis.fetch = fetchMock;
+
+    const { fetchEbay } = await loadFetch();
+
+    const pendingSearch = fetchEbay("Vespa GTS 300", "9939");
+
+    const rejection = expect(pendingSearch).rejects.toThrow();
+
+    await rejection;
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(requestAborted).toBe(true);
+  }, 5000);
+});
