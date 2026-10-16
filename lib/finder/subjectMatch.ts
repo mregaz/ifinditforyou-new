@@ -1,6 +1,7 @@
 import type { FinderResult } from "./types";
 
 type VehicleSubject = { brand: string; model: string; engineSize: number };
+type SubjectClassification = NonNullable<FinderResult["matchClassification"]>;
 
 const GENERIC_AFTER_BRAND = new Set(["scooter", "moto", "motorrad", "motorcycle", "usato", "used"]);
 
@@ -57,14 +58,50 @@ export function titleMatchesSubject(title: string, subject: string): boolean {
   return true;
 }
 
+export function classifyVehicleSubject(
+  title: string,
+  subject: string
+): SubjectClassification | undefined {
+  const vehicle = parseVehicleSubject(subject);
+  if (!vehicle) return undefined;
+
+  const titleWords = words(title);
+  const hasModel = containsModel(titleWords, vehicle.model);
+  const brandPosition = titleWords.indexOf(vehicle.brand);
+  if (brandPosition < 0 && !hasModel) return undefined;
+
+  const engineSizes = titleWords
+    .filter((word) => /^\d{2,4}$/.test(word))
+    .map(Number)
+    .filter((number) => number >= 50 && number <= 1500);
+  if (hasModel && engineSizes.includes(vehicle.engineSize)) return "exact";
+  if (hasModel && engineSizes.length > 0) return "alternative";
+
+  const followingWord = titleWords[brandPosition + 1];
+  if (brandPosition >= 0 && followingWord && /^[a-z]+$/.test(followingWord) &&
+      !GENERIC_AFTER_BRAND.has(followingWord) && followingWord !== vehicle.model) {
+    return "alternative";
+  }
+  return "unverified";
+}
+
 export function filterByStructuredSubject(
   results: FinderResult[],
   searchSubject?: string,
   vehicleIntent = false
 ): FinderResult[] {
   if (!searchSubject || !parseVehicleSubject(searchSubject)) return results;
-  return results.filter((result) =>
-    (!vehicleIntent && result.isAccessory === true) ||
-    titleMatchesSubject(result.title, searchSubject)
+  if (!vehicleIntent) return results.filter((result) =>
+    result.isAccessory === true || titleMatchesSubject(result.title, searchSubject)
   );
+
+  return results.flatMap((result) => {
+    const classification = classifyVehicleSubject(result.title, searchSubject);
+    if (!classification) return [];
+    return [{
+      ...result,
+      matchClassification: result.matchClassification ??
+        (classification === "exact" ? "unverified" : classification),
+    }];
+  });
 }

@@ -41,4 +41,11 @@ describe("parseQuery vehicle constraints", () => {
       searchSubject: "Yamaha XMAX 300",
     });
   });
+
+  it("extracts Vespa GTS 300 without changing non-vehicle queries", () => {
+    expect(parseQuery("Cerco Vespa GTS 300", "it")).toMatchObject({
+      searchSubject: "Vespa GTS 300", vehicleIntent: true,
+    });
+    expect(parseQuery("iPhone 13 mini", "it").searchSubject).toBeUndefined();
+  });
 });

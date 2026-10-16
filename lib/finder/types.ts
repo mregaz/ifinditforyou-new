@@ -23,6 +23,7 @@ export type FinderResult = {
   year?: number;
   mileageKm?: number;
   isAccessory?: boolean;
+  matchClassification?: "exact" | "alternative" | "unverified";
   score: number;
 };
 

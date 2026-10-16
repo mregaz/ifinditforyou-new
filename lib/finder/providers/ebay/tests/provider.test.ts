@@ -28,7 +28,7 @@ describe("eBay SearchProvider", () => {
 
     await ebayProvider.search(baseQuery);
 
-    expect(fetchEbayMock).toHaveBeenCalledWith("Vespa GTS 300");
+    expect(fetchEbayMock).toHaveBeenCalledWith("Vespa GTS 300", "9939");
   });
 
   it("filters invalid items and maps valid items", async () => {
@@ -123,6 +123,24 @@ describe("eBay vehicle versus accessory intent", () => {
     expect(results.map((result) => result.id)).toContain(
       "ebay-accessory-1"
     );
+  });
+});
+
+describe("eBay model classification", () => {
+  it("separates exact, alternative and unverified Vespa listings", async () => {
+    fetchEbayMock.mockResolvedValueOnce({ total: 4, itemSummaries: [
+      { itemId: "exact", title: "Vespa GTS 300 Super 2022", itemWebUrl: "https://www.ebay.ch/itm/1", price: { value: "5000", currency: "CHF" } },
+      { itemId: "alternative", title: "Vespa Primavera 125 2022", itemWebUrl: "https://www.ebay.ch/itm/2", price: { value: "4000", currency: "CHF" } },
+      { itemId: "unknown", title: "Vespa scooter usata", itemWebUrl: "https://www.ebay.ch/itm/3", price: { value: "3000", currency: "CHF" } },
+      { itemId: "accessory", title: "Parabrezza Vespa GTS 300 2022", itemWebUrl: "https://www.ebay.ch/itm/4", price: { value: "100", currency: "CHF" } },
+    ] });
+
+    const results = await ebayProvider.search(baseQuery);
+    expect(results.map(({ id, matchClassification }) => [id, matchClassification])).toEqual([
+      ["ebay-exact", "exact"],
+      ["ebay-alternative", "alternative"],
+      ["ebay-unknown", "unverified"],
+    ]);
   });
 });
 

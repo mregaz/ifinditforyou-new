@@ -5,7 +5,7 @@ function parseSwissNumber(value: string): number {
 }
 
 export function parseQuery(query: string, lang: Lang): ParsedQuery {
-  const searchSubject = query.match(/\b(?:yamaha|honda)\s+[a-z][a-z\d-]*\s+\d{2,4}\b/i)?.[0]
+  const searchSubject = query.match(/\b(?:yamaha|honda|vespa)\s+[a-z][a-z\d-]*\s+\d{2,4}\b/i)?.[0]
     .replace(/\s+/g, " ");
   const maxPrice = query.match(/\bmassimo\s+(?:CHF\s*)?(\d{1,3}(?:['’\s]\d{3})+|\d+)\b/i);
   const minYear = query.match(/\bdal\s+((?:19|20)\d{2})\s+in\s+poi\b/i);

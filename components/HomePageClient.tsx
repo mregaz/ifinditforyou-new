@@ -294,12 +294,12 @@ es: {
 
 type ResultItem = FinderResult;
 
-const RESULT_LABELS: Record<Lang, { year: string; mileage: string; unknown: string }> = {
-  it: { year: "Anno", mileage: "Chilometraggio", unknown: "Non noto" },
-  en: { year: "Year", mileage: "Mileage", unknown: "Unknown" },
-  fr: { year: "Année", mileage: "Kilométrage", unknown: "Inconnu" },
-  de: { year: "Jahr", mileage: "Kilometerstand", unknown: "Unbekannt" },
-  es: { year: "Año", mileage: "Kilometraje", unknown: "Desconocido" },
+const RESULT_LABELS: Record<Lang, { year: string; mileage: string; unknown: string; match: Record<NonNullable<FinderResult["matchClassification"]>, string> }> = {
+  it: { year: "Anno", mileage: "Chilometraggio", unknown: "Non noto", match: { exact: "Modello corrispondente", alternative: "Alternativa pertinente", unverified: "Modello da verificare" } },
+  en: { year: "Year", mileage: "Mileage", unknown: "Unknown", match: { exact: "Matching model", alternative: "Relevant alternative", unverified: "Model unverified" } },
+  fr: { year: "Année", mileage: "Kilométrage", unknown: "Inconnu", match: { exact: "Modèle correspondant", alternative: "Alternative pertinente", unverified: "Modèle à vérifier" } },
+  de: { year: "Jahr", mileage: "Kilometerstand", unknown: "Unbekannt", match: { exact: "Passendes Modell", alternative: "Passende Alternative", unverified: "Modell prüfen" } },
+  es: { year: "Año", mileage: "Kilometraje", unknown: "Desconocido", match: { exact: "Modelo coincidente", alternative: "Alternativa pertinente", unverified: "Modelo por verificar" } },
 };
 
 function formatSwissNumber(value: number): string {
@@ -994,6 +994,11 @@ setSummary(data.summary ?? data.finder?.summary ?? "");
                   }}
                 >
                   <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{item.title || "Senza titolo"}</div>
+                  {item.matchClassification && (
+                    <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
+                      {resultLabels.match[item.matchClassification]}
+                    </div>
+                  )}
                   <div style={{ fontSize: 12, opacity: 0.7 }}>
                     {item.source && <span>{item.source}</span>}
                     {item.priceChf !== undefined && (

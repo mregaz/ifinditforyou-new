@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { runFinderEngine } from "./engine";
-import { filterByStructuredSubject, titleMatchesSubject } from "./subjectMatch";
+import { classifyVehicleSubject, filterByStructuredSubject, titleMatchesSubject } from "./subjectMatch";
 import type { FinderResult } from "./types";
 
 afterEach(() => vi.restoreAllMocks());
@@ -8,6 +8,23 @@ afterEach(() => vi.restoreAllMocks());
 const subject = "Yamaha XMAX 300";
 
 describe("structured vehicle subject matching", () => {
+  it("classifies Vespa evidence without treating a different model as exact", () => {
+    expect(classifyVehicleSubject("Vespa GTS 300 Super 2022", "Vespa GTS 300")).toBe("exact");
+    expect(classifyVehicleSubject("Vespa Primavera 125 2022", "Vespa GTS 300")).toBe("alternative");
+    expect(classifyVehicleSubject("Vespa scooter usata", "Vespa GTS 300")).toBe("unverified");
+    expect(classifyVehicleSubject("KTM Duke 790", "Vespa GTS 300")).toBeUndefined();
+  });
+
+  it("preserves Yamaha and Honda model recognition", () => {
+    expect(classifyVehicleSubject("Yamaha X-Max 300 2021", "Yamaha XMAX 300")).toBe("exact");
+    expect(classifyVehicleSubject("Honda Forza 350 2022", "Honda Forza 350")).toBe("exact");
+    expect(classifyVehicleSubject("Yamaha NMAX 125", "Yamaha XMAX 300")).toBe("alternative");
+  });
+
+  it("leaves non-vehicle results untouched", () => {
+    const results: FinderResult[] = [{ id: "phone", title: "iPhone 13 mini", source: "ebay", url: "https://www.ebay.ch/itm/1", score: 50 }];
+    expect(filterByStructuredSubject(results)).toBe(results);
+  });
   it.each([
     "Yamaha Xmax 300 2021",
     "YAMAHA X-Max CZD 300 ABS",
