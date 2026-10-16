@@ -21,10 +21,10 @@ const baseQuery: ParsedQuery = {
 
 describe("eBay SearchProvider", () => {
   it("uses searchSubject when available", async () => {
-    fetchEbayMock.mockResolvedValueOnce({
-      total: 0,
-      itemSummaries: [],
-    });
+   fetchEbayMock.mockResolvedValue({
+  total: 0,
+  itemSummaries: [],
+});
 
     await ebayProvider.search(baseQuery);
 
@@ -293,5 +293,104 @@ describe("eBay accessory request with shipping", () => {
     expect(results.map((result) => result.id)).toContain(
       "ebay-vespa-saddle"
     );
+  });
+});
+
+describe("eBay intelligent fallback", () => {
+  it("broadens a Vespa search when the exact query returns no listings", async () => {
+    fetchEbayMock.mockReset();
+
+    fetchEbayMock
+      .mockResolvedValueOnce({
+        total: 0,
+        itemSummaries: [],
+      })
+      .mockResolvedValueOnce({
+        total: 2,
+        itemSummaries: [
+          {
+            itemId: "fallback-scooter",
+            title: "Vespa Primavera 125 2022",
+            itemWebUrl: "https://www.ebay.ch/itm/2001",
+            price: { value: "3900", currency: "CHF" },
+          },
+          {
+            itemId: "fallback-accessory",
+            title: "Parabrezza Vespa GTS 300",
+            itemWebUrl: "https://www.ebay.ch/itm/2002",
+            price: { value: "120", currency: "CHF" },
+          },
+        ],
+      });
+
+    const results = await ebayProvider.search(baseQuery);
+
+    expect(fetchEbayMock).toHaveBeenNthCalledWith(
+      1,
+      "Vespa GTS 300",
+      "9939"
+    );
+
+    expect(fetchEbayMock).toHaveBeenNthCalledWith(
+      2,
+      "Vespa",
+      "9939"
+    );
+
+    expect(results.map((result) => result.id)).toEqual([
+      "ebay-fallback-scooter",
+    ]);
+
+    expect(results[0].matchClassification).toBe("alternative");
+  });
+});
+describe("eBay fallback after accessory-only results", () => {
+  it("broadens the search when the first response contains only accessories", async () => {
+    fetchEbayMock.mockReset();
+
+    fetchEbayMock
+      .mockResolvedValueOnce({
+        total: 2,
+        itemSummaries: [
+          {
+            itemId: "only-windshield",
+            title: "Parabrezza Vespa GTS 300",
+            itemWebUrl: "https://www.ebay.ch/itm/3001",
+            price: { value: "120", currency: "CHF" },
+          },
+          {
+            itemId: "only-saddle",
+            title: "Sella Vespa GTS 300",
+            itemWebUrl: "https://www.ebay.ch/itm/3002",
+            price: { value: "180", currency: "CHF" },
+          },
+        ],
+      })
+      .mockResolvedValueOnce({
+        total: 1,
+        itemSummaries: [
+          {
+            itemId: "recovered-scooter",
+            title: "Vespa GTS 300 Super 2021",
+            itemWebUrl: "https://www.ebay.ch/itm/3003",
+            price: { value: "4900", currency: "CHF" },
+          },
+        ],
+      });
+
+    const results = await ebayProvider.search(baseQuery);
+
+    expect(fetchEbayMock).toHaveBeenCalledTimes(2);
+    expect(fetchEbayMock).toHaveBeenNthCalledWith(
+      2,
+      "Vespa",
+      "9939"
+    );
+
+    expect(results.map((result) => result.id)).toEqual([
+      "ebay-recovered-scooter",
+    ]);
+
+    expect(results[0].matchClassification).toBe("exact");
   });
 });

@@ -27,10 +27,42 @@ const isVespaSearch =
   intent === "VEHICLE" &&
   /\bvespa\b/i.test(query.raw);
 
-const response = await fetchEbay(
-  searchText,
-  isVespaSearch ? "9939" : undefined
+const categoryId = isVespaSearch ? "9939" : undefined;
+
+let response = await fetchEbay(searchText, categoryId);
+
+const hasUsableVehicle = (response.itemSummaries ?? []).some(
+  (item) => {
+    if (!isValidEbayItem(item)) return false;
+
+    const relevance = classifyEbayVehicleRelevance(item);
+    if (relevance === "EXCLUDE") return false;
+
+    const subjectMatch = query.searchSubject
+      ? classifyVehicleSubject(item.title, query.searchSubject)
+      : undefined;
+
+    if (query.searchSubject && !subjectMatch) return false;
+
+    if (
+      relevance === "UNCERTAIN" &&
+      !/\b(?:vespa|yamaha|honda)\b/i.test(item.title)
+    ) {
+      return false;
+    }
+
+    return true;
+  }
 );
+
+if (
+  isVespaSearch &&
+  query.searchSubject &&
+  !hasUsableVehicle &&
+  searchText.toLowerCase() !== "vespa"
+) {
+  response = await fetchEbay("Vespa", categoryId);
+}
 
     const validItems = (response.itemSummaries ?? [])
       .filter(isValidEbayItem);
