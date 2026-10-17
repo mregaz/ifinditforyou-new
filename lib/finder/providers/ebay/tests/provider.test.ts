@@ -405,3 +405,55 @@ expect(fetchEbayMock).toHaveBeenNthCalledWith(
     expect(results[0].matchClassification).toBe("exact");
   });
 });
+describe("eBay fallback shared deadline regression", () => {
+  it("aborts an in-flight fallback when the shared deadline expires", async () => {
+    const controller = new AbortController();
+    const timeoutSpy = vi
+      .spyOn(AbortSignal, "timeout")
+      .mockReturnValue(controller.signal);
+
+    fetchEbayMock.mockReset();
+
+    fetchEbayMock
+      .mockResolvedValueOnce({
+        total: 0,
+        itemSummaries: [],
+      })
+      .mockImplementationOnce(
+        (_query: string, _category: string, signal: AbortSignal) =>
+          new Promise((_resolve, reject) => {
+            if (signal.aborted) {
+              reject(signal.reason);
+              return;
+            }
+
+            signal.addEventListener(
+              "abort",
+              () => reject(signal.reason),
+              { once: true }
+            );
+          })
+      );
+
+    try {
+      const pendingSearch = ebayProvider.search(baseQuery);
+
+      await vi.waitFor(() => {
+        expect(fetchEbayMock).toHaveBeenCalledTimes(2);
+      });
+
+      expect(fetchEbayMock.mock.calls[0][2]).toBe(controller.signal);
+      expect(fetchEbayMock.mock.calls[1][2]).toBe(controller.signal);
+      expect(timeoutSpy).toHaveBeenCalledWith(2500);
+
+      const rejection = expect(pendingSearch).rejects.toThrow();
+
+      controller.abort(new Error("Shared deadline expired"));
+
+      await rejection;
+    } finally {
+      timeoutSpy.mockRestore();
+      fetchEbayMock.mockReset();
+    }
+  });
+});

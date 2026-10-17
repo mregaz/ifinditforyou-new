@@ -2,8 +2,31 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { runFinderEngine } from "./engine";
 import { filterByPriceCap, parseChfPrice } from "./price";
 import type { FinderResult } from "./types";
+import { providerRegistry } from "./providers";
 
-afterEach(() => vi.restoreAllMocks());
+const originalProviderStates = providerRegistry.map(({ id, enabled }) => ({
+  id,
+  enabled,
+}));
+
+function enableAnibisForTests() {
+  for (const entry of providerRegistry) {
+    if (entry.id === "anibis") entry.enabled = true;
+    if (entry.id === "ebay") entry.enabled = false;
+  }
+}
+
+afterEach(() => {
+  vi.restoreAllMocks();
+
+  for (const entry of providerRegistry) {
+    const original = originalProviderStates.find(
+      (provider) => provider.id === entry.id
+    );
+
+    if (original) entry.enabled = original.enabled;
+  }
+});
 
 describe("CHF price normalization", () => {
   it.each([
@@ -58,7 +81,9 @@ describe("Finder price-cap integration", () => {
     </div>`;
 
   it("applies the cap to provider results", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(html));
+  enableAnibisForTests();
+
+  vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(html));
 
     const response = await runFinderEngine({
       query: "Cerco uno scooter Yamaha XMAX 300 usato, massimo CHF 5'000",
@@ -70,7 +95,9 @@ describe("Finder price-cap integration", () => {
   });
 
   it("keeps the existing provider results for a simple no-cap request", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(html));
+  enableAnibisForTests();
+
+  vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(html));
 
     const response = await runFinderEngine({
       query: "Yamaha XMAX 300",

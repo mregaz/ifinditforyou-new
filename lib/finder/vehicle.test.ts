@@ -1,7 +1,28 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { runFinderEngine } from "./engine";
 
-afterEach(() => vi.restoreAllMocks());
+import { providerRegistry } from "./providers";
+
+const originalProviderStates = providerRegistry.map(({ id, enabled }) => ({
+  id,
+  enabled,
+}));
+
+function enableAnibisForTests() {
+  for (const entry of providerRegistry) {
+    if (entry.id === "anibis") entry.enabled = true;
+    if (entry.id === "ebay") entry.enabled = false;
+  }
+}
+
+afterEach(() => {
+  vi.restoreAllMocks();
+
+  for (const original of originalProviderStates) {
+    const entry = providerRegistry.find(({ id }) => id === original.id);
+    if (entry) entry.enabled = original.enabled;
+  }
+});
 
 const html = `
   <div data-private-srp-listing-item-id="screen">
@@ -22,6 +43,7 @@ const html = `
 
 describe("Finder vehicle intent", () => {
   it("rejects obvious accessories after the price cap", async () => {
+    enableAnibisForTests();
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(html));
 
     const response = await runFinderEngine({
@@ -36,10 +58,11 @@ describe("Finder vehicle intent", () => {
   });
 
   it("preserves accessories when vehicle intent is absent", async () => {
+    enableAnibisForTests();
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(html));
 
     const response = await runFinderEngine({
-      query: "Yamaha XMAX 300",
+      query: "Ricambi Yamaha XMAX 300",
       lang: "it",
       plan: "free",
     });

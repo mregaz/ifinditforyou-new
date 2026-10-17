@@ -3,8 +3,31 @@ import { runFinderEngine } from "../../../engine";
 import { mapAnibisListing } from "../mapper";
 import { parseAnibisHtml } from "../parser";
 import { validateAnibisListings } from "../validator";
+import { providerRegistry } from "../../index";
 
-afterEach(() => vi.restoreAllMocks());
+const originalProviderStates = providerRegistry.map(({ id, enabled }) => ({
+  id,
+  enabled,
+}));
+
+function enableAnibisForTests() {
+  for (const entry of providerRegistry) {
+    if (entry.id === "anibis") entry.enabled = true;
+    if (entry.id === "ebay") entry.enabled = false;
+  }
+}
+
+afterEach(() => {
+  vi.restoreAllMocks();
+
+  for (const entry of providerRegistry) {
+    const original = originalProviderStates.find(
+      (provider) => provider.id === entry.id
+    );
+
+    if (original) entry.enabled = original.enabled;
+  }
+});
 
 function card(id: string, title: string, price = "4 900.-", href = `/it/vi/${id}`): string {
   return `<div data-private-srp-listing-item-id="${id}">
@@ -55,7 +78,9 @@ describe("Anibis candidate pool", () => {
   });
 
   it("lets the existing price and accessory filters use later candidates", async () => {
-    const html = [
+  enableAnibisForTests();
+
+  const html = [
       ...Array.from({ length: 5 }, (_, index) =>
         card(`part-${index}`, `Pare-brise XMAX 300 part ${index}`, "50.-")
       ),

@@ -2,8 +2,31 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { runFinderEngine } from "./engine";
 import { filterByMinYear, extractVehicleYear } from "./year";
 import type { FinderResult } from "./types";
+import { providerRegistry } from "./providers";
 
-afterEach(() => vi.restoreAllMocks());
+const originalProviderStates = providerRegistry.map(({ id, enabled }) => ({
+  id,
+  enabled,
+}));
+
+function enableAnibisForTests() {
+  for (const entry of providerRegistry) {
+    if (entry.id === "anibis") entry.enabled = true;
+    if (entry.id === "ebay") entry.enabled = false;
+  }
+}
+
+afterEach(() => {
+  vi.restoreAllMocks();
+
+  for (const entry of providerRegistry) {
+    const original = originalProviderStates.find(
+      (provider) => provider.id === entry.id
+    );
+
+    if (original) entry.enabled = original.enabled;
+  }
+});
 
 describe("vehicle year extraction", () => {
   it.each([
@@ -62,7 +85,9 @@ describe("Finder year integration", () => {
   ].join("");
 
   it("filters established old years and keeps unknown listings", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(html));
+  enableAnibisForTests();
+
+  vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(html));
     const response = await runFinderEngine({
       query: "Cerco uno scooter Yamaha XMAX 300 usato in Svizzera, massimo CHF 5'000, dal 2020 in poi, meno di 20'000 km.",
       lang: "it", plan: "free",
@@ -74,7 +99,9 @@ describe("Finder year integration", () => {
   });
 
   it("keeps the 2018 listing for a query without minYear", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(html));
+  enableAnibisForTests();
+
+  vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(html));
     const response = await runFinderEngine({query: "Yamaha XMAX 300", lang: "it", plan: "free"});
     expect(response.results.map(({ id }) => id)).toContain("anibis-older");
   });

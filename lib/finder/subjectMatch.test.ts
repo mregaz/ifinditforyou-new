@@ -2,8 +2,31 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { runFinderEngine } from "./engine";
 import { classifyVehicleSubject, filterByStructuredSubject, titleMatchesSubject } from "./subjectMatch";
 import type { FinderResult } from "./types";
+import { providerRegistry } from "./providers";
 
-afterEach(() => vi.restoreAllMocks());
+const originalProviderStates = providerRegistry.map(({ id, enabled }) => ({
+  id,
+  enabled,
+}));
+
+function enableAnibisForTests() {
+  for (const entry of providerRegistry) {
+    if (entry.id === "anibis") entry.enabled = true;
+    if (entry.id === "ebay") entry.enabled = false;
+  }
+}
+
+afterEach(() => {
+  vi.restoreAllMocks();
+
+  for (const entry of providerRegistry) {
+    const original = originalProviderStates.find(
+      (provider) => provider.id === entry.id
+    );
+
+    if (original) entry.enabled = original.enabled;
+  }
+});
 
 const subject = "Yamaha XMAX 300";
 
@@ -82,21 +105,31 @@ const html = [
 
 describe("Finder subject filter", () => {
   it("runs after price and accessory filters and excludes the 2018 model by minYear", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(html));
+  enableAnibisForTests();
+
+  vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(html));
 
     const response = await runFinderEngine({
       query: "Cerco uno scooter Yamaha XMAX 300 usato in Svizzera, massimo CHF 5'000, dal 2020 in poi, meno di 20'000 km.",
       lang: "it", plan: "free",
     });
 
-    expect(response.results.map(({ id }) => id)).toEqual([
-      "anibis-xmax-2021", "anibis-xmax-abs",
-      "anibis-xmax-2020", "anibis-xmax",
-    ]);
+   expect(response.results.map(({ id }) => id)).toEqual([
+  "anibis-xmax-2021", "anibis-xmax-abs",
+  "anibis-nmax",
+  "anibis-xmax-2020", "anibis-xmax",
+]);
+
+expect(
+  response.results.find(({ id }) => id === "anibis-nmax")
+    ?.matchClassification
+).toBe("alternative");
   });
 
   it("preserves existing results for a general query without a subject", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(html));
+  enableAnibisForTests();
+
+  vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(html));
 
     const response = await runFinderEngine({ query: "annunci", lang: "it", plan: "free" });
 
