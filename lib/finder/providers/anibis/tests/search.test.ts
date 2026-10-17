@@ -41,6 +41,13 @@ describe("active Anibis search", () => {
 
     await runFinderEngine({ query, lang: "it", plan: "free" });
 
-    expect(fetchMock).toHaveBeenCalledExactlyOnceWith(expectedUrl);
+expect(fetchMock).toHaveBeenCalledExactlyOnceWith(
+  expectedUrl,
+  expect.objectContaining({
+    method: "GET",
+    cache: "no-store",
+    signal: expect.any(AbortSignal),
+  })
+);  
   });
 });

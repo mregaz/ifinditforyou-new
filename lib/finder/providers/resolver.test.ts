@@ -33,6 +33,26 @@ afterEach(() => {
 });
 
 describe("Phoenix provider resolver", () => {
+
+  it("selects Anibis and eBay together in real mode without Mock", () => {
+    process.env.FINDER_MODE = "real";
+
+    for (const entry of providerRegistry) {
+      if (entry.id === "anibis" || entry.id === "ebay") {
+        entry.enabled = true;
+      }
+    }
+
+    const providers = resolveProviders({
+      capability: "vehicles",
+    });
+
+    expect(providers.map((provider) => provider.name)).toEqual([
+      "anibis",
+      "ebay",
+    ]);
+  });
+
   it("uses Anibis but excludes disabled eBay in real mode", () => {
     process.env.FINDER_MODE = "real";
     useLegacyAnibisTestConfiguration();
