@@ -30,7 +30,7 @@ const isVespaSearch =
 const categoryId = isVespaSearch ? "9939" : undefined;
 
 // Un solo budget temporale per ricerca iniziale e fallback.
-const searchDeadline = AbortSignal.timeout(2500);
+const searchDeadline = AbortSignal.timeout(7000);
 
 let response = await fetchEbay(
   searchText,

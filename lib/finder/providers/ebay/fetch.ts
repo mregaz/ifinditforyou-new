@@ -8,7 +8,7 @@ const EBAY_SEARCH_URL =
 
 const DEFAULT_MARKETPLACE = "EBAY_CH";
 const SEARCH_LIMIT = 50;
-const REQUEST_TIMEOUT_MS = 2000;
+const REQUEST_TIMEOUT_MS = 5000;
 
 export async function fetchEbay(
   query: string,
@@ -28,7 +28,7 @@ export async function fetchEbay(
     throw new Error("Unsupported eBay marketplace configuration");
   }
 
-  const deadline = AbortSignal.timeout(2500);
+  const deadline = AbortSignal.timeout(7000);
 if (signal?.aborted) {
   throw signal.reason ?? new Error("eBay search aborted");
 }

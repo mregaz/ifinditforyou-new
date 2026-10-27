@@ -32,6 +32,6 @@ export const providerRegistry: RegisteredProvider[] = [
     countries: ["CH"],
     languages: ["it", "fr", "de", "en"],
     categories: ["general-marketplace", "vehicles"],
-    capabilities: ["general-marketplace", "vehicles"],
+    capabilities: ["general-marketplace", "vehicles", "electronics"],
   },
 ];

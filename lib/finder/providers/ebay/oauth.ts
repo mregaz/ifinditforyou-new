@@ -7,7 +7,7 @@ const EBAY_SCOPE =
   "https://api.ebay.com/oauth/api_scope";
 
 const TOKEN_EXPIRY_MARGIN_MS = 60_000;
-const REQUEST_TIMEOUT_MS = 2_000;
+const REQUEST_TIMEOUT_MS = 4_000;
 
 type EbayTokenResponse = {
   access_token: string;

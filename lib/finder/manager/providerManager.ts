@@ -32,7 +32,7 @@ export async function runProvidersDetailed({
 
     try {
   const results = await withRetry(
-    () => withTimeout(provider.search(query), 3000),
+    () => withTimeout(provider.search(query), 8000),
     {
       retries: 1,
       delayMs: 250,
